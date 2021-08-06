@@ -1,0 +1,73 @@
+#!/bin/sh
+
+die() {
+    echo -e "\033[31me\033[0m => $1"
+    exit 1
+}
+
+emmc=$(lsblk | grep -oE 'mmcblk[0-9]' | sort | uniq)
+dev_emmc="/dev/$emmc"
+
+image="$1"
+[ "$image" ] || die "please input firmware path!"
+[ -f $image ] || die "$image does not exist!"
+ls $image | grep -q ".img$" || die "invalid firmware $image!"
+
+kill "$(ps | grep dockerd | grep -v grep | awk '{print $1}')"
+
+loop=$(losetup -P -f --show $image)
+[ "$loop" ] || die "create loop device failed!"
+
+mnt_loop="/mnt/$(echo $loop | grep -oE 'loop[0-9]+')"
+
+# [ -d ${mnt_loop}p1 ] || mkdir -p ${mnt_loop}p1
+[ -d ${mnt_loop}p2 ] || mkdir -p ${mnt_loop}p2
+# [ $(ls ${mnt_loop}p1 | wc -l) = 0 ] && mount -t ext4 ${loop}p1 ${mnt_loop}p1
+[ $(ls ${mnt_loop}p2 | wc -l) = 0 ] && mount -t ext4 ${loop}p2 ${mnt_loop}p2
+
+sed -i 's/vfat/ext4/' ${mnt_loop}p2/etc/config/fstab
+
+echo && read -p "do you want to save configuration? [Y/n] " yn
+case $yn in
+n | N) yn='n' ;;
+*) yn='y' ;;
+esac
+
+[ "$yn" = "y" ] && {
+    backup="/opt/backup-OpenWrt-$(date "+%Y-%m-%d").tar.gz"
+    sysupgrade -b $backup
+    tar -xzf $backup -C ${mnt_loop}p2
+}
+
+cat >${mnt_loop}p2/etc/init.d/rmfiles <<-EOF
+#!/bin/sh /etc/rc.common
+
+START=99
+
+boot() {
+    rm -f $image
+    rm -f /etc/rc.d/S99rmfiles
+}
+EOF
+
+chmod +x ${mnt_loop}p2/etc/init.d/rmfiles
+(
+    cd ${mnt_loop}p2/etc/rc.d
+    ln -s ../init.d/rmfiles S99rmfiles
+)
+
+rm -f ${mnt_loop}p2/usr/bin/n1-*
+
+echo -e "
+----------------------------
+       \033[41m FBI WARNNING \033[0m
+  !!! do not power off !!!
+----------------------------
+"
+
+echo "upgrading..."
+pv -rpt ${loop} | dd of=${dev_emmc} conv=fsync 2>/dev/null
+echo ""
+
+echo "done, will reboot your device now!"
+echo 'b' >/proc/sysrq-trigger
