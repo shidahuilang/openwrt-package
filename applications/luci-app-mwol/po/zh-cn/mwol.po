@@ -1,0 +1,53 @@
+msgid "Mwol Plus is Running"
+msgstr "Mwol"
+
+msgid "Mwol Plus is Not Running"
+msgstr "Mwol"
+
+msgid "Mwol Sub Topic:"
+msgstr "Mwol:"
+
+msgid "Mwol Pub Topic:"
+msgstr "Mwol:"
+
+msgid "General Settings"
+msgstr ""
+
+msgid "Encryption Settings"
+msgstr ""
+
+msgid "SSL Settings"
+msgstr "SSL"
+
+msgid "Enable"
+msgstr ""
+
+msgid "MQTT Server"
+msgstr "MQTT"
+
+msgid "MQTT Port"
+msgstr "MQTT"
+
+msgid "Preset Mac"
+msgstr "MAC"
+
+msgid "Choose the host to wake up or enter a custom MAC address to use"
+msgstr "mac"
+
+msgid "MQTT Topic Id"
+msgstr "MQTTID"
+
+msgid "MQTT UserName"
+msgstr "MQTT"
+
+msgid "MQTT Password"
+msgstr "MQTT"
+
+msgid "Edit the ca file path."
+msgstr "CA"
+
+msgid "Edit the crt file path."
+msgstr "CRT"
+
+msgid "Edit the key file path."
+msgstr "KEY"

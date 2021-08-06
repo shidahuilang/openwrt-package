@@ -1,0 +1,157 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"PO-Revision-Date: 2020-03-29 21:21+0000\n"
+"Last-Translator: Cristian Ionescu <joker_op@yahoo.com>\n"
+"Language-Team: Romanian <https://hosted.weblate.org/projects/openwrt/"
+"luciapplicationssamba4/ro/>\n"
+"Language: ro\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
+"20)) ? 1 : 2;\n"
+"X-Generator: Weblate 4.0-dev\n"
+
+#: applications/luci-app-samba4/luasrc/model/cbi/samba4.lua:78
+msgid "Allow guests"
+msgstr "Permite oaspeți"
+
+#: applications/luci-app-samba4/luasrc/model/cbi/samba4.lua:15
+msgid "Allow system users to reach their home directories via network shares"
+msgstr ""
+"Permite utilizatorii de sistem sa acceseze directoarele lor peste "
+"partajarile de retea"
+
+#: applications/luci-app-samba4/luasrc/model/cbi/samba4.lua:75
+msgid "Allowed users"
+msgstr "Utilizatori permiși"
+
+#: applications/luci-app-samba4/luasrc/model/cbi/samba4.lua:106
+msgid "Apple Time-machine share"
+msgstr "Partajare pentru Apple Time-machine"
+
+#: applications/luci-app-samba4/luasrc/model/cbi/samba4.lua:63
+msgid "Browse-able"
+msgstr "Navigabil"
+
+#: applications/luci-app-samba4/luasrc/model/cbi/samba4.lua:93
+msgid "Create mask"
+msgstr "Creaza masca"
+
+#: applications/luci-app-samba4/luasrc/model/cbi/samba4.lua:12
+msgid "Description"
+msgstr "Descriere"
+
+#: applications/luci-app-samba4/luasrc/model/cbi/samba4.lua:98
+msgid "Directory mask"
+msgstr "Masca director"
+
+#: applications/luci-app-samba4/luasrc/model/cbi/samba4.lua:27
+msgid "Disable Active Directory Domain Controller"
+msgstr "Dezactivează Active Directory Domain Controller"
+
+#: applications/luci-app-samba4/luasrc/model/cbi/samba4.lua:24
+msgid "Disable Netbios"
+msgstr "Dezactivează Netbios"
+
+#: applications/luci-app-samba4/luasrc/model/cbi/samba4.lua:30
+msgid "Disable Winbind"
+msgstr "Dezactivează Winbind"
+
+#: applications/luci-app-samba4/luasrc/model/cbi/samba4.lua:9
+msgid "Edit Template"
+msgstr "Editare sablon"
+
+#: applications/luci-app-samba4/luasrc/model/cbi/samba4.lua:34
+msgid "Edit the template that is used for generating the samba configuration."
+msgstr "Editati sablonul utilizat pentru generarea configuratiei samba."
+
+#: applications/luci-app-samba4/luasrc/model/cbi/samba4.lua:19
+msgid "Enable macOS compatible shares"
+msgstr "Activează partajările compatibile cu macOS"
+
+#: applications/luci-app-samba4/luasrc/model/cbi/samba4.lua:20
+msgid ""
+"Enables Apple's AAPL extension globally and adds macOS compatibility options "
+"to all shares."
+msgstr ""
+"Activează extensia AAPL de la Apple la nivel global și adaugă opțiuni de "
+"compatibilitate macOS tuturor partajărilor."
+
+#: applications/luci-app-samba4/luasrc/model/cbi/samba4.lua:73
+msgid "Force Root"
+msgstr "Forțează ca Root"
+
+#: applications/luci-app-samba4/luasrc/model/cbi/samba4.lua:8
+msgid "General Settings"
+msgstr "Setări generale"
+
+#: applications/luci-app-samba4/luasrc/model/cbi/samba4.lua:83
+msgid "Guests only"
+msgstr "Doar oaspeți"
+
+#: applications/luci-app-samba4/luasrc/model/cbi/samba4.lua:11
+msgid "Hostname"
+msgstr "Numele de host"
+
+#: applications/luci-app-samba4/luasrc/model/cbi/samba4.lua:88
+msgid "Inherit owner"
+msgstr "Proprietar care moștenește"
+
+#: applications/luci-app-samba4/luasrc/model/cbi/samba4.lua:57
+msgid "Name"
+msgstr "Nume"
+
+#: applications/luci-app-samba4/luasrc/controller/samba4.lua:12
+#: applications/luci-app-samba4/luasrc/model/cbi/samba4.lua:3
+msgid "Network Shares"
+msgstr "Rețea, partajări"
+
+#: applications/luci-app-samba4/luasrc/model/cbi/samba4.lua:58
+msgid "Path"
+msgstr "Calea"
+
+#: applications/luci-app-samba4/luasrc/model/cbi/samba4.lua:52
+msgid ""
+"Please add directories to share. Each directory refers to a folder on a "
+"mounted device."
+msgstr ""
+"Vă rugăm să adăugați directoare pentru a partaja. Fiecare director se referă "
+"la un folder de pe un dispozitiv montat."
+
+#: applications/luci-app-samba4/luasrc/model/cbi/samba4.lua:68
+msgid "Read-only"
+msgstr "Doar citire"
+
+#: applications/luci-app-samba4/luasrc/model/cbi/samba4.lua:14
+msgid "Share home-directories"
+msgstr "Partajeaza directoarele proprii"
+
+#: applications/luci-app-samba4/luasrc/model/cbi/samba4.lua:51
+msgid "Shared Directories"
+msgstr "Directoare partajate"
+
+#: applications/luci-app-samba4/luasrc/model/cbi/samba4.lua:35
+msgid ""
+"This is the content of the file '/etc/samba/smb.conf.template' from which "
+"your samba configuration will be generated. Values enclosed by pipe symbols "
+"('|') should not be changed. They get their values from the 'General "
+"Settings' tab."
+msgstr ""
+"Acesta este conținutul fișierului '/etc/samba/smb.conf.template' din care va "
+"fi generată configurația samba. Valorile incluse intre simbolurile liniuță "
+"verticala ('|') nu trebuie modificate, ele își iau valorile direct din tab-"
+"ul de \"Setări generale\"."
+
+#: applications/luci-app-samba4/luasrc/model/cbi/samba4.lua:108
+msgid "Time-machine size in GB"
+msgstr "Time-machine marine în GB"
+
+#: applications/luci-app-samba4/luasrc/model/cbi/samba4.lua:103
+msgid "Vfs objects"
+msgstr "Vfs obiecte"
+
+#: applications/luci-app-samba4/luasrc/model/cbi/samba4.lua:13
+msgid "Workgroup"
+msgstr "Workgroup"
