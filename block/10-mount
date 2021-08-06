@@ -1,0 +1,39 @@
+#!/bin/sh
+# Copyright (C) 2009 OpenWrt.org  (C) 2010 OpenWrt.org.cn
+blkdev=`dirname $DEVPATH`
+if [ `basename $blkdev` != "block" ]; then
+    device=`basename $DEVPATH`
+    case "$ACTION" in
+        add)
+                mkdir -p /mnt/$device
+                # vfat & ntfs-3g check
+                if  [ `which fdisk` ]; then
+                        isntfs=`fdisk -l | grep $device | grep NTFS`
+                        isvfat=`fdisk -l | grep $device | grep FAT`
+                        isfuse=`lsmod | grep fuse`
+                        isntfs3g=`which ntfs-3g`
+                else
+                        isntfs=""
+                        isvfat=""
+                fi 
+# mount with ntfs-3g if possible, else with default mount
+                if [ "$isntfs" -a "$isfuse" -a "$isntfs3g" ]; then
+                        ntfs-3g -o nls=utf8 /dev/$device /mnt/$device
+                elif [ "$isvfat" ]; then
+                        mount -t vfat -o iocharset=utf8,rw,sync,umask=0000,dmask=0000,fmask=0000 /dev/$device /mnt/$device
+                else
+                        mount /dev/$device /mnt/$device
+                fi
+  if [ -f /dev/${device}/swapfile ]; then
+   mkswap /dev/${device}/swapfile
+   swapon /dev/${device}/swapfile
+  fi
+                ;;
+        remove)
+  if [ -f /dev/${device}/swapfile ]; then
+   swapoff /dev/${device}/swapfile
+  fi
+                umount /dev/$device
+                ;;
+    esac
+fi
