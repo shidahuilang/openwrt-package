@@ -89,7 +89,7 @@ tls:
   private_key_path: ""
 filters:
 - enabled: true
-  url: https://anti-ad.net/easylist.txt
+  url: https://cdn.jsdelivr.net/gh/privacy-protection-tools/anti-AD@master/anti-ad-easylist.txt
   name: 'CHN: anti-AD'
   id: 1625932095
 - enabled: true
@@ -100,6 +100,26 @@ filters:
   url: https://adaway.org/hosts.txt
   name: AdAway Default Blocklist
   id: 1625932097
+- enabled: true
+  url: http://sub.adtchrome.com/adt-chinalist-easylist.txt
+  name: adt-chinalist-easylist
+  id: 1628477050
+- enabled: true
+  url: https://easylist-downloads.adblockplus.org/easylistchina.txt
+  name: easylistchina
+  id: 1628477051
+- enabled: true
+  url: https://gitee.com/halflife/list/raw/master/ad.txt
+  name: halflife合并乘风
+  id: 1628477052
+- enabled: true
+  url: https://raw.githubusercontent.com/BlueSkyXN/AdGuardHomeRules/master/all.txt
+  name: 去广告集合
+  id: 1628477053
+- enabled: true
+  url: https://raw.githubusercontent.com/jerryn70/GoodbyeAds/master/Hosts/GoodbyeAds-Ultra.txt
+  name: GoodbyeAds集合
+  id: 1628477054
 whitelist_filters: []
 user_rules:
 - '@@||taobao.com^$important'
