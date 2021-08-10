@@ -110,36 +110,48 @@ download_kernel() {
     rm -f ${KERNEL_DOWNLOAD_PATH}/dtb-amlogic-*.tar.gz && sync
     rm -f ${KERNEL_DOWNLOAD_PATH}/modules-*.tar.gz && sync
 
-    # Download boot file
-    SERVER_KERNEL_BOOT="$(curl -s "${SERVER_KERNEL_URL}/${DOWNLOAD_VERSION}" | grep "download_url" | grep -o "https.*/boot-.*.tar.gz" | head -n 1)"
+    # Download boot file from the kernel directory under the path: ${SERVER_KERNEL_URL}/${DOWNLOAD_VERSION}/
+    SERVER_KERNEL_BOOT="$(curl -s "${SERVER_KERNEL_URL}/${DOWNLOAD_VERSION}" | grep "download_url" | grep -o "https.*/boot-${DOWNLOAD_VERSION}.*.tar.gz" | head -n 1)"
+    # Download boot file from current path: ${SERVER_KERNEL_URL}/
+    if [ -z "${SERVER_KERNEL_BOOT}" ]; then
+        SERVER_KERNEL_BOOT="$(curl -s "${SERVER_KERNEL_URL}" | grep "download_url" | grep -o "https.*/boot-${DOWNLOAD_VERSION}.*.tar.gz" | head -n 1)"
+    fi
     SERVER_KERNEL_BOOT_NAME="${SERVER_KERNEL_BOOT##*/}"
     SERVER_KERNEL_BOOT_NAME="${SERVER_KERNEL_BOOT_NAME//%2B/+}"
     wget -c "${SERVER_KERNEL_BOOT}" -O "${KERNEL_DOWNLOAD_PATH}/${SERVER_KERNEL_BOOT_NAME}" >/dev/null 2>&1 && sync
-    if [[ "$?" -eq "0" ]]; then
+    if [[ "$?" -eq "0" && -s "${KERNEL_DOWNLOAD_PATH}/${SERVER_KERNEL_BOOT_NAME}" ]]; then
         tolog "03.03 The boot file complete."
     else
         tolog "03.04 The boot file failed to download." "1"
     fi
     sleep 3
 
-    # Download dtb file
-    SERVER_KERNEL_DTB="$(curl -s "${SERVER_KERNEL_URL}/${DOWNLOAD_VERSION}" | grep "download_url" | grep -o "https.*/dtb-amlogic-.*.tar.gz" | head -n 1)"
+    # Download dtb file from the kernel directory under the path: ${SERVER_KERNEL_URL}/${DOWNLOAD_VERSION}/
+    SERVER_KERNEL_DTB="$(curl -s "${SERVER_KERNEL_URL}/${DOWNLOAD_VERSION}" | grep "download_url" | grep -o "https.*/dtb-amlogic-${DOWNLOAD_VERSION}.*.tar.gz" | head -n 1)"
+    # Download dtb file from current path: ${SERVER_KERNEL_URL}/
+    if [ -z "${SERVER_KERNEL_DTB}" ]; then
+        SERVER_KERNEL_DTB="$(curl -s "${SERVER_KERNEL_URL}" | grep "download_url" | grep -o "https.*/dtb-amlogic-${DOWNLOAD_VERSION}.*.tar.gz" | head -n 1)"
+    fi
     SERVER_KERNEL_DTB_NAME="${SERVER_KERNEL_DTB##*/}"
     SERVER_KERNEL_DTB_NAME="${SERVER_KERNEL_DTB_NAME//%2B/+}"
     wget -c "${SERVER_KERNEL_DTB}" -O "${KERNEL_DOWNLOAD_PATH}/${SERVER_KERNEL_DTB_NAME}" >/dev/null 2>&1 && sync
-    if [[ "$?" -eq "0" ]]; then
+    if [[ "$?" -eq "0" && -s "${KERNEL_DOWNLOAD_PATH}/${SERVER_KERNEL_DTB_NAME}" ]]; then
         tolog "03.05 The dtb file complete."
     else
         tolog "03.06 The dtb file failed to download." "1"
     fi
     sleep 3
 
-    # Download modules file
-    SERVER_KERNEL_MODULES="$(curl -s "${SERVER_KERNEL_URL}/${DOWNLOAD_VERSION}" | grep "download_url" | grep -o "https.*/modules-.*.tar.gz" | head -n 1)"
+    # Download modules file from the kernel directory under the path: ${SERVER_KERNEL_URL}/${DOWNLOAD_VERSION}/
+    SERVER_KERNEL_MODULES="$(curl -s "${SERVER_KERNEL_URL}/${DOWNLOAD_VERSION}" | grep "download_url" | grep -o "https.*/modules-${DOWNLOAD_VERSION}.*.tar.gz" | head -n 1)"
+    # Download modules file from current path: ${SERVER_KERNEL_URL}/
+    if [ -z "${SERVER_KERNEL_MODULES}" ]; then
+        SERVER_KERNEL_MODULES="$(curl -s "${SERVER_KERNEL_URL}" | grep "download_url" | grep -o "https.*/modules-${DOWNLOAD_VERSION}.*.tar.gz" | head -n 1)"
+    fi
     SERVER_KERNEL_MODULES_NAME="${SERVER_KERNEL_MODULES##*/}"
     SERVER_KERNEL_MODULES_NAME="${SERVER_KERNEL_MODULES_NAME//%2B/+}"
     wget -c "${SERVER_KERNEL_MODULES}" -O "${KERNEL_DOWNLOAD_PATH}/${SERVER_KERNEL_MODULES_NAME}" >/dev/null 2>&1 && sync
-    if [[ "$?" -eq "0" ]]; then
+    if [[ "$?" -eq "0" && -s "${KERNEL_DOWNLOAD_PATH}/${SERVER_KERNEL_MODULES_NAME}" ]]; then
         tolog "03.07 The modules file complete."
     else
         tolog "03.08 The modules file failed to download." "1"
