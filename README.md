@@ -1,2 +1,1 @@
-# openwrt-package
-amlogic-kernel 可用核心表
+# amlogic-kernel 可用核心表
