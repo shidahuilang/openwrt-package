@@ -1,0 +1,38 @@
+<style>
+.NewsTdHeight{ line-height:20px; }
+</style>
+<fieldset class="cbi-section">
+	<table width="100%" class="NewsTdHeight">
+		<tr><td colspan="2" width="100%" align="center"><img id="logo" src="https://hdmiforum.org/wp-content/uploads/2017/08/logo_Amlogic.jpg" width="200" /></td></tr>
+		<tr><td width="25%" align="right"><%:Supported functions:%></td><td  width="75%" align="left" id="_clash">
+			<%:Provide services such as install to EMMC, Update Firmware or Kernel, Backup and Recovery Config for Amlogic STB.%>
+		</td></tr>
+		<tr><td width="25%" align="right"><%:Supported Amlogic STB:%></td><td  width="75%" align="left" id="_clash">
+			<%:S922x --- [ Belink, Belink-Pro, Ugoos-AM6-Plus ]%><br>
+			<%:S905x3 -- [ X96-Max+, HK1-Box, H96-Max-X3, Ugoos-X3, X96-Air, A95XF3-Air ]%><br>
+			<%:S905x2 -- [ X96Max-4G, X96Max-2G ]%><br>
+			<%:S905x --- [ HG680P, B860H ]%><br>
+			<%:S912 ---- [ H96-Pro-Plus, Octopus-Planet ]%><br>
+			<%:S905d --- [ Phicomm-N1 ]%><br>
+			<%:Other --- [ Optional DTB ]%>
+		</td></tr>
+	</table>
+</fieldset>
+<script type="text/javascript">//<![CDATA[
+
+	function winOpen(url)
+	{
+		var winOpen = window.open(url);
+		if( winOpen == null || typeof(winOpen) == 'undefined' ){ window.location.href=url; }
+	}
+	
+	function homepage(website)
+	{
+		var url = "";
+		if( website == 'app' ) { url = 'https://github.com/ophub/luci-app-amlogic'; }
+		if( website == 'compile' ) { url = 'https://github.com/ophub/amlogic-s9xxx-openwrt'; }
+		if( website == 'kernel' ) { url = 'https://github.com/unifreq/openwrt_packit'; }
+		if ( url != "" ) { winOpen(url); }
+	}
+
+//]]></script>
