@@ -1,0 +1,12 @@
+--- a/package.json
++++ b/package.json
+@@ -19,9 +19,6 @@
+     "typescript": "3.7.5",
+     "typescript-standard": "0.3.36"
+   },
+-  "dependencies": {
+-    "@node-wot/core": "0.7.6"
+-  },
+   "scripts": {
+     "build": "tsc"
+   }

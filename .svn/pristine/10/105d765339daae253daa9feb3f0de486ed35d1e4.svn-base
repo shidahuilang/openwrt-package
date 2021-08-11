@@ -1,0 +1,11 @@
+--- a/binding.gyp
++++ b/binding.gyp
+@@ -120,7 +120,7 @@
+ 					"<!@(find <(OZW_INC) -name OZWException.h -exec echo -n \"-fexceptions\" \\;)"
+ 				],
+ 				"cflags_cc": [
+-					"-std=c++11"
++					"-std=c++14"
+ 				],
+ 				"cflags_cc!": [
+ 					"<!@(find <(OZW_INC) -name OZWException.h -exec echo -n \"-fno-exceptions\" \\;)"

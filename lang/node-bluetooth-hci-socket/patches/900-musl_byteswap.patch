@@ -1,0 +1,12 @@
+--- a/src/BluetoothHciSocket.cpp
++++ b/src/BluetoothHciSocket.cpp
+@@ -7,6 +7,9 @@
+ #include <node_buffer.h>
+ #include <nan.h>
+
++/* __MUSL__ */
++#include <byteswap.h>
++
+ #include "BluetoothHciSocket.h"
+ 
+ #define BTPROTO_L2CAP 0

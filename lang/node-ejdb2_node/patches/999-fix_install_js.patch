@@ -1,0 +1,20 @@
+--- a/install.js
++++ b/install.js
+@@ -54,7 +54,7 @@
+   console.log(out);
+ 
+   console.log('Building EJDB2 native binding...');
+-  const wdir = await promisify(fs.mkdtemp)(path.join(os.tmpdir(), 'ejdb2-node'));
++  const wdir = await promisify(fs.mkdtemp)(path.resolve(path.join('.', 'ejdb2-node')));
+   console.log(`Git revision: ${REVISION}`);
+   console.log(`Build temp dir: ${wdir}`);
+ 
+@@ -73,7 +73,7 @@
+     'cmake',
+     ['..', '-DCMAKE_BUILD_TYPE=Release', '-DBUILD_NODEJS_BINDING=ON', `-DNODE_BIN_ROOT=${__dirname}`],
+     buildDir);
+-  await utils.runProcess('make', [], buildDir);
++  await utils.runProcess('make', ['ejdb2_node'], buildDir);
+   await rimraf(wdir);
+ }
+ 

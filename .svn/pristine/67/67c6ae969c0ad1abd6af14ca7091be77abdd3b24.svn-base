@@ -1,0 +1,12 @@
+--- a/package.json
++++ b/package.json
+@@ -39,9 +39,5 @@
+     "mocha":      "~1.12.1",
+     "sinon":      "~1.7.3",
+     "eslint":     "0.22.1"
+-  },
+-
+-  "dependencies": {
+-    "cylon": "^1.3.0"
+   }
+ }

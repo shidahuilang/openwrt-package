@@ -1,0 +1,65 @@
+diff -urN a/package.json b/package.json
+--- a/package.json	2017-12-12 15:32:45.000000000 +0900
++++ b/package.json	2020-08-13 08:54:16.971441952 +0900
+@@ -11,7 +11,7 @@
+   "licence": "MIT",
+   "dependencies": {
+     "bindings": "~1.2.1",
+-    "nan": "^2.0.0"
++    "nan": "^2.14.0"
+   },
+   "scripts": {
+     "test": "node test.js"
+diff -urN a/ubus.cc b/ubus.cc
+--- a/ubus.cc	2017-12-12 14:19:42.000000000 +0900
++++ b/ubus.cc	2020-08-13 08:54:16.971441952 +0900
+@@ -33,14 +33,15 @@
+ 	    argv[0] = Nan::New(type).ToLocalChecked();
+ 	    argv[1] = Nan::New(str).ToLocalChecked();
+ 	    free(str);
+-	    Nan::MakeCallback(ubus->handle(), callback, 2, argv);
++	    Nan::AsyncResource *asyncResource = new Nan::AsyncResource("callback");
++	    asyncResource->runInAsyncScope(ubus->handle(), callback, 2, argv);
+ 	}
+ 
+ 	UBus::UBus() : ctx_(0), poll_(0) {
+     }
+ 
+     void
+-    UBus::Initialize(Handle<Object> target) {
++    UBus::Initialize(Local<Object> target) {
+         Local<FunctionTemplate> t = Nan::New<FunctionTemplate>(New);
+ 
+         Local<String> symbol = Nan::New("UBus").ToLocalChecked();
+@@ -66,7 +67,7 @@
+ 		}
+ 
+ 		//return Nan::ThrowSyntaxError("Usage: Connect(type) passed");
+-		String::Utf8Value type(info[0]->ToString());
++		Nan::Utf8String type(Nan::To<v8::String>(info[0]).ToLocalChecked());
+ 		if (!ubus->Connect(*type) )
+     		return Nan::ThrowSyntaxError("Connect to UBUS failed");
+     }
+@@ -79,8 +80,8 @@
+ 			return Nan::ThrowSyntaxError("Usage: Send(type, json_string)");
+ 		}
+ 
+-		String::Utf8Value type(info[0]->ToString());
+-		String::Utf8Value json_string(info[1]->ToString());
++		Nan::Utf8String type(Nan::To<v8::String>(info[0]).ToLocalChecked());
++		Nan::Utf8String json_string(Nan::To<v8::String>(info[1]).ToLocalChecked());
+ 
+ 		if (!ubus->Send(*type, *json_string))
+     		return Nan::ThrowSyntaxError("Connect to UBUS failed");
+diff -urN a/ubus.hpp b/ubus.hpp
+--- a/ubus.hpp	2017-12-12 14:15:00.000000000 +0900
++++ b/ubus.hpp	2020-08-13 08:54:16.971441952 +0900
+@@ -22,7 +22,7 @@
+ class UBus : public Nan::ObjectWrap {
+ 	public:
+ 		UBus();
+-		static void Initialize(v8::Handle<v8::Object> target);
++		static void Initialize(v8::Local<v8::Object> target);
+ 	private:
+ 		struct ubus_context *ctx_;
+ 		struct ubus_event_handler_extended listener_;

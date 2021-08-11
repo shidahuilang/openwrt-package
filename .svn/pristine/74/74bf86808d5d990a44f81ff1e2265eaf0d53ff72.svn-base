@@ -1,0 +1,17 @@
+diff --git a/tests/test_arduino.coffee b/tests/test_arduino.coffee
+index 3009336..776c2a4 100644
+--- a/tests/test_arduino.coffee
++++ b/tests/test_arduino.coffee
+@@ -16,10 +16,9 @@ describe 'class ArduinoFirmata', ->
+ 
+   describe 'method list', ->
+ 
+-    it 'should return list of serialports', (done) ->
++    it 'should return list of serialports', ->
+       ArduinoFirmata.list (err, devices) ->
+-        assert.equal devices instanceof Array, true
+-        done()
++        assert.equal (devices instanceof Array), true
+ 
+ 
+ describe 'instance of ArduinoFirmata', ->

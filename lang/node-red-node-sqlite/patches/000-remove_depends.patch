@@ -1,0 +1,12 @@
+--- a/package.json
++++ b/package.json
+@@ -2,9 +2,6 @@
+     "name": "node-red-node-sqlite",
+     "version": "0.6.0",
+     "description": "A sqlite node for Node-RED",
+-    "dependencies": {
+-        "sqlite3": "~4.2.0"
+-    },
+     "repository": {
+         "type": "git",
+         "url": "https://github.com/node-red/node-red-nodes/tree/master/storage/sqlite"

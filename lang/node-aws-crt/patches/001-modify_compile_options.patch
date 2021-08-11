@@ -1,0 +1,68 @@
+--- a/crt/s2n/CMakeLists.txt
++++ b/crt/s2n/CMakeLists.txt
+@@ -193,7 +193,7 @@ set_target_properties(${PROJECT_NAME} PR
+ 
+ set(CMAKE_C_FLAGS_DEBUGOPT "")
+ 
+-target_compile_options(${PROJECT_NAME} PRIVATE -pedantic -std=gnu99 -Wall -Werror -Wimplicit -Wunused -Wcomment -Wchar-subscripts
++target_compile_options(${PROJECT_NAME} PRIVATE -pedantic -std=gnu99 -Wall -Wimplicit -Wunused -Wcomment -Wchar-subscripts
+         -Wuninitialized -Wshadow -Wcast-qual -Wcast-align -Wwrite-strings -Wno-deprecated-declarations -Wno-unknown-pragmas -Wformat-security
+         -Wno-missing-braces -fvisibility=hidden -DS2N_EXPORTS)
+ 
+@@ -216,9 +216,6 @@ endif()
+ target_compile_options(${PROJECT_NAME} PUBLIC -fPIC)
+ 
+ target_compile_definitions(${PROJECT_NAME} PRIVATE -D_POSIX_C_SOURCE=200809L)
+-if(CMAKE_BUILD_TYPE MATCHES Release)
+-    target_compile_definitions(${PROJECT_NAME} PRIVATE -D_FORTIFY_SOURCE=2)
+-endif()
+ 
+ if(NO_STACK_PROTECTOR)
+     target_compile_options(${PROJECT_NAME} PRIVATE -Wstack-protector -fstack-protector-all)
+--- a/crt/s2n/s2n.mk
++++ b/crt/s2n/s2n.mk
+@@ -42,11 +42,11 @@ else
+ 	DEFAULT_CFLAGS = -std=c99 -Wcast-qual
+ endif
+ 
+-DEFAULT_CFLAGS += -pedantic -Wall -Werror -Wimplicit -Wunused -Wcomment -Wchar-subscripts -Wuninitialized \
++DEFAULT_CFLAGS += -pedantic -Wall -Wimplicit -Wunused -Wcomment -Wchar-subscripts -Wuninitialized \
+                  -Wshadow  -Wcast-align -Wwrite-strings -fPIC -Wno-missing-braces\
+                  -D_POSIX_C_SOURCE=200809L -O2 -I$(LIBCRYPTO_ROOT)/include/ \
+                  -I$(S2N_ROOT)/api/ -I$(S2N_ROOT) -Wno-deprecated-declarations -Wno-unknown-pragmas -Wformat-security \
+-                 -D_FORTIFY_SOURCE=2 -fgnu89-inline -fvisibility=hidden -DS2N_EXPORTS
++                 -fgnu89-inline -fvisibility=hidden -DS2N_EXPORTS
+ 
+ COVERAGE_CFLAGS = -fprofile-arcs -ftest-coverage
+ COVERAGE_LDFLAGS = --coverage
+--- a/scripts/build.js
++++ b/scripts/build.js
+@@ -11,6 +11,8 @@ let options = {
+     CMAKE_JS_PLATFORM: os.platform,
+     CMAKE_JS_ARCH: os.arch,
+     BUILD_TESTING: 'OFF',
++    BUILD_SHARED_LIBS: 'ON',
++    CMAKE_CROSSCOMPILING: 'TRUE',
+ }
+ 
+ // Convert any -D arguments to this script to cmake -D arguments
+--- ./crt/aws-c-common/cmake/AwsCFlags.cmake
++++ ./crt/aws-c-common/cmake/AwsCFlags.cmake
+@@ -53,7 +53,7 @@
+         list(APPEND AWS_C_FLAGS "${_FLAGS}")
+ 
+     else()
+-        list(APPEND AWS_C_FLAGS -Wall -Werror -Wstrict-prototypes -fno-omit-frame-pointer)
++        list(APPEND AWS_C_FLAGS -Wall -Wstrict-prototypes -fno-omit-frame-pointer)
+ 
+         if(NOT SET_PROPERTIES_NO_WEXTRA)
+             list(APPEND AWS_C_FLAGS -Wextra)
+@@ -101,7 +101,7 @@
+             # some platforms implement htonl family of functions via GNU statement expressions (https://gcc.gnu.org/onlinedocs/gcc/Statement-Exprs.html)
+             # which generates -Wgnu-statement-expression warning.
+             set(old_flags "${CMAKE_REQUIRED_FLAGS}")
+-            set(CMAKE_REQUIRED_FLAGS "-Wgnu -Werror")
++            set(CMAKE_REQUIRED_FLAGS "-Wgnu")
+             check_c_source_compiles("
+             #include <netinet/in.h>
+ 

@@ -1,0 +1,12 @@
+diff -urN a/dist/bin/hb-service.js b/dist/bin/hb-service.js
+--- a/dist/bin/hb-service.js    1985-10-26 17:15:00.000000000 +0900
++++ b/dist/bin/hb-service.js    2020-10-24 10:04:22.275531618 +0900
+@@ -16,7 +16,7 @@
+ const axios_1 = require("axios");
+ const tail_1 = require("tail");
+ const win32_1 = require("./platforms/win32");
+-const linux_1 = require("./platforms/linux");
++const linux_1 = require("./platforms/openwrt");
+ const darwin_1 = require("./platforms/darwin");
+ class HomebridgeServiceHelper {
+     constructor() {

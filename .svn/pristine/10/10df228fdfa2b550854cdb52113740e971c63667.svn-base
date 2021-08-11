@@ -1,0 +1,15 @@
+--- a/package.json
++++ b/package.json
+@@ -27,12 +27,6 @@
+     "ts-node": "^8.6.2"
+   },
+   "dependencies": {
+-    "@node-wot/core": "0.7.6",
+-    "@node-wot/binding-coap": "0.7.6",
+-    "@node-wot/binding-file": "0.7.6",
+-    "@node-wot/binding-http": "0.7.6",
+-    "@node-wot/binding-websockets": "0.7.6",
+-    "@node-wot/binding-mqtt": "0.7.6",
+     "dotenv": "^8.2.0"
+   },
+   "scripts": {

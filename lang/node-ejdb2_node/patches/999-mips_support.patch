@@ -1,0 +1,14 @@
+--- a/package.json
++++ b/package.json
+@@ -19,6 +19,11 @@
+   "cpu": [
+     "x64",
+     "x32",
++    "ia32",
++    "mips",
++    "mipsel",
++    "mips64",
++    "mips64el",
+     "arm",
+     "arm64"
+   ],

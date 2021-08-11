@@ -1,0 +1,10 @@
+--- a/package.json
++++ b/package.json
+@@ -26,7 +26,6 @@
+   },
+   "dependencies": {
+     "wot-typescript-definitions": "0.7.3",
+-    "@node-wot/core": "0.7.6",
+     "rxjs": "5.5.11",
+     "coap": "0.24.0",
+     "node-coap-client": "1.0.8",

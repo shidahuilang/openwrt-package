@@ -1,0 +1,12 @@
+--- a/package.json
++++ b/package.json
+@@ -16,9 +16,6 @@
+     "url": "https://github.com/jakwuh/deasync-promise/issues"
+   },
+   "homepage": "https://github.com/jakwuh/deasync-promise#readme",
+-  "dependencies": {
+-    "deasync": "^0.1.7"
+-  },
+   "publishConfig": {
+     "registry": "https://registry.npmjs.org"
+   }

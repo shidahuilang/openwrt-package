@@ -1,0 +1,13 @@
+--- a/package.json
++++ b/package.json
+@@ -26,10 +26,6 @@
+     "typescript-standard": "0.3.36"
+   },
+   "dependencies": {
+-    "@node-wot/td-tools": "0.7.6",
+-    "@node-wot/core": "0.7.6",
+-    "@node-wot/binding-http": "0.7.6",
+-    "ws": "7.2.1",
+     "slugify": "^1.4.5"
+   },
+   "scripts": {

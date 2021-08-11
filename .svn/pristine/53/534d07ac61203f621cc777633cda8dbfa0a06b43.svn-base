@@ -1,0 +1,12 @@
+--- ./package.json.orig	2019-02-06 14:39:27.207913500 +0900
++++ ./package.json	2019-02-06 14:39:39.083861720 +0900
+@@ -11,8 +11,7 @@
+   },
+   "main": "./lib/firmata",
+   "dependencies": {
+-    "firmata-io": "^2.3.0",
+-    "serialport": "^8.0.5"
++    "firmata-io": "^2.3.0"
+   },
+   "scripts": {
+     "test": "grunt",

@@ -1,0 +1,20 @@
+--- a/deps/npm/lib/utils/config/definitions.js
++++ b/deps/npm/lib/utils/config/definitions.js
+@@ -1104,7 +1104,7 @@ define('local-address', {
+ })
+ 
+ define('loglevel', {
+-  default: 'notice',
++  default: 'info',
+   type: [
+     'silent',
+     'error',
+@@ -1837,7 +1837,7 @@ define('strict-peer-deps', {
+ })
+ 
+ define('strict-ssl', {
+-  default: true,
++  default: false,
+   type: Boolean,
+   description: `
+     Whether or not to do SSL key validation when making requests to the

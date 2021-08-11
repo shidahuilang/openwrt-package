@@ -1,0 +1,55 @@
+--- a/binding.gyp
++++ b/binding.gyp
+@@ -32,52 +32,6 @@
+             ],
+             'include_dirs': [
+               '<(openssl_root)/include',
+-            ],
+-          },
+-
+-          # Otherwise, if not Windows, link against the exposed OpenSSL
+-          # in Node.
+-          {
+-            'conditions': [
+-              [
+-                'target_arch=="ia32"', {
+-                  'variables': {
+-                    'openssl_config_path': '<(nodedir)/deps/openssl/config/piii'
+-                  }
+-                }
+-              ],
+-              [
+-                'target_arch=="x64"', {
+-                  'variables': {
+-                    'openssl_config_path': '<(nodedir)/deps/openssl/config/k8'
+-                  },
+-                }
+-              ],
+-              [
+-                'target_arch=="arm"', {
+-                  'variables': {
+-                    'openssl_config_path': '<(nodedir)/deps/openssl/config/arm'
+-                  }
+-                }
+-              ],
+-              [
+-                'target_arch=="arm64"', {
+-                  'variables': {
+-                    'openssl_config_path': '<(nodedir)/deps/openssl/config/aarch64'
+-                  }
+-                },
+-              ],
+-              [
+-                'target_arch=="ppc64"', {
+-                  'variables': {
+-                    'openssl_config_path': '<(nodedir)/deps/openssl/config/powerpc64'
+-                  }
+-                },
+-              ]
+-            ],
+-            'include_dirs': [
+-              "<(nodedir)/deps/openssl/openssl/include",
+-              "<(openssl_config_path)"
+             ]
+           }
+         ]

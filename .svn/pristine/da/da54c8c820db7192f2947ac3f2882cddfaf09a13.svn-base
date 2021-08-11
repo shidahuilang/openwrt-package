@@ -1,0 +1,23 @@
+From 306fd32b713b76106cc5429f600681ef6147b14e Mon Sep 17 00:00:00 2001
+From: Michael Graeb <graebm@amazon.com>
+Date: Sun, 21 Feb 2021 22:37:54 -0800
+Subject: [PATCH] fix shared libs
+
+`aws_thread_set_managed_join_timeout_ns()` and `aws_thread_join_all_managed()` are declared in `thread.h` and implemented in `thread_shared.c`. But since `thread_shared.c` did not include `thread.h`, it was not seen as the implementation by the linker.
+---
+ include/aws/common/private/thread_shared.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/aws/common/private/thread_shared.h b/include/aws/common/private/thread_shared.h
+index 70bd87711..ca263e56c 100644
+--- a/crt/aws-c-common/include/aws/common/private/thread_shared.h
++++ b/crt/aws-c-common/include/aws/common/private/thread_shared.h
+@@ -5,7 +5,7 @@
+  * SPDX-License-Identifier: Apache-2.0.
+  */
+ 
+-#include <aws/common/common.h>
++#include <aws/common/thread.h>
+ 
+ struct aws_linked_list;
+ struct aws_linked_list_node;

@@ -1,0 +1,23 @@
+From 3fca5c629ce0c4d66f50f7152685f3fe73941cb4 Mon Sep 17 00:00:00 2001
+From: Jonathan Ringer <jonringer@users.noreply.github.com>
+Date: Thu, 26 Nov 2020 10:48:16 -0800
+Subject: [PATCH] Don't re-export libs, fix build with cmake 3.19
+
+Attempting to build with cmake 3.19 will result in this error:
+```
+CMake Error: install(EXPORT "aws-c-common-targets" ...) includes target "aws-c-common" more than once in the export set.
+```
+---
+ cmake/AwsSharedLibSetup.cmake | 1 -
+ 1 file changed, 1 deletion(-)
+
+--- a/crt/aws-c-common/cmake/AwsSharedLibSetup.cmake
++++ b/crt/aws-c-common/cmake/AwsSharedLibSetup.cmake
+@@ -32,7 +32,6 @@ function(aws_prepare_shared_lib_exports
+                 DESTINATION ${RUNTIME_DIRECTORY}
+                 COMPONENT Runtime)
+         install(TARGETS ${target}
+-                EXPORT ${target}-targets
+                 LIBRARY
+                 DESTINATION ${LIBRARY_DIRECTORY}
+                 NAMELINK_ONLY

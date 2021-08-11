@@ -1,0 +1,12 @@
+--- a/package.json
++++ b/package.json
+@@ -2,9 +2,6 @@
+     "name"          : "node-red-node-arduino",
+     "version"       : "0.3.1",
+     "description"   : "A Node-RED node to talk to an Arduino running firmata",
+-    "dependencies"  : {
+-        "firmata"   : "^2.0.0"
+-    },
+     "repository" : {
+         "type":"git",
+         "url":"https://github.com/node-red/node-red-nodes/tree/master/hardware/Arduino"

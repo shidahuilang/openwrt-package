@@ -1,0 +1,19 @@
+--- a/meson.build
++++ b/meson.build
+@@ -72,16 +72,4 @@ install_data(bins, install_dir: bindir)
+ install_data(units, install_dir: systemunitdir)
+ install_data(licenses, install_dir: licensedir)
+ 
+-if a2x.found()
+-  foreach m : mans
+-    custom_target(m.split('/')[-1], input: m + '.adoc', output: m.split('/')[-1],
+-      command: [a2x, '-f', 'manpage', '-D', meson.current_build_dir(), '@INPUT@'],
+-      install_dir: join_paths(get_option('mandir'), 'man' + m.split('.')[-1]),
+-      install: true
+-    )
+-  endforeach
+-else
+-  warning('Will not build man pages due to missing a2x (asciidoc) dependency!')
+-endif
+-
+ # vim:set ts=2 sw=2 et:

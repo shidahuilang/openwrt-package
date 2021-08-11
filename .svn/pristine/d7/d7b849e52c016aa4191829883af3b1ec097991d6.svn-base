@@ -1,0 +1,12 @@
+--- a/package.json
++++ b/package.json
+@@ -30,9 +30,6 @@
+     "typescript-standard": "^0.3.36"
+   },
+   "dependencies": {
+-    "@node-wot/core": "0.7.6",
+-    "@node-wot/td-tools": "0.7.6",
+-    "modbus-serial": "^7.8.1",
+     "wot-typescript-definitions": "0.7.3"
+   },
+   "scripts": {

@@ -1,0 +1,11 @@
+--- a/install.js
++++ b/install.js
+@@ -71,7 +71,7 @@
+ 
+   await utils.runProcess(
+     'cmake',
+-    ['..', '-DCMAKE_BUILD_TYPE=Release', '-DBUILD_NODEJS_BINDING=ON', `-DNODE_BIN_ROOT=${__dirname}`],
++    ['..', '-DCMAKE_BUILD_TYPE=RelWithDebInfo', '-DBUILD_NODEJS_BINDING=ON', `-DNODE_BIN_ROOT=${__dirname}`],
+     buildDir);
+   await utils.runProcess('make', ['ejdb2_node'], buildDir);
+   await rimraf(wdir);

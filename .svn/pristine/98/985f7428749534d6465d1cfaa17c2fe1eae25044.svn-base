@@ -1,0 +1,90 @@
+log:
+  level: error
+  file: ''
+
+plugin:
+
+  ################# 服务插件 ################
+
+  - tag: main_server      # 启动服务器
+    type: server
+    args:
+      entry:
+        - _default_cache  # 缓存
+        - main_sequence
+      server:
+        - protocol: udp
+          addr: 127.0.0.1:6052
+        - protocol: tcp
+          addr: 127.0.0.1:6052
+        - protocol: udp
+          addr: '[::1]:6052'
+        - protocol: tcp
+          addr: '[::1]:6052'
+
+  ################# 可执行插件 ################
+
+  - tag: main_sequence
+    type: sequence
+    args:
+      exec:
+        - if:
+            - query_is_local_domain   # 已知的本地域名
+            - '!_query_is_common'     # 和不常见的请求类型
+          exec:
+            - forward_local           # 用本地服务器
+            - _end
+
+        - if:
+            - query_is_non_local_domain  # 已知的非本地域名
+          exec:
+            - forward_remote             # 用远程服务器
+            - _end
+
+        # 剩下的未知域名用 IP 分流。以下是"顺序 IP 分流"的逻辑。很稳定，不易出错。
+        # <高级> 如果想用"并发 IP 分流"逻辑，从下文的 <并发 IP 分流示例> 里选择一个方案，
+        # 然后将下面几行替换掉。
+        - forward_local               # 先请求转发至本地服务器
+        - if:
+            - response_has_local_ip   # 如果(本地)应答包含本地 IP
+          exec:
+            - _end                    # 就直接采用结果
+        - forward_remote              # 否则去请求远程服务器的结果
+
+  - tag: forward_local                # 转发至本地服务器的插件
+    type: forward
+    args:
+      upstream:
+        - addr: 127.0.0.1:6050
+
+  - tag: forward_remote               # 转发至远程服务器的插件
+    type: forward
+    args:
+      upstream:
+        - addr: 127.0.0.1:6051
+
+  ################ 匹配器插件 #################
+
+  - tag: query_is_local_domain         # 匹配本地域名的插件
+    type: query_matcher
+    args:
+      domain:
+        - 'ext:./geosite.dat:cn'
+
+  - tag: query_is_non_local_domain    # 匹配非本地域名的插件
+    type: query_matcher
+    args:
+      domain:
+        - 'ext:./geosite.dat:geolocation-!cn'
+
+  - tag: query_is_ad_domain           # 匹配广告域名的插件
+    type: query_matcher
+    args:
+      domain:
+        - 'ext:./geosite.dat:category-ads-all'
+
+  - tag: response_has_local_ip        # 匹配本地 IP的插件
+    type: response_matcher
+    args:
+      ip:
+        - 'ext:./geoip.dat:cn'

@@ -1,0 +1,10 @@
+--- a/package.json
++++ b/package.json
+@@ -28,7 +28,6 @@
+     "typescript-standard": "0.3.30"
+   },
+   "dependencies": {
+-    "@node-wot/core": "0.7.6",
+     "@types/url-parse": "^1.4.3",
+     "case-1.5.3": "npm:case@^1.5.3",
+     "node-opcua-client": "^2.1.8",

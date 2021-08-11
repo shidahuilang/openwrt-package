@@ -1,0 +1,9 @@
+--- a/package.json
++++ b/package.json
+@@ -31,6 +31,5 @@
+     "async": "~0.7.0"
+   },
+   "dependencies": {
+-    "noble": "^1.7.0"
+   }
+ }

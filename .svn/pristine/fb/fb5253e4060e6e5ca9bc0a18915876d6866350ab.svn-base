@@ -1,0 +1,11 @@
+--- a/package.json
++++ b/package.json
+@@ -39,8 +39,6 @@
+     "wot-typescript-definitions": "0.7.3"
+   },
+   "dependencies": {
+-    "@node-wot/core": "0.7.6",
+-    "@node-wot/td-tools": "0.7.6",
+     "@types/eventsource": "^1.1.2",
+     "accept-language-parser": "1.5.0",
+     "basic-auth": "2.0.1",

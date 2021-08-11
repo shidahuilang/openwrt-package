@@ -1,0 +1,12 @@
+--- a/package.json
++++ b/package.json
+@@ -31,9 +31,6 @@
+     "url": "https://github.com/jochemstoel/nodejs-system-sleep/issues"
+   },
+   "bundleDependencies": false,
+-  "dependencies": {
+-    "deasync-promise": "1.0.1"
+-  },
+   "deprecated": false,
+   "description": "A real and better system sleep() for Node. Works on every platform.",
+   "homepage": "https://github.com/jochemstoel/nodejs-system-sleep",

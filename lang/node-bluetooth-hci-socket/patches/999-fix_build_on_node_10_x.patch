@@ -1,0 +1,2956 @@
+diff --git a/appveyor.yml b/.appveyor.yml
+similarity index 91%
+rename from appveyor.yml
+rename to .appveyor.yml
+index 955348e..aaa34d4 100644
+--- a/appveyor.yml
++++ b/.appveyor.yml
+@@ -1,15 +1,10 @@
+-branches:
+-  only:
+-    - master
+-    - /^v?[0-9]/
+-
+ environment:
+   GYP_MSVS_VERSION: 2013
+ 
+   matrix:
+-    - node_version: '4'
+-    - node_version: '5'
+     - node_version: '6'
++    - node_version: '8'
++    - node_version: '10'
+ 
+ install:
+   - ps: Install-Product node $env:node_version $env:platform
+diff --git a/.eslintrc.json b/.eslintrc.json
+new file mode 100644
+index 0000000..95ae63f
+--- /dev/null
++++ b/.eslintrc.json
+@@ -0,0 +1,27 @@
++{
++  "env": {
++    "browser": true,
++    "node": true,
++    "mocha": true
++  },
++  "parserOptions": {
++    "ecmaVersion": 2016
++  },
++  "extends": "eslint:recommended",
++  "rules": {
++    "no-buffer-constructor": "error",
++    "no-const-assign": "error",
++    "prefer-const": "error",
++    "prefer-spread": "error",
++    "prefer-template": "error",
++    "prefer-object-spread": "error",
++    "guard-for-in": "error",
++    "eqeqeq": "error",
++    "no-bitwise": "off",
++    "curly": "error",
++    "indent": ["error", 2],
++    "linebreak-style": ["error", "unix"],
++    "quotes": ["error", "single"],
++    "semi": ["error", "always"]
++  }
++}
+diff --git a/.travis.yml b/.travis.yml
+index 4707af0..4fda159 100644
+--- a/.travis.yml
++++ b/.travis.yml
+@@ -1,17 +1,12 @@
+-branches:
+-  only:
+-    - node-pre-gyp
+-    - /^[0-9]/
+-
+ language: cpp
+ 
+ dist: trusty
+ 
+ env:
+   matrix:
+-  - NODE_VERSION="4"
+-  - NODE_VERSION="5"
+   - NODE_VERSION="6"
++  - NODE_VERSION="8"
++  - NODE_VERSION="10"
+ 
+ before_install:
+   - sudo apt-get install build-essential libudev-dev -y
+diff --git a/README.md b/README.md
+index 43f792a..e6606ab 100644
+--- a/README.md
++++ b/README.md
+@@ -53,7 +53,7 @@ npm install bluetooth-hci-socket
+ ## Usage
+ 
+ ```javascript
+-var BluetoothHciSocket = require('bluetooth-hci-socket');
++const BluetoothHciSocket = require('bluetooth-hci-socket');
+ ```
+ 
+ ### Actions
+@@ -61,13 +61,13 @@ var BluetoothHciSocket = require('bluetooth-hci-socket');
+ #### Create
+ 
+ ```javascript
+-var bluetoothHciSocket = new BluetoothHciSocket();
++const bluetoothHciSocket = new BluetoothHciSocket();
+ ```
+ 
+ #### Set Filter
+ 
+ ```javascript
+-var filter = new Buffer(14);
++const filter = Buffer.alloc(14);
+ 
+ // ...
+ 
+@@ -103,7 +103,7 @@ bluetoothHciSocket.bindControl();
+ Query the device state.
+ 
+ ```
+-var isDevUp = bluetoothHciSocket.isDevUp(); // returns: true or false
++const isDevUp = bluetoothHciSocket.isDevUp(); // returns: true or false
+ ```
+ 
+ __Note:__ must be called after ```bindRaw```.
+@@ -125,7 +125,7 @@ __Note:__ must be called after ```bindRaw``` or ```bindControl```.
+ #### Write
+ 
+ ```javascript
+-var data = new Buffer(/* ... */);
++const data = Buffer.from(/* ... */);
+ 
+ // ...
+ 
+diff --git a/binding.gyp b/binding.gyp
+index 241f117..342b273 100644
+--- a/binding.gyp
++++ b/binding.gyp
+@@ -1,7 +1,7 @@
+ {
+   'targets': [
+     {
+-      'target_name': 'binding',
++      'target_name': 'bluetooth_hci_socket',
+       'conditions': [
+         ['OS=="linux" or OS=="android" or OS=="freebsd"', {
+           'sources': [
+diff --git a/examples/le-advertisement-test.js b/examples/le-advertisement-test.js
+index 9620e38..71cbf07 100644
+--- a/examples/le-advertisement-test.js
++++ b/examples/le-advertisement-test.js
+@@ -1,13 +1,14 @@
+-var BluetoothHciSocket = require('../index');
++/* eslint-disable no-console */
++const BluetoothHciSocket = require('../index');
+ 
+-var bluetoothHciSocket = new BluetoothHciSocket();
++const bluetoothHciSocket = new BluetoothHciSocket();
+ 
+ bluetoothHciSocket.on('data', function(data) {
+-  console.log('data:  ' + data.toString('hex'));
++  console.log(`data:  ${data.toString('hex')}`);
+ 
+   if (data.readUInt8(0) === HCI_EVENT_PKT) {
+     if (data.readUInt8(1) === EVT_CMD_COMPLETE) {
+-      if (data.readUInt16LE(4) == LE_SET_ADVERTISING_PARAMETERS_CMD) {
++      if (data.readUInt16LE(4) === LE_SET_ADVERTISING_PARAMETERS_CMD) {
+         if (data.readUInt8(6) === HCI_SUCCESS) {
+           console.log('LE Advertising Parameters Set');
+         }
+@@ -25,54 +26,54 @@ bluetoothHciSocket.on('data', function(data) {
+         }
+       }
+     } else if (data.readUInt8(1) === EVT_DISCONN_COMPLETE) {
+-      var status = data.readUInt8(3);
+-      var handle = data.readUInt16LE(4);
+-      var reason = data.readUInt8(6);
++      const disconnectionStatus = data.readUInt8(3);
++      const disconnectionHandle = data.readUInt16LE(4);
++      const disconnectionReason = data.readUInt8(6);
+ 
+       console.log('Disconn Complete');
+-      console.log('\t' + status);
+-      console.log('\t' + handle);
+-      console.log('\t' + reason);
++      console.log(`\t${disconnectionStatus}`);
++      console.log(`\t${disconnectionHandle}`);
++      console.log(`\t${disconnectionReason}`);
+ 
+       process.exit(0);
+     } else if (data.readUInt8(1) === EVT_LE_META_EVENT) {
+-      if (data.readUInt8(3) === EVT_LE_CONN_COMPLETE) { // subevent
+-        var status = data.readUInt8(4);
+-        var handle = data.readUInt16LE(5);
+-        var role = data.readUInt8(7);
+-        var peerBdAddrType = data.readUInt8(8);
+-        var peerBdAddr = data.slice(9, 15);
+-        var interval = data.readUInt16LE(15);
+-        var latency = data.readUInt16LE(17);
+-        var supervisionTimeout = data.readUInt16LE(19);
+-        var masterClockAccuracy = data.readUInt8(21);
++      const subEvent = data.readUInt8(3);
++      const status = data.readUInt8(4);
++      const handle = data.readUInt16LE(5);
++
++      if (subEvent === EVT_LE_CONN_COMPLETE) { // subevent
++        const role = data.readUInt8(7);
++        const peerBdAddrType = data.readUInt8(8);
++        const peerBdAddr = data.slice(9, 15);
++        const interval = data.readUInt16LE(15);
++        const latency = data.readUInt16LE(17);
++        const supervisionTimeout = data.readUInt16LE(19);
++        const masterClockAccuracy = data.readUInt8(21);
+ 
+         console.log('LE Connection Complete');
+-        console.log('\t' + status);
+-        console.log('\t' + handle);
+-        console.log('\t' + role);
+-        console.log('\t' + ['PUBLIC', 'RANDOM'][peerBdAddrType]);
+-        console.log('\t' + peerBdAddr.toString('hex').match(/.{1,2}/g).reverse().join(':'));
+-        console.log('\t' + interval * 1.25);
+-        console.log('\t' + latency);
+-        console.log('\t' + supervisionTimeout * 10);
+-        console.log('\t' + masterClockAccuracy);
++        console.log(`\t${status}`);
++        console.log(`\t${handle}`);
++        console.log(`\t${role}`);
++        console.log(`\t${['PUBLIC', 'RANDOM'][peerBdAddrType]}`);
++        console.log(`\t${peerBdAddr.toString('hex').match(/.{1,2}/g).reverse().join(':')}`);
++        console.log(`\t${interval * 1.25}`);
++        console.log(`\t${latency}`);
++        console.log(`\t${supervisionTimeout * 10}`);
++        console.log(`\t${masterClockAccuracy}`);
+ 
+         setAdvertiseEnable(true);
+-      } else if (data.readUInt8(3) === EVT_LE_CONN_UPDATE_COMPLETE) {
+-        var status = data.readUInt8(4);
+-        var handle = data.readUInt16LE(5);
+-        var interval = data.readUInt16LE(7);
+-        var latency = data.readUInt16LE(9);
+-        var supervisionTimeout = data.readUInt16LE(11);
++      } else if (subEvent === EVT_LE_CONN_UPDATE_COMPLETE) {
++        const updateInterval = data.readUInt16LE(7);
++        const updateLatency = data.readUInt16LE(9);
++        const updateSupervisionTimeout = data.readUInt16LE(11);
+ 
+         console.log('LE Connection Update Complete');
+-        console.log('\t' + status);
+-        console.log('\t' + handle);
++        console.log(`\t${status}`);
++        console.log(`\t${handle}`);
+ 
+-        console.log('\t' + interval * 1.25);
+-        console.log('\t' + latency);
+-        console.log('\t' + supervisionTimeout * 10);
++        console.log(`\t${updateInterval * 1.25}`);
++        console.log(`\t${updateLatency}`);
++        console.log(`\t${updateSupervisionTimeout * 10}`);
+       }
+     }
+   }
+@@ -90,37 +91,37 @@ bluetoothHciSocket.on('error', function(error) {
+   }
+ });
+ 
+-var HCI_COMMAND_PKT = 0x01;
+-var HCI_ACLDATA_PKT = 0x02;
+-var HCI_EVENT_PKT = 0x04;
++const HCI_COMMAND_PKT = 0x01;
++const HCI_ACLDATA_PKT = 0x02;
++const HCI_EVENT_PKT = 0x04;
+ 
+-var EVT_DISCONN_COMPLETE = 0x05;
+-var EVT_CMD_COMPLETE = 0x0e;
+-var EVT_CMD_STATUS = 0x0f;
+-var EVT_LE_META_EVENT = 0x3e;
++const EVT_DISCONN_COMPLETE = 0x05;
++const EVT_CMD_COMPLETE = 0x0e;
++const EVT_CMD_STATUS = 0x0f;
++const EVT_LE_META_EVENT = 0x3e;
+ 
+-var EVT_LE_CONN_COMPLETE = 0x01;
+-var EVT_LE_CONN_UPDATE_COMPLETE = 0x03;
++const EVT_LE_CONN_COMPLETE = 0x01;
++const EVT_LE_CONN_UPDATE_COMPLETE = 0x03;
+ 
+-var OGF_LE_CTL = 0x08;
+-var OCF_LE_SET_ADVERTISING_PARAMETERS = 0x0006;
+-var OCF_LE_SET_ADVERTISING_DATA = 0x0008;
+-var OCF_LE_SET_SCAN_RESPONSE_DATA = 0x0009;
+-var OCF_LE_SET_ADVERTISE_ENABLE = 0x000a;
++const OGF_LE_CTL = 0x08;
++const OCF_LE_SET_ADVERTISING_PARAMETERS = 0x0006;
++const OCF_LE_SET_ADVERTISING_DATA = 0x0008;
++const OCF_LE_SET_SCAN_RESPONSE_DATA = 0x0009;
++const OCF_LE_SET_ADVERTISE_ENABLE = 0x000a;
+ 
+-var LE_SET_ADVERTISING_PARAMETERS_CMD = OCF_LE_SET_ADVERTISING_PARAMETERS | OGF_LE_CTL << 10;
+-var LE_SET_ADVERTISING_DATA_CMD = OCF_LE_SET_ADVERTISING_DATA | OGF_LE_CTL << 10;
+-var LE_SET_SCAN_RESPONSE_DATA_CMD = OCF_LE_SET_SCAN_RESPONSE_DATA | OGF_LE_CTL << 10;
+-var LE_SET_ADVERTISE_ENABLE_CMD = OCF_LE_SET_ADVERTISE_ENABLE | OGF_LE_CTL << 10;
++const LE_SET_ADVERTISING_PARAMETERS_CMD = OCF_LE_SET_ADVERTISING_PARAMETERS | OGF_LE_CTL << 10;
++const LE_SET_ADVERTISING_DATA_CMD = OCF_LE_SET_ADVERTISING_DATA | OGF_LE_CTL << 10;
++const LE_SET_SCAN_RESPONSE_DATA_CMD = OCF_LE_SET_SCAN_RESPONSE_DATA | OGF_LE_CTL << 10;
++const LE_SET_ADVERTISE_ENABLE_CMD = OCF_LE_SET_ADVERTISE_ENABLE | OGF_LE_CTL << 10;
+ 
+-var HCI_SUCCESS = 0;
++const HCI_SUCCESS = 0;
+ 
+ function setFilter() {
+-  var filter = new Buffer(14);
+-  var typeMask = (1 << HCI_EVENT_PKT) | (1 << HCI_ACLDATA_PKT);
+-  var eventMask1 = (1 << EVT_DISCONN_COMPLETE) | (1 << EVT_CMD_COMPLETE) | (1 << EVT_CMD_STATUS);
+-  var eventMask2 = (1 << (EVT_LE_META_EVENT - 32));
+-  var opcode = 0;
++  const filter = Buffer.alloc(14);
++  const typeMask = (1 << HCI_EVENT_PKT) | (1 << HCI_ACLDATA_PKT);
++  const eventMask1 = (1 << EVT_DISCONN_COMPLETE) | (1 << EVT_CMD_COMPLETE) | (1 << EVT_CMD_STATUS);
++  const eventMask2 = (1 << (EVT_LE_META_EVENT - 32));
++  const opcode = 0;
+ 
+   filter.writeUInt32LE(typeMask, 0);
+   filter.writeUInt32LE(eventMask1, 4);
+@@ -131,7 +132,7 @@ function setFilter() {
+ }
+ 
+ function setAdvertisingParameter() {
+-  var cmd = new Buffer(19);
++  const cmd = Buffer.alloc(19);
+ 
+   // header
+   cmd.writeUInt8(HCI_COMMAND_PKT, 0);
+@@ -146,16 +147,16 @@ function setAdvertisingParameter() {
+   cmd.writeUInt8(0x00, 8); // adv type
+   cmd.writeUInt8(0x00, 9); // own addr typ
+   cmd.writeUInt8(0x00, 10); // direct addr type
+-  (new Buffer('000000000000', 'hex')).copy(cmd, 11); // direct addr
++  Buffer.from('000000000000', 'hex').copy(cmd, 11); // direct addr
+   cmd.writeUInt8(0x07, 17);
+   cmd.writeUInt8(0x00, 18);
+ 
+-  console.log('write: ' + cmd.toString('hex'))
++  console.log(`write: ${cmd.toString('hex')}`);
+   bluetoothHciSocket.write(cmd);
+-};
++}
+ 
+ function setAdvertisingData(data) {
+-  var cmd = new Buffer(36);
++  const cmd = Buffer.alloc(36);
+ 
+   cmd.fill(0);
+ 
+@@ -170,12 +171,12 @@ function setAdvertisingData(data) {
+   cmd.writeUInt8(data.length, 4);
+   data.copy(cmd, 5);
+ 
+-  console.log('write: ' + cmd.toString('hex'))
++  console.log(`write: ${cmd.toString('hex')}`);
+   bluetoothHciSocket.write(cmd);
+ }
+ 
+ function setScanResponseData(data) {
+-  var cmd = new Buffer(36);
++  const cmd = Buffer.alloc(36);
+ 
+   cmd.fill(0);
+ 
+@@ -190,12 +191,12 @@ function setScanResponseData(data) {
+   cmd.writeUInt8(data.length, 4);
+   data.copy(cmd, 5);
+ 
+-  console.log('write: ' + cmd.toString('hex'))
++  console.log(`write: ${cmd.toString('hex')}`);
+   bluetoothHciSocket.write(cmd);
+ }
+ 
+ function setAdvertiseEnable(enabled) {
+-  var cmd = new Buffer(5);
++  const cmd = Buffer.alloc(5);
+ 
+   // header
+   cmd.writeUInt8(HCI_COMMAND_PKT, 0);
+@@ -207,7 +208,7 @@ function setAdvertiseEnable(enabled) {
+   // data
+   cmd.writeUInt8(enabled ? 0x01 : 0x00, 4); // enable: 0 -> disabled, 1 -> enabled
+ 
+-  console.log('write: ' + cmd.toString('hex'));
++  console.log(`write: ${cmd.toString('hex')}`);
+   bluetoothHciSocket.write(cmd);
+ }
+ 
+@@ -215,10 +216,10 @@ bluetoothHciSocket.bindRaw();
+ setFilter();
+ bluetoothHciSocket.start();
+ 
+-console.log('isDevUp = ' + bluetoothHciSocket.isDevUp());
++console.log(`isDevUp = ${bluetoothHciSocket.isDevUp()}`);
+ 
+ setAdvertiseEnable(false);
+ setAdvertisingParameter();
+-setScanResponseData(new Buffer('0909657374696d6f74650e160a182eb8855fb5ddb601000200', 'hex'));
+-setAdvertisingData(new Buffer('0201061aff4c000215b9407f30f5f8466eaff925556b57fe6d00010002b6', 'hex'));
++setScanResponseData(Buffer.from('0909657374696d6f74650e160a182eb8855fb5ddb601000200', 'hex'));
++setAdvertisingData(Buffer.from('0201061aff4c000215b9407f30f5f8466eaff925556b57fe6d00010002b6', 'hex'));
+ setAdvertiseEnable(true);
+diff --git a/examples/le-connection-test.js b/examples/le-connection-test.js
+index 003e778..bcf7b41 100644
+--- a/examples/le-connection-test.js
++++ b/examples/le-connection-test.js
+@@ -1,74 +1,74 @@
+-var BluetoothHciSocket = require('../index');
++/* eslint-disable no-console */
++const BluetoothHciSocket = require('../index');
+ 
+-var bluetoothHciSocket = new BluetoothHciSocket();
++const bluetoothHciSocket = new BluetoothHciSocket();
+ 
+ bluetoothHciSocket.on('data', function(data) {
+-  console.log('data: ' + data.toString('hex') + ', ' + data.length + ' bytes');
++  console.log(`data: ${data.toString('hex')}, ${data.length} bytes`);
+ 
+   if (data.readUInt8(0) === HCI_EVENT_PKT) {
+     if (data.readUInt8(1) === EVT_DISCONN_COMPLETE) {
+-      var status = data.readUInt8(3);
+-      var handle = data.readUInt16LE(4);
+-      var reason = data.readUInt8(6);
++      const disconnectionStatus = data.readUInt8(3);
++      const disconnectionHandle = data.readUInt16LE(4);
++      const disconnectionReason = data.readUInt8(6);
+ 
+       console.log('Disconn Complete');
+-      console.log('\t' + status);
+-      console.log('\t' + handle);
+-      console.log('\t' + reason);
++      console.log(`\t${disconnectionStatus}`);
++      console.log(`\t${disconnectionHandle}`);
++      console.log(`\t${disconnectionReason}`);
+ 
+       process.exit(0);
+     } else if (data.readUInt8(1) === EVT_LE_META_EVENT) {
+-      if (data.readUInt8(3) === EVT_LE_CONN_COMPLETE) { // subevent
+-        var status = data.readUInt8(4);
+-        var handle = data.readUInt16LE(5);
+-        var role = data.readUInt8(7);
+-        var peerBdAddrType = data.readUInt8(8);
+-        var peerBdAddr = data.slice(9, 15);
+-        var interval = data.readUInt16LE(15);
+-        var latency = data.readUInt16LE(17);
+-        var supervisionTimeout = data.readUInt16LE(19);
+-        var masterClockAccuracy = data.readUInt8(21);
++      const subEvent = data.readUInt8(3);
++      const status = data.readUInt8(4);
++      const handle = data.readUInt16LE(5);
++      if (subEvent === EVT_LE_CONN_COMPLETE) { // subevent
++        const role = data.readUInt8(7);
++        const peerBdAddrType = data.readUInt8(8);
++        const peerBdAddr = data.slice(9, 15);
++        const interval = data.readUInt16LE(15);
++        const latency = data.readUInt16LE(17);
++        const supervisionTimeout = data.readUInt16LE(19);
++        const masterClockAccuracy = data.readUInt8(21);
+ 
+         console.log('LE Connection Complete');
+-        console.log('\t' + status);
+-        console.log('\t' + handle);
+-        console.log('\t' + role);
+-        console.log('\t' + ['PUBLIC', 'RANDOM'][peerBdAddrType]);
+-        console.log('\t' + peerBdAddr.toString('hex').match(/.{1,2}/g).reverse().join(':'));
+-        console.log('\t' + interval * 1.25);
+-        console.log('\t' + latency);
+-        console.log('\t' + supervisionTimeout * 10);
+-        console.log('\t' + masterClockAccuracy);
+-      } else if (data.readUInt8(3) === EVT_LE_CONN_UPDATE_COMPLETE) {
+-        var status = data.readUInt8(4);
+-        var handle = data.readUInt16LE(5);
+-        var interval = data.readUInt16LE(7);
+-        var latency = data.readUInt16LE(9);
+-        var supervisionTimeout = data.readUInt16LE(11);
++        console.log(`\t${status}`);
++        console.log(`\t${handle}`);
++        console.log(`\t${role}`);
++        console.log(`\t${['PUBLIC', 'RANDOM'][peerBdAddrType]}`);
++        console.log(`\t${peerBdAddr.toString('hex').match(/.{1,2}/g).reverse().join(':')}`);
++        console.log(`\t${interval * 1.25}`);
++        console.log(`\t${latency}`);
++        console.log(`\t${supervisionTimeout * 10}`);
++        console.log(`\t${masterClockAccuracy}`);
++      } else if (subEvent === EVT_LE_CONN_UPDATE_COMPLETE) {
++        const updateInterval = data.readUInt16LE(7);
++        const updateLatency = data.readUInt16LE(9);
++        const updateSupervisionTimeout = data.readUInt16LE(11);
+ 
+         console.log('LE Connection Update Complete');
+-        console.log('\t' + status);
+-        console.log('\t' + handle);
++        console.log(`\t${status}`);
++        console.log(`\t${handle}`);
+ 
+-        console.log('\t' + interval * 1.25);
+-        console.log('\t' + latency);
+-        console.log('\t' + supervisionTimeout * 10);
++        console.log(`\t${updateInterval * 1.25}`);
++        console.log(`\t${updateLatency}`);
++        console.log(`\t${updateSupervisionTimeout * 10}`);
+ 
+-        writeHandle(handle, new Buffer('020001', 'hex'));
++        writeHandle(handle, Buffer.from('020001', 'hex'));
+       }
+     }
+   } else if (data.readUInt8(0) === HCI_ACLDATA_PKT) {
+     if ( ((data.readUInt16LE(1) >> 12) === ACL_START) &&
+           (data.readUInt16LE(7) === ATT_CID) ) {
+ 
+-      var handle = data.readUInt16LE(1) & 0x0fff;
+-      var data = data.slice(9);
++      const aclHandle = data.readUInt16LE(1) & 0x0fff;
++      const aclData = data.slice(9);
+ 
+       console.log('ACL data');
+-      console.log('\t' + handle);
+-      console.log('\t' + data.toString('hex'));
++      console.log(`\t${aclHandle}`);
++      console.log(`\t${aclData.toString('hex')}`);
+ 
+-      disconnectConnection(handle, HCI_OE_USER_ENDED_CONNECTION);
++      disconnectConnection(aclHandle, HCI_OE_USER_ENDED_CONNECTION);
+     }
+   }
+ });
+@@ -83,40 +83,38 @@ bluetoothHciSocket.on('error', function(error) {
+   }
+ });
+ 
+-var HCI_COMMAND_PKT = 0x01;
+-var HCI_ACLDATA_PKT = 0x02;
+-var HCI_EVENT_PKT = 0x04;
++const HCI_COMMAND_PKT = 0x01;
++const HCI_ACLDATA_PKT = 0x02;
++const HCI_EVENT_PKT = 0x04;
+ 
+-var ACL_START = 0x02;
++const ACL_START = 0x02;
+ 
+-var ATT_CID = 0x0004;
++const ATT_CID = 0x0004;
+ 
+-var EVT_DISCONN_COMPLETE = 0x05;
+-var EVT_CMD_COMPLETE = 0x0e;
+-var EVT_CMD_STATUS = 0x0f;
+-var EVT_LE_META_EVENT = 0x3e;
++const EVT_DISCONN_COMPLETE = 0x05;
++const EVT_CMD_COMPLETE = 0x0e;
++const EVT_CMD_STATUS = 0x0f;
++const EVT_LE_META_EVENT = 0x3e;
+ 
+-var EVT_LE_CONN_COMPLETE = 0x01;
+-var EVT_LE_CONN_UPDATE_COMPLETE = 0x03;
++const EVT_LE_CONN_COMPLETE = 0x01;
++const EVT_LE_CONN_UPDATE_COMPLETE = 0x03;
+ 
+-var OGF_LE_CTL = 0x08;
+-var OCF_LE_CREATE_CONN = 0x000d;
++const OGF_LE_CTL = 0x08;
++const OCF_LE_CREATE_CONN = 0x000d;
+ 
+-var OGF_LINK_CTL = 0x01;
+-var OCF_DISCONNECT = 0x0006;
++const OGF_LINK_CTL = 0x01;
++const OCF_DISCONNECT = 0x0006;
+ 
+-var LE_CREATE_CONN_CMD = OCF_LE_CREATE_CONN | OGF_LE_CTL << 10;
+-var DISCONNECT_CMD = OCF_DISCONNECT | OGF_LINK_CTL << 10;
++const LE_CREATE_CONN_CMD = OCF_LE_CREATE_CONN | OGF_LE_CTL << 10;
++const DISCONNECT_CMD = OCF_DISCONNECT | OGF_LINK_CTL << 10;
+ 
+-var HCI_SUCCESS = 0;
+-var HCI_OE_USER_ENDED_CONNECTION = 0x13;
++const HCI_OE_USER_ENDED_CONNECTION = 0x13;
+ 
+ function setFilter() {
+-  var filter = new Buffer(14);
+-  var typeMask = (1 << HCI_EVENT_PKT) | (1 << HCI_ACLDATA_PKT);
+-  var eventMask1 = (1 << EVT_DISCONN_COMPLETE) | (1 << EVT_CMD_COMPLETE) | (1 << EVT_CMD_STATUS);
+-  var eventMask2 = (1 << (EVT_LE_META_EVENT - 32));
+-  var opcode = 0;
++  const filter = Buffer.alloc(14);
++  const typeMask = (1 << HCI_EVENT_PKT) | (1 << HCI_ACLDATA_PKT);
++  const eventMask1 = (1 << EVT_DISCONN_COMPLETE) | (1 << EVT_CMD_COMPLETE) | (1 << EVT_CMD_STATUS);
++  const eventMask2 = (1 << (EVT_LE_META_EVENT - 32));
+ 
+   filter.writeUInt32LE(typeMask, 0);
+   filter.writeUInt32LE(eventMask1, 4);
+@@ -131,7 +129,7 @@ setFilter();
+ bluetoothHciSocket.start();
+ 
+ function createConnection(address, addressType) {
+-  var cmd = new Buffer(29);
++  const cmd = Buffer.alloc(29);
+ 
+   // header
+   cmd.writeUInt8(HCI_COMMAND_PKT, 0);
+@@ -146,7 +144,7 @@ function createConnection(address, addressType) {
+   cmd.writeUInt8(0x00, 8); // initiator filter
+ 
+   cmd.writeUInt8(addressType === 'random' ? 0x01 : 0x00, 9); // peer address type
+-  (new Buffer(address.split(':').reverse().join(''), 'hex')).copy(cmd, 10); // peer address
++  Buffer.from(address.split(':').reverse().join(''), 'hex').copy(cmd, 10); // peer address
+ 
+   cmd.writeUInt8(0x00, 16); // own address type
+ 
+@@ -161,7 +159,7 @@ function createConnection(address, addressType) {
+ }
+ 
+ function writeHandle(handle, data) {
+-  var cmd = new Buffer(9 + data.length);
++  const cmd = Buffer.alloc(9 + data.length);
+ 
+   // header
+   cmd.writeUInt8(HCI_ACLDATA_PKT, 0);
+@@ -176,7 +174,7 @@ function writeHandle(handle, data) {
+ }
+ 
+ function disconnectConnection(handle, reason) {
+-  var cmd = new Buffer(7);
++  const cmd = Buffer.alloc(7);
+ 
+   // header
+   cmd.writeUInt8(HCI_COMMAND_PKT, 0);
+diff --git a/examples/le-scan-test.js b/examples/le-scan-test.js
+index e573c53..581d7d0 100644
+--- a/examples/le-scan-test.js
++++ b/examples/le-scan-test.js
+@@ -1,9 +1,10 @@
+-var BluetoothHciSocket = require('../index');
++/* eslint-disable no-console */
++const BluetoothHciSocket = require('../index');
+ 
+-var bluetoothHciSocket = new BluetoothHciSocket();
++const bluetoothHciSocket = new BluetoothHciSocket();
+ 
+ bluetoothHciSocket.on('data', function(data) {
+-  console.log('data: ' + data.toString('hex'));
++  console.log(`data: ${data.toString('hex')}`);
+ 
+   if (data.readUInt8(0) === HCI_EVENT_PKT) {
+     if (data.readUInt8(1) === EVT_CMD_COMPLETE) {
+@@ -18,19 +19,19 @@ bluetoothHciSocket.on('data', function(data) {
+       }
+     } else if (data.readUInt8(1) === EVT_LE_META_EVENT) {
+       if (data.readUInt8(3) === EVT_LE_ADVERTISING_REPORT) { // subevent
+-        var gapAdvType = data.readUInt8(5);
+-        var gapAddrType = data.readUInt8(6);
+-        var gapAddr = data.slice(7, 13);
++        const gapAdvType = data.readUInt8(5);
++        const gapAddrType = data.readUInt8(6);
++        const gapAddr = data.slice(7, 13);
+ 
+-        var eir = data.slice(14, data.length - 1);
+-        var rssi = data.readInt8(data.length - 1);
++        const eir = data.slice(14, data.length - 1);
++        const rssi = data.readInt8(data.length - 1);
+ 
+         console.log('LE Advertising Report');
+-        console.log('\t' + ['ADV_IND', 'ADV_DIRECT_IND', 'ADV_SCAN_IND', 'ADV_NONCONN_IND', 'SCAN_RSP'][gapAdvType]);
+-        console.log('\t' + ['PUBLIC', 'RANDOM'][gapAddrType]);
+-        console.log('\t' + gapAddr.toString('hex').match(/.{1,2}/g).reverse().join(':'));
+-        console.log('\t' + eir.toString('hex'));
+-        console.log('\t' + rssi);
++        console.log(`\t${['ADV_IND', 'ADV_DIRECT_IND', 'ADV_SCAN_IND', 'ADV_NONCONN_IND', 'SCAN_RSP'][gapAdvType]}`);
++        console.log(`\t${['PUBLIC', 'RANDOM'][gapAddrType]}`);
++        console.log(`\t${gapAddr.toString('hex').match(/.{1,2}/g).reverse().join(':')}`);
++        console.log(`\t${eir.toString('hex')}`);
++        console.log(`\t${rssi}`);
+       }
+     }
+   }
+@@ -48,32 +49,31 @@ bluetoothHciSocket.on('error', function(error) {
+   }
+ });
+ 
+-var HCI_COMMAND_PKT = 0x01;
+-var HCI_ACLDATA_PKT = 0x02;
+-var HCI_EVENT_PKT = 0x04;
++const HCI_COMMAND_PKT = 0x01;
++const HCI_EVENT_PKT = 0x04;
+ 
+-var EVT_CMD_COMPLETE = 0x0e;
+-var EVT_CMD_STATUS = 0x0f;
+-var EVT_LE_META_EVENT = 0x3e;
++const EVT_CMD_COMPLETE = 0x0e;
++const EVT_CMD_STATUS = 0x0f;
++const EVT_LE_META_EVENT = 0x3e;
+ 
+-var EVT_LE_ADVERTISING_REPORT = 0x02;
++const EVT_LE_ADVERTISING_REPORT = 0x02;
+ 
+-var OGF_LE_CTL = 0x08;
+-var OCF_LE_SET_SCAN_PARAMETERS = 0x000b;
+-var OCF_LE_SET_SCAN_ENABLE = 0x000c;
++const OGF_LE_CTL = 0x08;
++const OCF_LE_SET_SCAN_PARAMETERS = 0x000b;
++const OCF_LE_SET_SCAN_ENABLE = 0x000c;
+ 
+ 
+-var LE_SET_SCAN_PARAMETERS_CMD = OCF_LE_SET_SCAN_PARAMETERS | OGF_LE_CTL << 10;
+-var LE_SET_SCAN_ENABLE_CMD = OCF_LE_SET_SCAN_ENABLE | OGF_LE_CTL << 10;
++const LE_SET_SCAN_PARAMETERS_CMD = OCF_LE_SET_SCAN_PARAMETERS | OGF_LE_CTL << 10;
++const LE_SET_SCAN_ENABLE_CMD = OCF_LE_SET_SCAN_ENABLE | OGF_LE_CTL << 10;
+ 
+-var HCI_SUCCESS = 0;
++const HCI_SUCCESS = 0;
+ 
+ function setFilter() {
+-  var filter = new Buffer(14);
+-  var typeMask = (1 << HCI_EVENT_PKT);
+-  var eventMask1 = (1 << EVT_CMD_COMPLETE) | (1 << EVT_CMD_STATUS);
+-  var eventMask2 = (1 << (EVT_LE_META_EVENT - 32));
+-  var opcode = 0;
++  const filter = Buffer.alloc(14);
++  const typeMask = (1 << HCI_EVENT_PKT);
++  const eventMask1 = (1 << EVT_CMD_COMPLETE) | (1 << EVT_CMD_STATUS);
++  const eventMask2 = (1 << (EVT_LE_META_EVENT - 32));
++  const opcode = 0;
+ 
+   filter.writeUInt32LE(typeMask, 0);
+   filter.writeUInt32LE(eventMask1, 4);
+@@ -84,7 +84,7 @@ function setFilter() {
+ }
+ 
+ function setScanParameters() {
+-  var cmd = new Buffer(11);
++  const cmd = Buffer.alloc(11);
+ 
+   // header
+   cmd.writeUInt8(HCI_COMMAND_PKT, 0);
+@@ -104,7 +104,7 @@ function setScanParameters() {
+ }
+ 
+ function setScanEnable(enabled, duplicates) {
+-  var cmd = new Buffer(6);
++  const cmd = Buffer.alloc(6);
+ 
+   // header
+   cmd.writeUInt8(HCI_COMMAND_PKT, 0);
+diff --git a/examples/list-devices-test.js b/examples/list-devices-test.js
+index fe0c69c..e14c762 100644
+--- a/examples/list-devices-test.js
++++ b/examples/list-devices-test.js
+@@ -1,9 +1,10 @@
+-var UsbBluetoothHciSocket = require('../lib/usb');
+-var usbBluetoothHciSocket = new UsbBluetoothHciSocket();
+-var usbDevices = usbBluetoothHciSocket.getDeviceList();
+-console.log("usbDevices: ", usbDevices);
++/* eslint-disable no-console */
++const UsbBluetoothHciSocket = require('../lib/usb');
++const usbBluetoothHciSocket = new UsbBluetoothHciSocket();
++const usbDevices = usbBluetoothHciSocket.getDeviceList();
++console.log('usbDevices: ', usbDevices);
+ 
+-var NativeBluetoothHciSocket = require('../lib/native');
+-var nativeBluetoothHciSocket = new NativeBluetoothHciSocket();
+-var nativeDevices = nativeBluetoothHciSocket.getDeviceList();
+-console.log("nativeDevices: ", nativeDevices);
+\ No newline at end of file
++const NativeBluetoothHciSocket = require('../lib/native');
++const nativeBluetoothHciSocket = new NativeBluetoothHciSocket();
++const nativeDevices = nativeBluetoothHciSocket.getDeviceList();
++console.log('nativeDevices: ', nativeDevices);
+diff --git a/examples/mgmt-test.js b/examples/mgmt-test.js
+index b5935e3..7cf3114 100644
+--- a/examples/mgmt-test.js
++++ b/examples/mgmt-test.js
+@@ -1,8 +1,9 @@
+-var BluetoothHciSocket = require('../index');
++/* eslint-disable no-console */
++const BluetoothHciSocket = require('../index');
+ 
+-var bluetoothHciSocket = new BluetoothHciSocket();
++const bluetoothHciSocket = new BluetoothHciSocket();
+ 
+-var STATUS_MAPPER = [
++const STATUS_MAPPER = [
+   'success',
+   'unknown command',
+   'not connected',
+@@ -26,35 +27,34 @@ var STATUS_MAPPER = [
+   'permission denied'
+ ];
+ 
+-var MGMT_INDEX_NONE = 0xFFFF;
++const MGMT_INDEX_NONE = 0xFFFF;
+ 
+-var MGMT_OP_READ_VERSION = 0x0001;
+-var MGMT_OP_LOAD_LONG_TERM_KEYS = 0x0013;
++const MGMT_OP_READ_VERSION = 0x0001;
+ 
+ bluetoothHciSocket.on('data', function(data) {
+-  console.log('on -> data: ' + data.toString('hex'));
++  console.log(`on -> data: ${data.toString('hex')}`);
+ 
+-  var index = data.readUInt16LE(2);
+-  var length = data.readUInt16LE(4);
+-  var opcode = data.readUInt16LE(6);
+-  var status = data.readUInt8(8);
++  const index = data.readUInt16LE(2);
++  const length = data.readUInt16LE(4);
++  const opcode = data.readUInt16LE(6);
++  const status = data.readUInt8(8);
+ 
+-  console.log('\tindex = ' + index);
+-  console.log('\tlength = ' + length);
+-  console.log('\topcode = ' + opcode);
+-  console.log('\tstatus = ' + status + ' (' + STATUS_MAPPER[status] + ')');
++  console.log(`\tindex = ${index}`);
++  console.log(`\tlength = ${length}`);
++  console.log(`\topcode = ${opcode}`);
++  console.log(`\tstatus = ${status} (${STATUS_MAPPER[status]})`);
+ 
+   data = data.slice(9);
+ 
+   if (data.length) {
+     if (opcode === MGMT_OP_READ_VERSION) {
+-      var version = data.readUInt8(0);
+-      var revision = data.readUInt16LE(1);
++      const version = data.readUInt8(0);
++      const revision = data.readUInt16LE(1);
+ 
+-      console.log('\t\tversion = ' + version);
+-      console.log('\t\trevision = ' + revision);
++      console.log(`\t\tversion = ${version}`);
++      console.log(`\t\trevision = ${revision}`);
+     } else {
+-      console.log('\t\tdata = ' + data.toString('hex'));
++      console.log(`\t\tdata = ${data.toString('hex')}`);
+     }
+   }
+ 
+@@ -62,17 +62,17 @@ bluetoothHciSocket.on('data', function(data) {
+ });
+ 
+ bluetoothHciSocket.on('error', function(error) {
+-  console.log('on -> error: ' + error.message);
++  console.log(`on -> error: ${error.message}`);
+ });
+ 
+ function write(opcode, index, data) {
+-  var length = 0;
++  let length = 0;
+ 
+   if (data) {
+     length += data.length;
+   }
+ 
+-  var pkt = new Buffer(6 + length);
++  const pkt = Buffer.alloc(6 + length);
+ 
+   pkt.writeUInt16LE(opcode, 0);
+   pkt.writeUInt16LE(index, 2);
+@@ -82,7 +82,7 @@ function write(opcode, index, data) {
+     data.copy(pkt, 6);
+   }
+ 
+-  console.log('writing -> ' + pkt.toString('hex'));
++  console.log(`writing -> ${pkt.toString('hex')}`);
+   bluetoothHciSocket.write(pkt);
+ }
+ 
+diff --git a/lib/native.js b/lib/native.js
+index 68c4e79..f36106b 100644
+--- a/lib/native.js
++++ b/lib/native.js
+@@ -1,19 +1,13 @@
+-var events = require('events');
++const events = require('events');
+ 
+-var binary = require('node-pre-gyp');
+-var path = require('path');
+-var binding_path = binary.find(path.resolve(path.join(__dirname,'./package.json')));
+-var binding = require(binding_path);
++const binary = require('node-pre-gyp');
++const path = require('path');
++const util = require('util');
++const binding_path = binary.find(path.resolve(path.join(__dirname,'../package.json')));
++const binding = require(binding_path);
+ 
+-var BluetoothHciSocket = binding.BluetoothHciSocket;
++const BluetoothHciSocket = binding.BluetoothHciSocket;
+ 
+-inherits(BluetoothHciSocket, events.EventEmitter);
+-
+-// extend prototype
+-function inherits(target, source) {
+-  for (var k in source.prototype) {
+-    target.prototype[k] = source.prototype[k];
+-  }
+-}
++util.inherits(BluetoothHciSocket, events.EventEmitter);
+ 
+ module.exports = BluetoothHciSocket;
+diff --git a/lib/usb.js b/lib/usb.js
+index 1027b36..0260df2 100644
+--- a/lib/usb.js
++++ b/lib/usb.js
+@@ -1,17 +1,16 @@
+-var events = require('events');
+-var util = require('util');
++const events = require('events');
+ 
+-var debug = require('debug')('hci-usb');
+-var usb = require('usb');
++const debug = require('debug')('hci-usb');
++const usb = require('usb');
+ 
+-var HCI_COMMAND_PKT = 0x01;
+-var HCI_ACLDATA_PKT = 0x02;
+-var HCI_EVENT_PKT = 0x04;
++const HCI_COMMAND_PKT = 0x01;
++const HCI_ACLDATA_PKT = 0x02;
++const HCI_EVENT_PKT = 0x04;
+ 
+-var OGF_HOST_CTL = 0x03;
+-var OCF_RESET = 0x0003;
++const OGF_HOST_CTL = 0x03;
++const OCF_RESET = 0x0003;
+ 
+-var VENDOR_DEVICE_LIST = [
++const VENDOR_DEVICE_LIST = [
+   {vid: 0x0CF3, pid: 0xE300 }, // Qualcomm Atheros QCA61x4
+   {vid: 0x0a5c, pid: 0x21e8 }, // Broadcom BCM20702A0
+   {vid: 0x19ff, pid: 0x0239 }, // Broadcom BCM20702A0
+@@ -26,223 +25,227 @@ var VENDOR_DEVICE_LIST = [
+   {vid: 0x050D, pid: 0x065A }, // Belkin BCM20702A0
+ ];
+ 
+-function BluetoothHciSocket() {
+-  this._isUp = false;
++class BluetoothHciSocket extends events.EventEmitter {
++  constructor() {
++    super();
++    this._isUp = false;
+ 
+-  this._hciEventEndpointBuffer = new Buffer(0);
+-  this._aclDataInEndpointBuffer = new Buffer(0);
+-}
+-
+-util.inherits(BluetoothHciSocket, events.EventEmitter);
++    this._hciEventEndpointBuffer = Buffer.alloc(0);
++    this._aclDataInEndpointBuffer = Buffer.alloc(0);
++  }
+ 
+-BluetoothHciSocket.prototype.setFilter = function(filter) {
+-  // no-op
+-};
++  // eslint-disable-next-line no-unused-vars
++  setFilter(filter) {
++    // no-op
++  }
+ 
+-BluetoothHciSocket.prototype.bindRaw = function(devId) {
+-  this.bindUser(devId);
++  bindRaw(devId) {
++    this.bindUser(devId);
+ 
+-  this._mode = 'raw';
++    this._mode = 'raw';
+ 
+-  this.reset();
+-};
++    this.reset();
++  }
+ 
+-BluetoothHciSocket.prototype.bindUser = function(devId) {
+-  this._mode = 'user';
++  // FIXME: devId doesn't seem to be used anywhere, here or the C++ binding
++  // eslint-disable-next-line no-unused-vars
++  bindUser(devId) {
++    this._mode = 'user';
+ 
+-  if (process.env.BLUETOOTH_HCI_SOCKET_USB_VID && process.env.BLUETOOTH_HCI_SOCKET_USB_PID) {
+-    var usbVid = parseInt(process.env.BLUETOOTH_HCI_SOCKET_USB_VID);
+-    var usbPid = parseInt(process.env.BLUETOOTH_HCI_SOCKET_USB_PID);
++    if (process.env.BLUETOOTH_HCI_SOCKET_USB_VID && process.env.BLUETOOTH_HCI_SOCKET_USB_PID) {
++      const usbVid = parseInt(process.env.BLUETOOTH_HCI_SOCKET_USB_VID);
++      const usbPid = parseInt(process.env.BLUETOOTH_HCI_SOCKET_USB_PID);
+ 
+-    debug('using USB VID = ' + usbVid + ', PID = ' + usbPid);
++      debug(`using USB VID = ${usbVid}, PID = ${usbPid}`);
+ 
+-    if (process.env.BLUETOOTH_HCI_SOCKET_USB_BUS && process.env.BLUETOOTH_HCI_SOCKET_USB_ADDRESS) {
+-      var usbBus = parseInt(process.env.BLUETOOTH_HCI_SOCKET_USB_BUS);
+-      var usbAddress = parseInt(process.env.BLUETOOTH_HCI_SOCKET_USB_ADDRESS);
++      if (process.env.BLUETOOTH_HCI_SOCKET_USB_BUS && process.env.BLUETOOTH_HCI_SOCKET_USB_ADDRESS) {
++        const usbBus = parseInt(process.env.BLUETOOTH_HCI_SOCKET_USB_BUS);
++        const usbAddress = parseInt(process.env.BLUETOOTH_HCI_SOCKET_USB_ADDRESS);
+ 
+-      debug('using USB BUS = ' + usbBus + ', Address = ' + usbAddress);
++        debug(`using USB BUS = ${usbBus}, Address = ${usbAddress}`);
+ 
+-      var usbDevices = usb.getDeviceList();
++        const usbDevices = usb.getDeviceList();
+ 
+-      for (var i = 0; i < usbDevices.length; i++) {
+-        var usbDeviceDesc = usbDevices[i].deviceDescriptor;
++        for (let i = 0; i < usbDevices.length; i++) {
++          const usbDeviceDesc = usbDevices[i].deviceDescriptor;
+ 
+-        if ((usbDeviceDesc.idVendor == usbVid) &&
+-            (usbDeviceDesc.idProduct == usbPid) &&
+-            (usbDevices[i].busNumber == usbBus) &&
+-            (usbDevices[i].deviceAddress == usbAddress)) {
+-          this._usbDevice = usbDevices[i];
++          if ((usbDeviceDesc.idVendor === usbVid) &&
++              (usbDeviceDesc.idProduct === usbPid) &&
++              (usbDevices[i].busNumber === usbBus) &&
++              (usbDevices[i].deviceAddress === usbAddress)) {
++            this._usbDevice = usbDevices[i];
++          }
+         }
++      } else {
++        this._usbDevice = usb.findByIds(usbVid, usbPid);
+       }
+     } else {
+-      this._usbDevice = usb.findByIds(usbVid, usbPid);
++      this._usbDevice = VENDOR_DEVICE_LIST
++        .map(d => usb.findByIds(d.vid, d.pid))
++        .find(d => d !== undefined);
+     }
+-  } else {
+-    this._usbDevice = VENDOR_DEVICE_LIST
+-      .map(d => usb.findByIds(d.vid, d.pid))
+-      .find(d => d != null);
+-  }
+ 
+-  if (!this._usbDevice) {
+-    throw new Error('No compatible USB Bluetooth 4.0 device found!');
+-  }
++    if (!this._usbDevice) {
++      throw new Error('No compatible USB Bluetooth 4.0 device found!');
++    }
+ 
+-  this._usbDevice.open();
+-
+-  this._usbDeviceInterface = this._usbDevice.interfaces[0];
+-
+-  this._aclDataOutEndpoint = this._usbDeviceInterface.endpoint(0x02);
+-
+-  this._hciEventEndpoint = this._usbDeviceInterface.endpoint(0x81);
+-  this._aclDataInEndpoint = this._usbDeviceInterface.endpoint(0x82);
+-
+-  this._usbDeviceInterface.claim();
+-};
+-
+-BluetoothHciSocket.prototype.getDeviceList = function() {
+-  return usb.getDeviceList()
+-    .filter(dev => {
+-      return VENDOR_DEVICE_LIST.findIndex(d => {
+-        return dev.deviceDescriptor.idVendor == d.vid && dev.deviceDescriptor.idProduct == d.pid;
+-      }) !== -1;
+-    })
+-    .map(dev => ({
+-      "devId": null,
+-      "devUp": null,
+-      "idVendor": dev.deviceDescriptor.idVendor,
+-      "idProduct": dev.deviceDescriptor.idProduct,
+-      "busNumber": dev.busNumber,
+-      "deviceAddress": dev.deviceAddress,
+-    }));
+-}
++    this._usbDevice.open();
+ 
+-BluetoothHciSocket.prototype.bindControl = function() {
+-  this._mode = 'control';
+-};
++    this._usbDeviceInterface = this._usbDevice.interfaces[0];
+ 
+-BluetoothHciSocket.prototype.isDevUp = function() {
+-  return this._isUp;
+-};
++    this._aclDataOutEndpoint = this._usbDeviceInterface.endpoint(0x02);
+ 
+-BluetoothHciSocket.prototype.start = function() {
+-  if (this._mode === 'raw' || this._mode === 'user') {
+-    this._hciEventEndpoint.on('data', this.onHciEventEndpointData.bind(this));
+-    this._hciEventEndpoint.startPoll();
++    this._hciEventEndpoint = this._usbDeviceInterface.endpoint(0x81);
++    this._aclDataInEndpoint = this._usbDeviceInterface.endpoint(0x82);
+ 
+-    this._aclDataInEndpoint.on('data', this.onAclDataInEndpointData.bind(this));
+-    this._aclDataInEndpoint.startPoll();
++    this._usbDeviceInterface.claim();
+   }
+-};
+ 
+-BluetoothHciSocket.prototype.stop = function() {
+-  if (this._mode === 'raw' || this._mode === 'user') {
+-    this._hciEventEndpoint.stopPoll();
+-    this._hciEventEndpoint.removeAllListeners();
++  getDeviceList() {
++    return usb.getDeviceList()
++      .filter(dev => {
++        return VENDOR_DEVICE_LIST.findIndex(d => {
++          return dev.deviceDescriptor.idVendor === d.vid && dev.deviceDescriptor.idProduct === d.pid;
++        }) !== -1;
++      })
++      .map(dev => ({
++        'devId': null,
++        'devUp': null,
++        'idVendor': dev.deviceDescriptor.idVendor,
++        'idProduct': dev.deviceDescriptor.idProduct,
++        'busNumber': dev.busNumber,
++        'deviceAddress': dev.deviceAddress,
++      }));
++  }
+ 
+-    this._aclDataInEndpoint.stopPoll();
+-    this._aclDataInEndpoint.removeAllListeners();
++  bindControl() {
++    this._mode = 'control';
+   }
+-};
+ 
+-BluetoothHciSocket.prototype.write = function(data) {
+-  debug('write: ' + data.toString('hex'));
++  isDevUp() {
++    return this._isUp;
++  }
+ 
+-  if (this._mode === 'raw' || this._mode === 'user') {
+-    var type = data.readUInt8(0);
++  start() {
++    if (this._mode === 'raw' || this._mode === 'user') {
++      this._hciEventEndpoint.on('data', this.onHciEventEndpointData.bind(this));
++      this._hciEventEndpoint.startPoll();
+ 
+-    if (HCI_COMMAND_PKT === type) {
+-      this._usbDevice.controlTransfer(usb.LIBUSB_REQUEST_TYPE_CLASS | usb.LIBUSB_RECIPIENT_INTERFACE, 0, 0, 0, data.slice(1), function() {});
+-    } else if(HCI_ACLDATA_PKT === type) {
+-      this._aclDataOutEndpoint.transfer(data.slice(1));
++      this._aclDataInEndpoint.on('data', this.onAclDataInEndpointData.bind(this));
++      this._aclDataInEndpoint.startPoll();
+     }
+   }
+-};
+ 
+-BluetoothHciSocket.prototype.onHciEventEndpointData = function(data) {
+-  debug('HCI event: ' + data.toString('hex'));
++  stop() {
++    if (this._mode === 'raw' || this._mode === 'user') {
++      this._hciEventEndpoint.stopPoll();
++      this._hciEventEndpoint.removeAllListeners();
+ 
+-  if (data.length === 0) {
+-    return;
++      this._aclDataInEndpoint.stopPoll();
++      this._aclDataInEndpoint.removeAllListeners();
++    }
+   }
+ 
+-  // add to buffer
+-  this._hciEventEndpointBuffer = Buffer.concat([
+-    this._hciEventEndpointBuffer,
+-    data
+-  ]);
++  write(data) {
++    debug(`write: ${data.toString('hex')}`);
+ 
+-  if (this._hciEventEndpointBuffer.length < 2) {
+-    return;
++    if (this._mode === 'raw' || this._mode === 'user') {
++      const type = data.readUInt8(0);
++
++      if (HCI_COMMAND_PKT === type) {
++        this._usbDevice.controlTransfer(usb.LIBUSB_REQUEST_TYPE_CLASS | usb.LIBUSB_RECIPIENT_INTERFACE, 0, 0, 0, data.slice(1), function() {});
++      } else if(HCI_ACLDATA_PKT === type) {
++        this._aclDataOutEndpoint.transfer(data.slice(1));
++      }
++    }
+   }
+ 
+-  // check if desired length
+-  var pktLen = this._hciEventEndpointBuffer.readUInt8(1);
+-  if (pktLen <= (this._hciEventEndpointBuffer.length - 2)) {
++  onHciEventEndpointData(data) {
++    debug(`HCI event: ${data.toString('hex')}`);
+ 
+-    var buf = this._hciEventEndpointBuffer.slice(0, pktLen + 2);
++    if (data.length === 0) {
++      return;
++    }
++
++    // add to buffer
++    this._hciEventEndpointBuffer = Buffer.concat([
++      this._hciEventEndpointBuffer,
++      data
++    ]);
+ 
+-    if (this._mode === 'raw' && buf.length === 6 && ('0e0401030c00' === buf.toString('hex') || '0e0402030c00' === buf.toString('hex'))) {
+-      debug('reset complete');
+-      this._isUp = true;
++    if (this._hciEventEndpointBuffer.length < 2) {
++      return;
+     }
+ 
+-    // fire event
+-    this.emit('data', Buffer.concat([
+-      new Buffer([HCI_EVENT_PKT]),
+-      buf
+-    ]));
++    // check if desired length
++    const pktLen = this._hciEventEndpointBuffer.readUInt8(1);
++    if (pktLen <= (this._hciEventEndpointBuffer.length - 2)) {
+ 
+-    // reset buffer
+-    this._hciEventEndpointBuffer = this._hciEventEndpointBuffer.slice(pktLen + 2);
+-  }
+-};
++      const buf = this._hciEventEndpointBuffer.slice(0, pktLen + 2);
+ 
+-BluetoothHciSocket.prototype.onAclDataInEndpointData = function(data) {
+-  debug('ACL Data In: ' + data.toString('hex'));
++      if (this._mode === 'raw' && buf.length === 6 && ('0e0401030c00' === buf.toString('hex') || '0e0402030c00' === buf.toString('hex'))) {
++        debug('reset complete');
++        this._isUp = true;
++      }
+ 
+-  if (data.length === 0) {
+-    return;
++      // fire event
++      this.emit('data', Buffer.concat([
++        Buffer.from([HCI_EVENT_PKT]),
++        buf
++      ]));
++
++      // reset buffer
++      this._hciEventEndpointBuffer = this._hciEventEndpointBuffer.slice(pktLen + 2);
++    }
+   }
+ 
+-  // add to buffer
+-  this._aclDataInEndpointBuffer = Buffer.concat([
+-    this._aclDataInEndpointBuffer,
+-    data
+-  ]);
++  onAclDataInEndpointData(data) {
++    debug(`ACL Data In: ${data.toString('hex')}`);
+ 
+-  if (this._aclDataInEndpointBuffer.length < 4) {
+-    return;
+-  }
++    if (data.length === 0) {
++      return;
++    }
++
++    // add to buffer
++    this._aclDataInEndpointBuffer = Buffer.concat([
++      this._aclDataInEndpointBuffer,
++      data
++    ]);
++
++    if (this._aclDataInEndpointBuffer.length < 4) {
++      return;
++    }
+ 
+-  // check if desired length
+-  var pktLen = this._aclDataInEndpointBuffer.readUInt16LE(2);
+-  if (pktLen <= (this._aclDataInEndpointBuffer.length - 4)) {
++    // check if desired length
++    const pktLen = this._aclDataInEndpointBuffer.readUInt16LE(2);
++    if (pktLen <= (this._aclDataInEndpointBuffer.length - 4)) {
+ 
+-    var buf = this._aclDataInEndpointBuffer.slice(0, pktLen + 4);
++      const buf = this._aclDataInEndpointBuffer.slice(0, pktLen + 4);
+ 
+-    // fire event
+-    this.emit('data', Buffer.concat([
+-      new Buffer([HCI_ACLDATA_PKT]),
+-      buf
+-    ]));
++      // fire event
++      this.emit('data', Buffer.concat([
++        Buffer.from([HCI_ACLDATA_PKT]),
++        buf
++      ]));
+ 
+-    // reset buffer
+-    this._aclDataInEndpointBuffer = this._aclDataInEndpointBuffer.slice(pktLen + 4);
++      // reset buffer
++      this._aclDataInEndpointBuffer = this._aclDataInEndpointBuffer.slice(pktLen + 4);
++    }
+   }
+-};
+ 
+-BluetoothHciSocket.prototype.reset = function() {
+-  var cmd = new Buffer(4);
++  reset() {
++    const cmd = Buffer.alloc(4);
+ 
+-  // header
+-  cmd.writeUInt8(HCI_COMMAND_PKT, 0);
+-  cmd.writeUInt16LE(OCF_RESET | OGF_HOST_CTL << 10, 1);
++    // header
++    cmd.writeUInt8(HCI_COMMAND_PKT, 0);
++    cmd.writeUInt16LE(OCF_RESET | OGF_HOST_CTL << 10, 1);
+ 
+-  // length
+-  cmd.writeUInt8(0x00, 3);
++    // length
++    cmd.writeUInt8(0x00, 3);
+ 
+-  debug('reset');
+-  this.write(cmd);
+-};
++    debug('reset');
++    this.write(cmd);
++  }
++}
+ 
+ module.exports = BluetoothHciSocket;
+diff --git a/package-lock.json b/package-lock.json
+new file mode 100644
+index 0000000..10e721d
+--- /dev/null
++++ b/package-lock.json
+@@ -0,0 +1,1571 @@
++{
++  "name": "bluetooth-hci-socket",
++  "version": "0.5.2",
++  "lockfileVersion": 1,
++  "requires": true,
++  "dependencies": {
++    "abbrev": {
++      "version": "1.1.1",
++      "resolved": "https://registry.npmjs.org/abbrev/-/abbrev-1.1.1.tgz",
++      "integrity": "sha512-nne9/IiQ/hzIhY6pdDnbBtz7DjPTKrY00P/zvPSm5pOFkl6xuGrGnXn/VtTNNfNtAfZ9/1RtehkszU9qcTii0Q=="
++    },
++    "acorn": {
++      "version": "5.7.1",
++      "resolved": "https://registry.npmjs.org/acorn/-/acorn-5.7.1.tgz",
++      "integrity": "sha512-d+nbxBUGKg7Arpsvbnlq61mc12ek3EY8EQldM3GPAhWJ1UVxC6TDGbIvUMNU6obBX3i1+ptCIzV4vq0gFPEGVQ==",
++      "dev": true
++    },
++    "acorn-jsx": {
++      "version": "4.1.1",
++      "resolved": "https://registry.npmjs.org/acorn-jsx/-/acorn-jsx-4.1.1.tgz",
++      "integrity": "sha512-JY+iV6r+cO21KtntVvFkD+iqjtdpRUpGqKWgfkCdZq1R+kbreEl8EcdcJR4SmiIgsIQT33s6QzheQ9a275Q8xw==",
++      "dev": true,
++      "requires": {
++        "acorn": "^5.0.3"
++      }
++    },
++    "ajv": {
++      "version": "6.5.2",
++      "resolved": "https://registry.npmjs.org/ajv/-/ajv-6.5.2.tgz",
++      "integrity": "sha512-hOs7GfvI6tUI1LfZddH82ky6mOMyTuY0mk7kE2pWpmhhUSkumzaTO5vbVwij39MdwPQWCV4Zv57Eo06NtL/GVA==",
++      "dev": true,
++      "requires": {
++        "fast-deep-equal": "^2.0.1",
++        "fast-json-stable-stringify": "^2.0.0",
++        "json-schema-traverse": "^0.4.1",
++        "uri-js": "^4.2.1"
++      }
++    },
++    "ajv-keywords": {
++      "version": "3.2.0",
++      "resolved": "https://registry.npmjs.org/ajv-keywords/-/ajv-keywords-3.2.0.tgz",
++      "integrity": "sha1-6GuBnGAs+IIa1jdBNpjx3sAhhHo=",
++      "dev": true
++    },
++    "ansi-escapes": {
++      "version": "3.1.0",
++      "resolved": "https://registry.npmjs.org/ansi-escapes/-/ansi-escapes-3.1.0.tgz",
++      "integrity": "sha512-UgAb8H9D41AQnu/PbWlCofQVcnV4Gs2bBJi9eZPxfU/hgglFh3SMDMENRIqdr7H6XFnXdoknctFByVsCOotTVw==",
++      "dev": true
++    },
++    "ansi-regex": {
++      "version": "2.1.1",
++      "resolved": "https://registry.npmjs.org/ansi-regex/-/ansi-regex-2.1.1.tgz",
++      "integrity": "sha1-w7M6te42DYbg5ijwRorn7yfWVN8="
++    },
++    "ansi-styles": {
++      "version": "2.2.1",
++      "resolved": "https://registry.npmjs.org/ansi-styles/-/ansi-styles-2.2.1.tgz",
++      "integrity": "sha1-tDLdM1i2NM914eRmQ2gkBTPB3b4=",
++      "dev": true
++    },
++    "aproba": {
++      "version": "1.2.0",
++      "resolved": "https://registry.npmjs.org/aproba/-/aproba-1.2.0.tgz",
++      "integrity": "sha512-Y9J6ZjXtoYh8RnXVCMOU/ttDmk1aBjunq9vO0ta5x85WDQiQfUF9sIPBITdbiiIVcBo03Hi3jMxigBtsddlXRw=="
++    },
++    "are-we-there-yet": {
++      "version": "1.1.5",
++      "resolved": "https://registry.npmjs.org/are-we-there-yet/-/are-we-there-yet-1.1.5.tgz",
++      "integrity": "sha512-5hYdAkZlcG8tOLujVDTgCT+uPX0VnpAH28gWsLfzpXYm7wP6mp5Q/gYyR7YQ0cKVJcXJnl3j2kpBan13PtQf6w==",
++      "requires": {
++        "delegates": "^1.0.0",
++        "readable-stream": "^2.0.6"
++      }
++    },
++    "argparse": {
++      "version": "1.0.10",
++      "resolved": "https://registry.npmjs.org/argparse/-/argparse-1.0.10.tgz",
++      "integrity": "sha512-o5Roy6tNG4SL/FOkCAN6RzjiakZS25RLYFrcMttJqbdd8BWrnA+fGz57iN5Pb06pvBGvl5gQ0B48dJlslXvoTg==",
++      "dev": true,
++      "requires": {
++        "sprintf-js": "~1.0.2"
++      }
++    },
++    "array-union": {
++      "version": "1.0.2",
++      "resolved": "https://registry.npmjs.org/array-union/-/array-union-1.0.2.tgz",
++      "integrity": "sha1-mjRBDk9OPaI96jdb5b5w8kd47Dk=",
++      "dev": true,
++      "requires": {
++        "array-uniq": "^1.0.1"
++      }
++    },
++    "array-uniq": {
++      "version": "1.0.3",
++      "resolved": "https://registry.npmjs.org/array-uniq/-/array-uniq-1.0.3.tgz",
++      "integrity": "sha1-r2rId6Jcx/dOBYiUdThY39sk/bY=",
++      "dev": true
++    },
++    "arrify": {
++      "version": "1.0.1",
++      "resolved": "https://registry.npmjs.org/arrify/-/arrify-1.0.1.tgz",
++      "integrity": "sha1-iYUI2iIm84DfkEcoRWhJwVAaSw0=",
++      "dev": true
++    },
++    "babel-code-frame": {
++      "version": "6.26.0",
++      "resolved": "https://registry.npmjs.org/babel-code-frame/-/babel-code-frame-6.26.0.tgz",
++      "integrity": "sha1-Y/1D99weO7fONZR9uP42mj9Yx0s=",
++      "dev": true,
++      "requires": {
++        "chalk": "^1.1.3",
++        "esutils": "^2.0.2",
++        "js-tokens": "^3.0.2"
++      },
++      "dependencies": {
++        "chalk": {
++          "version": "1.1.3",
++          "resolved": "https://registry.npmjs.org/chalk/-/chalk-1.1.3.tgz",
++          "integrity": "sha1-qBFcVeSnAv5NFQq9OHKCKn4J/Jg=",
++          "dev": true,
++          "requires": {
++            "ansi-styles": "^2.2.1",
++            "escape-string-regexp": "^1.0.2",
++            "has-ansi": "^2.0.0",
++            "strip-ansi": "^3.0.0",
++            "supports-color": "^2.0.0"
++          }
++        }
++      }
++    },
++    "balanced-match": {
++      "version": "1.0.0",
++      "resolved": "https://registry.npmjs.org/balanced-match/-/balanced-match-1.0.0.tgz",
++      "integrity": "sha1-ibTRmasr7kneFk6gK4nORi1xt2c="
++    },
++    "brace-expansion": {
++      "version": "1.1.11",
++      "resolved": "https://registry.npmjs.org/brace-expansion/-/brace-expansion-1.1.11.tgz",
++      "integrity": "sha512-iCuPHDFgrHX7H2vEI/5xpz07zSHB00TpugqhmYtVmMO6518mCuRMoOYFldEBl0g187ufozdaHgWKcYFb61qGiA==",
++      "requires": {
++        "balanced-match": "^1.0.0",
++        "concat-map": "0.0.1"
++      }
++    },
++    "caller-path": {
++      "version": "0.1.0",
++      "resolved": "https://registry.npmjs.org/caller-path/-/caller-path-0.1.0.tgz",
++      "integrity": "sha1-lAhe9jWB7NPaqSREqP6U6CV3dR8=",
++      "dev": true,
++      "requires": {
++        "callsites": "^0.2.0"
++      }
++    },
++    "callsites": {
++      "version": "0.2.0",
++      "resolved": "https://registry.npmjs.org/callsites/-/callsites-0.2.0.tgz",
++      "integrity": "sha1-r6uWJikQp/M8GaV3WCXGnzTjUMo=",
++      "dev": true
++    },
++    "chalk": {
++      "version": "2.4.1",
++      "resolved": "https://registry.npmjs.org/chalk/-/chalk-2.4.1.tgz",
++      "integrity": "sha512-ObN6h1v2fTJSmUXoS3nMQ92LbDK9be4TV+6G+omQlGJFdcUX5heKi1LZ1YnRMIgwTLEj3E24bT6tYni50rlCfQ==",
++      "dev": true,
++      "requires": {
++        "ansi-styles": "^3.2.1",
++        "escape-string-regexp": "^1.0.5",
++        "supports-color": "^5.3.0"
++      },
++      "dependencies": {
++        "ansi-styles": {
++          "version": "3.2.1",
++          "resolved": "https://registry.npmjs.org/ansi-styles/-/ansi-styles-3.2.1.tgz",
++          "integrity": "sha512-VT0ZI6kZRdTh8YyJw3SMbYm/u+NqfsAxEpWO0Pf9sq8/e94WxxOpPKx9FR1FlyCtOVDNOQ+8ntlqFxiRc+r5qA==",
++          "dev": true,
++          "requires": {
++            "color-convert": "^1.9.0"
++          }
++        },
++        "supports-color": {
++          "version": "5.4.0",
++          "resolved": "https://registry.npmjs.org/supports-color/-/supports-color-5.4.0.tgz",
++          "integrity": "sha512-zjaXglF5nnWpsq470jSv6P9DwPvgLkuapYmfDm3JWOm0vkNTVF2tI4UrN2r6jH1qM/uc/WtxYY1hYoA2dOKj5w==",
++          "dev": true,
++          "requires": {
++            "has-flag": "^3.0.0"
++          }
++        }
++      }
++    },
++    "chardet": {
++      "version": "0.4.2",
++      "resolved": "https://registry.npmjs.org/chardet/-/chardet-0.4.2.tgz",
++      "integrity": "sha1-tUc7M9yXxCTl2Y3IfVXU2KKci/I=",
++      "dev": true
++    },
++    "chownr": {
++      "version": "1.0.1",
++      "resolved": "https://registry.npmjs.org/chownr/-/chownr-1.0.1.tgz",
++      "integrity": "sha1-4qdQQqlVGQi+vSW4Uj1fl2nXkYE="
++    },
++    "circular-json": {
++      "version": "0.3.3",
++      "resolved": "https://registry.npmjs.org/circular-json/-/circular-json-0.3.3.tgz",
++      "integrity": "sha512-UZK3NBx2Mca+b5LsG7bY183pHWt5Y1xts4P3Pz7ENTwGVnJOUWbRb3ocjvX7hx9tq/yTAdclXm9sZ38gNuem4A==",
++      "dev": true
++    },
++    "cli-cursor": {
++      "version": "2.1.0",
++      "resolved": "https://registry.npmjs.org/cli-cursor/-/cli-cursor-2.1.0.tgz",
++      "integrity": "sha1-s12sN2R5+sw+lHR9QdDQ9SOP/LU=",
++      "dev": true,
++      "requires": {
++        "restore-cursor": "^2.0.0"
++      }
++    },
++    "cli-width": {
++      "version": "2.2.0",
++      "resolved": "https://registry.npmjs.org/cli-width/-/cli-width-2.2.0.tgz",
++      "integrity": "sha1-/xnt6Kml5XkyQUewwR8PvLq+1jk=",
++      "dev": true
++    },
++    "code-point-at": {
++      "version": "1.1.0",
++      "resolved": "https://registry.npmjs.org/code-point-at/-/code-point-at-1.1.0.tgz",
++      "integrity": "sha1-DQcLTQQ6W+ozovGkDi7bPZpMz3c="
++    },
++    "color-convert": {
++      "version": "1.9.2",
++      "resolved": "https://registry.npmjs.org/color-convert/-/color-convert-1.9.2.tgz",
++      "integrity": "sha512-3NUJZdhMhcdPn8vJ9v2UQJoH0qqoGUkYTgFEPZaPjEtwmmKUfNV46zZmgB2M5M4DCEQHMaCfWHCxiBflLm04Tg==",
++      "dev": true,
++      "requires": {
++        "color-name": "1.1.1"
++      }
++    },
++    "color-name": {
++      "version": "1.1.1",
++      "resolved": "https://registry.npmjs.org/color-name/-/color-name-1.1.1.tgz",
++      "integrity": "sha1-SxQVMEz1ACjqgWQ2Q72C6gWANok=",
++      "dev": true
++    },
++    "concat-map": {
++      "version": "0.0.1",
++      "resolved": "https://registry.npmjs.org/concat-map/-/concat-map-0.0.1.tgz",
++      "integrity": "sha1-2Klr13/Wjfd5OnMDajug1UBdR3s="
++    },
++    "console-control-strings": {
++      "version": "1.1.0",
++      "resolved": "https://registry.npmjs.org/console-control-strings/-/console-control-strings-1.1.0.tgz",
++      "integrity": "sha1-PXz0Rk22RG6mRL9LOVB/mFEAjo4="
++    },
++    "core-util-is": {
++      "version": "1.0.2",
++      "resolved": "https://registry.npmjs.org/core-util-is/-/core-util-is-1.0.2.tgz",
++      "integrity": "sha1-tf1UIgqivFq1eqtxQMlAdUUDwac="
++    },
++    "cross-spawn": {
++      "version": "6.0.5",
++      "resolved": "https://registry.npmjs.org/cross-spawn/-/cross-spawn-6.0.5.tgz",
++      "integrity": "sha512-eTVLrBSt7fjbDygz805pMnstIs2VTBNkRm0qxZd+M7A5XDdxVRWO5MxGBXZhjY4cqLYLdtrGqRf8mBPmzwSpWQ==",
++      "dev": true,
++      "requires": {
++        "nice-try": "^1.0.4",
++        "path-key": "^2.0.1",
++        "semver": "^5.5.0",
++        "shebang-command": "^1.2.0",
++        "which": "^1.2.9"
++      }
++    },
++    "debug": {
++      "version": "3.1.0",
++      "resolved": "https://registry.npmjs.org/debug/-/debug-3.1.0.tgz",
++      "integrity": "sha512-OX8XqP7/1a9cqkxYw2yXss15f26NKWBpDXQd0/uK/KPqdQhxbPa994hnzjcE2VqQpDslf55723cKPUOGSmMY3g==",
++      "requires": {
++        "ms": "2.0.0"
++      }
++    },
++    "deep-extend": {
++      "version": "0.6.0",
++      "resolved": "https://registry.npmjs.org/deep-extend/-/deep-extend-0.6.0.tgz",
++      "integrity": "sha512-LOHxIOaPYdHlJRtCQfDIVZtfw/ufM8+rVj649RIHzcm/vGwQRXFt6OPqIFWsm2XEMrNIEtWR64sY1LEKD2vAOA=="
++    },
++    "deep-is": {
++      "version": "0.1.3",
++      "resolved": "https://registry.npmjs.org/deep-is/-/deep-is-0.1.3.tgz",
++      "integrity": "sha1-s2nW+128E+7PUk+RsHD+7cNXzzQ=",
++      "dev": true
++    },
++    "define-properties": {
++      "version": "1.1.3",
++      "resolved": "https://registry.npmjs.org/define-properties/-/define-properties-1.1.3.tgz",
++      "integrity": "sha512-3MqfYKj2lLzdMSf8ZIZE/V+Zuy+BgD6f164e8K2w7dgnpKArBDerGYpM46IYYcjnkdPNMjPk9A6VFB8+3SKlXQ==",
++      "dev": true,
++      "requires": {
++        "object-keys": "^1.0.12"
++      }
++    },
++    "del": {
++      "version": "2.2.2",
++      "resolved": "https://registry.npmjs.org/del/-/del-2.2.2.tgz",
++      "integrity": "sha1-wSyYHQZ4RshLyvhiz/kw2Qf/0ag=",
++      "dev": true,
++      "requires": {
++        "globby": "^5.0.0",
++        "is-path-cwd": "^1.0.0",
++        "is-path-in-cwd": "^1.0.0",
++        "object-assign": "^4.0.1",
++        "pify": "^2.0.0",
++        "pinkie-promise": "^2.0.0",
++        "rimraf": "^2.2.8"
++      }
++    },
++    "delegates": {
++      "version": "1.0.0",
++      "resolved": "https://registry.npmjs.org/delegates/-/delegates-1.0.0.tgz",
++      "integrity": "sha1-hMbhWbgZBP3KWaDvRM2HDTElD5o="
++    },
++    "detect-libc": {
++      "version": "1.0.3",
++      "resolved": "https://registry.npmjs.org/detect-libc/-/detect-libc-1.0.3.tgz",
++      "integrity": "sha1-+hN8S9aY7fVc1c0CrFWfkaTEups="
++    },
++    "doctrine": {
++      "version": "2.1.0",
++      "resolved": "https://registry.npmjs.org/doctrine/-/doctrine-2.1.0.tgz",
++      "integrity": "sha512-35mSku4ZXK0vfCuHEDAwt55dg2jNajHZ1odvF+8SSr82EsZY4QmXfuWso8oEd8zRhVObSN18aM0CjSdoBX7zIw==",
++      "dev": true,
++      "requires": {
++        "esutils": "^2.0.2"
++      }
++    },
++    "es-abstract": {
++      "version": "1.12.0",
++      "resolved": "https://registry.npmjs.org/es-abstract/-/es-abstract-1.12.0.tgz",
++      "integrity": "sha512-C8Fx/0jFmV5IPoMOFPA9P9G5NtqW+4cOPit3MIuvR2t7Ag2K15EJTpxnHAYTzL+aYQJIESYeXZmDBfOBE1HcpA==",
++      "dev": true,
++      "requires": {
++        "es-to-primitive": "^1.1.1",
++        "function-bind": "^1.1.1",
++        "has": "^1.0.1",
++        "is-callable": "^1.1.3",
++        "is-regex": "^1.0.4"
++      }
++    },
++    "es-to-primitive": {
++      "version": "1.1.1",
++      "resolved": "https://registry.npmjs.org/es-to-primitive/-/es-to-primitive-1.1.1.tgz",
++      "integrity": "sha1-RTVSSKiJeQNLZ5Lhm7gfK3l13Q0=",
++      "dev": true,
++      "requires": {
++        "is-callable": "^1.1.1",
++        "is-date-object": "^1.0.1",
++        "is-symbol": "^1.0.1"
++      }
++    },
++    "escape-string-regexp": {
++      "version": "1.0.5",
++      "resolved": "https://registry.npmjs.org/escape-string-regexp/-/escape-string-regexp-1.0.5.tgz",
++      "integrity": "sha1-G2HAViGQqN/2rjuyzwIAyhMLhtQ=",
++      "dev": true
++    },
++    "eslint": {
++      "version": "5.3.0",
++      "resolved": "https://registry.npmjs.org/eslint/-/eslint-5.3.0.tgz",
++      "integrity": "sha512-N/tCqlMKkyNvAvLu+zI9AqDasnSLt00K+Hu8kdsERliC9jYEc8ck12XtjvOXrBKu8fK6RrBcN9bat6Xk++9jAg==",
++      "dev": true,
++      "requires": {
++        "ajv": "^6.5.0",
++        "babel-code-frame": "^6.26.0",
++        "chalk": "^2.1.0",
++        "cross-spawn": "^6.0.5",
++        "debug": "^3.1.0",
++        "doctrine": "^2.1.0",
++        "eslint-scope": "^4.0.0",
++        "eslint-utils": "^1.3.1",
++        "eslint-visitor-keys": "^1.0.0",
++        "espree": "^4.0.0",
++        "esquery": "^1.0.1",
++        "esutils": "^2.0.2",
++        "file-entry-cache": "^2.0.0",
++        "functional-red-black-tree": "^1.0.1",
++        "glob": "^7.1.2",
++        "globals": "^11.7.0",
++        "ignore": "^4.0.2",
++        "imurmurhash": "^0.1.4",
++        "inquirer": "^5.2.0",
++        "is-resolvable": "^1.1.0",
++        "js-yaml": "^3.11.0",
++        "json-stable-stringify-without-jsonify": "^1.0.1",
++        "levn": "^0.3.0",
++        "lodash": "^4.17.5",
++        "minimatch": "^3.0.4",
++        "mkdirp": "^0.5.1",
++        "natural-compare": "^1.4.0",
++        "optionator": "^0.8.2",
++        "path-is-inside": "^1.0.2",
++        "pluralize": "^7.0.0",
++        "progress": "^2.0.0",
++        "regexpp": "^2.0.0",
++        "require-uncached": "^1.0.3",
++        "semver": "^5.5.0",
++        "string.prototype.matchall": "^2.0.0",
++        "strip-ansi": "^4.0.0",
++        "strip-json-comments": "^2.0.1",
++        "table": "^4.0.3",
++        "text-table": "^0.2.0"
++      },
++      "dependencies": {
++        "ansi-regex": {
++          "version": "3.0.0",
++          "resolved": "https://registry.npmjs.org/ansi-regex/-/ansi-regex-3.0.0.tgz",
++          "integrity": "sha1-7QMXwyIGT3lGbAKWa922Bas32Zg=",
++          "dev": true
++        },
++        "strip-ansi": {
++          "version": "4.0.0",
++          "resolved": "https://registry.npmjs.org/strip-ansi/-/strip-ansi-4.0.0.tgz",
++          "integrity": "sha1-qEeQIusaw2iocTibY1JixQXuNo8=",
++          "dev": true,
++          "requires": {
++            "ansi-regex": "^3.0.0"
++          }
++        }
++      }
++    },
++    "eslint-scope": {
++      "version": "4.0.0",
++      "resolved": "https://registry.npmjs.org/eslint-scope/-/eslint-scope-4.0.0.tgz",
++      "integrity": "sha512-1G6UTDi7Jc1ELFwnR58HV4fK9OQK4S6N985f166xqXxpjU6plxFISJa2Ba9KCQuFa8RCnj/lSFJbHo7UFDBnUA==",
++      "dev": true,
++      "requires": {
++        "esrecurse": "^4.1.0",
++        "estraverse": "^4.1.1"
++      }
++    },
++    "eslint-utils": {
++      "version": "1.3.1",
++      "resolved": "https://registry.npmjs.org/eslint-utils/-/eslint-utils-1.3.1.tgz",
++      "integrity": "sha512-Z7YjnIldX+2XMcjr7ZkgEsOj/bREONV60qYeB/bjMAqqqZ4zxKyWX+BOUkdmRmA9riiIPVvo5x86m5elviOk0Q==",
++      "dev": true
++    },
++    "eslint-visitor-keys": {
++      "version": "1.0.0",
++      "resolved": "https://registry.npmjs.org/eslint-visitor-keys/-/eslint-visitor-keys-1.0.0.tgz",
++      "integrity": "sha512-qzm/XxIbxm/FHyH341ZrbnMUpe+5Bocte9xkmFMzPMjRaZMcXww+MpBptFvtU+79L362nqiLhekCxCxDPaUMBQ==",
++      "dev": true
++    },
++    "espree": {
++      "version": "4.0.0",
++      "resolved": "https://registry.npmjs.org/espree/-/espree-4.0.0.tgz",
++      "integrity": "sha512-kapdTCt1bjmspxStVKX6huolXVV5ZfyZguY1lcfhVVZstce3bqxH9mcLzNn3/mlgW6wQ732+0fuG9v7h0ZQoKg==",
++      "dev": true,
++      "requires": {
++        "acorn": "^5.6.0",
++        "acorn-jsx": "^4.1.1"
++      }
++    },
++    "esprima": {
++      "version": "4.0.1",
++      "resolved": "https://registry.npmjs.org/esprima/-/esprima-4.0.1.tgz",
++      "integrity": "sha512-eGuFFw7Upda+g4p+QHvnW0RyTX/SVeJBDM/gCtMARO0cLuT2HcEKnTPvhjV6aGeqrCB/sbNop0Kszm0jsaWU4A==",
++      "dev": true
++    },
++    "esquery": {
++      "version": "1.0.1",
++      "resolved": "https://registry.npmjs.org/esquery/-/esquery-1.0.1.tgz",
++      "integrity": "sha512-SmiyZ5zIWH9VM+SRUReLS5Q8a7GxtRdxEBVZpm98rJM7Sb+A9DVCndXfkeFUd3byderg+EbDkfnevfCwynWaNA==",
++      "dev": true,
++      "requires": {
++        "estraverse": "^4.0.0"
++      }
++    },
++    "esrecurse": {
++      "version": "4.2.1",
++      "resolved": "https://registry.npmjs.org/esrecurse/-/esrecurse-4.2.1.tgz",
++      "integrity": "sha512-64RBB++fIOAXPw3P9cy89qfMlvZEXZkqqJkjqqXIvzP5ezRZjW+lPWjw35UX/3EhUPFYbg5ER4JYgDw4007/DQ==",
++      "dev": true,
++      "requires": {
++        "estraverse": "^4.1.0"
++      }
++    },
++    "estraverse": {
++      "version": "4.2.0",
++      "resolved": "https://registry.npmjs.org/estraverse/-/estraverse-4.2.0.tgz",
++      "integrity": "sha1-De4/7TH81GlhjOc0IJn8GvoL2xM=",
++      "dev": true
++    },
++    "esutils": {
++      "version": "2.0.2",
++      "resolved": "https://registry.npmjs.org/esutils/-/esutils-2.0.2.tgz",
++      "integrity": "sha1-Cr9PHKpbyx96nYrMbepPqqBLrJs=",
++      "dev": true
++    },
++    "external-editor": {
++      "version": "2.2.0",
++      "resolved": "https://registry.npmjs.org/external-editor/-/external-editor-2.2.0.tgz",
++      "integrity": "sha512-bSn6gvGxKt+b7+6TKEv1ZycHleA7aHhRHyAqJyp5pbUFuYYNIzpZnQDk7AsYckyWdEnTeAnay0aCy2aV6iTk9A==",
++      "dev": true,
++      "requires": {
++        "chardet": "^0.4.0",
++        "iconv-lite": "^0.4.17",
++        "tmp": "^0.0.33"
++      }
++    },
++    "fast-deep-equal": {
++      "version": "2.0.1",
++      "resolved": "https://registry.npmjs.org/fast-deep-equal/-/fast-deep-equal-2.0.1.tgz",
++      "integrity": "sha1-ewUhjd+WZ79/Nwv3/bLLFf3Qqkk=",
++      "dev": true
++    },
++    "fast-json-stable-stringify": {
++      "version": "2.0.0",
++      "resolved": "https://registry.npmjs.org/fast-json-stable-stringify/-/fast-json-stable-stringify-2.0.0.tgz",
++      "integrity": "sha1-1RQsDK7msRifh9OnYREGT4bIu/I=",
++      "dev": true
++    },
++    "fast-levenshtein": {
++      "version": "2.0.6",
++      "resolved": "https://registry.npmjs.org/fast-levenshtein/-/fast-levenshtein-2.0.6.tgz",
++      "integrity": "sha1-PYpcZog6FqMMqGQ+hR8Zuqd5eRc=",
++      "dev": true
++    },
++    "figures": {
++      "version": "2.0.0",
++      "resolved": "https://registry.npmjs.org/figures/-/figures-2.0.0.tgz",
++      "integrity": "sha1-OrGi0qYsi/tDGgyUy3l6L84nyWI=",
++      "dev": true,
++      "requires": {
++        "escape-string-regexp": "^1.0.5"
++      }
++    },
++    "file-entry-cache": {
++      "version": "2.0.0",
++      "resolved": "https://registry.npmjs.org/file-entry-cache/-/file-entry-cache-2.0.0.tgz",
++      "integrity": "sha1-w5KZDD5oR4PYOLjISkXYoEhFg2E=",
++      "dev": true,
++      "requires": {
++        "flat-cache": "^1.2.1",
++        "object-assign": "^4.0.1"
++      }
++    },
++    "flat-cache": {
++      "version": "1.3.0",
++      "resolved": "https://registry.npmjs.org/flat-cache/-/flat-cache-1.3.0.tgz",
++      "integrity": "sha1-0wMLMrOBVPTjt+nHCfSQ9++XxIE=",
++      "dev": true,
++      "requires": {
++        "circular-json": "^0.3.1",
++        "del": "^2.0.2",
++        "graceful-fs": "^4.1.2",
++        "write": "^0.2.1"
++      }
++    },
++    "fs-minipass": {
++      "version": "1.2.5",
++      "resolved": "https://registry.npmjs.org/fs-minipass/-/fs-minipass-1.2.5.tgz",
++      "integrity": "sha512-JhBl0skXjUPCFH7x6x61gQxrKyXsxB5gcgePLZCwfyCGGsTISMoIeObbrvVeP6Xmyaudw4TT43qV2Gz+iyd2oQ==",
++      "requires": {
++        "minipass": "^2.2.1"
++      }
++    },
++    "fs.realpath": {
++      "version": "1.0.0",
++      "resolved": "https://registry.npmjs.org/fs.realpath/-/fs.realpath-1.0.0.tgz",
++      "integrity": "sha1-FQStJSMVjKpA20onh8sBQRmU6k8="
++    },
++    "function-bind": {
++      "version": "1.1.1",
++      "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.1.1.tgz",
++      "integrity": "sha512-yIovAzMX49sF8Yl58fSCWJ5svSLuaibPxXQJFLmBObTuCr0Mf1KiPopGM9NiFjiYBCbfaa2Fh6breQ6ANVTI0A==",
++      "dev": true
++    },
++    "functional-red-black-tree": {
++      "version": "1.0.1",
++      "resolved": "https://registry.npmjs.org/functional-red-black-tree/-/functional-red-black-tree-1.0.1.tgz",
++      "integrity": "sha1-GwqzvVU7Kg1jmdKcDj6gslIHgyc=",
++      "dev": true
++    },
++    "gauge": {
++      "version": "2.7.4",
++      "resolved": "https://registry.npmjs.org/gauge/-/gauge-2.7.4.tgz",
++      "integrity": "sha1-LANAXHU4w51+s3sxcCLjJfsBi/c=",
++      "requires": {
++        "aproba": "^1.0.3",
++        "console-control-strings": "^1.0.0",
++        "has-unicode": "^2.0.0",
++        "object-assign": "^4.1.0",
++        "signal-exit": "^3.0.0",
++        "string-width": "^1.0.1",
++        "strip-ansi": "^3.0.1",
++        "wide-align": "^1.1.0"
++      }
++    },
++    "glob": {
++      "version": "7.1.2",
++      "resolved": "https://registry.npmjs.org/glob/-/glob-7.1.2.tgz",
++      "integrity": "sha512-MJTUg1kjuLeQCJ+ccE4Vpa6kKVXkPYJ2mOCQyUuKLcLQsdrMCpBPUi8qVE6+YuaJkozeA9NusTAw3hLr8Xe5EQ==",
++      "requires": {
++        "fs.realpath": "^1.0.0",
++        "inflight": "^1.0.4",
++        "inherits": "2",
++        "minimatch": "^3.0.4",
++        "once": "^1.3.0",
++        "path-is-absolute": "^1.0.0"
++      }
++    },
++    "globals": {
++      "version": "11.7.0",
++      "resolved": "https://registry.npmjs.org/globals/-/globals-11.7.0.tgz",
++      "integrity": "sha512-K8BNSPySfeShBQXsahYB/AbbWruVOTyVpgoIDnl8odPpeSfP2J5QO2oLFFdl2j7GfDCtZj2bMKar2T49itTPCg==",
++      "dev": true
++    },
++    "globby": {
++      "version": "5.0.0",
++      "resolved": "https://registry.npmjs.org/globby/-/globby-5.0.0.tgz",
++      "integrity": "sha1-69hGZ8oNuzMLmbz8aOrCvFQ3Dg0=",
++      "dev": true,
++      "requires": {
++        "array-union": "^1.0.1",
++        "arrify": "^1.0.0",
++        "glob": "^7.0.3",
++        "object-assign": "^4.0.1",
++        "pify": "^2.0.0",
++        "pinkie-promise": "^2.0.0"
++      }
++    },
++    "graceful-fs": {
++      "version": "4.1.11",
++      "resolved": "https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.1.11.tgz",
++      "integrity": "sha1-Dovf5NHduIVNZOBOp8AOKgJuVlg=",
++      "dev": true
++    },
++    "has": {
++      "version": "1.0.3",
++      "resolved": "https://registry.npmjs.org/has/-/has-1.0.3.tgz",
++      "integrity": "sha512-f2dvO0VU6Oej7RkWJGrehjbzMAjFp5/VKPp5tTpWIV4JHHZK1/BxbFRtf/siA2SWTe09caDmVtYYzWEIbBS4zw==",
++      "dev": true,
++      "requires": {
++        "function-bind": "^1.1.1"
++      }
++    },
++    "has-ansi": {
++      "version": "2.0.0",
++      "resolved": "https://registry.npmjs.org/has-ansi/-/has-ansi-2.0.0.tgz",
++      "integrity": "sha1-NPUEnOHs3ysGSa8+8k5F7TVBbZE=",
++      "dev": true,
++      "requires": {
++        "ansi-regex": "^2.0.0"
++      }
++    },
++    "has-flag": {
++      "version": "3.0.0",
++      "resolved": "https://registry.npmjs.org/has-flag/-/has-flag-3.0.0.tgz",
++      "integrity": "sha1-tdRU3CGZriJWmfNGfloH87lVuv0=",
++      "dev": true
++    },
++    "has-symbols": {
++      "version": "1.0.0",
++      "resolved": "https://registry.npmjs.org/has-symbols/-/has-symbols-1.0.0.tgz",
++      "integrity": "sha1-uhqPGvKg/DllD1yFA2dwQSIGO0Q=",
++      "dev": true
++    },
++    "has-unicode": {
++      "version": "2.0.1",
++      "resolved": "https://registry.npmjs.org/has-unicode/-/has-unicode-2.0.1.tgz",
++      "integrity": "sha1-4Ob+aijPUROIVeCG0Wkedx3iqLk="
++    },
++    "iconv-lite": {
++      "version": "0.4.23",
++      "resolved": "https://registry.npmjs.org/iconv-lite/-/iconv-lite-0.4.23.tgz",
++      "integrity": "sha512-neyTUVFtahjf0mB3dZT77u+8O0QB89jFdnBkd5P1JgYPbPaia3gXXOVL2fq8VyU2gMMD7SaN7QukTB/pmXYvDA==",
++      "requires": {
++        "safer-buffer": ">= 2.1.2 < 3"
++      }
++    },
++    "ignore": {
++      "version": "4.0.6",
++      "resolved": "https://registry.npmjs.org/ignore/-/ignore-4.0.6.tgz",
++      "integrity": "sha512-cyFDKrqc/YdcWFniJhzI42+AzS+gNwmUzOSFcRCQYwySuBBBy/KjuxWLZ/FHEH6Moq1NizMOBWyTcv8O4OZIMg==",
++      "dev": true
++    },
++    "ignore-walk": {
++      "version": "3.0.1",
++      "resolved": "https://registry.npmjs.org/ignore-walk/-/ignore-walk-3.0.1.tgz",
++      "integrity": "sha512-DTVlMx3IYPe0/JJcYP7Gxg7ttZZu3IInhuEhbchuqneY9wWe5Ojy2mXLBaQFUQmo0AW2r3qG7m1mg86js+gnlQ==",
++      "requires": {
++        "minimatch": "^3.0.4"
++      }
++    },
++    "imurmurhash": {
++      "version": "0.1.4",
++      "resolved": "https://registry.npmjs.org/imurmurhash/-/imurmurhash-0.1.4.tgz",
++      "integrity": "sha1-khi5srkoojixPcT7a21XbyMUU+o=",
++      "dev": true
++    },
++    "inflight": {
++      "version": "1.0.6",
++      "resolved": "https://registry.npmjs.org/inflight/-/inflight-1.0.6.tgz",
++      "integrity": "sha1-Sb1jMdfQLQwJvJEKEHW6gWW1bfk=",
++      "requires": {
++        "once": "^1.3.0",
++        "wrappy": "1"
++      }
++    },
++    "inherits": {
++      "version": "2.0.3",
++      "resolved": "https://registry.npmjs.org/inherits/-/inherits-2.0.3.tgz",
++      "integrity": "sha1-Yzwsg+PaQqUC9SRmAiSA9CCCYd4="
++    },
++    "ini": {
++      "version": "1.3.5",
++      "resolved": "https://registry.npmjs.org/ini/-/ini-1.3.5.tgz",
++      "integrity": "sha512-RZY5huIKCMRWDUqZlEi72f/lmXKMvuszcMBduliQ3nnWbx9X/ZBQO7DijMEYS9EhHBb2qacRUMtC7svLwe0lcw=="
++    },
++    "inquirer": {
++      "version": "5.2.0",
++      "resolved": "https://registry.npmjs.org/inquirer/-/inquirer-5.2.0.tgz",
++      "integrity": "sha512-E9BmnJbAKLPGonz0HeWHtbKf+EeSP93paWO3ZYoUpq/aowXvYGjjCSuashhXPpzbArIjBbji39THkxTz9ZeEUQ==",
++      "dev": true,
++      "requires": {
++        "ansi-escapes": "^3.0.0",
++        "chalk": "^2.0.0",
++        "cli-cursor": "^2.1.0",
++        "cli-width": "^2.0.0",
++        "external-editor": "^2.1.0",
++        "figures": "^2.0.0",
++        "lodash": "^4.3.0",
++        "mute-stream": "0.0.7",
++        "run-async": "^2.2.0",
++        "rxjs": "^5.5.2",
++        "string-width": "^2.1.0",
++        "strip-ansi": "^4.0.0",
++        "through": "^2.3.6"
++      },
++      "dependencies": {
++        "ansi-regex": {
++          "version": "3.0.0",
++          "resolved": "https://registry.npmjs.org/ansi-regex/-/ansi-regex-3.0.0.tgz",
++          "integrity": "sha1-7QMXwyIGT3lGbAKWa922Bas32Zg=",
++          "dev": true
++        },
++        "is-fullwidth-code-point": {
++          "version": "2.0.0",
++          "resolved": "https://registry.npmjs.org/is-fullwidth-code-point/-/is-fullwidth-code-point-2.0.0.tgz",
++          "integrity": "sha1-o7MKXE8ZkYMWeqq5O+764937ZU8=",
++          "dev": true
++        },
++        "string-width": {
++          "version": "2.1.1",
++          "resolved": "https://registry.npmjs.org/string-width/-/string-width-2.1.1.tgz",
++          "integrity": "sha512-nOqH59deCq9SRHlxq1Aw85Jnt4w6KvLKqWVik6oA9ZklXLNIOlqg4F2yrT1MVaTjAqvVwdfeZ7w7aCvJD7ugkw==",
++          "dev": true,
++          "requires": {
++            "is-fullwidth-code-point": "^2.0.0",
++            "strip-ansi": "^4.0.0"
++          }
++        },
++        "strip-ansi": {
++          "version": "4.0.0",
++          "resolved": "https://registry.npmjs.org/strip-ansi/-/strip-ansi-4.0.0.tgz",
++          "integrity": "sha1-qEeQIusaw2iocTibY1JixQXuNo8=",
++          "dev": true,
++          "requires": {
++            "ansi-regex": "^3.0.0"
++          }
++        }
++      }
++    },
++    "is-callable": {
++      "version": "1.1.4",
++      "resolved": "https://registry.npmjs.org/is-callable/-/is-callable-1.1.4.tgz",
++      "integrity": "sha512-r5p9sxJjYnArLjObpjA4xu5EKI3CuKHkJXMhT7kwbpUyIFD1n5PMAsoPvWnvtZiNz7LjkYDRZhd7FlI0eMijEA==",
++      "dev": true
++    },
++    "is-date-object": {
++      "version": "1.0.1",
++      "resolved": "https://registry.npmjs.org/is-date-object/-/is-date-object-1.0.1.tgz",
++      "integrity": "sha1-mqIOtq7rv/d/vTPnTKAbM1gdOhY=",
++      "dev": true
++    },
++    "is-fullwidth-code-point": {
++      "version": "1.0.0",
++      "resolved": "https://registry.npmjs.org/is-fullwidth-code-point/-/is-fullwidth-code-point-1.0.0.tgz",
++      "integrity": "sha1-754xOG8DGn8NZDr4L95QxFfvAMs=",
++      "requires": {
++        "number-is-nan": "^1.0.0"
++      }
++    },
++    "is-path-cwd": {
++      "version": "1.0.0",
++      "resolved": "https://registry.npmjs.org/is-path-cwd/-/is-path-cwd-1.0.0.tgz",
++      "integrity": "sha1-0iXsIxMuie3Tj9p2dHLmLmXxEG0=",
++      "dev": true
++    },
++    "is-path-in-cwd": {
++      "version": "1.0.1",
++      "resolved": "https://registry.npmjs.org/is-path-in-cwd/-/is-path-in-cwd-1.0.1.tgz",
++      "integrity": "sha512-FjV1RTW48E7CWM7eE/J2NJvAEEVektecDBVBE5Hh3nM1Jd0kvhHtX68Pr3xsDf857xt3Y4AkwVULK1Vku62aaQ==",
++      "dev": true,
++      "requires": {
++        "is-path-inside": "^1.0.0"
++      }
++    },
++    "is-path-inside": {
++      "version": "1.0.1",
++      "resolved": "https://registry.npmjs.org/is-path-inside/-/is-path-inside-1.0.1.tgz",
++      "integrity": "sha1-jvW33lBDej/cprToZe96pVy0gDY=",
++      "dev": true,
++      "requires": {
++        "path-is-inside": "^1.0.1"
++      }
++    },
++    "is-promise": {
++      "version": "2.1.0",
++      "resolved": "https://registry.npmjs.org/is-promise/-/is-promise-2.1.0.tgz",
++      "integrity": "sha1-eaKp7OfwlugPNtKy87wWwf9L8/o=",
++      "dev": true
++    },
++    "is-regex": {
++      "version": "1.0.4",
++      "resolved": "https://registry.npmjs.org/is-regex/-/is-regex-1.0.4.tgz",
++      "integrity": "sha1-VRdIm1RwkbCTDglWVM7SXul+lJE=",
++      "dev": true,
++      "requires": {
++        "has": "^1.0.1"
++      }
++    },
++    "is-resolvable": {
++      "version": "1.1.0",
++      "resolved": "https://registry.npmjs.org/is-resolvable/-/is-resolvable-1.1.0.tgz",
++      "integrity": "sha512-qgDYXFSR5WvEfuS5dMj6oTMEbrrSaM0CrFk2Yiq/gXnBvD9pMa2jGXxyhGLfvhZpuMZe18CJpFxAt3CRs42NMg==",
++      "dev": true
++    },
++    "is-symbol": {
++      "version": "1.0.1",
++      "resolved": "https://registry.npmjs.org/is-symbol/-/is-symbol-1.0.1.tgz",
++      "integrity": "sha1-PMWfAAJRlLarLjjbrmaJJWtmBXI=",
++      "dev": true
++    },
++    "isarray": {
++      "version": "1.0.0",
++      "resolved": "https://registry.npmjs.org/isarray/-/isarray-1.0.0.tgz",
++      "integrity": "sha1-u5NdSFgsuhaMBoNJV6VKPgcSTxE="
++    },
++    "isexe": {
++      "version": "2.0.0",
++      "resolved": "https://registry.npmjs.org/isexe/-/isexe-2.0.0.tgz",
++      "integrity": "sha1-6PvzdNxVb/iUehDcsFctYz8s+hA=",
++      "dev": true
++    },
++    "js-tokens": {
++      "version": "3.0.2",
++      "resolved": "https://registry.npmjs.org/js-tokens/-/js-tokens-3.0.2.tgz",
++      "integrity": "sha1-mGbfOVECEw449/mWvOtlRDIJwls=",
++      "dev": true
++    },
++    "js-yaml": {
++      "version": "3.12.0",
++      "resolved": "https://registry.npmjs.org/js-yaml/-/js-yaml-3.12.0.tgz",
++      "integrity": "sha512-PIt2cnwmPfL4hKNwqeiuz4bKfnzHTBv6HyVgjahA6mPLwPDzjDWrplJBMjHUFxku/N3FlmrbyPclad+I+4mJ3A==",
++      "dev": true,
++      "requires": {
++        "argparse": "^1.0.7",
++        "esprima": "^4.0.0"
++      }
++    },
++    "json-schema-traverse": {
++      "version": "0.4.1",
++      "resolved": "https://registry.npmjs.org/json-schema-traverse/-/json-schema-traverse-0.4.1.tgz",
++      "integrity": "sha512-xbbCH5dCYU5T8LcEhhuh7HJ88HXuW3qsI3Y0zOZFKfZEHcpWiHU/Jxzk629Brsab/mMiHQti9wMP+845RPe3Vg==",
++      "dev": true
++    },
++    "json-stable-stringify-without-jsonify": {
++      "version": "1.0.1",
++      "resolved": "https://registry.npmjs.org/json-stable-stringify-without-jsonify/-/json-stable-stringify-without-jsonify-1.0.1.tgz",
++      "integrity": "sha1-nbe1lJatPzz+8wp1FC0tkwrXJlE=",
++      "dev": true
++    },
++    "levn": {
++      "version": "0.3.0",
++      "resolved": "https://registry.npmjs.org/levn/-/levn-0.3.0.tgz",
++      "integrity": "sha1-OwmSTt+fCDwEkP3UwLxEIeBHZO4=",
++      "dev": true,
++      "requires": {
++        "prelude-ls": "~1.1.2",
++        "type-check": "~0.3.2"
++      }
++    },
++    "lodash": {
++      "version": "4.17.10",
++      "resolved": "https://registry.npmjs.org/lodash/-/lodash-4.17.10.tgz",
++      "integrity": "sha512-UejweD1pDoXu+AD825lWwp4ZGtSwgnpZxb3JDViD7StjQz+Nb/6l093lx4OQ0foGWNRoc19mWy7BzL+UAK2iVg==",
++      "dev": true
++    },
++    "mimic-fn": {
++      "version": "1.2.0",
++      "resolved": "https://registry.npmjs.org/mimic-fn/-/mimic-fn-1.2.0.tgz",
++      "integrity": "sha512-jf84uxzwiuiIVKiOLpfYk7N46TSy8ubTonmneY9vrpHNAnp0QBt2BxWV9dO3/j+BoVAb+a5G6YDPW3M5HOdMWQ==",
++      "dev": true
++    },
++    "minimatch": {
++      "version": "3.0.4",
++      "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-3.0.4.tgz",
++      "integrity": "sha512-yJHVQEhyqPLUTgt9B83PXu6W3rx4MvvHvSUvToogpwoGDOUQ+yDrR0HRot+yOCdCO7u4hX3pWft6kWBBcqh0UA==",
++      "requires": {
++        "brace-expansion": "^1.1.7"
++      }
++    },
++    "minimist": {
++      "version": "0.0.8",
++      "resolved": "https://registry.npmjs.org/minimist/-/minimist-0.0.8.tgz",
++      "integrity": "sha1-hX/Kv8M5fSYluCKCYuhqp6ARsF0="
++    },
++    "minipass": {
++      "version": "2.3.4",
++      "resolved": "https://registry.npmjs.org/minipass/-/minipass-2.3.4.tgz",
++      "integrity": "sha512-mlouk1OHlaUE8Odt1drMtG1bAJA4ZA6B/ehysgV0LUIrDHdKgo1KorZq3pK0b/7Z7LJIQ12MNM6aC+Tn6lUZ5w==",
++      "requires": {
++        "safe-buffer": "^5.1.2",
++        "yallist": "^3.0.0"
++      }
++    },
++    "minizlib": {
++      "version": "1.1.0",
++      "resolved": "https://registry.npmjs.org/minizlib/-/minizlib-1.1.0.tgz",
++      "integrity": "sha512-4T6Ur/GctZ27nHfpt9THOdRZNgyJ9FZchYO1ceg5S8Q3DNLCKYy44nCZzgCJgcvx2UM8czmqak5BCxJMrq37lA==",
++      "requires": {
++        "minipass": "^2.2.1"
++      }
++    },
++    "mkdirp": {
++      "version": "0.5.1",
++      "resolved": "https://registry.npmjs.org/mkdirp/-/mkdirp-0.5.1.tgz",
++      "integrity": "sha1-MAV0OOrGz3+MR2fzhkjWaX11yQM=",
++      "requires": {
++        "minimist": "0.0.8"
++      }
++    },
++    "ms": {
++      "version": "2.0.0",
++      "resolved": "https://registry.npmjs.org/ms/-/ms-2.0.0.tgz",
++      "integrity": "sha1-VgiurfwAvmwpAd9fmGF4jeDVl8g="
++    },
++    "mute-stream": {
++      "version": "0.0.7",
++      "resolved": "https://registry.npmjs.org/mute-stream/-/mute-stream-0.0.7.tgz",
++      "integrity": "sha1-MHXOk7whuPq0PhvE2n6BFe0ee6s=",
++      "dev": true
++    },
++    "nan": {
++      "version": "2.10.0",
++      "resolved": "https://registry.npmjs.org/nan/-/nan-2.10.0.tgz",
++      "integrity": "sha512-bAdJv7fBLhWC+/Bls0Oza+mvTaNQtP+1RyhhhvD95pgUJz6XM5IzgmxOkItJ9tkoCiplvAnXI1tNmmUD/eScyA=="
++    },
++    "natural-compare": {
++      "version": "1.4.0",
++      "resolved": "https://registry.npmjs.org/natural-compare/-/natural-compare-1.4.0.tgz",
++      "integrity": "sha1-Sr6/7tdUHywnrPspvbvRXI1bpPc=",
++      "dev": true
++    },
++    "needle": {
++      "version": "2.2.2",
++      "resolved": "https://registry.npmjs.org/needle/-/needle-2.2.2.tgz",
++      "integrity": "sha512-mW7W8dKuVYefCpNzE3Z7xUmPI9wSrSL/1qH31YGMxmSOAnjatS3S9Zv3cmiHrhx3Jkp1SrWWBdOFXjfF48Uq3A==",
++      "requires": {
++        "debug": "^2.1.2",
++        "iconv-lite": "^0.4.4",
++        "sax": "^1.2.4"
++      },
++      "dependencies": {
++        "debug": {
++          "version": "2.6.9",
++          "resolved": "https://registry.npmjs.org/debug/-/debug-2.6.9.tgz",
++          "integrity": "sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==",
++          "requires": {
++            "ms": "2.0.0"
++          }
++        }
++      }
++    },
++    "nice-try": {
++      "version": "1.0.4",
++      "resolved": "https://registry.npmjs.org/nice-try/-/nice-try-1.0.4.tgz",
++      "integrity": "sha512-2NpiFHqC87y/zFke0fC0spBXL3bBsoh/p5H1EFhshxjCR5+0g2d6BiXbUFz9v1sAcxsk2htp2eQnNIci2dIYcA==",
++      "dev": true
++    },
++    "node-pre-gyp": {
++      "version": "0.11.0",
++      "resolved": "https://registry.npmjs.org/node-pre-gyp/-/node-pre-gyp-0.11.0.tgz",
++      "integrity": "sha512-TwWAOZb0j7e9eGaf9esRx3ZcLaE5tQ2lvYy1pb5IAaG1a2e2Kv5Lms1Y4hpj+ciXJRofIxxlt5haeQ/2ANeE0Q==",
++      "requires": {
++        "detect-libc": "^1.0.2",
++        "mkdirp": "^0.5.1",
++        "needle": "^2.2.1",
++        "nopt": "^4.0.1",
++        "npm-packlist": "^1.1.6",
++        "npmlog": "^4.0.2",
++        "rc": "^1.2.7",
++        "rimraf": "^2.6.1",
++        "semver": "^5.3.0",
++        "tar": "^4"
++      }
++    },
++    "nopt": {
++      "version": "4.0.1",
++      "resolved": "https://registry.npmjs.org/nopt/-/nopt-4.0.1.tgz",
++      "integrity": "sha1-0NRoWv1UFRk8jHUFYC0NF81kR00=",
++      "requires": {
++        "abbrev": "1",
++        "osenv": "^0.1.4"
++      }
++    },
++    "npm-bundled": {
++      "version": "1.0.5",
++      "resolved": "https://registry.npmjs.org/npm-bundled/-/npm-bundled-1.0.5.tgz",
++      "integrity": "sha512-m/e6jgWu8/v5niCUKQi9qQl8QdeEduFA96xHDDzFGqly0OOjI7c+60KM/2sppfnUU9JJagf+zs+yGhqSOFj71g=="
++    },
++    "npm-packlist": {
++      "version": "1.1.11",
++      "resolved": "https://registry.npmjs.org/npm-packlist/-/npm-packlist-1.1.11.tgz",
++      "integrity": "sha512-CxKlZ24urLkJk+9kCm48RTQ7L4hsmgSVzEk0TLGPzzyuFxD7VNgy5Sl24tOLMzQv773a/NeJ1ce1DKeacqffEA==",
++      "requires": {
++        "ignore-walk": "^3.0.1",
++        "npm-bundled": "^1.0.1"
++      }
++    },
++    "npmlog": {
++      "version": "4.1.2",
++      "resolved": "https://registry.npmjs.org/npmlog/-/npmlog-4.1.2.tgz",
++      "integrity": "sha512-2uUqazuKlTaSI/dC8AzicUck7+IrEaOnN/e0jd3Xtt1KcGpwx30v50mL7oPyr/h9bL3E4aZccVwpwP+5W9Vjkg==",
++      "requires": {
++        "are-we-there-yet": "~1.1.2",
++        "console-control-strings": "~1.1.0",
++        "gauge": "~2.7.3",
++        "set-blocking": "~2.0.0"
++      }
++    },
++    "number-is-nan": {
++      "version": "1.0.1",
++      "resolved": "https://registry.npmjs.org/number-is-nan/-/number-is-nan-1.0.1.tgz",
++      "integrity": "sha1-CXtgK1NCKlIsGvuHkDGDNpQaAR0="
++    },
++    "object-assign": {
++      "version": "4.1.1",
++      "resolved": "https://registry.npmjs.org/object-assign/-/object-assign-4.1.1.tgz",
++      "integrity": "sha1-IQmtx5ZYh8/AXLvUQsrIv7s2CGM="
++    },
++    "object-keys": {
++      "version": "1.0.12",
++      "resolved": "https://registry.npmjs.org/object-keys/-/object-keys-1.0.12.tgz",
++      "integrity": "sha512-FTMyFUm2wBcGHnH2eXmz7tC6IwlqQZ6mVZ+6dm6vZ4IQIHjs6FdNsQBuKGPuUUUY6NfJw2PshC08Tn6LzLDOag==",
++      "dev": true
++    },
++    "once": {
++      "version": "1.4.0",
++      "resolved": "https://registry.npmjs.org/once/-/once-1.4.0.tgz",
++      "integrity": "sha1-WDsap3WWHUsROsF9nFC6753Xa9E=",
++      "requires": {
++        "wrappy": "1"
++      }
++    },
++    "onetime": {
++      "version": "2.0.1",
++      "resolved": "https://registry.npmjs.org/onetime/-/onetime-2.0.1.tgz",
++      "integrity": "sha1-BnQoIw/WdEOyeUsiu6UotoZ5YtQ=",
++      "dev": true,
++      "requires": {
++        "mimic-fn": "^1.0.0"
++      }
++    },
++    "optionator": {
++      "version": "0.8.2",
++      "resolved": "https://registry.npmjs.org/optionator/-/optionator-0.8.2.tgz",
++      "integrity": "sha1-NkxeQJ0/TWMB1sC0wFu6UBgK62Q=",
++      "dev": true,
++      "requires": {
++        "deep-is": "~0.1.3",
++        "fast-levenshtein": "~2.0.4",
++        "levn": "~0.3.0",
++        "prelude-ls": "~1.1.2",
++        "type-check": "~0.3.2",
++        "wordwrap": "~1.0.0"
++      }
++    },
++    "os-homedir": {
++      "version": "1.0.2",
++      "resolved": "https://registry.npmjs.org/os-homedir/-/os-homedir-1.0.2.tgz",
++      "integrity": "sha1-/7xJiDNuDoM94MFox+8VISGqf7M="
++    },
++    "os-tmpdir": {
++      "version": "1.0.2",
++      "resolved": "https://registry.npmjs.org/os-tmpdir/-/os-tmpdir-1.0.2.tgz",
++      "integrity": "sha1-u+Z0BseaqFxc/sdm/lc0VV36EnQ="
++    },
++    "osenv": {
++      "version": "0.1.5",
++      "resolved": "https://registry.npmjs.org/osenv/-/osenv-0.1.5.tgz",
++      "integrity": "sha512-0CWcCECdMVc2Rw3U5w9ZjqX6ga6ubk1xDVKxtBQPK7wis/0F2r9T6k4ydGYhecl7YUBxBVxhL5oisPsNxAPe2g==",
++      "requires": {
++        "os-homedir": "^1.0.0",
++        "os-tmpdir": "^1.0.0"
++      }
++    },
++    "path-is-absolute": {
++      "version": "1.0.1",
++      "resolved": "https://registry.npmjs.org/path-is-absolute/-/path-is-absolute-1.0.1.tgz",
++      "integrity": "sha1-F0uSaHNVNP+8es5r9TpanhtcX18="
++    },
++    "path-is-inside": {
++      "version": "1.0.2",
++      "resolved": "https://registry.npmjs.org/path-is-inside/-/path-is-inside-1.0.2.tgz",
++      "integrity": "sha1-NlQX3t5EQw0cEa9hAn+s8HS9/FM=",
++      "dev": true
++    },
++    "path-key": {
++      "version": "2.0.1",
++      "resolved": "https://registry.npmjs.org/path-key/-/path-key-2.0.1.tgz",
++      "integrity": "sha1-QRyttXTFoUDTpLGRDUDYDMn0C0A=",
++      "dev": true
++    },
++    "pify": {
++      "version": "2.3.0",
++      "resolved": "https://registry.npmjs.org/pify/-/pify-2.3.0.tgz",
++      "integrity": "sha1-7RQaasBDqEnqWISY59yosVMw6Qw=",
++      "dev": true
++    },
++    "pinkie": {
++      "version": "2.0.4",
++      "resolved": "https://registry.npmjs.org/pinkie/-/pinkie-2.0.4.tgz",
++      "integrity": "sha1-clVrgM+g1IqXToDnckjoDtT3+HA=",
++      "dev": true
++    },
++    "pinkie-promise": {
++      "version": "2.0.1",
++      "resolved": "https://registry.npmjs.org/pinkie-promise/-/pinkie-promise-2.0.1.tgz",
++      "integrity": "sha1-ITXW36ejWMBprJsXh3YogihFD/o=",
++      "dev": true,
++      "requires": {
++        "pinkie": "^2.0.0"
++      }
++    },
++    "pluralize": {
++      "version": "7.0.0",
++      "resolved": "https://registry.npmjs.org/pluralize/-/pluralize-7.0.0.tgz",
++      "integrity": "sha512-ARhBOdzS3e41FbkW/XWrTEtukqqLoK5+Z/4UeDaLuSW+39JPeFgs4gCGqsrJHVZX0fUrx//4OF0K1CUGwlIFow==",
++      "dev": true
++    },
++    "prelude-ls": {
++      "version": "1.1.2",
++      "resolved": "https://registry.npmjs.org/prelude-ls/-/prelude-ls-1.1.2.tgz",
++      "integrity": "sha1-IZMqVJ9eUv/ZqCf1cOBL5iqX2lQ=",
++      "dev": true
++    },
++    "process-nextick-args": {
++      "version": "2.0.0",
++      "resolved": "https://registry.npmjs.org/process-nextick-args/-/process-nextick-args-2.0.0.tgz",
++      "integrity": "sha512-MtEC1TqN0EU5nephaJ4rAtThHtC86dNN9qCuEhtshvpVBkAW5ZO7BASN9REnF9eoXGcRub+pFuKEpOHE+HbEMw=="
++    },
++    "progress": {
++      "version": "2.0.0",
++      "resolved": "https://registry.npmjs.org/progress/-/progress-2.0.0.tgz",
++      "integrity": "sha1-ihvjZr+Pwj2yvSPxDG/pILQ4nR8=",
++      "dev": true
++    },
++    "punycode": {
++      "version": "2.1.1",
++      "resolved": "https://registry.npmjs.org/punycode/-/punycode-2.1.1.tgz",
++      "integrity": "sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==",
++      "dev": true
++    },
++    "rc": {
++      "version": "1.2.8",
++      "resolved": "https://registry.npmjs.org/rc/-/rc-1.2.8.tgz",
++      "integrity": "sha512-y3bGgqKj3QBdxLbLkomlohkvsA8gdAiUQlSBJnBhfn+BPxg4bc62d8TcBW15wavDfgexCgccckhcZvywyQYPOw==",
++      "requires": {
++        "deep-extend": "^0.6.0",
++        "ini": "~1.3.0",
++        "minimist": "^1.2.0",
++        "strip-json-comments": "~2.0.1"
++      },
++      "dependencies": {
++        "minimist": {
++          "version": "1.2.0",
++          "resolved": "https://registry.npmjs.org/minimist/-/minimist-1.2.0.tgz",
++          "integrity": "sha1-o1AIsg9BOD7sH7kU9M1d95omQoQ="
++        }
++      }
++    },
++    "readable-stream": {
++      "version": "2.3.6",
++      "resolved": "https://registry.npmjs.org/readable-stream/-/readable-stream-2.3.6.tgz",
++      "integrity": "sha512-tQtKA9WIAhBF3+VLAseyMqZeBjW0AHJoxOtYqSUZNJxauErmLbVm2FW1y+J/YA9dUrAC39ITejlZWhVIwawkKw==",
++      "requires": {
++        "core-util-is": "~1.0.0",
++        "inherits": "~2.0.3",
++        "isarray": "~1.0.0",
++        "process-nextick-args": "~2.0.0",
++        "safe-buffer": "~5.1.1",
++        "string_decoder": "~1.1.1",
++        "util-deprecate": "~1.0.1"
++      }
++    },
++    "regexp.prototype.flags": {
++      "version": "1.2.0",
++      "resolved": "https://registry.npmjs.org/regexp.prototype.flags/-/regexp.prototype.flags-1.2.0.tgz",
++      "integrity": "sha512-ztaw4M1VqgMwl9HlPpOuiYgItcHlunW0He2fE6eNfT6E/CF2FtYi9ofOYe4mKntstYk0Fyh/rDRBdS3AnxjlrA==",
++      "dev": true,
++      "requires": {
++        "define-properties": "^1.1.2"
++      }
++    },
++    "regexpp": {
++      "version": "2.0.0",
++      "resolved": "https://registry.npmjs.org/regexpp/-/regexpp-2.0.0.tgz",
++      "integrity": "sha512-g2FAVtR8Uh8GO1Nv5wpxW7VFVwHcCEr4wyA8/MHiRkO8uHoR5ntAA8Uq3P1vvMTX/BeQiRVSpDGLd+Wn5HNOTA==",
++      "dev": true
++    },
++    "require-uncached": {
++      "version": "1.0.3",
++      "resolved": "https://registry.npmjs.org/require-uncached/-/require-uncached-1.0.3.tgz",
++      "integrity": "sha1-Tg1W1slmL9MeQwEcS5WqSZVUIdM=",
++      "dev": true,
++      "requires": {
++        "caller-path": "^0.1.0",
++        "resolve-from": "^1.0.0"
++      }
++    },
++    "resolve-from": {
++      "version": "1.0.1",
++      "resolved": "https://registry.npmjs.org/resolve-from/-/resolve-from-1.0.1.tgz",
++      "integrity": "sha1-Jsv+k10a7uq7Kbw/5a6wHpPUQiY=",
++      "dev": true
++    },
++    "restore-cursor": {
++      "version": "2.0.0",
++      "resolved": "https://registry.npmjs.org/restore-cursor/-/restore-cursor-2.0.0.tgz",
++      "integrity": "sha1-n37ih/gv0ybU/RYpI9YhKe7g368=",
++      "dev": true,
++      "requires": {
++        "onetime": "^2.0.0",
++        "signal-exit": "^3.0.2"
++      }
++    },
++    "rimraf": {
++      "version": "2.6.2",
++      "resolved": "https://registry.npmjs.org/rimraf/-/rimraf-2.6.2.tgz",
++      "integrity": "sha512-lreewLK/BlghmxtfH36YYVg1i8IAce4TI7oao75I1g245+6BctqTVQiBP3YUJ9C6DQOXJmkYR9X9fCLtCOJc5w==",
++      "requires": {
++        "glob": "^7.0.5"
++      }
++    },
++    "run-async": {
++      "version": "2.3.0",
++      "resolved": "https://registry.npmjs.org/run-async/-/run-async-2.3.0.tgz",
++      "integrity": "sha1-A3GrSuC91yDUFm19/aZP96RFpsA=",
++      "dev": true,
++      "requires": {
++        "is-promise": "^2.1.0"
++      }
++    },
++    "rxjs": {
++      "version": "5.5.11",
++      "resolved": "https://registry.npmjs.org/rxjs/-/rxjs-5.5.11.tgz",
++      "integrity": "sha512-3bjO7UwWfA2CV7lmwYMBzj4fQ6Cq+ftHc2MvUe+WMS7wcdJ1LosDWmdjPQanYp2dBRj572p7PeU81JUxHKOcBA==",
++      "dev": true,
++      "requires": {
++        "symbol-observable": "1.0.1"
++      }
++    },
++    "safe-buffer": {
++      "version": "5.1.2",
++      "resolved": "https://registry.npmjs.org/safe-buffer/-/safe-buffer-5.1.2.tgz",
++      "integrity": "sha512-Gd2UZBJDkXlY7GbJxfsE8/nvKkUEU1G38c1siN6QP6a9PT9MmHB8GnpscSmMJSoF8LOIrt8ud/wPtojys4G6+g=="
++    },
++    "safer-buffer": {
++      "version": "2.1.2",
++      "resolved": "https://registry.npmjs.org/safer-buffer/-/safer-buffer-2.1.2.tgz",
++      "integrity": "sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg=="
++    },
++    "sax": {
++      "version": "1.2.4",
++      "resolved": "https://registry.npmjs.org/sax/-/sax-1.2.4.tgz",
++      "integrity": "sha512-NqVDv9TpANUjFm0N8uM5GxL36UgKi9/atZw+x7YFnQ8ckwFGKrl4xX4yWtrey3UJm5nP1kUbnYgLopqWNSRhWw=="
++    },
++    "semver": {
++      "version": "5.5.0",
++      "resolved": "https://registry.npmjs.org/semver/-/semver-5.5.0.tgz",
++      "integrity": "sha512-4SJ3dm0WAwWy/NVeioZh5AntkdJoWKxHxcmyP622fOkgHa4z3R0TdBJICINyaSDE6uNwVc8gZr+ZinwZAH4xIA=="
++    },
++    "set-blocking": {
++      "version": "2.0.0",
++      "resolved": "https://registry.npmjs.org/set-blocking/-/set-blocking-2.0.0.tgz",
++      "integrity": "sha1-BF+XgtARrppoA93TgrJDkrPYkPc="
++    },
++    "shebang-command": {
++      "version": "1.2.0",
++      "resolved": "https://registry.npmjs.org/shebang-command/-/shebang-command-1.2.0.tgz",
++      "integrity": "sha1-RKrGW2lbAzmJaMOfNj/uXer98eo=",
++      "dev": true,
++      "requires": {
++        "shebang-regex": "^1.0.0"
++      }
++    },
++    "shebang-regex": {
++      "version": "1.0.0",
++      "resolved": "https://registry.npmjs.org/shebang-regex/-/shebang-regex-1.0.0.tgz",
++      "integrity": "sha1-2kL0l0DAtC2yypcoVxyxkMmO/qM=",
++      "dev": true
++    },
++    "signal-exit": {
++      "version": "3.0.2",
++      "resolved": "https://registry.npmjs.org/signal-exit/-/signal-exit-3.0.2.tgz",
++      "integrity": "sha1-tf3AjxKH6hF4Yo5BXiUTK3NkbG0="
++    },
++    "slice-ansi": {
++      "version": "1.0.0",
++      "resolved": "https://registry.npmjs.org/slice-ansi/-/slice-ansi-1.0.0.tgz",
++      "integrity": "sha512-POqxBK6Lb3q6s047D/XsDVNPnF9Dl8JSaqe9h9lURl0OdNqy/ujDrOiIHtsqXMGbWWTIomRzAMaTyawAU//Reg==",
++      "dev": true,
++      "requires": {
++        "is-fullwidth-code-point": "^2.0.0"
++      },
++      "dependencies": {
++        "is-fullwidth-code-point": {
++          "version": "2.0.0",
++          "resolved": "https://registry.npmjs.org/is-fullwidth-code-point/-/is-fullwidth-code-point-2.0.0.tgz",
++          "integrity": "sha1-o7MKXE8ZkYMWeqq5O+764937ZU8=",
++          "dev": true
++        }
++      }
++    },
++    "sprintf-js": {
++      "version": "1.0.3",
++      "resolved": "https://registry.npmjs.org/sprintf-js/-/sprintf-js-1.0.3.tgz",
++      "integrity": "sha1-BOaSb2YolTVPPdAVIDYzuFcpfiw=",
++      "dev": true
++    },
++    "string-width": {
++      "version": "1.0.2",
++      "resolved": "https://registry.npmjs.org/string-width/-/string-width-1.0.2.tgz",
++      "integrity": "sha1-EYvfW4zcUaKn5w0hHgfisLmxB9M=",
++      "requires": {
++        "code-point-at": "^1.0.0",
++        "is-fullwidth-code-point": "^1.0.0",
++        "strip-ansi": "^3.0.0"
++      }
++    },
++    "string.prototype.matchall": {
++      "version": "2.0.0",
++      "resolved": "https://registry.npmjs.org/string.prototype.matchall/-/string.prototype.matchall-2.0.0.tgz",
++      "integrity": "sha512-WoZ+B2ypng1dp4iFLF2kmZlwwlE19gmjgKuhL1FJfDgCREWb3ye3SDVHSzLH6bxfnvYmkCxbzkmWcQZHA4P//Q==",
++      "dev": true,
++      "requires": {
++        "define-properties": "^1.1.2",
++        "es-abstract": "^1.10.0",
++        "function-bind": "^1.1.1",
++        "has-symbols": "^1.0.0",
++        "regexp.prototype.flags": "^1.2.0"
++      }
++    },
++    "string_decoder": {
++      "version": "1.1.1",
++      "resolved": "https://registry.npmjs.org/string_decoder/-/string_decoder-1.1.1.tgz",
++      "integrity": "sha512-n/ShnvDi6FHbbVfviro+WojiFzv+s8MPMHBczVePfUpDJLwoLT0ht1l4YwBCbi8pJAveEEdnkHyPyTP/mzRfwg==",
++      "requires": {
++        "safe-buffer": "~5.1.0"
++      }
++    },
++    "strip-ansi": {
++      "version": "3.0.1",
++      "resolved": "https://registry.npmjs.org/strip-ansi/-/strip-ansi-3.0.1.tgz",
++      "integrity": "sha1-ajhfuIU9lS1f8F0Oiq+UJ43GPc8=",
++      "requires": {
++        "ansi-regex": "^2.0.0"
++      }
++    },
++    "strip-json-comments": {
++      "version": "2.0.1",
++      "resolved": "https://registry.npmjs.org/strip-json-comments/-/strip-json-comments-2.0.1.tgz",
++      "integrity": "sha1-PFMZQukIwml8DsNEhYwobHygpgo="
++    },
++    "supports-color": {
++      "version": "2.0.0",
++      "resolved": "https://registry.npmjs.org/supports-color/-/supports-color-2.0.0.tgz",
++      "integrity": "sha1-U10EXOa2Nj+kARcIRimZXp3zJMc=",
++      "dev": true
++    },
++    "symbol-observable": {
++      "version": "1.0.1",
++      "resolved": "https://registry.npmjs.org/symbol-observable/-/symbol-observable-1.0.1.tgz",
++      "integrity": "sha1-g0D8RwLDEi310iKI+IKD9RPT/dQ=",
++      "dev": true
++    },
++    "table": {
++      "version": "4.0.3",
++      "resolved": "https://registry.npmjs.org/table/-/table-4.0.3.tgz",
++      "integrity": "sha512-S7rnFITmBH1EnyKcvxBh1LjYeQMmnZtCXSEbHcH6S0NoKit24ZuFO/T1vDcLdYsLQkM188PVVhQmzKIuThNkKg==",
++      "dev": true,
++      "requires": {
++        "ajv": "^6.0.1",
++        "ajv-keywords": "^3.0.0",
++        "chalk": "^2.1.0",
++        "lodash": "^4.17.4",
++        "slice-ansi": "1.0.0",
++        "string-width": "^2.1.1"
++      },
++      "dependencies": {
++        "ansi-regex": {
++          "version": "3.0.0",
++          "resolved": "https://registry.npmjs.org/ansi-regex/-/ansi-regex-3.0.0.tgz",
++          "integrity": "sha1-7QMXwyIGT3lGbAKWa922Bas32Zg=",
++          "dev": true
++        },
++        "is-fullwidth-code-point": {
++          "version": "2.0.0",
++          "resolved": "https://registry.npmjs.org/is-fullwidth-code-point/-/is-fullwidth-code-point-2.0.0.tgz",
++          "integrity": "sha1-o7MKXE8ZkYMWeqq5O+764937ZU8=",
++          "dev": true
++        },
++        "string-width": {
++          "version": "2.1.1",
++          "resolved": "https://registry.npmjs.org/string-width/-/string-width-2.1.1.tgz",
++          "integrity": "sha512-nOqH59deCq9SRHlxq1Aw85Jnt4w6KvLKqWVik6oA9ZklXLNIOlqg4F2yrT1MVaTjAqvVwdfeZ7w7aCvJD7ugkw==",
++          "dev": true,
++          "requires": {
++            "is-fullwidth-code-point": "^2.0.0",
++            "strip-ansi": "^4.0.0"
++          }
++        },
++        "strip-ansi": {
++          "version": "4.0.0",
++          "resolved": "https://registry.npmjs.org/strip-ansi/-/strip-ansi-4.0.0.tgz",
++          "integrity": "sha1-qEeQIusaw2iocTibY1JixQXuNo8=",
++          "dev": true,
++          "requires": {
++            "ansi-regex": "^3.0.0"
++          }
++        }
++      }
++    },
++    "tar": {
++      "version": "4.4.6",
++      "resolved": "https://registry.npmjs.org/tar/-/tar-4.4.6.tgz",
++      "integrity": "sha512-tMkTnh9EdzxyfW+6GK6fCahagXsnYk6kE6S9Gr9pjVdys769+laCTbodXDhPAjzVtEBazRgP0gYqOjnk9dQzLg==",
++      "requires": {
++        "chownr": "^1.0.1",
++        "fs-minipass": "^1.2.5",
++        "minipass": "^2.3.3",
++        "minizlib": "^1.1.0",
++        "mkdirp": "^0.5.0",
++        "safe-buffer": "^5.1.2",
++        "yallist": "^3.0.2"
++      }
++    },
++    "text-table": {
++      "version": "0.2.0",
++      "resolved": "https://registry.npmjs.org/text-table/-/text-table-0.2.0.tgz",
++      "integrity": "sha1-f17oI66AUgfACvLfSoTsP8+lcLQ=",
++      "dev": true
++    },
++    "through": {
++      "version": "2.3.8",
++      "resolved": "https://registry.npmjs.org/through/-/through-2.3.8.tgz",
++      "integrity": "sha1-DdTJ/6q8NXlgsbckEV1+Doai4fU=",
++      "dev": true
++    },
++    "tmp": {
++      "version": "0.0.33",
++      "resolved": "https://registry.npmjs.org/tmp/-/tmp-0.0.33.tgz",
++      "integrity": "sha512-jRCJlojKnZ3addtTOjdIqoRuPEKBvNXcGYqzO6zWZX8KfKEpnGY5jfggJQ3EjKuu8D4bJRr0y+cYJFmYbImXGw==",
++      "dev": true,
++      "requires": {
++        "os-tmpdir": "~1.0.2"
++      }
++    },
++    "type-check": {
++      "version": "0.3.2",
++      "resolved": "https://registry.npmjs.org/type-check/-/type-check-0.3.2.tgz",
++      "integrity": "sha1-WITKtRLPHTVeP7eE8wgEsrUg23I=",
++      "dev": true,
++      "requires": {
++        "prelude-ls": "~1.1.2"
++      }
++    },
++    "uri-js": {
++      "version": "4.2.2",
++      "resolved": "https://registry.npmjs.org/uri-js/-/uri-js-4.2.2.tgz",
++      "integrity": "sha512-KY9Frmirql91X2Qgjry0Wd4Y+YTdrdZheS8TFwvkbLWf/G5KNJDCh6pKL5OZctEW4+0Baa5idK2ZQuELRwPznQ==",
++      "dev": true,
++      "requires": {
++        "punycode": "^2.1.0"
++      }
++    },
++    "usb": {
++      "version": "git://github.com/jrobeson/node-usb.git#0b85eb208e30c1475f6d451dec0653b168f693c5",
++      "from": "git://github.com/jrobeson/node-usb.git#fork",
++      "requires": {
++        "nan": "^2.8.0",
++        "node-pre-gyp": "^0.10.0"
++      },
++      "dependencies": {
++        "node-pre-gyp": {
++          "version": "0.10.3",
++          "resolved": "https://registry.npmjs.org/node-pre-gyp/-/node-pre-gyp-0.10.3.tgz",
++          "integrity": "sha512-d1xFs+C/IPS8Id0qPTZ4bUT8wWryfR/OzzAFxweG+uLN85oPzyo2Iw6bVlLQ/JOdgNonXLCoRyqDzDWq4iw72A==",
++          "requires": {
++            "detect-libc": "^1.0.2",
++            "mkdirp": "^0.5.1",
++            "needle": "^2.2.1",
++            "nopt": "^4.0.1",
++            "npm-packlist": "^1.1.6",
++            "npmlog": "^4.0.2",
++            "rc": "^1.2.7",
++            "rimraf": "^2.6.1",
++            "semver": "^5.3.0",
++            "tar": "^4"
++          }
++        }
++      }
++    },
++    "util-deprecate": {
++      "version": "1.0.2",
++      "resolved": "https://registry.npmjs.org/util-deprecate/-/util-deprecate-1.0.2.tgz",
++      "integrity": "sha1-RQ1Nyfpw3nMnYvvS1KKJgUGaDM8="
++    },
++    "which": {
++      "version": "1.3.1",
++      "resolved": "https://registry.npmjs.org/which/-/which-1.3.1.tgz",
++      "integrity": "sha512-HxJdYWq1MTIQbJ3nw0cqssHoTNU267KlrDuGZ1WYlxDStUtKUhOaJmh112/TZmHxxUfuJqPXSOm7tDyas0OSIQ==",
++      "dev": true,
++      "requires": {
++        "isexe": "^2.0.0"
++      }
++    },
++    "wide-align": {
++      "version": "1.1.3",
++      "resolved": "https://registry.npmjs.org/wide-align/-/wide-align-1.1.3.tgz",
++      "integrity": "sha512-QGkOQc8XL6Bt5PwnsExKBPuMKBxnGxWWW3fU55Xt4feHozMUhdUMaBCk290qpm/wG5u/RSKzwdAC4i51YigihA==",
++      "requires": {
++        "string-width": "^1.0.2 || 2"
++      }
++    },
++    "wordwrap": {
++      "version": "1.0.0",
++      "resolved": "https://registry.npmjs.org/wordwrap/-/wordwrap-1.0.0.tgz",
++      "integrity": "sha1-J1hIEIkUVqQXHI0CJkQa3pDLyus=",
++      "dev": true
++    },
++    "wrappy": {
++      "version": "1.0.2",
++      "resolved": "https://registry.npmjs.org/wrappy/-/wrappy-1.0.2.tgz",
++      "integrity": "sha1-tSQ9jz7BqjXxNkYFvA0QNuMKtp8="
++    },
++    "write": {
++      "version": "0.2.1",
++      "resolved": "https://registry.npmjs.org/write/-/write-0.2.1.tgz",
++      "integrity": "sha1-X8A4KOJkzqP+kUVUdvejxWbLB1c=",
++      "dev": true,
++      "requires": {
++        "mkdirp": "^0.5.1"
++      }
++    },
++    "yallist": {
++      "version": "3.0.2",
++      "resolved": "https://registry.npmjs.org/yallist/-/yallist-3.0.2.tgz",
++      "integrity": "sha1-hFK0u36Dx8GI2AQcGoN8dz1ti7k="
++    }
++  }
++}
+diff --git a/package.json b/package.json
+index 43ee21f..78dd347 100644
+--- a/package.json
++++ b/package.json
+@@ -26,26 +26,26 @@
+     "win32"
+   ],
+   "dependencies": {
+-    "debug": "^2.2.0",
+-    "nan": "^2.0.5",
+-    "node-pre-gyp": "0.6.x"
+-  },
+-  "optionalDependencies": {
+-    "usb": "^1.1.0"
++    "debug": "^3.1.0",
++    "nan": "^2.10.0",
++    "node-pre-gyp": "^0.11.0"
+   },
++  "optionalDependencies": {},
+   "devDependencies": {
+-    "jshint": "^2.8.0"
++    "eslint": "^5.3.0"
++  },
++  "engines": {
++    "node": ">=6.14.0"
+   },
+   "scripts": {
+-      "preinstall": "npm install node-pre-gyp",
+-      "install": "node-pre-gyp install --fallback-to-build",
+-      "test": "jshint lib/*.js"
++    "install": "node-pre-gyp install --build-from-source",
++    "test": "eslint examples/ lib/"
+   },
+   "binary": {
+-      "module_name": "binding",
+-      "module_path": "./lib/binding/",
+-      "host": "https://github.com/sandeepmistry/node-bluetooth-hci-socket/releases/download/",
+-      "package_name": "{module_name}-{version}-{node_abi}-{platform}-{arch}.tar.gz",
+-      "remote_path": "{version}"
++    "module_name": "bluetooth_hci_socket",
++    "module_path": "./lib/binding/",
++    "host": "https://github.com/sandeepmistry/node-bluetooth-hci-socket/releases/download/",
++    "package_name": "{module_name}-{version}-{node_abi}-{platform}-{arch}.tar.gz",
++    "remote_path": "{version}"
+   }
+ }
+diff --git a/src/BluetoothHciSocket.cpp b/src/BluetoothHciSocket.cpp
+index 469cda2..e05bb34 100644
+--- a/src/BluetoothHciSocket.cpp
++++ b/src/BluetoothHciSocket.cpp
+@@ -276,7 +276,7 @@ void BluetoothHciSocket::emitErrnoError() {
+     Nan::New(strerror(errno)).ToLocalChecked()
+   };
+ 
+-  Local<Value> error = errorConstructor->NewInstance(1, constructorArgs);
++  Local<Value> error = Nan::NewInstance(errorConstructor, 1, constructorArgs).ToLocalChecked();
+ 
+   Local<Value> argv[2] = {
+     Nan::New("error").ToLocalChecked(),
+@@ -538,4 +538,4 @@ void BluetoothHciSocket::PollCallback(uv_poll_t* handle, int status, int events)
+   p->poll();
+ }
+ 
+-NODE_MODULE(binding, BluetoothHciSocket::Init);
++NODE_MODULE(NODE_GYP_MODULE_NAME, BluetoothHciSocket::Init);

@@ -1,0 +1,17 @@
+--- a/index.js
++++ b/index.js
+@@ -1,10 +1,11 @@
+ 'use strict';
+ 
+-const os = require('os');
+-const path = require('path');
++// const os = require('os');
++// const path = require('path');
+ const fs = require('fs');
+ 
+-const ffmpegPath = path.resolve(__dirname, os.platform() === 'win32' ? 'ffmpeg.exe' : 'ffmpeg');
++// const ffmpegPath = path.resolve(__dirname, os.platform() === 'win32' ? 'ffmpeg.exe' : 'ffmpeg');
++const ffmpegPath = '/usr/bin/ffmpeg';
+ 
+ if (fs.existsSync(ffmpegPath)) {
+   module.exports = ffmpegPath;

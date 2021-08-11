@@ -1,0 +1,14 @@
+--- a/package.json
++++ b/package.json
+@@ -27,11 +27,9 @@
+     "node": ">=4.0.0"
+   },
+   "dependencies": {
+-    "bufferutil": "^4.0.1",
+     "debug": "^2.2.0",
+     "es5-ext": "^0.10.50",
+     "typedarray-to-buffer": "^3.1.5",
+-    "utf-8-validate": "^5.0.2",
+     "yaeti": "^0.0.6"
+   },
+   "devDependencies": {

@@ -1,0 +1,10 @@
+--- a/package.json
++++ b/package.json
+@@ -8,7 +8,6 @@
+     "debug": "~4.3.1",
+     "jsmodbus": "~4.0.5",
+     "line-by-line": "~0.1.6",
+-    "modbus-serial": "~8.0.1",
+     "source-map-support": "~0.5.19",
+     "vm2": "~3.9.3",
+     "@xstate/fsm": "~1.6.0"
