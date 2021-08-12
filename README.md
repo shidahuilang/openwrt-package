@@ -1,7 +1,6 @@
 # [大灰狼的专用软件包]
 
-#请不要Fork此仓库，你Fork后会有极大的机会中炸弹（💣 💣 💣）的危险，重要的事说三遍，请不要请不要Fork此仓库,请不要Fork此仓库,请不要Fork此仓库 😄
-
+#
 #### [master]分支的为[[lede_source](https://github.com/coolsnowwolf/lede)]源码专用
 #### [19.07]分支的为[[lienol_source](https://github.com/Lienol/openwrt)]源码专用
 #### [openwrt-21.02]分支的为[[Mortal_source](https://github.com/immortalwrt/immortalwrt)]源码专用
