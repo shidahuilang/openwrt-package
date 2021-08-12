@@ -142,7 +142,7 @@ start(){
 		exit 1
 	fi
 	[ ! -s $T/adblock.conf ] && A=1
-	if [ -n "$url" -a ! -s /tmp/adblock/failed ];then
+	if [ -n "$url" -a ! -s $T/failed ];then
 		[ $flash = 0 -a ! -s $T/3rd/3rd.conf ] && B=1
 		[ $flash = 1 -a ! -s $L/3rd/3rd.conf ] && B=1
 	fi
