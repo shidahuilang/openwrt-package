@@ -91,7 +91,7 @@ for i, f in ipairs(fs.glob("/tmp/upload/*")) do
             boot_file = true
         end
         -- dtb-amlogic-5.10.16-flippy-53+.tar.gz
-        if (string.lower(string.sub(fs.basename(f), 1, 12)) == "dtb-amlogic-") then
+        if (string.lower(string.sub(fs.basename(f), 1, 4)) == "dtb-") then
             dtb_file = true
         end
         -- modules-5.10.16-flippy-53+.tar.gz

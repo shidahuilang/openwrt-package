@@ -5,7 +5,7 @@ local b, c
 
 --SimpleForm for Backup Config
 b = SimpleForm("backup", translate("Backup Firmware Config"), nil)
-b.description = translate("Backup firmware config (openwrt_config.tar.gz). Use this file to restore the config in [Manually Upload Update].")
+b.description = translate("Backup OpenWrt config (openwrt_config.tar.gz). Use this file to restore the config in [Manually Upload Update].")
 b.reset = false
 b.submit = false
 s = b:section(SimpleSection, "", "")

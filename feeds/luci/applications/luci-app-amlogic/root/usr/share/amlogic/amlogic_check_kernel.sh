@@ -18,7 +18,25 @@ tolog() {
     [[ -z "${2}" ]] || exit 1
 }
 
-# # Step 2: URL formatting start -----------------------------------------------------------
+# Current device model
+MYDEVICE_NAME=$(cat /proc/device-tree/model 2>/dev/null)
+if [ -z "${MYDEVICE_NAME}" ]; then
+    tolog "Unknown device" "1"
+#elif [ "${MYDEVICE_NAME}" == "Phicomm N1" ]; then
+#    tolog "Test current device: ${MYDEVICE_NAME}" "1"
+elif [ "${MYDEVICE_NAME}" == "Chainedbox L1 Pro" ]; then
+    MYDTB_FILE="rockchip"
+elif [ "${MYDEVICE_NAME}" == "BeikeYun" ]; then
+    MYDTB_FILE="rockchip"
+elif [ "${MYDEVICE_NAME}" == "V-Plus Cloud" ]; then
+    MYDTB_FILE="allwinner"
+else
+    MYDTB_FILE="amlogic"
+fi
+tolog "Current device: ${MYDEVICE_NAME}"
+sleep 3
+
+# # Step 1: URL formatting start -----------------------------------------------------------
 #
 # 01. Download server version documentation
 tolog "01. Start checking the kernel version."
@@ -60,7 +78,7 @@ elif [[ ${SERVER_KERNEL_PATH} == http* && $(echo ${SERVER_KERNEL_PATH} | grep "t
 fi
 
 SERVER_KERNEL_URL="https://api.github.com/repos/${SERVER_FIRMWARE_URL}/contents/${SERVER_KERNEL_PATH}"
-# Step 2: URL formatting end -----------------------------------------------------------
+# Step 1: URL formatting end -----------------------------------------------------------
 
 # Step 2: Check if there is the latest kernel version
 check_kernel() {
@@ -107,7 +125,7 @@ download_kernel() {
 
     # Delete other residual kernel files
     rm -f ${KERNEL_DOWNLOAD_PATH}/boot-*.tar.gz && sync
-    rm -f ${KERNEL_DOWNLOAD_PATH}/dtb-amlogic-*.tar.gz && sync
+    rm -f ${KERNEL_DOWNLOAD_PATH}/dtb-*.tar.gz && sync
     rm -f ${KERNEL_DOWNLOAD_PATH}/modules-*.tar.gz && sync
 
     # Download boot file from the kernel directory under the path: ${SERVER_KERNEL_URL}/${DOWNLOAD_VERSION}/
@@ -127,10 +145,10 @@ download_kernel() {
     sleep 3
 
     # Download dtb file from the kernel directory under the path: ${SERVER_KERNEL_URL}/${DOWNLOAD_VERSION}/
-    SERVER_KERNEL_DTB="$(curl -s "${SERVER_KERNEL_URL}/${DOWNLOAD_VERSION}" | grep "download_url" | grep -o "https.*/dtb-amlogic-${DOWNLOAD_VERSION}.*.tar.gz" | head -n 1)"
+    SERVER_KERNEL_DTB="$(curl -s "${SERVER_KERNEL_URL}/${DOWNLOAD_VERSION}" | grep "download_url" | grep -o "https.*/dtb-${MYDTB_FILE}-${DOWNLOAD_VERSION}.*.tar.gz" | head -n 1)"
     # Download dtb file from current path: ${SERVER_KERNEL_URL}/
     if [ -z "${SERVER_KERNEL_DTB}" ]; then
-        SERVER_KERNEL_DTB="$(curl -s "${SERVER_KERNEL_URL}" | grep "download_url" | grep -o "https.*/dtb-amlogic-${DOWNLOAD_VERSION}.*.tar.gz" | head -n 1)"
+        SERVER_KERNEL_DTB="$(curl -s "${SERVER_KERNEL_URL}" | grep "download_url" | grep -o "https.*/dtb-${MYDTB_FILE}-${DOWNLOAD_VERSION}.*.tar.gz" | head -n 1)"
     fi
     SERVER_KERNEL_DTB_NAME="${SERVER_KERNEL_DTB##*/}"
     SERVER_KERNEL_DTB_NAME="${SERVER_KERNEL_DTB_NAME//%2B/+}"

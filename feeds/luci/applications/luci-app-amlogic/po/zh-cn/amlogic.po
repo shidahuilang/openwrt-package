@@ -92,8 +92,8 @@ msgstr "手动上传更新"
 msgid "Install OpenWrt"
 msgstr "安装 OpenWrt"
 
-msgid "Select the Amlogic SoC:"
-msgstr "选择晶晨宝盒型号："
+msgid "Select the device model:"
+msgstr "选择设备型号："
 
 msgid "Select List"
 msgstr "选择列表"
@@ -164,8 +164,8 @@ msgstr "无效值"
 msgid "Install OpenWrt:"
 msgstr "安装 OpenWrt："
 
-msgid "Install OpenWrt to Amlogic EMMC, Please Select the Amlogic SoC, Or enter the dtb file name."
-msgstr "将 OpenWrt 安装到晶晨宝盒 EMMC，请选择宝盒型号，或输入 dtb 文件名。"
+msgid "Install OpenWrt to EMMC, Please select the device model, Or enter the dtb file name."
+msgstr "将 OpenWrt 安装到 EMMC，请选择设备型号，或输入 dtb 文件名。"
 
 msgid "Tip: Writing is in progress, and it will automatically restart after completion."
 msgstr "提示：正在写入，完成后将自动重启。"
@@ -209,41 +209,47 @@ msgstr "更换 OpenWrt 内核"
 msgid "Tip: The kernel is being replaced, and it will automatically restart after completion."
 msgstr "提示：正在替换内核，完成后将自动重启。"
 
-msgid "Supports related operations on Amlogic series boxes through the panel."
-msgstr "支持通过面板对 Amlogic 系列盒子进行相关操作。"
+msgid "Supports management of Amlogic s9xxx, Allwinner (V-Plus Cloud), and Rockchip (BeikeYun, Chainedbox L1 Pro) boxes."
+msgstr "支持对晶晨 s9xxx 系列（斐讯N1、HK1等），全志（微加云），以及瑞芯微（贝壳云、我家云）的盒子进行在线管理。"
 
 msgid "Supported functions:"
 msgstr "支持的功能："
 
-msgid "Provide services such as install to EMMC, Update Firmware or Kernel, Backup and Recovery Config for Amlogic STB."
-msgstr "为 Amlogic 系列盒子提供支持，例如将 OpenWrt 系统写入 EMMC、升级固件或内核，备份与恢复自定义配置等功能。"
+msgid "Provide services such as install to EMMC, Update Firmware or Kernel, Backup and Recovery Config, Snapshot management, etc."
+msgstr "支持将 OpenWrt 系统写入 EMMC、升级固件或内核，备份与恢复自定义配置，快照管理等功能。"
 
-msgid "Supported Amlogic STB:"
+msgid "Supported Boxes:"
 msgstr "支持的盒子："
 
-msgid "S922x --- [ Belink, Belink-Pro, Ugoos-AM6-Plus ]"
-msgstr "S922x --- [ Belink, Belink-Pro, Ugoos-AM6-Plus ]"
+msgid "Amlogic s922x --- [ Belink, Belink-Pro, Ugoos-AM6-Plus ]"
+msgstr "晶晨 s922x --- [ Belink, Belink-Pro, Ugoos-AM6-Plus ]"
 
-msgid "S905x3 -- [ X96-Max+, HK1-Box, H96-Max-X3, Ugoos-X3, X96-Air, A95XF3-Air ]"
-msgstr "S905x3 -- [ X96-Max+, HK1-Box, H96-Max-X3, Ugoos-X3, X96-Air, A95XF3-Air ]"
+msgid "Amlogic s905x3 -- [ X96-Max+, HK1-Box, H96-Max-X3, Ugoos-X3, X96-Air, A95XF3-Air ]"
+msgstr "晶晨 s905x3 -- [ X96-Max+, HK1-Box, H96-Max-X3, Ugoos-X3, X96-Air, A95XF3-Air ]"
 
-msgid "S905x2 -- [ X96Max-4G, X96Max-2G ]"
-msgstr "S905x2 -- [ X96Max-4G, X96Max-2G ]"
+msgid "Amlogic s905x2 -- [ X96Max-4G, X96Max-2G ]"
+msgstr "晶晨 s905x2 -- [ X96Max-4G, X96Max-2G ]"
 
-msgid "S905x --- [ HG680P, B860H ]"
-msgstr "S905x --- [ 烽火HG680 & 中兴B860H ]"
+msgid "Amlogic s905x --- [ HG680P, B860H ]"
+msgstr "晶晨 s905x --- [ 烽火HG680 & 中兴B860H ]"
 
-msgid "S905w --- [ X96-Mini, TX3-Mini ]"
-msgstr "S905w --- [ X96-Mini, TX3-Mini ]"
+msgid "Amlogic s905w --- [ X96-Mini, TX3-Mini ]"
+msgstr "晶晨 s905w --- [ X96-Mini, TX3-Mini ]"
 
-msgid "S912 ---- [ H96-Pro-Plus, Octopus-Planet ]"
-msgstr "S912 ---- [ H96-Pro-Plus, 章鱼星球 ]"
+msgid "Amlogic s912 ---- [ H96-Pro-Plus, Octopus-Planet ]"
+msgstr "晶晨 s912 ---- [ H96-Pro-Plus, 章鱼星球 ]"
 
-msgid "S905d --- [ Phicomm-N1 ]"
-msgstr "S905d --- [ 斐讯-N1 ]"
+msgid "Amlogic s905d --- [ Phicomm-N1 ]"
+msgstr "晶晨 s905d --- [ 斐讯-N1 ]"
 
-msgid "Other --- [ Optional DTB ]"
-msgstr "其他 ----- [ 自定义 DTB 文件 ]"
+msgid "Amlogic Other --- [ Optional DTB ]"
+msgstr "晶晨其他 ----- [ 自定义 DTB 文件 ]"
+
+msgid "Allwinner H6 ---- [ V-Plus Cloud ]"
+msgstr "全志 H6 ------ [ 微加云 ]"
+
+msgid "Rockchip 3328 --- [ BeikeYun, Chainedbox L1 Pro ]"
+msgstr "瑞芯微 3328 -- [ 贝壳云、我家云 ]"
 
 msgid "Install Ipk"
 msgstr "安装Ipk"
@@ -260,8 +266,8 @@ msgstr "备份配置："
 msgid "Download Backup"
 msgstr "下载备份"
 
-msgid "Backup firmware config (openwrt_config.tar.gz). Use this file to restore the config in [Manually Upload Update]."
-msgstr "备份晶晨宝盒中 OpenWrt 固件的相关配置信息(openwrt_config.tar.gz)。使用此文件可在 [手动上传更新] 中恢复配置。"
+msgid "Backup OpenWrt config (openwrt_config.tar.gz). Use this file to restore the config in [Manually Upload Update]."
+msgstr "备份当前 OpenWrt 的相关配置信息(openwrt_config.tar.gz)。使用此文件可在 [手动上传更新] 中恢复配置。"
 
 msgid "Restore"
 msgstr "恢复"
@@ -421,6 +427,12 @@ msgstr "当前版本"
 
 msgid "Latest Version"
 msgstr "最新版本"
+
+msgid "Current Device:"
+msgstr "当前设备："
+
+msgid "If the current device shows (Unknown device), please report to github."
+msgstr "如果当前设备显示无法识别（Unknown device），请到 github 反馈。"
 
 msgid "We will recommend to you the kernel version with the same mainline as the current OpenWrt system."
 msgstr "我们将向您推荐与当前 OpenWrt 系统相同主线的内核版本。"
