@@ -6,16 +6,27 @@
 #======================================================================================
 
 # The script supports directly setting parameters for update, skipping interactive selection
-# openwrt-update-amlogic ${OPENWRT_FILE} ${AUTO_MAINLINE_UBOOT} ${RESTORE_CONFIG}
+# openwrt-update-allwinner ${OPENWRT_FILE} ${AUTO_MAINLINE_UBOOT} ${RESTORE_CONFIG}
 # E.g: openwrt-update-allwinner openwrt_s905d.img.gz yes restore
 # E.g: openwrt-update-allwinner openwrt_s905d.img.gz no no-restore
 
 # You can also execute the script directly, and interactively select related functions
 # E.g: openwrt-update-allwinner
 
+# Receive one-key command related parameters
 IMG_NAME=${1}
 AUTO_MAINLINE_UBOOT=${2}
 BACKUP_RESTORE_CONFIG=${3}
+
+# Current device model
+MYDEVICE_NAME=$(cat /proc/device-tree/model 2>/dev/null)
+if [[ -z "${MYDEVICE_NAME}" || "${MYDEVICE_NAME}" != "V-Plus Cloud" ]]; then
+    echo "Unknown device: [ ${MYDEVICE_NAME} ], Not supported."
+    exit 1
+else
+    echo -e "Current device: ${MYDEVICE_NAME} [ vplus ]"
+    sleep 3
+fi
 
 EMMC_NAME=$(lsblk | grep -oE '(mmcblk[0-9])' | sort | uniq)
 if [ "${EMMC_NAME}" == "" ]; then
@@ -45,7 +56,8 @@ elif [ $( ls *.img.gz -l 2>/dev/null | grep "^-" | wc -l ) -ge 1 ]; then
 elif [ $( ls *.7z -l 2>/dev/null | grep "^-" | wc -l ) -ge 1 ]; then
     gz_file=$( ls *.7z | head -n 1 )
     echo -e "Update using [ ${gz_file} ] file. Please wait a moment ..."
-    7z x ${gz_file} -aoa -y
+    bsdtar -xmf ${gz_file}
+    #7z x ${gz_file} -aoa -y
     IMG_NAME=$( ls *.img | head -n 1 )
 elif [ $( ls *.zip -l 2>/dev/null | grep "^-" | wc -l ) -ge 1 ]; then
     zip_file=$( ls *.zip | head -n 1 )
@@ -71,7 +83,8 @@ elif [ $( ls /tmp/upload/*.7z -l 2>/dev/null | grep "^-" | wc -l ) -ge 1 ]; then
     echo -e "Update using [ ${gz_file} ] file. Please wait a moment ..."
     mv -f ${gz_file} .
     gz_file=${gz_file##*/}
-    7z x ${gz_file} -aoa -y
+    bsdtar -xmf ${gz_file}
+    #7z x ${gz_file} -aoa -y
     IMG_NAME=$( ls *.img | head -n 1 )
 elif [ $( ls /tmp/upload/*.zip -l 2>/dev/null | grep "^-" | wc -l ) -ge 1 ]; then
     zip_file=$( ls /tmp/upload/*.zip | head -n 1 )
@@ -462,5 +475,6 @@ sync
 
 echo "Successfully updated, automatic restarting..."
 sleep 3
-echo 'b' > /proc/sysrq-trigger
+reboot
+exit 0
 

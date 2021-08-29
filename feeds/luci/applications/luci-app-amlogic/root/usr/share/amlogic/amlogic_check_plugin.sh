@@ -2,6 +2,7 @@
 
 # Set a fixed value
 TMP_CHECK_DIR="/tmp/amlogic"
+AMLOGIC_SOC_FILE="/etc/flippy-openwrt-release"
 START_LOG="${TMP_CHECK_DIR}/amlogic_check_plugin.log"
 LOG_FILE="${TMP_CHECK_DIR}/amlogic.log"
 LOGTIME=$(date "+%Y-%m-%d %H:%M:%S")
@@ -23,14 +24,20 @@ if [ -z "${MYDEVICE_NAME}" ]; then
 #    tolog "Test current device: ${MYDEVICE_NAME}" "1"
 elif [ "${MYDEVICE_NAME}" == "Chainedbox L1 Pro" ]; then
     MYDTB_FILE="rockchip"
+    SOC="l1pro"
 elif [ "${MYDEVICE_NAME}" == "BeikeYun" ]; then
     MYDTB_FILE="rockchip"
+    SOC="beikeyun"
 elif [ "${MYDEVICE_NAME}" == "V-Plus Cloud" ]; then
     MYDTB_FILE="allwinner"
+    SOC="vplus"
 else
     MYDTB_FILE="amlogic"
+    source ${AMLOGIC_SOC_FILE} 2>/dev/null
+    SOC="${SOC}"
 fi
-tolog "Current device: ${MYDEVICE_NAME}"
+[[ ! -z "${SOC}" ]] || tolog "The custom firmware soc is invalid." "1"
+tolog "Current device: ${MYDEVICE_NAME} [ ${SOC} ]"
 sleep 3
 
 # 01. Query local version information

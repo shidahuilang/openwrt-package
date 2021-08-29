@@ -21,8 +21,6 @@ tolog() {
 MYDEVICE_NAME=$(cat /proc/device-tree/model 2>/dev/null)
 if [ -z "${MYDEVICE_NAME}" ]; then
     tolog "Unknown device" "1"
-#elif [ "${MYDEVICE_NAME}" == "Phicomm N1" ]; then
-#    tolog "Test current device: ${MYDEVICE_NAME}" "1"
 elif [ "${MYDEVICE_NAME}" == "Chainedbox L1 Pro" ]; then
     MYDTB_FILE="rockchip"
     SOC="l1pro"
@@ -38,7 +36,7 @@ else
     SOC="${SOC}"
 fi
 [[ ! -z "${SOC}" ]] || tolog "The custom firmware soc is invalid." "1"
-tolog "Current device: ${MYDEVICE_NAME}"
+tolog "Current device: ${MYDEVICE_NAME} [ ${SOC} ]"
 sleep 3
 
 # 01. Query local version information
