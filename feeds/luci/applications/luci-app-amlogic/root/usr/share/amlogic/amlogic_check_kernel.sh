@@ -22,8 +22,6 @@ tolog() {
 MYDEVICE_NAME=$(cat /proc/device-tree/model 2>/dev/null)
 if [ -z "${MYDEVICE_NAME}" ]; then
     tolog "Unknown device" "1"
-#elif [ "${MYDEVICE_NAME}" == "Phicomm N1" ]; then
-#    tolog "Test current device: ${MYDEVICE_NAME}" "1"
 elif [ "${MYDEVICE_NAME}" == "Chainedbox L1 Pro" ]; then
     MYDTB_FILE="rockchip"
 elif [ "${MYDEVICE_NAME}" == "BeikeYun" ]; then
@@ -33,7 +31,7 @@ elif [ "${MYDEVICE_NAME}" == "V-Plus Cloud" ]; then
 else
     MYDTB_FILE="amlogic"
 fi
-tolog "Current device: ${MYDEVICE_NAME}"
+tolog "Current device: ${MYDEVICE_NAME} [ ${MYDTB_FILE} ]"
 sleep 3
 
 # # Step 1: URL formatting start -----------------------------------------------------------
