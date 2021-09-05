@@ -3,6 +3,20 @@ local http = require "luci.http"
 local DISP = require "luci.dispatcher"
 local b, form
 
+--Remove the spaces in the string
+function trim(str)
+   --return (string.gsub(str, "^%s*(.-)%s*$", "%1"))
+   return (string.gsub(str, "%s+", ""))
+end
+
+--Set default upload path
+upload_path = luci.sys.exec("lsblk | grep -oE '(mmcblk[0-9])' | sort | uniq")
+if upload_path then
+    upload_path = trim("/mnt/" .. upload_path .. "p4/")
+else
+    upload_path = "/tmp/upload/"
+end
+
 --Clear the version check log
 luci.sys.exec("echo '' > /tmp/amlogic/amlogic_check_plugin.log && sync >/dev/null 2>&1")
 luci.sys.exec("echo '' > /tmp/amlogic/amlogic_check_kernel.log && sync >/dev/null 2>&1")
@@ -19,7 +33,7 @@ um = s:option(DummyValue, "", nil)
 um.template = "amlogic/other_dvalue"
 
 local dir, fd
-dir = "/tmp/upload/"
+dir = upload_path
 nixio.fs.mkdir(dir)
 http.setfilehandler(
 	function(meta, chunk, eof)
@@ -37,7 +51,7 @@ http.setfilehandler(
 		if eof and fd then
 			fd:close()
 			fd = nil
-			um.value = translate("File saved to") .. ' "/tmp/upload/' .. meta.file .. '"'
+			um.value = translate("File saved to") .. trim(upload_path .. meta.file)
 		end
 	end
 )
@@ -60,9 +74,10 @@ local function getSizeStr(size)
 end
 
 local inits, attr = {}
-for i, f in ipairs(fs.glob("/tmp/upload/*")) do
+for i, f in ipairs(fs.glob(trim(upload_path .. "*"))) do
     attr = fs.stat(f)
-    if attr then
+    itisfile = fs.isfile(f)
+    if attr and itisfile then
         inits[i] = {}
         inits[i].name = fs.basename(f)
         inits[i].mtime = os.date("%Y-%m-%d %H:%M:%S", attr.mtime)
@@ -144,7 +159,7 @@ btnrm.render = function(self, section, scope)
 	Button.render(self, section, scope)
 end
 btnrm.write = function(self, section)
-	local v = luci.fs.unlink("/tmp/upload/" .. luci.fs.basename(inits[section].name))
+	local v = luci.fs.unlink(trim(upload_path .. luci.fs.basename(inits[section].name)))
 	if v then table.remove(inits, section) end
 	return v
 end
@@ -181,7 +196,7 @@ btnis.render = function(self, section, scope)
 end
 btnis.write = function(self, section)
     if IsIpkFile(inits[section].name) then
-        local r = luci.sys.exec(string.format('opkg --force-reinstall install "/tmp/upload/%s"', inits[section].name))
+        local r = luci.sys.exec(string.format('opkg --force-reinstall install ' .. upload_path .. '%s', inits[section].name))
 	local x = luci.sys.exec("rm -rf /tmp/luci-indexcache /tmp/luci-modulecache/* 2>/dev/null")
         form.description = string.format('<span style="color: red">%s</span>', r)
     elseif IsConfigFile(inits[section].name) then
