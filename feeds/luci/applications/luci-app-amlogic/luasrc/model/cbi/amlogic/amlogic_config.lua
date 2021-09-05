@@ -37,7 +37,7 @@ o.description = translate("If the current device shows (Unknown device), please 
 o.rmempty = true
 o.default = luci.sys.exec("cat /proc/device-tree/model 2>/dev/null") or "Unknown device"
 
---1.Set OpenWrt Firmware Repository
+--2.Set OpenWrt Firmware Repository
 o = s:option(Value, "firmware_repo", translate("Download repository of OpenWrt:"))
 o.description = translate("Set the download repository of the OpenWrt files on github.com in [Online Download Update].")
 o.rmempty = true
@@ -52,7 +52,7 @@ o.write = function(self, key, value)
     end
 end
 
---2.Set OpenWrt Releases's Tag Keywords
+--3.Set OpenWrt Releases's Tag Keywords
 o = s:option(Value, "releases_tag", translate("Keywords of Tags in Releases:"))
 o.description = translate("Set the keywords of Tags in Releases of github.com in [Online Download Update].")
 o.rmempty = true
@@ -67,7 +67,7 @@ o.write = function(self, key, value)
     end
 end
 
---3.Set OpenWrt Firmware Suffix
+--4.Set OpenWrt Firmware Suffix
 o = s:option(Value, "firmware_suffix", translate("Suffix of OpenWrt files:"))
 o.description = translate("Set the suffix of the OpenWrt in Releases of github.com in [Online Download Update].")
 o.rmempty = true
@@ -82,7 +82,7 @@ o.write = function(self, key, value)
     end
 end
 
---4.Set OpenWrt Kernel DownLoad Path
+--5.Set OpenWrt Kernel DownLoad Path
 o = s:option(Value, "kernel_repo", translate("Download path of OpenWrt kernel:"))
 o.description = translate("Set the download path of the kernel in the github.com repository in [Online Download Update].")
 o.rmempty = true
@@ -97,7 +97,7 @@ o.write = function(self, key, value)
     end
 end
 
---5.Restore configuration
+--6.Restore configuration
 o = s:option(Flag,"restore_config",translate("Keep config update:"))
 o.description = translate("Set whether to keep the current config during [Online Download Update] and [Manually Upload Update].")
 o.rmempty = false
@@ -114,7 +114,7 @@ o.write = function(self, key, value)
     end
 end
 
---6.Write bootloader
+--7.Write bootloader
 o = s:option(Flag,"auto_write_bootloader",translate("Auto write bootloader:"))
 o.description = translate("[Recommended choice] Set whether to auto write bootloader during install and update OpenWrt.")
 o.rmempty = false
@@ -131,7 +131,7 @@ o.write = function(self, key, value)
     end
 end
 
---7.Save button
+--8.Save button
 o = s:option(Button, "", translate("Save Config:"))
 o.template = "amlogic/other_button"
 o.render = function(self, section, scope)
