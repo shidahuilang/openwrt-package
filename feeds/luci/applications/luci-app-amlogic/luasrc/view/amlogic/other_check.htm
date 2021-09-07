@@ -5,7 +5,7 @@
 	<table width="100%" class="NewsTdHeight">
 		<tr><td width="100%" colspan="2">
 			<p align="center">
-				<%:We will recommend to you the kernel version with the same mainline as the current OpenWrt system.%> <span id="_openwrt_mainline_version"></span>
+				<%:The OpenWrt and kernel will be downloaded and updated according to the options filled in [Plugin Settings].%> <span id="_openwrt_mainline_version"></span>
 			</p>
 		</td></tr>
 		<tr><td width="30%" align="right"><input type="button" class="cbi-button cbi-button-reload" value="<%:Check Plugin Version%>" onclick="return b_check_plugin(this)"/></td><td  width="70%" align="left"><span id="_current_plugin_version"><%:Collecting data...%></span>　<span id="_check_plugin"></span></td></tr>
@@ -203,9 +203,7 @@
 		_current_firmware_version.innerHTML = status.current_firmware_version ? "<font color=green><%:Current Version%> [ "+status.current_firmware_version+" ] </font>" : "<font color=red>"+"<%:Invalid value.%>"+"</font>";
 		_current_plugin_version.innerHTML = status.current_plugin_version ? "<font color=green><%:Current Version%> [ "+status.current_plugin_version+" ] </font>" : "<font color=red>"+"<%:Invalid value.%>"+"</font>";
 		_current_kernel_version.innerHTML = status.current_kernel_version ? "<font color=green><%:Current Version%> [ "+status.current_kernel_version+" ] </font>" : "<font color=red>"+"<%:Invalid value.%>"+"</font>";
-
-		var str_kernel_version=status.current_kernel_version; var arr_kernel_version=str_kernel_version.split(".");
-		_openwrt_mainline_version.innerHTML = status.current_kernel_version ? " [ "+arr_kernel_version[0]+"."+arr_kernel_version[1]+".*** ] " : "[ "+"<%:Invalid value.%>"+" ]";
+		_openwrt_mainline_version.innerHTML = status.current_kernel_branch ? " [ "+status.current_kernel_branch+".*** ] " : "[ "+"<%:Invalid value.%>"+" ]";
 	}
 	});
 

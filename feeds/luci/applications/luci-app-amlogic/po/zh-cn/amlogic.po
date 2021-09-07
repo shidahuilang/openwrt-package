@@ -215,8 +215,8 @@ msgstr "支持对晶晨 s9xxx 系列（斐讯N1、HK1等），全志（微加云
 msgid "Supported functions:"
 msgstr "支持的功能："
 
-msgid "Provide services such as install to EMMC, Update Firmware or Kernel, Backup and Recovery Config, Snapshot management, etc."
-msgstr "支持将 OpenWrt 系统写入 EMMC、升级固件或内核，备份与恢复自定义配置，快照管理等功能。"
+msgid "Provide services such as install to EMMC, Update Firmware and Kernel, Backup and Recovery Config, Snapshot management, etc."
+msgstr "支持将 OpenWrt 系统写入 EMMC、升级固件与内核，备份与恢复自定义配置，快照管理等功能。"
 
 msgid "Supported Boxes:"
 msgstr "支持的盒子："
@@ -354,22 +354,16 @@ msgid "Config Source"
 msgstr "配置来源"
 
 msgid "You can customize the github.com download repository of OpenWrt files and kernels in [Online Download Update]."
-msgstr "您可以自定义 [在线下载和更新] 中 OpenWrt 文件和内核的 github.com 下载仓库。"
+msgstr "您可以自定义 [在线下载和更新] 中 OpenWrt 固件和内核的 github.com 下载仓库。"
 
 msgid "Tips: The amlogic SoC (E.g: s905d) and mainline version of the kernel (E.g: 5.13) will automatically match the current openwrt firmware."
 msgstr "提示：OpenWrt 固件的型号（如：s905d）和内核的主线版本（如：5.13）将根据当前固件自动适配。"
 
 msgid "Download repository of OpenWrt:"
-msgstr "OpenWrt 文件的下载仓库："
+msgstr "OpenWrt 固件的下载仓库："
 
 msgid "Set the download repository of the OpenWrt files on github.com in [Online Download Update]."
-msgstr "设置 [在线下载更新] 中 github.com 的 OpenWrt 文件的下载仓库。"
-
-msgid "Download path of OpenWrt kernel:"
-msgstr "OpenWrt 内核的下载路径："
-
-msgid "Set the download path of the kernel in the github.com repository in [Online Download Update]."
-msgstr "设置 [在线下载更新] 中 github.com 仓库里内核的下载路径。"
+msgstr "设置 [在线下载更新] 中 github.com 的 OpenWrt 固件的下载仓库。"
 
 msgid "Keywords of Tags in Releases:"
 msgstr "Releases 里 Tags 的关键字："
@@ -378,10 +372,22 @@ msgid "Set the keywords of Tags in Releases of github.com in [Online Download Up
 msgstr "设置 [在线下载更新] 中 github.com 的 Releases 里 Tags 的关键字。"
 
 msgid "Suffix of OpenWrt files:"
-msgstr "OpenWrt 文件的后缀："
+msgstr "OpenWrt 固件的后缀："
 
 msgid "Set the suffix of the OpenWrt in Releases of github.com in [Online Download Update]."
-msgstr "设置 [在线下载更新] 中 github.com 的 Releases 里 OpenWrt 文件的后缀。"
+msgstr "设置 [在线下载更新] 中 github.com 的 Releases 里 OpenWrt 固件的后缀。"
+
+msgid "Download path of OpenWrt kernel:"
+msgstr "OpenWrt 内核的下载路径："
+
+msgid "Set the download path of the kernel in the github.com repository in [Online Download Update]."
+msgstr "设置 [在线下载更新] 中 github.com 仓库里内核的下载路径。"
+
+msgid "Set version branch:"
+msgstr "设置版本分支："
+
+msgid "Set the version branch of the openwrt firmware and kernel selected in [Online Download Update]."
+msgstr "设置 [在线下载更新] 时 OpenWrt 固件与内核所选用的版本分支。"
 
 msgid "Keep config update:"
 msgstr "保留配置更新："
@@ -434,8 +440,8 @@ msgstr "当前设备："
 msgid "If the current device shows (Unknown device), please report to github."
 msgstr "如果当前设备显示无法识别（Unknown device），请到 github 反馈。"
 
-msgid "We will recommend to you the kernel version with the same mainline as the current OpenWrt system."
-msgstr "我们将向您推荐与当前 OpenWrt 系统相同主线的内核版本。"
+msgid "The OpenWrt and kernel will be downloaded and updated according to the options filled in [Plugin Settings]."
+msgstr "将根据在 [插件设置] 里面填写的选项进行 OpenWrt 固件和内核的下载与更新。"
 
 msgid "Collecting data..."
 msgstr "正在收集数据…"
