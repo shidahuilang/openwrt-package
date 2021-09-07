@@ -35,6 +35,12 @@ end
 
 local fs = require "luci.fs"
 
+--Remove the spaces in the string
+function trim(str)
+   --return (string.gsub(str, "^%s*(.-)%s*$", "%1"))
+   return (string.gsub(str, "%s+", ""))
+end
+
 --Create a temporary folder
 local tmp_upload_dir = luci.sys.exec("[ -d /tmp/upload ] || mkdir -p /tmp/upload >/dev/null")
 local tmp_amlogic_dir = luci.sys.exec("[ -d /tmp/amlogic ] || mkdir -p /tmp/amlogic >/dev/null")
@@ -317,7 +323,7 @@ end
 
 --Return the current openwrt firmware version
 local function current_firmware_version()
-    return luci.sys.exec("ls /lib/modules/ 2>/dev/null | grep -oE '^[1-9].[0-9]{1,2}.[0-9]+'") or "Invalid value."
+    return luci.sys.exec("ls /lib/modules/ 2>/dev/null | grep -oE '^[1-9].[0-9]{1,3}.[0-9]+'") or "Invalid value."
 end
 
 --Return the current plugin version
@@ -327,7 +333,18 @@ end
 
 --Return the current kernel version
 local function current_kernel_version()
-    return luci.sys.exec("ls /lib/modules/ 2>/dev/null | grep -oE '^[1-9].[0-9]{1,2}.[0-9]+'") or "Invalid value."
+    return luci.sys.exec("ls /lib/modules/ 2>/dev/null | grep -oE '^[1-9].[0-9]{1,3}.[0-9]+'") or "Invalid value."
+end
+
+--Return the current kernel branch
+local function current_kernel_branch()
+    local default_kernel_branch = luci.sys.exec("ls /lib/modules/ 2>/dev/null | grep -oE '^[1-9].[0-9]{1,3}'")
+    local amlogic_kernel_branch = luci.sys.exec("uci get amlogic.config.amlogic_kernel_branch 2>/dev/null | grep -oE '^[1-9].[0-9]{1,3}'") or ""
+    if trim(amlogic_kernel_branch) == "" then
+        return default_kernel_branch
+    else
+        return amlogic_kernel_branch
+    end
 end
 
 --Return current version information
@@ -336,7 +353,8 @@ function action_state()
     luci.http.write_json({
         current_firmware_version = current_firmware_version(),
         current_plugin_version = current_plugin_version(),
-        current_kernel_version = current_kernel_version();
+        current_kernel_version = current_kernel_version(),
+        current_kernel_branch = current_kernel_branch();
     })
 end
 

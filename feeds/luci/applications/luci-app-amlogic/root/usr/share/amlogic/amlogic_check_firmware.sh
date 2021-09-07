@@ -41,12 +41,24 @@ sleep 3
 
 # 01. Query local version information
 tolog "01. Query version information."
-CURRENT_KERNEL_V=$(ls /lib/modules/  2>/dev/null | grep -oE '^[1-9].[0-9]{1,2}.[0-9]+')
+# 01.01 Query the current version
+CURRENT_KERNEL_V=$(ls /lib/modules/  2>/dev/null | grep -oE '^[1-9].[0-9]{1,3}.[0-9]+')
 tolog "01.01 current version: ${CURRENT_KERNEL_V}"
+sleep 3
+
+# 01.01 Version comparison
 MAIN_LINE_VER=$(echo "${CURRENT_KERNEL_V}" | cut -d '.' -f1)
 MAIN_LINE_MAJ=$(echo "${CURRENT_KERNEL_V}" | cut -d '.' -f2)
 MAIN_LINE_VERSION="${MAIN_LINE_VER}.${MAIN_LINE_MAJ}"
-sleep 3
+
+# 01.02. Query the selected branch in the settings
+SERVER_KERNEL_BRANCH=$(uci get amlogic.config.amlogic_kernel_branch 2>/dev/null | grep -oE '^[1-9].[0-9]{1,3}')
+if [[ -n "${SERVER_KERNEL_BRANCH}" && "${SERVER_KERNEL_BRANCH}" != "${MAIN_LINE_VERSION}" ]]; then
+    MAIN_LINE_VERSION="${SERVER_KERNEL_BRANCH}"
+    tolog "01.02 Select branch: ${MAIN_LINE_VERSION}"
+    sleep 3
+fi
+
 
 # 02. Download server version documentation
 tolog "02. Start checking the firmware version."
