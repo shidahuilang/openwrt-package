@@ -46,7 +46,8 @@ elif [[ "$(echo "${EMMC_NAME}" | awk -F 'mmcblk' '{print NF-1}')" -ne "1" ]]; th
 fi
 
 cd /mnt/${EMMC_NAME}p4/
-mv -f /tmp/upload/* . && sync
+mv -f /tmp/upload/* . 2>/dev/null && sync
+mv -f .tmp_upload/* . 2>/dev/null && sync
 
 if [[ "${IMG_NAME}" == *.img ]]; then
     echo -e "Update using [ ${IMG_NAME} ] file. Please wait a moment ..."
@@ -427,9 +428,10 @@ echo "done"
 echo
 
 cd $WORK_DIR
-umount -f ${P1} ${P2}
-losetup -D
-rmdir ${P1} ${P2}
+umount -f ${P1} ${P2} 2>/dev/null
+losetup -D 2>/dev/null
+rmdir ${P1} ${P2} 2>/dev/null
+rm -f ${IMG_NAME} 2>/dev/null
 sync
 
 echo "Successfully updated, automatic restarting..."

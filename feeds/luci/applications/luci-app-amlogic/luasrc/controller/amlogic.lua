@@ -202,10 +202,24 @@ function action_check_kernel()
     })
 end
 
+--Check the firmware
+function check_firmware()
+    luci.sys.exec("chmod +x /usr/share/amlogic/amlogic_check_firmware.sh >/dev/null 2>&1")
+    local firmware_options = luci.http.formvalue("firmware_options")
+    if firmware_options == "check" then
+        local state = luci.sys.call("/usr/share/amlogic/amlogic_check_firmware.sh -check >/dev/null 2>&1")
+    else
+        local state = luci.sys.call("/usr/share/amlogic/amlogic_check_firmware.sh -download " .. firmware_options .. " >/dev/null 2>&1")
+    end
+    return state
+end
+
 --Check the openwrt firmware version online
 function action_check_firmware()
-    luci.sys.exec("chmod +x /usr/share/amlogic/amlogic_check_firmware.sh >/dev/null 2>&1")
-    return luci.sys.call("/usr/share/amlogic/amlogic_check_firmware.sh >/dev/null 2>&1")
+    luci.http.prepare_content("application/json")
+    luci.http.write_json({
+        check_firmware_status = check_firmware();
+    })
 end
 
 --Read upload files log
