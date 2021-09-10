@@ -4,12 +4,13 @@
 CHECK_OPTION=${1}
 DOWNLOAD_VERSION=${2}
 EMMC_NAME=$(lsblk | grep -oE '(mmcblk[0-9])' | sort | uniq)
-KERNEL_DOWNLOAD_PATH="/mnt/${EMMC_NAME}p4"
+KERNEL_DOWNLOAD_PATH="/mnt/${EMMC_NAME}p4/.tmp_upload"
 TMP_CHECK_DIR="/tmp/amlogic"
 START_LOG="${TMP_CHECK_DIR}/amlogic_check_kernel.log"
 LOG_FILE="${TMP_CHECK_DIR}/amlogic.log"
 LOGTIME=$(date "+%Y-%m-%d %H:%M:%S")
 [[ -d ${TMP_CHECK_DIR} ]] || mkdir -p ${TMP_CHECK_DIR}
+[[ -d ${KERNEL_DOWNLOAD_PATH} ]] || mkdir -p ${KERNEL_DOWNLOAD_PATH}
 
 # Log function
 tolog() {
@@ -115,7 +116,7 @@ check_kernel() {
         tolog ""
         exit 0
     else
-        tolog '<input type="button" class="cbi-button cbi-button-reload" value="Download" onclick="return b_check_kernel(this, '"'download_${MAIN_LINE_VERSION}.${LATEST_VERSION}'"')"/> '${MAIN_LINE_VERSION}.${LATEST_VERSION}''
+        tolog '<input type="button" class="cbi-button cbi-button-reload" value="Download" onclick="return b_check_kernel(this, '"'download_${MAIN_LINE_VERSION}.${LATEST_VERSION}'"')"/> Latest version: '${MAIN_LINE_VERSION}.${LATEST_VERSION}''
         exit 0
     fi
 }
@@ -131,9 +132,12 @@ download_kernel() {
     fi
 
     # Delete other residual kernel files
-    rm -f ${KERNEL_DOWNLOAD_PATH}/boot-*.tar.gz && sync
-    rm -f ${KERNEL_DOWNLOAD_PATH}/dtb-*.tar.gz && sync
-    rm -f ${KERNEL_DOWNLOAD_PATH}/modules-*.tar.gz && sync
+    rm -f ${KERNEL_DOWNLOAD_PATH}/boot-*.tar.gz 2>/dev/null && sync
+    rm -f ${KERNEL_DOWNLOAD_PATH}/dtb-*.tar.gz 2>/dev/null && sync
+    rm -f ${KERNEL_DOWNLOAD_PATH}/modules-*.tar.gz 2>/dev/null && sync
+    rm -f /mnt/${EMMC_NAME}p4/boot-*.tar.gz 2>/dev/null && sync
+    rm -f /mnt/${EMMC_NAME}p4/dtb-*.tar.gz 2>/dev/null && sync
+    rm -f /mnt/${EMMC_NAME}p4/modules-*.tar.gz 2>/dev/null && sync
 
     # Download boot file from the kernel directory under the path: ${SERVER_KERNEL_URL}/${DOWNLOAD_VERSION}/
     SERVER_KERNEL_BOOT="$(curl -s "${SERVER_KERNEL_URL}/${DOWNLOAD_VERSION}" | grep "download_url" | grep -o "https.*/boot-${DOWNLOAD_VERSION}.*.tar.gz" | head -n 1)"

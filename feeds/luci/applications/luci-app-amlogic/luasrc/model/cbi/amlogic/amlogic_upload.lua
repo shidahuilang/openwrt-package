@@ -12,7 +12,7 @@ end
 --Set default upload path
 upload_path = luci.sys.exec("lsblk | grep -oE '(mmcblk[0-9])' | sort | uniq")
 if upload_path then
-    upload_path = trim("/mnt/" .. upload_path .. "p4/")
+    upload_path = trim("/mnt/" .. upload_path .. "p4/.tmp_upload/")
 else
     upload_path = "/tmp/upload/"
 end
