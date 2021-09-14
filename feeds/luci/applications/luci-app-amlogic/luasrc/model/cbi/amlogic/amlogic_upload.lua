@@ -16,6 +16,7 @@ if upload_path then
 else
     upload_path = "/tmp/upload/"
 end
+luci.sys.exec("mkdir -p " .. upload_path .. " >/dev/null 2>&1 && sync")
 
 --Clear the version check log
 luci.sys.exec("echo '' > /tmp/amlogic/amlogic_check_plugin.log && sync >/dev/null 2>&1")
@@ -41,7 +42,7 @@ http.setfilehandler(
 			if not meta then return end
 			if meta and chunk then fd = nixio.open(dir .. meta.file, "w") end
 			if not fd then
-				um.value = translate("Create upload file error.")
+				um.value = translate("Create upload file error.") .. " Error Info: " .. trim(upload_path .. meta.file)
 				return
 			end
 		end
