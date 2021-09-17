@@ -64,15 +64,15 @@ end
 --Device identification
 mydevice_logs = luci.sys.exec("cat /proc/device-tree/model 2>/dev/null > /tmp/amlogic/amlogic_mydevice_name.log && sync")
 mydevice_name = luci.sys.exec("cat /proc/device-tree/model 2>/dev/null") or "Unknown device"
-if tonumber(string.find(mydevice_name, "Chainedbox L1 Pro")) == 1 then
+if string.find(mydevice_name, "Chainedbox L1 Pro") ~= nil then
     device_install_script = ""
     device_update_script = "openwrt-update-rockchip"
     device_kernel_script = "openwrt-kernel"
-elseif tonumber(string.find(mydevice_name, "BeikeYun")) == 1 then
+elseif string.find(mydevice_name, "BeikeYun") ~= nil then
     device_install_script = ""
     device_update_script = "openwrt-update-rockchip"
     device_kernel_script = "openwrt-kernel"
-elseif tonumber(string.find(mydevice_name, "V-Plus Cloud")) == 1 then
+elseif string.find(mydevice_name, "V-Plus Cloud") ~= nil then
     device_install_script = ""
     device_update_script = "openwrt-update-allwinner"
     device_kernel_script = "openwrt-kernel"

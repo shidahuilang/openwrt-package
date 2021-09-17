@@ -18,23 +18,25 @@ tolog() {
 
 # Current device model
 MYDEVICE_NAME=$(cat /proc/device-tree/model 2>/dev/null)
-if [ -z "${MYDEVICE_NAME}" ]; then
+if [[ -z "${MYDEVICE_NAME}" ]]; then
     tolog "Unknown device" "1"
 #elif [ "${MYDEVICE_NAME}" == "Phicomm N1" ]; then
 #    tolog "Test current device: ${MYDEVICE_NAME}" "1"
-elif [ "${MYDEVICE_NAME}" == "Chainedbox L1 Pro" ]; then
+elif [[ "$(echo ${MYDEVICE_NAME} | grep "Chainedbox L1 Pro")" != "" ]]; then
     MYDTB_FILE="rockchip"
     SOC="l1pro"
-elif [ "${MYDEVICE_NAME}" == "BeikeYun" ]; then
+elif [[ "$(echo ${MYDEVICE_NAME} | grep "BeikeYun")" != "" ]]; then
     MYDTB_FILE="rockchip"
     SOC="beikeyun"
-elif [ "${MYDEVICE_NAME}" == "V-Plus Cloud" ]; then
+elif [[ "$(echo ${MYDEVICE_NAME} | grep "V-Plus Cloud")" != "" ]]; then
     MYDTB_FILE="allwinner"
     SOC="vplus"
-else
+elif [[ -f "${AMLOGIC_SOC_FILE}" ]]; then
     MYDTB_FILE="amlogic"
     source ${AMLOGIC_SOC_FILE} 2>/dev/null
     SOC="${SOC}"
+else
+    tolog "Unknown device: [ ${MYDEVICE_NAME} ], Not supported." "1"
 fi
 [[ ! -z "${SOC}" ]] || tolog "The custom firmware soc is invalid." "1"
 tolog "Current device: ${MYDEVICE_NAME} [ ${SOC} ]"

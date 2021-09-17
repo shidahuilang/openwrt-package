@@ -20,8 +20,11 @@ BACKUP_RESTORE_CONFIG=${3}
 
 # Current device model
 MYDEVICE_NAME=$(cat /proc/device-tree/model 2>/dev/null)
-if [[ -z "${MYDEVICE_NAME}" || "${MYDEVICE_NAME}" != "V-Plus Cloud" ]]; then
-    echo "Unknown device: [ ${MYDEVICE_NAME} ], Not supported."
+if [[ -z "${MYDEVICE_NAME}" ]]; then
+    echo "The device name is empty and cannot be recognized."
+    exit 1
+elif [[ "$(echo ${MYDEVICE_NAME} | grep "V-Plus Cloud")" == "" ]]; then
+    echo "[ ${MYDEVICE_NAME} ] is not [ V-Plus Cloud ] device, please select the correct script."
     exit 1
 else
     echo -e "Current device: ${MYDEVICE_NAME} [ vplus ]"
