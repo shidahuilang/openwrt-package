@@ -6,6 +6,7 @@ download_version=${2}
 EMMC_NAME=$(lsblk | grep -oE '(mmcblk[0-9])' | sort | uniq)
 KERNEL_DOWNLOAD_PATH="/mnt/${EMMC_NAME}p4/.tmp_upload"
 TMP_CHECK_DIR="/tmp/amlogic"
+AMLOGIC_SOC_FILE="/etc/flippy-openwrt-release"
 START_LOG="${TMP_CHECK_DIR}/amlogic_check_kernel.log"
 LOG_FILE="${TMP_CHECK_DIR}/amlogic.log"
 LOGTIME=$(date "+%Y-%m-%d %H:%M:%S")
@@ -21,16 +22,18 @@ tolog() {
 
 # Current device model
 MYDEVICE_NAME=$(cat /proc/device-tree/model 2>/dev/null)
-if [ -z "${MYDEVICE_NAME}" ]; then
+if [[ -z "${MYDEVICE_NAME}" ]]; then
     tolog "Unknown device" "1"
-elif [ "${MYDEVICE_NAME}" == "Chainedbox L1 Pro" ]; then
+elif [[ "$(echo ${MYDEVICE_NAME} | grep "Chainedbox L1 Pro")" != "" ]]; then
     MYDTB_FILE="rockchip"
-elif [ "${MYDEVICE_NAME}" == "BeikeYun" ]; then
+elif [[ "$(echo ${MYDEVICE_NAME} | grep "BeikeYun")" != "" ]]; then
     MYDTB_FILE="rockchip"
-elif [ "${MYDEVICE_NAME}" == "V-Plus Cloud" ]; then
+elif [[ "$(echo ${MYDEVICE_NAME} | grep "V-Plus Cloud")" != "" ]]; then
     MYDTB_FILE="allwinner"
-else
+elif [[ -f "${AMLOGIC_SOC_FILE}" ]]; then
     MYDTB_FILE="amlogic"
+else
+    tolog "Unknown device: [ ${MYDEVICE_NAME} ], Not supported." "1"
 fi
 tolog "Current device: ${MYDEVICE_NAME} [ ${MYDTB_FILE} ]"
 sleep 3
