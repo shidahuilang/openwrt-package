@@ -1,11 +1,10 @@
 <%#
 	opentopd is a clean HTML5 theme for LuCI. It is based on luci-theme-bootstrap and MUI
-
 	luci-theme-opentopd
     Copyright 2020 sirpdboy <sirpdboy@qq.com>
 	Have a bug? Please create an issue here on GitHub!
 	https://github.com/sirpdboy/luci-theme-opentopd/issues
-     
+
 	luci-theme-bootstrap:
 	Copyright 2015-2017 Lutty Yang <lutty@wcan.in>
 	Copyright 2008 Steven Barth <steven@midlink.org>
@@ -14,7 +13,6 @@
 
 	MUI:
 	https://github.com/muicss/mui
-
 	Licensed to the public under the Apache License 2.0
 -%>
 
@@ -212,6 +210,7 @@
         <meta name="full-screen" content="yes">
         <meta name="x5-page-mode" content="app">
         <meta name="browsermode" content="application">
+        <meta name="theme-color" content="#5e72e4">
         <meta name="msapplication-tap-highlight" content="no">
         <meta name="msapplication-TileColor" content="#f36c21">
 
@@ -223,12 +222,12 @@
 	<link rel="stylesheet" href="<%=media%>/css/style.css?v=<%=math.random(1,100000)%>">
 	<link rel="stylesheet" href="<%=media%>/css/pure-min.css?v=<%=math.random(1,100000)%>">
 	<link rel="shortcut icon" href="<%=media%>/favicon.ico"> 
-			<% if node and node.css then %>
-			<link rel="stylesheet" href="<%=resource%>/<%=node.css%>">
-		<% end -%>
-		<% if css then %>
-			<style title="text/css"><%= css %></style>
-		<% end -%>
+	<% if node and node.css then %>
+		<link rel="stylesheet" href="<%=resource%>/<%=node.css%>">
+	<% end -%>
+	<% if css then %>
+		<style title="text/css"><%= css %></style>
+	<% end -%>
 	<script src="<%=resource%>/cbi.js<%# ?v=PKG_VERSION %>"></script>
 	<script src="<%=resource%>/xhr.js<%# ?v=PKG_VERSION %>"></script>
 	<script src="<%=media%>/js/jquery.min.js<%# ?v=PKG_VERSION %>"></script>
@@ -246,7 +245,7 @@
     </div>
     <div class="main-left">
         <div class="sidenav-header d-flex align-items-center">
-            <a class="brand" href="#"><%=boardinfo.hostname or "?"%> ™</a> 
+            <a class="brand" href="#"><%=boardinfo.hostname or "?"%></a> 
             <div class="ml-auto">
                 <!-- Sidenav toggler -->
                 <div class="sidenav-toggler d-none d-xl-block active" data-action="sidenav-unpin" data-target="#sidenav-main">
@@ -265,7 +264,7 @@
                 <div class="fill">
                     <div class="container">
                         <a class="showSide"></a>
-                        <a class="brand" href="#"><%=boardinfo.hostname or "?"%> ™</a>
+                        <a class="brand" href="#"><%=boardinfo.hostname or "?"%></a>
                         <div class="pull-right">
                             <% render_changes() %>
                             <span id="xhr_poll_status" style="display:none" onclick="XHR.running() ? XHR.halt() : XHR.run()">
