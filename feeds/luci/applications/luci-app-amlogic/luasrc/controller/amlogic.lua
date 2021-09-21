@@ -62,8 +62,8 @@ else
 end
 
 --Device identification
-mydevice_logs = luci.sys.exec("cat /proc/device-tree/model 2>/dev/null > /tmp/amlogic/amlogic_mydevice_name.log && sync")
-mydevice_name = luci.sys.exec("cat /proc/device-tree/model 2>/dev/null") or "Unknown device"
+mydevice_logs = luci.sys.exec("cat /proc/device-tree/model | tr -d '\000') > /tmp/amlogic/amlogic_mydevice_name.log && sync")
+mydevice_name = luci.sys.exec("cat /proc/device-tree/model | tr -d '\000')") or "Unknown device"
 if string.find(mydevice_name, "Chainedbox L1 Pro") ~= nil then
     device_install_script = ""
     device_update_script = "openwrt-update-rockchip"
