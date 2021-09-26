@@ -2,14 +2,13 @@
 
 # Set a fixed value
 EMMC_NAME=$(lsblk | grep -oE '(mmcblk[0-9])' | sort | uniq)
-FIRMWARE_DOWNLOAD_PATH="/mnt/${EMMC_NAME}p4/.tmp_upload"
+FIRMWARE_DOWNLOAD_PATH="/mnt/${EMMC_NAME}p4"
 TMP_CHECK_DIR="/tmp/amlogic"
 AMLOGIC_SOC_FILE="/etc/flippy-openwrt-release"
 START_LOG="${TMP_CHECK_DIR}/amlogic_check_firmware.log"
 LOG_FILE="${TMP_CHECK_DIR}/amlogic.log"
 LOGTIME=$(date "+%Y-%m-%d %H:%M:%S")
 [[ -d ${TMP_CHECK_DIR} ]] || mkdir -p ${TMP_CHECK_DIR}
-[[ -d ${FIRMWARE_DOWNLOAD_PATH} ]] || mkdir -p ${FIRMWARE_DOWNLOAD_PATH}
 
 # Log function
 tolog() {
@@ -80,8 +79,6 @@ fi
 # Delete other residual firmware files
 rm -f ${FIRMWARE_DOWNLOAD_PATH}/*${firmware_suffix} 2>/dev/null && sync
 rm -f ${FIRMWARE_DOWNLOAD_PATH}/*.img 2>/dev/null && sync
-rm -f /mnt/${EMMC_NAME}p4/*${firmware_suffix} 2>/dev/null && sync
-rm -f /mnt/${EMMC_NAME}p4/*.img 2>/dev/null && sync
 
 firmware_download_url="https:.*${releases_tag_keywords}.*${SOC}.*${main_line_version}.*${firmware_suffix}"
 

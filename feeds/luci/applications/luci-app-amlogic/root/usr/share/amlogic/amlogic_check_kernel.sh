@@ -4,14 +4,13 @@
 check_option=${1}
 download_version=${2}
 EMMC_NAME=$(lsblk | grep -oE '(mmcblk[0-9])' | sort | uniq)
-KERNEL_DOWNLOAD_PATH="/mnt/${EMMC_NAME}p4/.tmp_upload"
+KERNEL_DOWNLOAD_PATH="/mnt/${EMMC_NAME}p4"
 TMP_CHECK_DIR="/tmp/amlogic"
 AMLOGIC_SOC_FILE="/etc/flippy-openwrt-release"
 START_LOG="${TMP_CHECK_DIR}/amlogic_check_kernel.log"
 LOG_FILE="${TMP_CHECK_DIR}/amlogic.log"
 LOGTIME=$(date "+%Y-%m-%d %H:%M:%S")
 [[ -d ${TMP_CHECK_DIR} ]] || mkdir -p ${TMP_CHECK_DIR}
-[[ -d ${KERNEL_DOWNLOAD_PATH} ]] || mkdir -p ${KERNEL_DOWNLOAD_PATH}
 
 # Log function
 tolog() {
@@ -138,9 +137,6 @@ download_kernel() {
     rm -f ${KERNEL_DOWNLOAD_PATH}/boot-*.tar.gz 2>/dev/null && sync
     rm -f ${KERNEL_DOWNLOAD_PATH}/dtb-*.tar.gz 2>/dev/null && sync
     rm -f ${KERNEL_DOWNLOAD_PATH}/modules-*.tar.gz 2>/dev/null && sync
-    rm -f /mnt/${EMMC_NAME}p4/boot-*.tar.gz 2>/dev/null && sync
-    rm -f /mnt/${EMMC_NAME}p4/dtb-*.tar.gz 2>/dev/null && sync
-    rm -f /mnt/${EMMC_NAME}p4/modules-*.tar.gz 2>/dev/null && sync
 
     # Download boot file from the kernel directory under the path: ${server_kernel_url}/${download_version}/
     server_kernel_boot="$(curl -s "${server_kernel_url}/${download_version}" | grep "download_url" | grep -o "https.*/boot-${download_version}.*.tar.gz" | head -n 1)"
