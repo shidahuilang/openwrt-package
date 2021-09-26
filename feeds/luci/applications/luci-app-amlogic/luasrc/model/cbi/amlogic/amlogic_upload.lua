@@ -12,11 +12,10 @@ end
 --Set default upload path
 upload_path = luci.sys.exec("lsblk | grep -oE '(mmcblk[0-9])' | sort | uniq")
 if upload_path then
-    upload_path = trim("/mnt/" .. upload_path .. "p4/.tmp_upload/")
+    upload_path = trim("/mnt/" .. upload_path .. "p4/")
 else
     upload_path = "/tmp/upload/"
 end
-luci.sys.exec("mkdir -p " .. upload_path .. " >/dev/null 2>&1 && sync")
 
 --Clear the version check log
 luci.sys.exec("echo '' > /tmp/amlogic/amlogic_check_plugin.log && sync >/dev/null 2>&1")
@@ -98,6 +97,10 @@ for i, f in ipairs(fs.glob(trim(upload_path .. "*"))) do
         end
         -- openwrt_s905d_n1_R21.7.15_k5.13.2-flippy-62+.7z
         if (string.lower(string.sub(fs.basename(f), -3, -1)) == ".7z") then
+            openwrt_firmware_file = true
+        end
+        -- openwrt_s905d_n1_R21.7.15_k5.13.2-flippy-62+.img
+        if (string.lower(string.sub(fs.basename(f), -4, -1)) == ".img") then
             openwrt_firmware_file = true
         end
 
@@ -202,8 +205,8 @@ btnis.write = function(self, section)
         form.description = string.format('<span style="color: red">%s</span>', r)
     elseif IsConfigFile(inits[section].name) then
         form.description =  ' <span style="color: green"><b> ' .. translate("Tip: The config is being restored, and it will automatically restart after completion.") .. ' </b></span> '
-        local x = luci.sys.exec("chmod +x /usr/bin/openwrt-backup 2>/dev/null")
-        local r = luci.sys.exec("/usr/bin/openwrt-backup -r > /tmp/amlogic/amlogic.log && sync 2>/dev/null")
+        local x = luci.sys.exec("chmod +x /usr/sbin/openwrt-backup 2>/dev/null")
+        local r = luci.sys.exec("/usr/sbin/openwrt-backup -r > /tmp/amlogic/amlogic.log && sync 2>/dev/null")
     end
 end
 

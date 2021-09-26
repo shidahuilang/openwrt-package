@@ -77,8 +77,8 @@ msgstr "上传文件列表中有 OpenWrt 固件文件，你可以升级 OpenWrt�
 msgid "After uploading [Firmware], [Kernel], [IPK] or [Backup Config], the operation buttons will be displayed."
 msgstr "当上传 [固件文件]，[内核文件]，[IPK文件]，[配置文件] 后，将自动显示相关操作按钮。"
 
-msgid "After uploading firmware (.img.gz/.img.xz/.7z suffix) or kernel files (3 kernel files), the update button will be displayed."
-msgstr "当上传文件列表中有 OpenWrt 固件（.img.gz/.img.xz/.7z 后缀）或内核文件（3个内核文件）时，将自动显示相关操作按钮。"
+msgid "After uploading firmware (.img/.img.gz/.img.xz/.7z suffix) or kernel files (3 kernel files), the update button will be displayed."
+msgstr "当上传文件列表中有 OpenWrt 固件（.img/.img.gz/.img.xz/.7z 后缀）或内核文件（3个内核文件）时，将自动显示相关操作按钮。"
 
 msgid "Amlogic Service"
 msgstr "晶晨宝盒"
@@ -400,6 +400,12 @@ msgstr "自动写入 bootloader："
 
 msgid "[Recommended choice] Set whether to auto write bootloader during install and update OpenWrt."
 msgstr "[推荐选择] 设置在安装和更新 OpenWrt 固件时是否自动写入 bootloader 文件。"
+
+msgid "Set the file system type:"
+msgstr "设置文件系统类型："
+
+msgid "[Default ext4] Set the file system type of the shared partition (/mnt/mmcblk*p4) when install OpenWrt."
+msgstr "[默认 ext4] 设置安装 OpenWrt 时共享分区 (/mnt/mmcblk*p4) 的文件系统类型。"
 
 msgid "Save Config:"
 msgstr "保存配置："

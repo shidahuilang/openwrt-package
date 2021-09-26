@@ -61,9 +61,17 @@ else
     auto_write_bootloader = "yes"
 end
 
+--Set the file system type of the shared partition
+local amlogic_shared_fstype = luci.sys.exec("uci get amlogic.config.amlogic_shared_fstype 2>/dev/null") or ""
+if trim(amlogic_shared_fstype) == "" then
+    auto_shared_fstype = "ext4"
+else
+    auto_shared_fstype = trim(amlogic_shared_fstype)
+end
+
 --Device identification
-mydevice_logs = luci.sys.exec("cat /proc/device-tree/model | tr -d '\000') > /tmp/amlogic/amlogic_mydevice_name.log && sync")
-mydevice_name = luci.sys.exec("cat /proc/device-tree/model | tr -d '\000')") or "Unknown device"
+mydevice_logs = luci.sys.exec("cat /proc/device-tree/model | tr -d \'\\000\' > /tmp/amlogic/amlogic_mydevice_name.log && sync")
+mydevice_name = luci.sys.exec("cat /proc/device-tree/model | tr -d \'\\000\'") or "Unknown device"
 if string.find(mydevice_name, "Chainedbox L1 Pro") ~= nil then
     device_install_script = ""
     device_update_script = "openwrt-update-rockchip"
@@ -129,8 +137,8 @@ end
 
 --Upgrade the kernel
 function start_amlogic_kernel()
-    luci.sys.exec("chmod +x /usr/bin/" .. device_kernel_script .. " >/dev/null 2>&1")
-    local state = luci.sys.call("/usr/bin/" .. device_kernel_script .. " > /tmp/amlogic/amlogic_check_kernel.log && sync >/dev/null 2>&1")
+    luci.sys.exec("chmod +x /usr/sbin/" .. device_kernel_script .. " >/dev/null 2>&1")
+    local state = luci.sys.call("/usr/sbin/" .. device_kernel_script .. " > /tmp/amlogic/amlogic_check_kernel.log && sync >/dev/null 2>&1")
     return state
 end
 
@@ -146,18 +154,24 @@ end
 
 --Upgrade amlogic openwrt firmware
 function start_amlogic_update()
-    luci.sys.exec("chmod +x /usr/bin/" .. device_update_script .. " >/dev/null 2>&1")
+    luci.sys.exec("chmod +x /usr/sbin/" .. device_update_script .. " >/dev/null 2>&1")
     local amlogic_update_sel = luci.http.formvalue("amlogic_update_sel")
-    local state = luci.sys.call("/usr/bin/" .. device_update_script .. " " .. amlogic_update_sel .. " " .. auto_write_bootloader .. " " .. update_restore_config .. " > /tmp/amlogic/amlogic_check_firmware.log && sync 2>/dev/null")
+    local state = luci.sys.call("/usr/sbin/" .. device_update_script .. " " .. amlogic_update_sel .. " " .. auto_write_bootloader .. " " .. update_restore_config .. " > /tmp/amlogic/amlogic_check_firmware.log && sync 2>/dev/null")
     return state
 end
 
 --Install amlogic openwrt firmware
 function start_amlogic_install()
-    luci.sys.exec("chmod +x /usr/bin/" .. device_install_script .. " >/dev/null 2>&1")
+    luci.sys.exec("chmod +x /usr/sbin/" .. device_install_script .. " >/dev/null 2>&1")
     local amlogic_install_sel = luci.http.formvalue("amlogic_install_sel")
     local res = string.split(amlogic_install_sel, "@")
-    local state = luci.sys.call("/usr/bin/" .. device_install_script .. " " .. auto_write_bootloader .. " " .. res[1] .. " " .. res[2] .. " > /tmp/amlogic/amlogic_check_install.log && sync 2>/dev/null")
+    soc_id = res[1]
+    if tonumber(res[1]) == 99 then
+        dtb_filename = res[2]
+    else
+        dtb_filename = "auto_dtb"
+    end
+    local state = luci.sys.call("/usr/sbin/" .. device_install_script .. " " .. auto_write_bootloader .. " " .. soc_id .. " " .. dtb_filename .. " " .. auto_shared_fstype .. " > /tmp/amlogic/amlogic_check_install.log && sync 2>/dev/null")
     return state
 end
 
