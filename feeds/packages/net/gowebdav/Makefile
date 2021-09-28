@@ -1,22 +1,18 @@
+# SPDX-License-Identifier: GPL-3.0-only
 #
-# Copyright (C) 2021 ImmortalWrt
-# <https://immortalwrt.org>
-#
-# This is free software, licensed under the GNU General Public License v3.
-# See /LICENSE for more information.
-#
+# Copyright (C) 2021 ImmortalWrt.org
 
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=gowebdav
-PKG_VERSION:=0.0.2
-PKG_RELEASE:=1
+PKG_VERSION:=0.0.3
+PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/1715173329/gowebdav/tar.gz/v$(PKG_VERSION)?
-PKG_HASH:=0a6a2af4f24905ffea247b6044d01129d938af4b3a256bf19b42c52bb452f947
+PKG_HASH:=1e75071216baa5b26aa111771ad87e865a5aacacf7abb8f0e5a2b7b8cb7fd8b3
 
-PKG_MAINTAINER:=CN_SZTL <cnsztl@immortalwrt.org>
+PKG_MAINTAINER:=Tianling Shen <cnsztl@immortalwrt.org>
 
 PKG_CONFIG_DEPENDS:= \
 	CONFIG_GOWEBDAV_COMPRESS_GOPROXY \
@@ -33,16 +29,12 @@ include $(INCLUDE_DIR)/package.mk
 include ../../lang/golang/golang-package.mk
 
 define Package/gowebdav
-	SECTION:=net
-	CATEGORY:=Network
-	SUBMENU:=File Transfer
-	TITLE:=A simple WebDav server written in Golang.
-	URL:=https://github.com/1715173329/gowebdav
-	DEPENDS:=$(GO_ARCH_DEPENDS)
-endef
-
-define Package/gowebdav/description
-	A simple WebDav server written in Golang.
+  SECTION:=net
+  CATEGORY:=Network
+  SUBMENU:=File Transfer
+  TITLE:=A simple WebDav server written in Go
+  URL:=https://github.com/1715173329/gowebdav
+  DEPENDS:=$(GO_ARCH_DEPENDS)
 endef
 
 define Package/gowebdav/config
@@ -68,10 +60,7 @@ endif
 endef
 
 define Package/gowebdav/install
-	$(call GoPackage/Package/Install/Bin,$(PKG_INSTALL_DIR))
-
-	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/gowebdav $(1)/usr/bin/gowebdav
+	$(call GoPackage/Package/Install/Bin,$(1))
 
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) $(CURDIR)/files/gowebdav.config $(1)/etc/config/gowebdav
