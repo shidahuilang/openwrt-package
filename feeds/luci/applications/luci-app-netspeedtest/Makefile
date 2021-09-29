@@ -12,8 +12,6 @@ PKG_RELEASE:=20210415
 PKG_LICENSE:=GPLv2
 PKG_MAINTAINER:=sirpdboy
 
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
-
 include $(INCLUDE_DIR)/package.mk
 
 define Package/$(PKG_NAME)
@@ -21,32 +19,26 @@ define Package/$(PKG_NAME)
 	CATEGORY:=LuCI
 	SUBMENU:=3. Applications
 	TITLE:=LuCI Support for netspeedtest
-	DEPENDS:=+python3 +iperf3
-	DESCRIPTION:=LuCI support Network speed test intranet and Extranet
-	PKGARCH:=all
+  DEPENDS:=+python3 +iperf3
+  DESCRIPTION:=LuCI support Network speed test intranet and Extranet
+  PKGARCH:=all
 endef
 
 define Package/$(PKG_NAME)/description
 	Luci Support for netspeedtest.
 endef
 
-
 define Build/Prepare
-endef
-
-define Package/$(PKG_NAME)/conffiles
-/etc/config/netspeedtest
-endef
-
-define Build/Configure
+	$(foreach po,$(wildcard ${CURDIR}/po/zh-cn/*.po), \
+	po2lmo $(po) $(PKG_BUILD_DIR)/$(patsubst %.po,%.lmo,$(notdir $(po)));)
 endef
 
 define Build/Compile
 endef
 
-define Package/$(PKG_NAME)/postinst
+define Package/$(PKG_NAME)/conffiles
+/etc/config/netspeedtest
 endef
-
 
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/lib/lua/luci
@@ -54,8 +46,10 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/
 	cp -pR ./root/* $(1)/
 	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/i18n
-	po2lmo ./po/zh-cn/netspeedtest.po $(1)/usr/lib/lua/luci/i18n/netspeedtest.lmo
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/netspeedtest.lmo $(1)/usr/lib/lua/luci/i18n/
 endef
 
-$(eval $(call BuildPackage,$(PKG_NAME)))
+include $(TOPDIR)/feeds/luci/luci.mk
+
+# call BuildPackage - OpenWrt buildroot signature
 
