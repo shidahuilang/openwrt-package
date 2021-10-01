@@ -8,9 +8,9 @@
 				<%:The OpenWrt and kernel will be downloaded and updated according to the options filled in [Plugin Settings].%> <span id="_openwrt_mainline_version"></span>
 			</p>
 		</td></tr>
-		<tr><td width="30%" align="right"><input type="button" class="cbi-button cbi-button-reload" value="<%:Check Plugin Version%>" onclick="return b_check_plugin(this)"/></td><td  width="70%" align="left"><span id="_current_plugin_version"><%:Collecting data...%></span>　<span id="_check_plugin"></span></td></tr>
-		<tr><td width="30%" align="right"><input type="button" class="cbi-button cbi-button-reload" value="<%:Check Kernel Version%>" onclick="return b_check_kernel(this, 'check')"/></td><td  width="70%" align="left"><span id="_current_kernel_version"><%:Collecting data...%></span>　<span id="_check_kernel"></span></td></tr>
-		<tr><td width="30%" align="right"><input type="button" class="cbi-button cbi-button-reload" value="<%:Check Firmware Version%>" onclick="return b_check_firmware(this, 'check')"/></td><td  width="70%" align="left"><span id="_current_firmware_version"><%:Collecting data...%></span>　<span id="_check_firmware"></span></td></tr>
+		<tr><td width="35%" align="right"><input type="button" class="cbi-button cbi-button-reload" value="<%:Only update Amlogic Service%>" onclick="return b_check_plugin(this)"/></td><td  width="65%" align="left"><span id="_current_plugin_version"><%:Collecting data...%></span>　<span id="_check_plugin"></span></td></tr>
+		<tr><td width="35%" align="right"><input type="button" class="cbi-button cbi-button-reload" value="<%:Update system kernel only%>" onclick="return b_check_kernel(this, 'check')"/></td><td  width="65%" align="left"><span id="_current_kernel_version"><%:Collecting data...%></span>　<span id="_check_kernel"></span></td></tr>
+		<tr><td width="35%" align="right"><input type="button" class="cbi-button cbi-button-reload" value="<%:Complete system update%>" onclick="return b_check_firmware(this, 'check')"/></td><td  width="65%" align="left"><span id="_current_firmware_version"><%:Collecting data...%></span>　<span id="_check_firmware"></span></td></tr>
 	</table>
 </fieldset>
 <script type="text/javascript">//<![CDATA[
@@ -108,15 +108,15 @@
 				if ( x && x.status == 200 ) {
 					if(status.check_firmware_status=="1")
 					{
-						btn.value = '<%:Check Firmware Version%>';
+						btn.value = '<%:Complete system update%>';
 					}
 					else
 					{
-						btn.value = '<%:Check Firmware Version%>';
+						btn.value = '<%:Complete system update%>';
 					}
 				}
 				else {
-					btn.value = '<%:Check Firmware Version%>';
+					btn.value = '<%:Complete system update%>';
 				}
 			}
 		);
@@ -131,11 +131,11 @@
 		XHR.get('<%=luci.dispatcher.build_url("admin", "system", "amlogic", "check_plugin")%>', null, function(x, status) {
 		if ( x && x.status == 200 ) {
 			btn.disabled = false;
-			btn.value = '<%:Check Plugin Version%>';
+			btn.value = '<%:Only update Amlogic Service%>';
 		}
 		else {
 			btn.disabled = false;
-			btn.value = '<%:Check Plugin Version%>';
+			btn.value = '<%:Only update Amlogic Service%>';
 		}
 		return false;
 		});
@@ -154,15 +154,15 @@
 				if ( x && x.status == 200 ) {
 					if(status.check_kernel_status=="1")
 					{
-						btn.value = '<%:Check Kernel Version%>';
+						btn.value = '<%:Update system kernel only%>';
 					}
 					else
 					{
-						btn.value = '<%:Check Kernel Version%>';
+						btn.value = '<%:Update system kernel only%>';
 					}
 				}
 				else {
-					btn.value = '<%:Check Kernel Version%>';
+					btn.value = '<%:Update system kernel only%>';
 				}
 			}
 		);
