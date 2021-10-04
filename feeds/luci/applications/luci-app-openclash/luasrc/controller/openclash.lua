@@ -50,6 +50,10 @@ function index()
 	entry({"admin", "services", "openclash", "gen_debug_logs"}, call("action_gen_debug_logs"))
 	entry({"admin", "services", "openclash", "log_level"}, call("action_log_level"))
 	entry({"admin", "services", "openclash", "switch_log"}, call("action_switch_log"))
+	entry({"admin", "services", "openclash", "rule_mode"}, call("action_rule_mode"))
+	entry({"admin", "services", "openclash", "switch_rule_mode"}, call("action_switch_rule_mode"))
+	entry({"admin", "services", "openclash", "switch_run_mode"}, call("action_switch_run_mode"))
+	entry({"admin", "services", "openclash", "get_run_mode"}, call("action_get_run_mode"))
 	entry({"admin", "services", "openclash", "settings"},cbi("openclash/settings"),_("Global Settings"), 30).leaf = true
 	entry({"admin", "services", "openclash", "servers"},cbi("openclash/servers"),_("Servers and Groups"), 40).leaf = true
 	entry({"admin", "services", "openclash", "other-rules-edit"},cbi("openclash/other-rules-edit"), nil).leaf = true
@@ -167,17 +171,19 @@ local function startlog()
 	local info = ""
 	if nixio.fs.access("/tmp/openclash_start.log") then
 		info = luci.sys.exec("sed -n '$p' /tmp/openclash_start.log 2>/dev/null")
-		if not string.find (info, "【") and not string.find (info, "】") then
-   		info = luci.i18n.translate(string.sub(info, 0, -1))
-   	else
-   		local a = string.find (info, "【")
-   		local b = string.find (info, "】")+2
-   		if a <= 1 then
-   			info = string.sub(info, 0, b)..luci.i18n.translate(string.sub(info, b+1, -1))
-   		elseif b < string.len(info) then
-   			info = luci.i18n.translate(string.sub(info, 0, a-1))..string.sub(info, a, b)..luci.i18n.translate(string.sub(info, b+1, -1))
-   		elseif b == string.len(info) then
-   			info = luci.i18n.translate(string.sub(info, 0, a-1))..string.sub(info, a, -1)
+		if string.len(info) > 0 then
+			if not string.find (info, "【") and not string.find (info, "】") then
+   			info = luci.i18n.translate(string.sub(info, 0, -1))
+   		else
+   			local a = string.find (info, "【")
+   			local b = string.find (info, "】")+2
+   			if a <= 1 then
+   				info = string.sub(info, 0, b)..luci.i18n.translate(string.sub(info, b+1, -1))
+   			elseif b < string.len(info) then
+   				info = luci.i18n.translate(string.sub(info, 0, a-1))..string.sub(info, a, b)..luci.i18n.translate(string.sub(info, b+1, -1))
+   			elseif b == string.len(info) then
+   				info = luci.i18n.translate(string.sub(info, 0, a-1))..string.sub(info, a, -1)
+   			end
    		end
    	end
 	end
@@ -277,7 +283,7 @@ end
 local function historychecktime()
 	local CONFIG_FILE = uci:get("openclash", "config", "config_path")
 	if not CONFIG_FILE then return "0" end
-  local HISTORY_PATH = "/etc/openclash/history/" .. string.sub(luci.sys.exec(string.format("$(basename '%s' .yml) 2>/dev/null || $(basename '%s' .yaml) 2>/dev/null",CONFIG_FILE,CONFIG_FILE)), 1, -2)
+  local HISTORY_PATH = "/etc/openclash/history/" .. fs.filename(fs.basename(CONFIG_FILE))
 	if not nixio.fs.access(HISTORY_PATH) then
   	return "0"
 	else
@@ -325,7 +331,7 @@ local function dler_login_info_save()
 end
 
 local function dler_login()
-	local info, token, get_sub
+	local info, token, get_sub, sub_info, sub_key, sub_match
 	local sub_path = "/tmp/dler_sub"
 	local email = uci:get("openclash", "config", "dler_email")
 	local passwd = uci:get("openclash", "config", "dler_passwd")
@@ -340,6 +346,29 @@ local function dler_login()
 			uci:commit("openclash")
 			get_sub = string.format("curl -sL -H 'Content-Type: application/json' -d '{\"access_token\":\"%s\"}' -X POST https://dler.cloud/api/v1/managed/clash -o %s", token, sub_path)
 			luci.sys.exec(get_sub)
+			sub_info = fs.readfile(sub_path)
+			if sub_info then
+				sub_info = json.parse(sub_info)
+			end
+			if sub_info and sub_info.ret == 200 then
+				sub_key = {"smart","ss","vmess","trojan"}
+				for _,v in ipairs(sub_key) do
+					while true do
+						sub_match = false
+						uci:foreach("openclash", "config_subscribe",
+						function(s)
+							if s.name == "Dler Cloud - " .. v and s.address == sub_info[v] then
+			   				sub_match = true
+							end
+						end)
+						if sub_match then break end
+						luci.sys.exec(string.format('sid=$(uci -q add openclash config_subscribe) && uci -q set openclash."$sid".name="Dler Cloud - %s" && uci -q set openclash."$sid".address="%s"', v, sub_info[v]))
+						uci:commit("openclash")
+						break
+					end
+					luci.sys.exec(string.format('curl -sL -m 3 --retry 2 --user-agent "clash" "%s" -o "/etc/openclash/config/Dler Cloud - %s.yaml" >/dev/null 2>&1', sub_info[v], v))
+				end
+			end
 			return info.ret
 		else
 			uci:delete("openclash", "config", "dler_token")
@@ -475,6 +504,76 @@ function action_switch_config()
 	uci:commit("openclash")
 end
 
+function action_rule_mode()
+	local mode, info
+	if is_running() then
+		local daip = daip()
+		local dase = dase() or ""
+		local cn_port = cn_port()
+		if not daip or not cn_port then return end
+		info = json.parse(luci.sys.exec(string.format('curl -sL -m 3 -H "Content-Type: application/json" -H "Authorization: Bearer %s" -XGET http://"%s":"%s"/configs', dase, daip, cn_port)))
+		mode = info["mode"]
+	else
+		mode = uci:get("openclash", "config", "proxy_mode") or "info"
+	end
+	luci.http.prepare_content("application/json")
+	luci.http.write_json({
+		mode = mode;
+	})
+end
+
+function action_switch_rule_mode()
+	local mode, info
+	if is_running() then
+		local daip = daip()
+		local dase = dase() or ""
+		local cn_port = cn_port()
+		mode = luci.http.formvalue("rule_mode")
+		if not daip or not cn_port then luci.http.status(500, "Switch Faild") return end
+		info = luci.sys.exec(string.format('curl -sL -m 3 -H "Content-Type: application/json" -H "Authorization: Bearer %s" -XPATCH http://"%s":"%s"/configs -d \'{\"mode\": \"%s\"}\'', dase, daip, cn_port, mode))
+		if info ~= "" then
+			luci.http.status(500, "Switch Faild")
+		end
+	else
+		luci.http.status(500, "Switch Faild")
+	end
+	luci.http.prepare_content("application/json")
+	luci.http.write_json({
+		info = info;
+	})
+end
+
+function action_get_run_mode()
+	if mode() then
+		luci.http.prepare_content("application/json")
+		luci.http.write_json({
+			clash = is_running(),
+			mode = mode();
+		})
+	else
+		luci.http.status(500, "Get Faild")
+		return
+	end
+end
+
+function action_switch_run_mode()
+	local mode, operation_mode
+	if is_running() then
+		mode = luci.http.formvalue("run_mode")
+		operation_mode = uci:get("openclash", "config", "operation_mode")
+		if operation_mode == "redir-host" then
+			uci:set("openclash", "config", "en_mode", "redir-host"..mode)
+		elseif operation_mode == "fake-ip" then
+			uci:set("openclash", "config", "en_mode", "fake-ip"..mode)
+		end
+		uci:commit("openclash")
+		luci.sys.exec("/etc/init.d/openclash restart >/dev/null 2>&1 &")
+	else
+		luci.http.status(500, "Switch Faild")
+		return
+	end
+end
+
 function action_log_level()
 	local level, info
 	if is_running() then
@@ -528,16 +627,6 @@ return string.format("%.1f",e)..a[t]
 end
 end
 
-local function i(e)
-local t=0
-local a={' KB',' MB',' GB',' TB'}
-repeat
-e=e/1024
-t=t+1
-until(e<=1024)
-return string.format("%.1f",e)..a[t]
-end
-
 function action_toolbar_show_sys()
 	local pid = luci.sys.exec("pidof clash |tr -d '\n' 2>/dev/null")
 	local mem, cpu
@@ -545,7 +634,7 @@ function action_toolbar_show_sys()
 		mem = tonumber(luci.sys.exec(string.format("cat /proc/%s/status 2>/dev/null |grep -w VmRSS |awk '{print $2}'", pid)))
 		cpu = luci.sys.exec(string.format("top -b -n1 |grep %s 2>/dev/null |head -1 |awk '{print $7}' 2>/dev/null", pid))
 		if mem and cpu then
-			mem = i(mem*1024)
+			mem = fs.filesize(mem*1024)
 			cpu = string.gsub(cpu, "%%\n", "")
 		else
 			mem = "0 KB"
@@ -575,8 +664,8 @@ function action_toolbar_show()
 			connection = #(connections.connections)
 			up = s(traffic.up)
 			down = s(traffic.down)
-			up_total = i(connections.uploadTotal)
-			down_total = i(connections.downloadTotal)
+			up_total = fs.filesize(connections.uploadTotal)
+			down_total = fs.filesize(connections.downloadTotal)
 		else
 			up = "0 B/S"
 			down = "0 B/S"
@@ -587,7 +676,7 @@ function action_toolbar_show()
 		mem = tonumber(luci.sys.exec(string.format("cat /proc/%s/status 2>/dev/null |grep -w VmRSS |awk '{print $2}'", pid)))
 		cpu = luci.sys.exec(string.format("top -b -n1 |grep %s 2>/dev/null |head -1 |awk '{print $7}' 2>/dev/null", pid))
 		if mem and cpu then
-			mem = i(mem*1024)
+			mem = fs.filesize(mem*1024)
 			cpu = string.gsub(cpu, "%%\n", "")
 		else
 			mem = "0 KB"
@@ -702,8 +791,7 @@ function action_status()
 		db_foward_domain = db_foward_domain(),
 		web = is_web(),
 		cn_port = cn_port(),
-		restricted_mode = restricted_mode(),
-		mode = mode();
+		restricted_mode = restricted_mode();
 	})
 end
 
