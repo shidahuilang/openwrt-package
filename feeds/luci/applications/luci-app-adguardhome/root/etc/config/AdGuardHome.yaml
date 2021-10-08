@@ -34,9 +34,10 @@ dns:
   upstream_dns:
   - 223.5.5.5
   - 114.114.114.114
-  - 180.76.76.76
-  - 119.29.29.29
-  - 8.8.8.8
+  - https://1.1.1.1/dns-query
+  - https://dns.pub/dns-query
+  - https://dns.alidns.com/dns-query
+  - https://dns.google/dns-query
   upstream_dns_file: ""
   bootstrap_dns:
   - 223.5.5.5
