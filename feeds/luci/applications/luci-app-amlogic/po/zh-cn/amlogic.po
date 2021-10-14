@@ -419,14 +419,14 @@ msgstr "插件和内核检查更新"
 msgid "Provide OpenWrt Firmware, Kernel and Plugin online check, download and update service."
 msgstr "提供 OpenWrt 固件，内核和插件在线检查，下载和更新服务。"
 
-msgid "Only update Amlogic Service"
-msgstr "仅更新晶晨宝盒"
+msgid "Check Firmware Version"
+msgstr "检查固件版本"
 
-msgid "Update system kernel only"
-msgstr "仅更新系统内核"
+msgid "Check Plugin Version"
+msgstr "检查插件版本"
 
-msgid "Complete system update"
-msgstr "完整更新全系统"
+msgid "Check Kernel Version"
+msgstr "检查内核版本"
 
 msgid "Check Update"
 msgstr "检查更新"
