@@ -138,7 +138,7 @@ end
 --Upgrade the kernel
 function start_amlogic_kernel()
     luci.sys.exec("chmod +x /usr/sbin/" .. device_kernel_script .. " >/dev/null 2>&1")
-    local state = luci.sys.call("/usr/sbin/" .. device_kernel_script .. " > /tmp/amlogic/amlogic_check_kernel.log && sync >/dev/null 2>&1")
+    local state = luci.sys.call("/usr/sbin/" .. device_kernel_script .. " " .. auto_write_bootloader .. " > /tmp/amlogic/amlogic_check_kernel.log && sync >/dev/null 2>&1")
     return state
 end
 
