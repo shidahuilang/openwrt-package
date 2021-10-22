@@ -1,14 +1,37 @@
 #!/bin/bash
 
 # Set a fixed value
-EMMC_NAME=$(lsblk | grep -oE '(mmcblk[0-9])' | sort | uniq)
-FIRMWARE_DOWNLOAD_PATH="/mnt/${EMMC_NAME}p4"
 TMP_CHECK_DIR="/tmp/amlogic"
 AMLOGIC_SOC_FILE="/etc/flippy-openwrt-release"
 START_LOG="${TMP_CHECK_DIR}/amlogic_check_firmware.log"
 LOG_FILE="${TMP_CHECK_DIR}/amlogic.log"
 LOGTIME=$(date "+%Y-%m-%d %H:%M:%S")
 [[ -d ${TMP_CHECK_DIR} ]] || mkdir -p ${TMP_CHECK_DIR}
+
+# Find the partition where root is located
+ROOT_PTNAME=$(df / | tail -n1 | awk '{print $1}' | awk -F '/' '{print $3}')
+if [ "${ROOT_PTNAME}" == "" ];then
+    echo "Cannot find the partition corresponding to the root file system!"
+    exit 1
+fi
+
+# Find the disk where the partition is located, only supports mmcblk?p? sd?? hd?? vd?? and other formats
+case ${ROOT_PTNAME} in
+       mmcblk?p[1-4]) EMMC_NAME=$(echo ${ROOT_PTNAME} | awk '{print substr($1, 1, length($1)-2)}')
+                      PARTITION_NAME="p"
+                      LB_PRE="EMMC_"
+                      ;;
+    [hsv]d[a-z][1-4]) EMMC_NAME=$(echo ${ROOT_PTNAME} | awk '{print substr($1, 1, length($1)-1)}')
+                      PARTITION_NAME=""
+                      LB_PRE=""
+                      ;;
+                   *) echo "Unable to recognize the disk type of ${ROOT_PTNAME}!"
+                      exit 1
+                      ;;
+esac
+
+# Set the default download path
+FIRMWARE_DOWNLOAD_PATH="/mnt/${EMMC_NAME}${PARTITION_NAME}4"
 
 # Log function
 tolog() {
@@ -38,7 +61,7 @@ else
     tolog "Unknown device: [ ${MYDEVICE_NAME} ], Not supported." "1"
 fi
 [[ ! -z "${SOC}" ]] || tolog "The custom firmware soc is invalid." "1"
-tolog "Current device: ${MYDEVICE_NAME} [ ${SOC} ]"
+tolog "Device: ${MYDEVICE_NAME} [ ${SOC} ], Use in [ ${EMMC_NAME} ]"
 sleep 3
 
 # 01. Query local version information
