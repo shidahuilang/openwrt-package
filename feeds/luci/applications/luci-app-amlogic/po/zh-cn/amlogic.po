@@ -101,6 +101,9 @@ msgstr "选择列表"
 msgid "Phicomm N1"
 msgstr "斐讯-N1"
 
+msgid "Phicomm N1 (DMA thresh)"
+msgstr "斐讯-N1 (DMA thresh)"
+
 msgid "HG680P & B860H"
 msgstr "烽火HG680 & 中兴B860H"
 
@@ -230,8 +233,8 @@ msgstr "支持将 OpenWrt 系统写入 EMMC、升级固件与内核，备份与�
 msgid "Supported Boxes:"
 msgstr "支持的盒子："
 
-msgid "Amlogic s922x --- [ Belink, Belink-Pro, Ugoos-AM6-Plus ]"
-msgstr "晶晨 s922x --- [ Belink, Belink-Pro, Ugoos-AM6-Plus ]"
+msgid "Amlogic s922x --- [ Belink, Belink-Pro, Ugoos-AM6-Plus, ODROID-N2 ]"
+msgstr "晶晨 s922x --- [ Belink, Belink-Pro, Ugoos-AM6-Plus, ODROID-N2 ]"
 
 msgid "Amlogic s905x3 -- [ X96-Max+, HK1-Box, H96-Max-X3, Ugoos-X3, X96-Air, A95XF3-Air ]"
 msgstr "晶晨 s905x3 -- [ X96-Max+, HK1-Box, H96-Max-X3, Ugoos-X3, X96-Air, A95XF3-Air ]"
