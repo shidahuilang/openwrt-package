@@ -7,6 +7,8 @@ TMP_CHECK_DIR="/tmp/amlogic"
 AMLOGIC_SOC_FILE="/etc/flippy-openwrt-release"
 START_LOG="${TMP_CHECK_DIR}/amlogic_check_kernel.log"
 LOG_FILE="${TMP_CHECK_DIR}/amlogic.log"
+github_api_kernel_library="${TMP_CHECK_DIR}/github_api_kernel_library"
+github_api_kernel_file="${TMP_CHECK_DIR}/github_api_kernel_file"
 LOGTIME=$(date "+%Y-%m-%d %H:%M:%S")
 [[ -d ${TMP_CHECK_DIR} ]] || mkdir -p ${TMP_CHECK_DIR}
 
@@ -102,6 +104,7 @@ elif [[ ${server_kernel_path} == http* && $(echo ${server_kernel_path} | grep "t
 fi
 
 server_kernel_url="https://api.github.com/repos/${server_firmware_url}/contents/${server_kernel_path}"
+
 # Step 1: URL formatting end -----------------------------------------------------------
 
 # Step 2: Check if there is the latest kernel version
@@ -129,7 +132,10 @@ check_kernel() {
     fi
 
     # Check the version on the server
-    latest_version=$(curl -s "${server_kernel_url}" | grep "name" | grep -oE "${main_line_version}.[0-9]+"  | sed -e "s/${main_line_version}.//g" | sort -n | sed -n '$p')
+    curl -s "${server_kernel_url}" > ${github_api_kernel_library} && sync
+    sleep 1
+
+    latest_version=$( cat ${github_api_kernel_library} | grep "name" | grep -oE "${main_line_version}.[0-9]+"  | sed -e "s/${main_line_version}.//g" | sort -n | sed -n '$p')
     #latest_version="124"
     [[ ! -z "${latest_version}" ]] || tolog "02.03 Failed to get the version on the server." "1"
     tolog "02.03 current version: ${current_kernel_v}, Latest version: ${main_line_version}.${latest_version}"
@@ -161,11 +167,14 @@ download_kernel() {
     rm -f ${KERNEL_DOWNLOAD_PATH}/dtb-*.tar.gz 2>/dev/null && sync
     rm -f ${KERNEL_DOWNLOAD_PATH}/modules-*.tar.gz 2>/dev/null && sync
 
+    curl -s "${server_kernel_url}/${download_version}" > ${github_api_kernel_file} && sync
+    sleep 1
+
     # Download boot file from the kernel directory under the path: ${server_kernel_url}/${download_version}/
-    server_kernel_boot="$(curl -s "${server_kernel_url}/${download_version}" | grep "download_url" | grep -o "https.*/boot-${download_version}.*.tar.gz" | head -n 1)"
+    server_kernel_boot="$( cat ${github_api_kernel_file} | grep "download_url" | grep -o "https.*/boot-${download_version}.*.tar.gz" | head -n 1)"
     # Download boot file from current path: ${server_kernel_url}/
     if [ -z "${server_kernel_boot}" ]; then
-        server_kernel_boot="$(curl -s "${server_kernel_url}" | grep "download_url" | grep -o "https.*/boot-${download_version}.*.tar.gz" | head -n 1)"
+        server_kernel_boot="$( cat ${github_api_kernel_library} | grep "download_url" | grep -o "https.*/boot-${download_version}.*.tar.gz" | head -n 1)"
     fi
     boot_file_name="${server_kernel_boot##*/}"
     server_kernel_boot_name="${boot_file_name//%2B/+}"
@@ -178,10 +187,10 @@ download_kernel() {
     sleep 3
 
     # Download dtb file from the kernel directory under the path: ${server_kernel_url}/${download_version}/
-    server_kernel_dtb="$(curl -s "${server_kernel_url}/${download_version}" | grep "download_url" | grep -o "https.*/dtb-${MYDTB_FILE}-${download_version}.*.tar.gz" | head -n 1)"
+    server_kernel_dtb="$( cat ${github_api_kernel_file} | grep "download_url" | grep -o "https.*/dtb-${MYDTB_FILE}-${download_version}.*.tar.gz" | head -n 1)"
     # Download dtb file from current path: ${server_kernel_url}/
     if [ -z "${server_kernel_dtb}" ]; then
-        server_kernel_dtb="$(curl -s "${server_kernel_url}" | grep "download_url" | grep -o "https.*/dtb-${MYDTB_FILE}-${download_version}.*.tar.gz" | head -n 1)"
+        server_kernel_dtb="$( cat ${github_api_kernel_library} | grep "download_url" | grep -o "https.*/dtb-${MYDTB_FILE}-${download_version}.*.tar.gz" | head -n 1)"
     fi
     dtb_file_name="${server_kernel_dtb##*/}"
     server_kernel_dtb_name="${dtb_file_name//%2B/+}"
@@ -194,10 +203,10 @@ download_kernel() {
     sleep 3
 
     # Download modules file from the kernel directory under the path: ${server_kernel_url}/${download_version}/
-    server_kernel_modules="$(curl -s "${server_kernel_url}/${download_version}" | grep "download_url" | grep -o "https.*/modules-${download_version}.*.tar.gz" | head -n 1)"
+    server_kernel_modules="$( cat ${github_api_kernel_file} | grep "download_url" | grep -o "https.*/modules-${download_version}.*.tar.gz" | head -n 1)"
     # Download modules file from current path: ${server_kernel_url}/
     if [ -z "${server_kernel_modules}" ]; then
-        server_kernel_modules="$(curl -s "${server_kernel_url}" | grep "download_url" | grep -o "https.*/modules-${download_version}.*.tar.gz" | head -n 1)"
+        server_kernel_modules="$( cat ${github_api_kernel_library} | grep "download_url" | grep -o "https.*/modules-${download_version}.*.tar.gz" | head -n 1)"
     fi
     modules_file_name="${server_kernel_modules##*/}"
     server_kernel_modules_name="${modules_file_name//%2B/+}"
@@ -211,6 +220,10 @@ download_kernel() {
 
     tolog "04 The kernel is ready, you can update."
     sleep 3
+
+    # Delete temporary files
+    rm -f ${github_api_kernel_library} 2>/dev/null && sync
+    rm -f ${github_api_kernel_file} 2>/dev/null && sync
 
     #echo '<a href="javascript:;" onclick="return amlogic_kernel(this)">Update</a>' >$START_LOG
     tolog '<input type="button" class="cbi-button cbi-button-reload" value="Update" onclick="return amlogic_kernel(this)"/>'
