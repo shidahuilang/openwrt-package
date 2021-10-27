@@ -14,7 +14,7 @@
 			<input id="_have_kernel" type="button" class="cbi-button cbi-button-reload" value="<%:Replace OpenWrt Kernel%>" onclick="return amlogic_kernel(this)"/>
 		</td><td  width="70%" align="left">
 			<span id="_current_firmware_version"><%:Collecting data...%></span>　
-			<span id="_check_log"></span>
+			<span id="_check_log_firmware"></span><span id="_check_log_kernel"></span>
 		</td></tr>
 	</table>
 </fieldset>
@@ -94,25 +94,26 @@
 	}
 	});
 
-	var _check_log = document.getElementById('_check_log');
+	var _check_log_firmware = document.getElementById('_check_log_firmware');
 	XHR.poll(1, '<%=luci.dispatcher.build_url("admin", "system", "amlogic", "start_check_firmware")%>', status.start_check_firmware, function(x, status) {
 	if ( x && x.status == 200 ) {
 		if ( status.start_check_firmware != "\n" && status.start_check_firmware != "" ) {
-			_check_log.innerHTML = '<font color="blue"> '+status.start_check_firmware+'</font>';
+			_check_log_firmware.innerHTML = '<font color="blue"> '+status.start_check_firmware+'</font>';
 		}
 		if ( status.start_check_firmware == "\n" || status.start_check_firmware == "" ) {
-			_check_log.innerHTML = '';
+			_check_log_firmware.innerHTML = '';
 		}
 	}
 	});
 
+	var _check_log_kernel = document.getElementById('_check_log_kernel');
 	XHR.poll(1, '<%=luci.dispatcher.build_url("admin", "system", "amlogic", "start_check_kernel")%>', status.start_check_kernel, function(x, status) {
 	if ( x && x.status == 200 ) {
 		if ( status.start_check_kernel != "\n" && status.start_check_kernel != "" ) {
-			_check_log.innerHTML = '<font color="blue"> '+status.start_check_kernel+'</font>';
+			_check_log_kernel.innerHTML = '<font color="blue"> '+status.start_check_kernel+'</font>';
 		}
 		if ( status.start_check_kernel == "\n" || status.start_check_kernel == "" ) {
-			_check_log.innerHTML = '';
+			_check_log_kernel.innerHTML = '';
 		}
 	}
 	});
