@@ -14,13 +14,12 @@ PKG_LICENSE:=GPL-3.0
 include $(INCLUDE_DIR)/package.mk
 
 define Package/iptvhelper
-   SECTION:=net
-   CATEGORY:=Network
-   SUBMENU:=Routing and Redirection
-   DEPENDS:= +ipset +iptables
-   TITLE:=Scripts for configure IPTV easily
-   MAINTAINER:=Shun Li <riverscn@gmail.com>
-   PKGARCH:=all
+  SECTION:=net
+  CATEGORY:=Network
+  SUBMENU:=Routing and Redirection
+  DEPENDS:= +ipset +iptables
+  TITLE:=Scripts for configure IPTV easily
+  PKGARCH:=all
 endef
 
 define Package/iptvhelper/description
