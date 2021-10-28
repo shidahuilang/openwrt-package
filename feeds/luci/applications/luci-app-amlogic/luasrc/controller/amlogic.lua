@@ -16,6 +16,7 @@ function index()
     entry({"admin", "system", "amlogic", "check_kernel"},call("action_check_kernel"))
     entry({"admin", "system", "amlogic", "refresh_log"},call("action_refresh_log"))
     entry({"admin", "system", "amlogic", "del_log"},call("action_del_log"))
+    entry({"admin", "system", "amlogic", "start_model_database"},call("action_check_model_database")).leaf=true
     entry({"admin", "system", "amlogic", "start_check_install"},call("action_start_check_install")).leaf=true
     entry({"admin", "system", "amlogic", "start_check_firmware"},call("action_start_check_firmware")).leaf=true
     entry({"admin", "system", "amlogic", "start_check_plugin"},call("action_start_check_plugin")).leaf=true
@@ -383,6 +384,20 @@ function action_state()
         current_plugin_version = current_plugin_version(),
         current_kernel_version = current_kernel_version(),
         current_kernel_branch = current_kernel_branch();
+    })
+end
+
+--Read external model database
+local function my_model_database()
+    local state = luci.sys.exec("cat /etc/model_database.txt | grep -E '^[0-9]{1,9}:' | awk -F ':' '{print $1,$2}' OFS='###' ORS='@@@' | tr ' ' '~' 2>&1")
+    return state
+end
+
+--Return external model database
+function action_check_model_database()
+    luci.http.prepare_content("application/json")
+    luci.http.write_json({
+        my_model_database = my_model_database();
     })
 end
 
