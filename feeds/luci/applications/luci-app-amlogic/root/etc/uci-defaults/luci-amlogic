@@ -2,6 +2,14 @@
 
 sed -i 's/cbi.submit\"] = true/cbi.submit\"] = \"1\"/g' /usr/lib/lua/luci/dispatcher.lua
 
+uci -q batch <<-EOF >/dev/null
+	delete ucitrack.@amlogic[-1]
+	add ucitrack amlogic
+	set ucitrack.@amlogic[-1].init=amlogic
+	commit ucitrack
+EOF
+
 rm -f /tmp/luci-indexcache
 rm -rf /tmp/luci-modulecache/*
 exit 0
+

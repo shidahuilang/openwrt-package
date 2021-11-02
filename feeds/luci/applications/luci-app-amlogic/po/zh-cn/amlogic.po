@@ -368,8 +368,8 @@ msgstr "配置来源"
 msgid "You can customize the github.com download repository of OpenWrt files and kernels in [Online Download Update]."
 msgstr "您可以自定义 [在线下载和更新] 中 OpenWrt 固件和内核的 github.com 下载仓库。"
 
-msgid "Tips: The amlogic SoC (E.g: s905d) and mainline version of the kernel (E.g: 5.13) will automatically match the current openwrt firmware."
-msgstr "提示：OpenWrt 固件的型号（如：s905d）和内核的主线版本（如：5.13）将根据当前固件自动适配。"
+msgid "Tips: The amlogic SoC (E.g: s905d) and mainline version of the kernel (E.g: 5.10) will automatically match the current openwrt firmware."
+msgstr "提示：OpenWrt 固件的型号（如：s905d）和内核的主线版本（如：5.10）将根据当前固件自动适配。"
 
 msgid "Download repository of OpenWrt:"
 msgstr "OpenWrt 固件的下载仓库："
@@ -484,3 +484,55 @@ msgstr "清理日志"
 
 msgid "Download Log"
 msgstr "下载日志"
+
+msgid "CPU Settings"
+msgstr "CPU 设置"
+
+msgid "CPU Freq"
+msgstr "CPU 性能优化调节"
+
+msgid "CPU Freq Settings"
+msgstr "CPU 性能优化调节设置"
+
+msgid "Set CPU Scaling Governor to Max Performance or Balance Mode"
+msgstr "设置路由器的 CPU 性能模式（高性能/均衡省电）"
+
+msgid "CPU Scaling Governor:"
+msgstr "CPU 工作模式："
+
+msgid "Ondemand Balance Mode"
+msgstr "Ondemand 自动平衡模式"
+
+msgid "Performance Mode"
+msgstr "Performance 高性能模式（降低游戏转发延迟）"
+
+msgid "ondemand"
+msgstr "ondemand 自动平衡模式"
+
+msgid "performance"
+msgstr "performance 高性能模式（降低游戏转发延迟）"
+
+msgid "CPU Freq from 48000 to 716000 (Khz)"
+msgstr "CPU 频率范围为 48000 到 716000 (Khz)"
+
+msgid "Min Idle CPU Freq:"
+msgstr "待机 CPU 最小频率："
+
+msgid "Max Turbo Boost CPU Freq:"
+msgstr "最大 Turbo Boost CPU 频率："
+
+msgid "CPU Switching Threshold:"
+msgstr "CPU 切换频率触发阈值："
+
+msgid "Kernel make a decision on whether it should increase the frequency (%)"
+msgstr "当 CPU 占用率超过 (%) 的情况下触发内核切换频率"
+
+msgid "CPU Switching Sampling rate:"
+msgstr "CPU 切换周期："
+
+msgid "The sampling rate determines how frequently the governor checks to tune the CPU (ms)"
+msgstr "CPU 检查切换的周期 (ms) 。注意：过于频繁的切换频率会引起网络延迟抖动"
+
+msgid "Microarchitectures:"
+msgstr "微架构："
+

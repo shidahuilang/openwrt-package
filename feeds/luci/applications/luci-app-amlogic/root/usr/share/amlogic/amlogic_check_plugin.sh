@@ -90,9 +90,9 @@ else
     tolog "02.03 Check the latest plug-in download address."
 
     server_plugin_url="https://github.com/ophub/luci-app-amlogic/releases/download"
-    server_plugin_file_ipk="$( cat ${github_api_plugin} | grep -E "browser_.*${server_plugin_version}.*" | grep -oE  "luci-app-amlogic_.*.ipk" | head -n 1 )"
-    server_plugin_file_i18n="$( cat ${github_api_plugin} | grep -E "browser_.*${server_plugin_version}.*" | grep -oE  "luci-i18n-amlogic-zh-cn_.*.ipk" | head -n 1 )"
-    server_plugin_file_libfs="$( cat ${github_api_plugin} | grep -E "browser_.*${server_plugin_version}.*" | grep -oE  "luci-lib-fs_.*.ipk" | head -n 1 )"
+    server_plugin_file_ipk="$( cat ${github_api_plugin} | grep -E "browser_.*${server_plugin_version}.*" | grep -oE "luci-app-amlogic_.*.ipk" | head -n 1 )"
+    server_plugin_file_i18n="$( cat ${github_api_plugin} | grep -E "browser_.*${server_plugin_version}.*" | grep -oE "luci-i18n-amlogic-zh-cn_.*.ipk" | head -n 1 )"
+    server_plugin_file_libfs="$( cat ${github_api_plugin} | grep -E "browser_.*${server_plugin_version}.*" | grep -oE "luci-lib-fs_.*.ipk" | head -n 1 )"
 
     if [[ -n "${server_plugin_file_ipk}" && -n "${server_plugin_file_i18n}" && -n "${server_plugin_file_libfs}" ]]; then
         tolog "02.04 Start downloading the latest plugin..."

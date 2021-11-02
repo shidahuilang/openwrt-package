@@ -1,0 +1,35 @@
+#!/bin/sh /etc/rc.common
+START=50
+
+NAME=amlogic
+
+uci_get_by_type() {
+	local ret=$(uci get $NAME.@$1[0].$2 2>/dev/null)
+	echo ${ret:=$3}
+}
+
+start()
+{
+	local cpu_policys=$(ls /sys/devices/system/cpu/cpufreq | grep -E 'policy[0-9]{1,3}' | xargs)
+	if [ "${cpu_policys}" = "" ]; then
+	    cpu_policys="policy0"
+	fi
+
+	config_load amlogic
+	for policy_name in ${cpu_policys}; do
+        local policy_name="${policy_name}"
+        local policy_id="${policy_name//policy/}"
+        if [ "${policy_name}" == "policy0" ]; then
+            local policy_id=""
+        fi
+        local governor=$(uci_get_by_type settings governor${policy_id} schedutil)
+        local minifreq=$(uci_get_by_type settings minifreq${policy_id} 500000)
+        local maxfreq=$(uci_get_by_type settings maxfreq${policy_id} 1512000)
+        local upthreshold=$(uci_get_by_type settings upthreshold${policy_id} 50)
+        local factor=$(uci_get_by_type settings factor${policy_id} 10)
+
+        echo $governor > /sys/devices/system/cpu/cpufreq/${policy_name}/scaling_governor
+        echo $minifreq > /sys/devices/system/cpu/cpufreq/${policy_name}/scaling_min_freq
+        echo $maxfreq > /sys/devices/system/cpu/cpufreq/${policy_name}/scaling_max_freq
+	done
+}

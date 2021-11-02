@@ -4,9 +4,17 @@ function trim(str)
    return (string.gsub(str, "%s+", ""))
 end
 
+--Auto-complete node
+local check_config_amlogic = luci.sys.exec("uci get amlogic.@amlogic[0].amlogic_firmware_repo 2>/dev/null") or ""
+if (trim(check_config_amlogic) == "") then
+    luci.sys.exec("uci delete amlogic.@amlogic[0] 2>/dev/null")
+    luci.sys.exec("uci set amlogic.config='amlogic' 2>/dev/null")
+    luci.sys.exec("uci commit amlogic 2>/dev/null")
+end
+
 b = Map("amlogic", translate("Plugin Settings"))
 local des_content = translate("You can customize the github.com download repository of OpenWrt files and kernels in [Online Download Update].")
-local des_content = des_content .. "<br />" .. translate("Tips: The amlogic SoC (E.g: s905d) and mainline version of the kernel (E.g: 5.13) will automatically match the current openwrt firmware.")
+local des_content = des_content .. "<br />" .. translate("Tips: The amlogic SoC (E.g: s905d) and mainline version of the kernel (E.g: 5.10) will automatically match the current openwrt firmware.")
 b.description = des_content
 
 o = b:section(NamedSection, "config", "amlogic")
@@ -56,13 +64,13 @@ kernel_branch.rmempty = false
 --7.Restore configuration
 firmware_config = o:option(Flag, "amlogic_firmware_config", translate("Keep config update:"))
 firmware_config.description = translate("Set whether to keep the current config during [Online Download Update] and [Manually Upload Update].")
-firmware_config.default = 1
+firmware_config.default = "1"
 firmware_config.rmempty = false
 
 --8.Write bootloader
 write_bootloader = o:option(Flag, "amlogic_write_bootloader", translate("Auto write bootloader:"))
 write_bootloader.description = translate("[Recommended choice] Set whether to auto write bootloader during install and update OpenWrt.")
-write_bootloader.default = 1
+write_bootloader.default = "1"
 write_bootloader.rmempty = false
 
 --9.Set the file system type of the shared partition
