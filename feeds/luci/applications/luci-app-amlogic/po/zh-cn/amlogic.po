@@ -98,68 +98,68 @@ msgstr "选择设备型号："
 msgid "Select List"
 msgstr "选择列表"
 
-msgid "Phicomm N1"
-msgstr "斐讯-N1"
+msgid "[s905d] Phicomm N1"
+msgstr "[s905d] 斐讯-N1"
 
-msgid "Phicomm N1 (DMA thresh)"
-msgstr "斐讯-N1 (DMA thresh)"
+msgid "[s905d] Phicomm N1 (DMA thresh)"
+msgstr "[s905d] 斐讯-N1 (DMA thresh)"
 
-msgid "HG680P & B860H"
-msgstr "烽火HG680 & 中兴B860H"
+msgid "[s905x] HG680P & B860H"
+msgstr "[s905x] 烽火HG680 & 中兴B860H"
 
-msgid "X96-Mini & TX3-Mini"
-msgstr "X96-Mini & TX3-Mini"
+msgid "[s905w] X96-Mini & TX3-Mini"
+msgstr "[s905w] X96-Mini & TX3-Mini"
 
-msgid "Octopus Planet"
-msgstr "章鱼星球"
+msgid "[s912] Octopus Planet"
+msgstr "[s912] 章鱼星球"
 
-msgid "X96 Max 4G"
-msgstr "X96 Max 4G"
+msgid "[s905x2] X96 Max 4G"
+msgstr "[s905x2] X96 Max 4G"
 
-msgid "X96 Max 2G"
-msgstr "X96 Max 2G"
+msgid "[s905x2] X96 Max 2G"
+msgstr "[s905x2] X96 Max 2G"
 
-msgid "Belink GT-King"
-msgstr "Belink GT-King"
+msgid "[s922x] Belink GT-King"
+msgstr "[s922x] Belink GT-King"
 
-msgid "Belink GT-King Pro"
-msgstr "Belink GT-King Pro"
+msgid "[s922x] Belink GT-King Pro"
+msgstr "[s922x] Belink GT-King Pro"
 
-msgid "Belink GT-King Pro H"
-msgstr "Belink GT-King Pro H"
+msgid "[s922x] Belink GT-King Pro H"
+msgstr "[s922x] Belink GT-King Pro H"
 
-msgid "Belink GT-King Pro Rev_A"
-msgstr "Belink GT-King Pro Rev_A"
+msgid "[s922x] Belink GT-King Pro Rev_A"
+msgstr "[s922x] Belink GT-King Pro Rev_A"
 
-msgid "Hardkernel ODROID N2"
-msgstr "Hardkernel ODROID N2"
+msgid "[s922x] Hardkernel ODROID N2"
+msgstr "[s922x] Hardkernel ODROID N2"
 
-msgid "UGOOS AM6 Plus"
-msgstr "UGOOS AM6 Plus"
+msgid "[s922x] UGOOS AM6 Plus"
+msgstr "[s922x] UGOOS AM6 Plus"
 
-msgid "X96 Max+"
-msgstr "X96 Max+"
+msgid "[s905x3] X96 Max+"
+msgstr "[s905x3] X96 Max+"
 
-msgid "X96 Max+ (OverClock@2208Mhz)"
-msgstr "X96 Max+ (超频@2208Mhz)"
+msgid "[s905x3] X96 Max+ (OverClock@2208Mhz)"
+msgstr "[s905x3] X96 Max+ (超频@2208Mhz)"
 
-msgid "HK1 Box"
-msgstr "HK1 Box"
+msgid "[s905x3] HK1 Box"
+msgstr "[s905x3] HK1 Box"
 
-msgid "HK1 Box (OveClock@2208Mhz)"
-msgstr "HK1 Box (超频@2208Mhz)"
+msgid "[s905x3] HK1 Box (OveClock@2208Mhz)"
+msgstr "[s905x3] HK1 Box (超频@2208Mhz)"
 
-msgid "H96 Max X3"
-msgstr "H96 Max X3"
+msgid "[s905x3] H96 Max X3"
+msgstr "[s905x3] H96 Max X3"
 
-msgid "H96 Max X3 (OveClock@2208Mhz)"
-msgstr "H96 Max X3 (超频@2208Mhz)"
+msgid "[s905x3] H96 Max X3 (OveClock@2208Mhz)"
+msgstr "[s905x3] H96 Max X3 (超频@2208Mhz)"
 
-msgid "Ugoos X3"
-msgstr "Ugoos X3"
+msgid "[s905x3] Ugoos X3"
+msgstr "[s905x3] Ugoos X3"
 
-msgid "Ugoos X3 (OveClock@2208Mhz)"
-msgstr "Ugoos X3 (超频@2208Mhz)"
+msgid "[s905x3] Ugoos X3 (OveClock@2208Mhz)"
+msgstr "[s905x3] Ugoos X3 (超频@2208Mhz)"
 
 msgid "Or enter the dtb file name:"
 msgstr "或者输入自定义 dtb 文件名："
@@ -498,28 +498,25 @@ msgid "Set CPU Scaling Governor to Max Performance or Balance Mode"
 msgstr "设置路由器的 CPU 性能模式（高性能/均衡省电）"
 
 msgid "CPU Scaling Governor:"
-msgstr "CPU 工作模式："
-
-msgid "Ondemand Balance Mode"
-msgstr "Ondemand 自动平衡模式"
-
-msgid "Performance Mode"
-msgstr "Performance 高性能模式（降低游戏转发延迟）"
+msgstr "CPU 调速器："
 
 msgid "ondemand"
-msgstr "ondemand 自动平衡模式"
+msgstr "Ondemand 自动平衡模式"
 
 msgid "performance"
-msgstr "performance 高性能模式（降低游戏转发延迟）"
+msgstr "Performance 高性能模式"
+
+msgid "schedutil"
+msgstr "Schedutil 敏捷调度器模式"
 
 msgid "CPU Freq from 48000 to 716000 (Khz)"
 msgstr "CPU 频率范围为 48000 到 716000 (Khz)"
 
-msgid "Min Idle CPU Freq:"
-msgstr "待机 CPU 最小频率："
+msgid "Min Freq:"
+msgstr "最小频率："
 
-msgid "Max Turbo Boost CPU Freq:"
-msgstr "最大 Turbo Boost CPU 频率："
+msgid "Max Freq:"
+msgstr "最大频率："
 
 msgid "CPU Switching Threshold:"
 msgstr "CPU 切换频率触发阈值："

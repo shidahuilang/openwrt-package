@@ -1,5 +1,5 @@
 #!/bin/sh /etc/rc.common
-START=50
+START=60
 
 NAME=amlogic
 
@@ -8,28 +8,46 @@ uci_get_by_type() {
 	echo ${ret:=$3}
 }
 
+uci_set_by_type() {
+	uci set $NAME.@$1[0].$2=$3 2>/dev/null
+	uci commit $NAME
+}
+
 start()
 {
-	local cpu_policys=$(ls /sys/devices/system/cpu/cpufreq | grep -E 'policy[0-9]{1,3}' | xargs)
+	[ -x "/usr/sbin/fixcpufreq.pl" ] && /usr/sbin/fixcpufreq.pl
+	local cpu_policys=$(ls /sys/devices/system/cpu/cpufreq 2>/dev/null | grep -E 'policy[0-9]{1,3}' | xargs)
 	if [ "${cpu_policys}" = "" ]; then
 	    cpu_policys="policy0"
 	fi
 
-	config_load amlogic
+	config_load $NAME
 	for policy_name in ${cpu_policys}; do
-        local policy_name="${policy_name}"
         local policy_id="${policy_name//policy/}"
-        if [ "${policy_name}" == "policy0" ]; then
-            local policy_id=""
-        fi
-        local governor=$(uci_get_by_type settings governor${policy_id} schedutil)
-        local minifreq=$(uci_get_by_type settings minifreq${policy_id} 500000)
-        local maxfreq=$(uci_get_by_type settings maxfreq${policy_id} 1512000)
-        local upthreshold=$(uci_get_by_type settings upthreshold${policy_id} 50)
-        local factor=$(uci_get_by_type settings factor${policy_id} 10)
 
+        # Get an optional value list for the current device
+        local governor_list="$(cat /sys/devices/system/cpu/cpufreq/${policy_name}/scaling_available_frequencies 2>/dev/null | xargs)"
+        local second_place_order="$(echo ${governor_list} | awk '{print $2}')"
+        local second_place_reverse="$(echo ${governor_list} | awk '{print $(NF-1)}')"
+
+        # Get the default value in the Config file
+        local governor=$(uci_get_by_type settings governor${policy_id} schedutil)
+        local minfreq=$(uci_get_by_type settings minfreq${policy_id} ${second_place_order})
+        local maxfreq=$(uci_get_by_type settings maxfreq${policy_id} ${second_place_reverse})
+
+        # Correct if the default value in the config file is not in the list
+        if [[ "$(echo "${governor_list}" | grep "${minfreq}")" == "" ]]; then
+            local minfreq="${second_place_order}"
+            uci_set_by_type settings minfreq${policy_id} ${second_place_order}
+        fi
+        if [[ "$(echo "${governor_list}" | grep "${maxfreq}")" == "" ]]; then
+            local maxfreq="${second_place_reverse}"
+            uci_set_by_type settings maxfreq${policy_id} ${second_place_reverse}
+        fi
+
+        # Update result to the corresponding file
         echo $governor > /sys/devices/system/cpu/cpufreq/${policy_name}/scaling_governor
-        echo $minifreq > /sys/devices/system/cpu/cpufreq/${policy_name}/scaling_min_freq
+        echo $minfreq > /sys/devices/system/cpu/cpufreq/${policy_name}/scaling_min_freq
         echo $maxfreq > /sys/devices/system/cpu/cpufreq/${policy_name}/scaling_max_freq
 	done
 }
