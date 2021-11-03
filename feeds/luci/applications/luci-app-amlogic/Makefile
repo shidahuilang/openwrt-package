@@ -9,7 +9,7 @@ PKG_NAME:=luci-app-amlogic
 PKG_LICENSE:=GPL-2.0 License
 PKG_MAINTAINER:=ophub <https://github.com/ophub/luci-app-amlogic>
 PKG_VERSION:=3.1
-PKG_RELEASE:=12
+PKG_RELEASE:=22
 
 LUCI_TITLE:= LuCI support for Amlogic, Allwinner and Rockchip related boxs
 LUCI_DEPENDS:=@(aarch64||arm) \
