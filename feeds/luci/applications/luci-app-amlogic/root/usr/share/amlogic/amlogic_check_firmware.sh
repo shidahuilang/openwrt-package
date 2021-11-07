@@ -81,7 +81,12 @@ main_line_version="${main_line_ver}.${main_line_maj}"
 
 # 01.02. Query the selected branch in the settings
 server_kernel_branch=$(uci get amlogic.config.amlogic_kernel_branch 2>/dev/null | grep -oE '^[1-9].[0-9]{1,3}')
-if [[ -n "${server_kernel_branch}" && "${server_kernel_branch}" != "${main_line_version}" ]]; then
+if [ -z "${server_kernel_branch}" ]; then
+    server_kernel_branch="${main_line_version}"
+    uci set amlogic.config.amlogic_kernel_branch="${main_line_version}" 2>/dev/null
+    uci commit amlogic 2>/dev/null
+fi
+if [[ "${server_kernel_branch}" != "${main_line_version}" ]]; then
     main_line_version="${server_kernel_branch}"
     tolog "01.02 Select branch: ${main_line_version}"
     sleep 2
@@ -162,7 +167,7 @@ download_firmware() {
     else
         tolog "03.02 Invalid firmware download." "1"
     fi
-    sleep 3
+    sleep 2
 
     # Delete temporary files
     rm -f ${github_api_openwrt} 2>/dev/null && sync

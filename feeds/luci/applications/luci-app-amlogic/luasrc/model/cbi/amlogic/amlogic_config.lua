@@ -46,7 +46,7 @@ firmware_suffix:value(".7z", translate(".7z"))
 firmware_suffix:value(".zip", translate(".zip"))
 firmware_suffix:value(".img.gz", translate(".img.gz"))
 firmware_suffix:value(".img.xz", translate(".img.xz"))
-firmware_suffix.default = ".7z"
+firmware_suffix.default = ".img.gz"
 firmware_suffix.rmempty = false
 
 --5.Set OpenWrt Kernel DownLoad Path
@@ -76,7 +76,7 @@ firmware_config.rmempty = false
 --8.Write bootloader
 write_bootloader = o:option(Flag, "amlogic_write_bootloader", translate("Auto write bootloader:"))
 write_bootloader.description = translate("[Recommended choice] Set whether to auto write bootloader during install and update OpenWrt.")
-write_bootloader.default = "1"
+write_bootloader.default = "0"
 write_bootloader.rmempty = false
 
 --9.Set the file system type of the shared partition
