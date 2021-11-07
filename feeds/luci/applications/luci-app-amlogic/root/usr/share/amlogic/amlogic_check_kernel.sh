@@ -60,7 +60,7 @@ else
     tolog "Unknown device: [ ${MYDEVICE_NAME} ], Not supported." "1"
 fi
 tolog "Device: ${MYDEVICE_NAME} [ ${MYDTB_FILE} ], Use in [ ${EMMC_NAME} ]"
-sleep 3
+sleep 2
 
 # Step 1: URL formatting start -----------------------------------------------------------
 #
@@ -114,7 +114,7 @@ check_kernel() {
     # 02.01 Query the current version
     current_kernel_v=$(ls /lib/modules/  2>/dev/null | grep -oE '^[1-9].[0-9]{1,2}.[0-9]+')
     tolog "02.01 current version: ${current_kernel_v}"
-    sleep 3
+    sleep 2
 
     # 02.02 Version comparison
     main_line_ver=$(echo "${current_kernel_v}" | cut -d '.' -f1)
@@ -124,11 +124,18 @@ check_kernel() {
 
     # 02.03 Query the selected branch in the settings
     server_kernel_branch=$(uci get amlogic.config.amlogic_kernel_branch 2>/dev/null | grep -oE '^[1-9].[0-9]{1,3}')
-    if [[ -n "${server_kernel_branch}" && "${server_kernel_branch}" != "${main_line_version}" ]]; then
+    if [ -z "${server_kernel_branch}" ]; then
+        server_kernel_branch="${main_line_version}"
+        uci set amlogic.config.amlogic_kernel_branch="${main_line_version}" 2>/dev/null
+        uci commit amlogic 2>/dev/null
+    fi
+    branch_ver=$(echo "${server_kernel_branch}" | cut -d '.' -f1)
+    branch_maj=$(echo "${server_kernel_branch}" | cut -d '.' -f2)
+    if [[ "${server_kernel_branch}" != "${main_line_version}" ]]; then
         main_line_version="${server_kernel_branch}"
         main_line_now="0"
         tolog "02.02 Select branch: ${main_line_version}"
-        sleep 3
+        sleep 2
     fi
 
     # Check the version on the server
@@ -139,17 +146,16 @@ check_kernel() {
     #latest_version="124"
     [[ ! -z "${latest_version}" ]] || tolog "02.03 Failed to get the version on the server." "1"
     tolog "02.03 current version: ${current_kernel_v}, Latest version: ${main_line_version}.${latest_version}"
-    sleep 3
+    sleep 2
 
-    if [[ "${latest_version}" -eq "${main_line_now}" ]]; then
+    if [[ "${latest_version}" -eq "${main_line_now}" && "${main_line_maj}" -eq "${branch_maj}" ]]; then
         tolog "02.04 Already the latest version, no need to update." "1"
-        sleep 5
-        tolog ""
-        exit 0
+        sleep 2
     else
         tolog '<input type="button" class="cbi-button cbi-button-reload" value="Download" onclick="return b_check_kernel(this, '"'download_${main_line_version}.${latest_version}'"')"/> Latest version: '${main_line_version}.${latest_version}''
-        exit 0
     fi
+
+    exit 0
 }
 
 # Step 3: Download the latest kernel version
@@ -184,7 +190,7 @@ download_kernel() {
     else
         tolog "03.04 The boot file failed to download." "1"
     fi
-    sleep 3
+    sleep 2
 
     # Download dtb file from the kernel directory under the path: ${server_kernel_url}/${download_version}/
     server_kernel_dtb="$( cat ${github_api_kernel_file} | grep "download_url" | grep -o "https.*/dtb-${MYDTB_FILE}-${download_version}.*.tar.gz" | head -n 1)"
@@ -200,7 +206,7 @@ download_kernel() {
     else
         tolog "03.06 The dtb file failed to download." "1"
     fi
-    sleep 3
+    sleep 2
 
     # Download modules file from the kernel directory under the path: ${server_kernel_url}/${download_version}/
     server_kernel_modules="$( cat ${github_api_kernel_file} | grep "download_url" | grep -o "https.*/modules-${download_version}.*.tar.gz" | head -n 1)"
@@ -216,10 +222,10 @@ download_kernel() {
     else
         tolog "03.08 The modules file failed to download." "1"
     fi
-    sleep 3
+    sleep 2
 
     tolog "04 The kernel is ready, you can update."
-    sleep 3
+    sleep 2
 
     # Delete temporary files
     rm -f ${github_api_kernel_library} 2>/dev/null && sync
