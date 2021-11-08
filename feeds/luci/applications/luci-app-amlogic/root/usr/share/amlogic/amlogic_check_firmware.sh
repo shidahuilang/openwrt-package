@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Set a fixed value
-check_option=${1}
-download_version=${2}
+check_option="${1}"
+download_version="${2}"
 TMP_CHECK_DIR="/tmp/amlogic"
 AMLOGIC_SOC_FILE="/etc/flippy-openwrt-release"
 START_LOG="${TMP_CHECK_DIR}/amlogic_check_firmware.log"

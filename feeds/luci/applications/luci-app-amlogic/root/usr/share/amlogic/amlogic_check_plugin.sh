@@ -63,13 +63,13 @@ else
 fi
 [[ ! -z "${SOC}" ]] || tolog "The custom firmware soc is invalid." "1"
 tolog "Device: ${MYDEVICE_NAME} [ ${SOC} ], Use in [ ${EMMC_NAME} ]"
-sleep 3
+sleep 2
 
 # 01. Query local version information
 tolog "01. Query current version information."
 current_plugin_v="$(opkg list-installed | grep 'luci-app-amlogic' | awk '{print $3}')"
 tolog "01.01 current version: ${current_plugin_v}"
-sleep 3
+sleep 2
 
 # 02. Check the version on the server
 tolog "02. Query server version information."
@@ -77,14 +77,14 @@ tolog "02. Query server version information."
 curl -s "https://api.github.com/repos/ophub/luci-app-amlogic/releases" > ${github_api_plugin} && sync
 sleep 1
 
-server_plugin_version=$( cat ${github_api_plugin} | grep "tag_name"  | awk -F '"' '{print $4}' | sort -r | head -n 1 )
+server_plugin_version=$( cat ${github_api_plugin} | grep "tag_name"  | awk -F '"' '{print $4}' | tr " " "\n" | sort -rV | head -n 1 )
 [ -n "${server_plugin_version}" ] || tolog "02.01 Failed to get the version on the server." "1"
 tolog "02.01 current version: ${current_plugin_v}, Latest version: ${server_plugin_version}"
-sleep 3
+sleep 2
 
 if [[ "${current_plugin_v}" == "${server_plugin_version}" ]]; then
     tolog "02.02 Already the latest version, no need to update." "1"
-    sleep 5
+    sleep 2
     tolog ""
 else
     tolog "02.03 Check the latest plug-in download address."
@@ -107,7 +107,7 @@ else
     else
         tolog "02.05 The plugin file failed to download." "1"
     fi
-    sleep 3
+    sleep 2
 
     # Download plugin i18n file
     wget -c "${server_plugin_url}/${server_plugin_version}/${server_plugin_file_i18n}" -O "${TMP_CHECK_DIR}/${server_plugin_file_i18n}" >/dev/null 2>&1 && sync
@@ -116,7 +116,7 @@ else
     else
         tolog "02.06 The plugin i18n failed to download." "1"
     fi
-    sleep 3
+    sleep 2
 
     # Download plugin lib-fs file
     wget -c "${server_plugin_url}/${server_plugin_version}/${server_plugin_file_libfs}" -O "${TMP_CHECK_DIR}/${server_plugin_file_libfs}" >/dev/null 2>&1 && sync
@@ -125,17 +125,17 @@ else
     else
         tolog "02.07 The plugin i18n failed to download." "1"
     fi
-    sleep 3
+    sleep 2
 fi
 
 tolog "03. The plug is ready, you can update."
-sleep 3
+sleep 2
 
 # Delete temporary files
 rm -f ${github_api_plugin} 2>/dev/null && sync
 
 #echo '<a href=upload>Update</a>' >$START_LOG
-tolog '<input type="button" class="cbi-button cbi-button-reload" value="Update" onclick="return amlogic_plugin(this)"/>'
+tolog '<input type="button" class="cbi-button cbi-button-reload" value="Update" onclick="return amlogic_plugin(this)"/> Latest version: '${server_plugin_version}''
 
 exit 0
 
