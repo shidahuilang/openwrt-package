@@ -14,24 +14,27 @@ LOGTIME=$(date "+%Y-%m-%d %H:%M:%S")
 
 # Find the partition where root is located
 ROOT_PTNAME=$(df / | tail -n1 | awk '{print $1}' | awk -F '/' '{print $3}')
-if [ "${ROOT_PTNAME}" == "" ];then
+if [ "${ROOT_PTNAME}" == "" ]; then
     echo "Cannot find the partition corresponding to the root file system!"
     exit 1
 fi
 
 # Find the disk where the partition is located, only supports mmcblk?p? sd?? hd?? vd?? and other formats
 case ${ROOT_PTNAME} in
-       mmcblk?p[1-4]) EMMC_NAME=$(echo ${ROOT_PTNAME} | awk '{print substr($1, 1, length($1)-2)}')
-                      PARTITION_NAME="p"
-                      LB_PRE="EMMC_"
-                      ;;
-    [hsv]d[a-z][1-4]) EMMC_NAME=$(echo ${ROOT_PTNAME} | awk '{print substr($1, 1, length($1)-1)}')
-                      PARTITION_NAME=""
-                      LB_PRE=""
-                      ;;
-                   *) echo "Unable to recognize the disk type of ${ROOT_PTNAME}!"
-                      exit 1
-                      ;;
+mmcblk?p[1-4])
+    EMMC_NAME=$(echo ${ROOT_PTNAME} | awk '{print substr($1, 1, length($1)-2)}')
+    PARTITION_NAME="p"
+    LB_PRE="EMMC_"
+    ;;
+[hsv]d[a-z][1-4])
+    EMMC_NAME=$(echo ${ROOT_PTNAME} | awk '{print substr($1, 1, length($1)-1)}')
+    PARTITION_NAME=""
+    LB_PRE=""
+    ;;
+*)
+    echo "Unable to recognize the disk type of ${ROOT_PTNAME}!"
+    exit 1
+    ;;
 esac
 
 # Set the default download path
@@ -104,7 +107,7 @@ elif [[ ${server_kernel_path} == http* && $(echo ${server_kernel_path} | grep "t
 fi
 
 server_kernel_url="https://api.github.com/repos/${server_firmware_url}/contents/${server_kernel_path}"
-
+#
 # Step 1: URL formatting end -----------------------------------------------------------
 
 # Step 2: Check if there is the latest kernel version
@@ -112,7 +115,7 @@ check_kernel() {
     # 02. Query local version information
     tolog "02. Start checking the kernel version."
     # 02.01 Query the current version
-    current_kernel_v=$(ls /lib/modules/  2>/dev/null | grep -oE '^[1-9].[0-9]{1,2}.[0-9]+')
+    current_kernel_v=$(ls /lib/modules/ 2>/dev/null | grep -oE '^[1-9].[0-9]{1,2}.[0-9]+')
     tolog "02.01 current version: ${current_kernel_v}"
     sleep 2
 
@@ -139,10 +142,10 @@ check_kernel() {
     fi
 
     # Check the version on the server
-    curl -s "${server_kernel_url}" > ${github_api_kernel_library} && sync
+    curl -s "${server_kernel_url}" >${github_api_kernel_library} && sync
     sleep 1
 
-    latest_version=$( cat ${github_api_kernel_library} | grep "name" | grep -oE "${main_line_version}.[0-9]+"  | sed -e "s/${main_line_version}.//g" | sort -n | sed -n '$p')
+    latest_version=$(cat ${github_api_kernel_library} | grep "name" | grep -oE "${main_line_version}.[0-9]+" | sed -e "s/${main_line_version}.//g" | sort -n | sed -n '$p')
     #latest_version="124"
     [[ ! -z "${latest_version}" ]] || tolog "02.03 Failed to get the version on the server." "1"
     tolog "02.03 current version: ${current_kernel_v}, Latest version: ${main_line_version}.${latest_version}"
@@ -173,14 +176,14 @@ download_kernel() {
     rm -f ${KERNEL_DOWNLOAD_PATH}/dtb-*.tar.gz 2>/dev/null && sync
     rm -f ${KERNEL_DOWNLOAD_PATH}/modules-*.tar.gz 2>/dev/null && sync
 
-    curl -s "${server_kernel_url}/${download_version}" > ${github_api_kernel_file} && sync
+    curl -s "${server_kernel_url}/${download_version}" >${github_api_kernel_file} && sync
     sleep 1
 
     # Download boot file from the kernel directory under the path: ${server_kernel_url}/${download_version}/
-    server_kernel_boot="$( cat ${github_api_kernel_file} | grep "download_url" | grep -o "https.*/boot-${download_version}.*.tar.gz" | head -n 1)"
+    server_kernel_boot="$(cat ${github_api_kernel_file} | grep "download_url" | grep -o "https.*/boot-${download_version}.*.tar.gz" | head -n 1)"
     # Download boot file from current path: ${server_kernel_url}/
     if [ -z "${server_kernel_boot}" ]; then
-        server_kernel_boot="$( cat ${github_api_kernel_library} | grep "download_url" | grep -o "https.*/boot-${download_version}.*.tar.gz" | head -n 1)"
+        server_kernel_boot="$(cat ${github_api_kernel_library} | grep "download_url" | grep -o "https.*/boot-${download_version}.*.tar.gz" | head -n 1)"
     fi
     boot_file_name="${server_kernel_boot##*/}"
     server_kernel_boot_name="${boot_file_name//%2B/+}"
@@ -193,10 +196,10 @@ download_kernel() {
     sleep 2
 
     # Download dtb file from the kernel directory under the path: ${server_kernel_url}/${download_version}/
-    server_kernel_dtb="$( cat ${github_api_kernel_file} | grep "download_url" | grep -o "https.*/dtb-${MYDTB_FILE}-${download_version}.*.tar.gz" | head -n 1)"
+    server_kernel_dtb="$(cat ${github_api_kernel_file} | grep "download_url" | grep -o "https.*/dtb-${MYDTB_FILE}-${download_version}.*.tar.gz" | head -n 1)"
     # Download dtb file from current path: ${server_kernel_url}/
     if [ -z "${server_kernel_dtb}" ]; then
-        server_kernel_dtb="$( cat ${github_api_kernel_library} | grep "download_url" | grep -o "https.*/dtb-${MYDTB_FILE}-${download_version}.*.tar.gz" | head -n 1)"
+        server_kernel_dtb="$(cat ${github_api_kernel_library} | grep "download_url" | grep -o "https.*/dtb-${MYDTB_FILE}-${download_version}.*.tar.gz" | head -n 1)"
     fi
     dtb_file_name="${server_kernel_dtb##*/}"
     server_kernel_dtb_name="${dtb_file_name//%2B/+}"
@@ -209,10 +212,10 @@ download_kernel() {
     sleep 2
 
     # Download modules file from the kernel directory under the path: ${server_kernel_url}/${download_version}/
-    server_kernel_modules="$( cat ${github_api_kernel_file} | grep "download_url" | grep -o "https.*/modules-${download_version}.*.tar.gz" | head -n 1)"
+    server_kernel_modules="$(cat ${github_api_kernel_file} | grep "download_url" | grep -o "https.*/modules-${download_version}.*.tar.gz" | head -n 1)"
     # Download modules file from current path: ${server_kernel_url}/
     if [ -z "${server_kernel_modules}" ]; then
-        server_kernel_modules="$( cat ${github_api_kernel_library} | grep "download_url" | grep -o "https.*/modules-${download_version}.*.tar.gz" | head -n 1)"
+        server_kernel_modules="$(cat ${github_api_kernel_library} | grep "download_url" | grep -o "https.*/modules-${download_version}.*.tar.gz" | head -n 1)"
     fi
     modules_file_name="${server_kernel_modules##*/}"
     server_kernel_modules_name="${modules_file_name//%2B/+}"
@@ -239,7 +242,10 @@ download_kernel() {
 
 getopts 'cd' opts
 case $opts in
-    c | check)        check_kernel;;
-    * | download)     download_kernel;;
+c | check)
+    check_kernel
+    ;;
+* | download)
+    download_kernel
+    ;;
 esac
-
