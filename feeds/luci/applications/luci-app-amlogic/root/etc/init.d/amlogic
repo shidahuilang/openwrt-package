@@ -4,25 +4,24 @@ START=60
 NAME=amlogic
 
 uci_get_by_type() {
-	local ret=$(uci get $NAME.@$1[0].$2 2>/dev/null)
-	echo ${ret:=$3}
+    local ret=$(uci get $NAME.@$1[0].$2 2>/dev/null)
+    echo ${ret:=$3}
 }
 
 uci_set_by_type() {
-	uci set $NAME.@$1[0].$2=$3 2>/dev/null
-	uci commit $NAME
+    uci set $NAME.@$1[0].$2=$3 2>/dev/null
+    uci commit $NAME
 }
 
-start()
-{
-	[ -x "/usr/sbin/fixcpufreq.pl" ] && /usr/sbin/fixcpufreq.pl
-	local cpu_policys=$(ls /sys/devices/system/cpu/cpufreq 2>/dev/null | grep -E 'policy[0-9]{1,3}' | xargs)
-	if [ "${cpu_policys}" = "" ]; then
-	    cpu_policys="policy0"
-	fi
+start() {
+    [ -x "/usr/sbin/fixcpufreq.pl" ] && /usr/sbin/fixcpufreq.pl
+    local cpu_policys=$(ls /sys/devices/system/cpu/cpufreq 2>/dev/null | grep -E 'policy[0-9]{1,3}' | xargs)
+    if [ "${cpu_policys}" = "" ]; then
+        cpu_policys="policy0"
+    fi
 
-	config_load $NAME
-	for policy_name in ${cpu_policys}; do
+    config_load $NAME
+    for policy_name in ${cpu_policys}; do
         local policy_id="${policy_name//policy/}"
 
         # Get an optional value list for the current device
@@ -46,8 +45,8 @@ start()
         fi
 
         # Update result to the corresponding file
-        echo $governor > /sys/devices/system/cpu/cpufreq/${policy_name}/scaling_governor
-        echo $minfreq > /sys/devices/system/cpu/cpufreq/${policy_name}/scaling_min_freq
-        echo $maxfreq > /sys/devices/system/cpu/cpufreq/${policy_name}/scaling_max_freq
-	done
+        echo $governor >/sys/devices/system/cpu/cpufreq/${policy_name}/scaling_governor
+        echo $minfreq >/sys/devices/system/cpu/cpufreq/${policy_name}/scaling_min_freq
+        echo $maxfreq >/sys/devices/system/cpu/cpufreq/${policy_name}/scaling_max_freq
+    done
 }

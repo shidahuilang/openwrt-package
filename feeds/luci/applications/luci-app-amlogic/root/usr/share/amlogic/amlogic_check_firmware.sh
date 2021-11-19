@@ -13,24 +13,27 @@ LOGTIME=$(date "+%Y-%m-%d %H:%M:%S")
 
 # Find the partition where root is located
 ROOT_PTNAME=$(df / | tail -n1 | awk '{print $1}' | awk -F '/' '{print $3}')
-if [ "${ROOT_PTNAME}" == "" ];then
+if [ "${ROOT_PTNAME}" == "" ]; then
     echo "Cannot find the partition corresponding to the root file system!"
     exit 1
 fi
 
 # Find the disk where the partition is located, only supports mmcblk?p? sd?? hd?? vd?? and other formats
 case ${ROOT_PTNAME} in
-       mmcblk?p[1-4]) EMMC_NAME=$(echo ${ROOT_PTNAME} | awk '{print substr($1, 1, length($1)-2)}')
-                      PARTITION_NAME="p"
-                      LB_PRE="EMMC_"
-                      ;;
-    [hsv]d[a-z][1-4]) EMMC_NAME=$(echo ${ROOT_PTNAME} | awk '{print substr($1, 1, length($1)-1)}')
-                      PARTITION_NAME=""
-                      LB_PRE=""
-                      ;;
-                   *) echo "Unable to recognize the disk type of ${ROOT_PTNAME}!"
-                      exit 1
-                      ;;
+mmcblk?p[1-4])
+    EMMC_NAME=$(echo ${ROOT_PTNAME} | awk '{print substr($1, 1, length($1)-2)}')
+    PARTITION_NAME="p"
+    LB_PRE="EMMC_"
+    ;;
+[hsv]d[a-z][1-4])
+    EMMC_NAME=$(echo ${ROOT_PTNAME} | awk '{print substr($1, 1, length($1)-1)}')
+    PARTITION_NAME=""
+    LB_PRE=""
+    ;;
+*)
+    echo "Unable to recognize the disk type of ${ROOT_PTNAME}!"
+    exit 1
+    ;;
 esac
 
 # Set the default download path
@@ -70,7 +73,7 @@ sleep 2
 # 01. Query local version information
 tolog "01. Query version information."
 # 01.01 Query the current version
-current_kernel_v=$(ls /lib/modules/  2>/dev/null | grep -oE '^[1-9].[0-9]{1,3}.[0-9]+')
+current_kernel_v=$(ls /lib/modules/ 2>/dev/null | grep -oE '^[1-9].[0-9]{1,3}.[0-9]+')
 tolog "01.01 current version: ${current_kernel_v}"
 sleep 2
 
@@ -116,26 +119,26 @@ firmware_download_url="https:.*${releases_tag_keywords}.*${SOC}.*${main_line_ver
 # 02. Check Updated
 check_updated() {
     tolog "02. Start checking the updated ..."
-    curl -s "https://api.github.com/repos/${server_firmware_url}/releases" > ${github_api_openwrt} && sync
+    curl -s "https://api.github.com/repos/${server_firmware_url}/releases" >${github_api_openwrt} && sync
     sleep 1
 
     # Get the openwrt firmware updated_at
-    api_down_line_array=$( cat ${github_api_openwrt} | grep -n "${firmware_download_url}" | awk -F ":" '{print $1}' | tr "\n" " " | echo $(xargs) )
+    api_down_line_array=$(cat ${github_api_openwrt} | grep -n "${firmware_download_url}" | awk -F ":" '{print $1}' | tr "\n" " " | echo $(xargs))
     # return: 123 233 312
 
     i=1
     api_updated_at=()
     api_updated_merge=()
     for x in ${api_down_line_array}; do
-      api_updated_at[${i}]="$( cat ${github_api_openwrt} | sed -n "$((x-1))p" | cut -d '"' -f4)"
-      api_updated_merge[${i}]="${x}@$( cat ${github_api_openwrt} | sed -n "$((x-1))p" | cut -d '"' -f4)"
-      let i++
+        api_updated_at[${i}]="$(cat ${github_api_openwrt} | sed -n "$((x - 1))p" | cut -d '"' -f4)"
+        api_updated_merge[${i}]="${x}@$(cat ${github_api_openwrt} | sed -n "$((x - 1))p" | cut -d '"' -f4)"
+        let i++
     done
     # return: api_updated_at: 2021-10-21T17:52:56Z 2021-10-21T11:22:39Z 2021-10-22T17:52:56Z
-    latest_updated_at=$( echo ${api_updated_at[*]} | tr ' ' '\n' | sort -r | head -n 1 )
-    latest_updated_at_format=$( echo ${latest_updated_at} | tr 'T' '(' | tr 'Z' ')' )
+    latest_updated_at=$(echo ${api_updated_at[*]} | tr ' ' '\n' | sort -r | head -n 1)
+    latest_updated_at_format=$(echo ${latest_updated_at} | tr 'T' '(' | tr 'Z' ')')
     # return: latest_updated_at: 2021-10-22T17:52:56Z
-    api_op_down_line=$( echo ${api_updated_merge[*]} | tr ' ' '\n' | grep ${latest_updated_at} | cut -d '@' -f1)
+    api_op_down_line=$(echo ${api_updated_merge[*]} | tr ' ' '\n' | grep ${latest_updated_at} | cut -d '@' -f1)
     # return: api_openwrt_download_line: 123
 
     if [[ -n "${api_op_down_line}" && -n "$(echo ${api_op_down_line} | sed -n "/^[0-9]\+$/p")" ]]; then
@@ -159,7 +162,7 @@ download_firmware() {
         tolog "03.02 Invalid parameter" "1"
     fi
 
-    firmware_releases_path=$( cat ${github_api_openwrt} | sed -n "${download_version}p" | grep "browser_download_url" | grep -o "${firmware_download_url}" | head -n 1)
+    firmware_releases_path=$(cat ${github_api_openwrt} | sed -n "${download_version}p" | grep "browser_download_url" | grep -o "${firmware_download_url}" | head -n 1)
     firmware_download_name="openwrt_${SOC}_k${main_line_version}_github${firmware_suffix}"
     wget -c "${firmware_releases_path}" -O "${FIRMWARE_DOWNLOAD_PATH}/${firmware_download_name}" >/dev/null 2>&1 && sync
     if [[ "$?" -eq "0" && -s "${FIRMWARE_DOWNLOAD_PATH}/${firmware_download_name}" ]]; then
@@ -180,7 +183,10 @@ download_firmware() {
 
 getopts 'cd' opts
 case $opts in
-    c | check)        check_updated;;
-    * | download)     download_firmware;;
+c | check)
+    check_updated
+    ;;
+* | download)
+    download_firmware
+    ;;
 esac
-
