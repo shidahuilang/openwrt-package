@@ -60,9 +60,9 @@ kernel_branch = o:option(Value, "amlogic_kernel_branch", translate("Set version 
 kernel_branch.description = translate("Set the version branch of the openwrt firmware and kernel selected in [Online Download Update].")
 kernel_branch:value("5.4", translate("5.4"))
 kernel_branch:value("5.10", translate("5.10"))
-kernel_branch:value("5.13", translate("5.13"))
 kernel_branch:value("5.14", translate("5.14"))
 kernel_branch:value("5.15", translate("5.15"))
+kernel_branch:value("5.16", translate("5.16"))
 local default_kernel_branch = luci.sys.exec("ls /lib/modules/ 2>/dev/null | grep -oE '^[1-9].[0-9]{1,3}'")
 kernel_branch.default = trim(default_kernel_branch)
 kernel_branch.rmempty = false
