@@ -129,33 +129,6 @@ start_instance() {
 	procd_set_param stderr 1
 	procd_set_param stdout 1
 	procd_set_param respawn
-	procd_close_instance
-
-	config_get listen_addr "$cfg" 'listen_addr' '127.0.0.1'
-	config_get listen_port "$cfg" 'listen_port' "$p"
-
-	if [ "$dnsmasqConfig" = "*" ]; then
-		config_load 'dhcp'
-		config_foreach dnsmasq_add_doh_server 'dnsmasq' "${listen_addr}" "${listen_port}"
-	elif [ -n "$dnsmasqConfig" ]; then
-		for i in $dnsmasqConfig; do
-			dnsmasq_add_doh_server "@dnsmasq[${i}]" "${listen_addr}" "${listen_port}"
-		done
-	fi
-	p="$((p+1))"
-}
-
-is_force_dns_active() { iptables-save | grep -q -w -- '--dport 53'; }
-
-start_service() {
-	local p=5053 c
-	config_load 'https-dns-proxy'
-	config_get dnsmasqConfig	'config' 'update_dnsmasq_config' '-'
-	config_get_bool forceDNS	'config' 'force_dns' '0'
-	config_get forceDNSPorts	'config' 'force_dns_port' '53 853'
-	dhcp_backup 'create'
-	config_load 'https-dns-proxy'
-	config_foreach start_instance 'https-dns-proxy'
 	if [ "$forceDNS" -ne 0 ]; then
 		procd_open_data
 		json_add_array firewall
