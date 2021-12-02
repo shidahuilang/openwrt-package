@@ -186,7 +186,7 @@ start_service() {
 	local port=5053
 	output "Starting $serviceName "
 	config_load "$packageName"
-	config_get dnsmasqConfig	'config' 'update_dnsmasq_config' '*'
+	config_get dnsmasqConfig	'config' 'update_dnsmasq_config' '-'
 	config_get_bool forceDNS	'config' 'force_dns' '1'
 	config_get forceDNSPorts	'config' 'force_dns_port' '53 853'
 	dhcp_backup 'create'
@@ -203,7 +203,7 @@ stop_service() {
 	local s=0
 	output "Stopping $serviceName "
 	config_load "$packageName"
-	config_get dnsmasqConfig 'config' 'update_dnsmasq_config' '*'
+	config_get dnsmasqConfig 'config' 'update_dnsmasq_config' '-'
 	dhcp_backup 'restore'
 	if [ -n "$(uci -q changes dhcp)" ]; then
 		uci -q commit dhcp
