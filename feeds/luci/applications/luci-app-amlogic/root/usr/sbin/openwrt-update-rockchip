@@ -229,6 +229,27 @@ else
     echo "ok"
 fi
 
+# Prepare the dockerman config file
+if [ -f ${P2}/etc/init.d/dockerman ] && [ -f ${P2}/etc/config/dockerd ];then
+
+    flg=0
+    if ! uci get dockerd.globals.alt_config_file >/dev/null 2>&1;then
+        flg=1
+    else
+        acf=$(uci get dockerd.globals.alt_config_file)
+	if [ "$acf" == "" ];then
+            flg=1
+        fi
+    fi
+
+    if [ $flg -eq 1 ];then
+        uci set dockerd.globals='globals'
+        uci set dockerd.globals.alt_config_file='/etc/docker/daemon.json'
+	uci set dockerd.globals.auto_start='1'
+        uci commit
+    fi
+fi
+
 #format NEW_ROOT
 echo "umount ${NEW_ROOT_MP}"
 umount -f "${NEW_ROOT_MP}"
@@ -390,6 +411,8 @@ if [ $BR_FLAG -eq 1 ]; then
     cp -f .snapshots/etc-000/config/fstab ./etc/config/fstab
     # 还原 luci
     cp -f .snapshots/etc-000/config/luci ./etc/config/luci
+    # 还原/etc/config/rpcd
+    cp -f .snapshots/etc-000/config/rpcd ./etc/config/rpcd
 
     sync
     echo "done"
