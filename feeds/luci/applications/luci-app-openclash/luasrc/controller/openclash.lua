@@ -10,7 +10,7 @@ function index()
 	page = entry({"admin", "services", "openclash"}, alias("admin", "services", "openclash", "client"), _("OpenClash"), 50)
 	page.dependent = true
 	page.acl_depends = { "luci-app-openclash" }
-	entry({"admin", "services", "openclash", "client"},cbi("openclash/client"),_("Overviews"), 20).leaf = true
+	entry({"admin", "services", "openclash", "client"},form("openclash/client"),_("Overviews"), 20).leaf = true
 	entry({"admin", "services", "openclash", "status"},call("action_status")).leaf=true
 	entry({"admin", "services", "openclash", "state"},call("action_state")).leaf=true
 	entry({"admin", "services", "openclash", "startlog"},call("action_start")).leaf=true
@@ -673,7 +673,7 @@ function action_toolbar_show_sys()
 		cpu = luci.sys.exec(string.format("top -b -n1 |grep -E '%s' 2>/dev/null |grep -v grep |awk '{for (i=1;i<=NF;i++) {if ($i ~ /clash/) break; else cpu=i}}; {print $cpu}' 2>/dev/null", pid))
 		if mem and cpu then
 			mem = fs.filesize(mem*1024)
-			cpu = string.gsub(cpu, "%%\n", "")
+			cpu = string.match(cpu, "%d+")
 		else
 			mem = "0 KB"
 			cpu = "0"
@@ -715,7 +715,7 @@ function action_toolbar_show()
 		cpu = luci.sys.exec(string.format("top -b -n1 |grep -E '%s' 2>/dev/null |grep -v grep |awk '{for (i=1;i<=NF;i++) {if ($i ~ /clash/) break; else cpu=i}}; {print $cpu}' 2>/dev/null", pid))
 		if mem and cpu then
 			mem = fs.filesize(mem*1024)
-			cpu = string.gsub(cpu, "%%\n", "")
+			cpu = string.match(cpu, "%d+")
 		else
 			mem = "0 KB"
 			cpu = "0"

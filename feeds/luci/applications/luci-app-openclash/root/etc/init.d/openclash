@@ -659,7 +659,16 @@ begin
 Value = YAML.load_file('$CONFIG_FILE');
 if Value.has_key?('rules') and not Value['rules'].to_a.empty? then
    if $3 == 1 then
-      ruby_add_index = Value['rules'].index(Value['rules'].grep(/(GEOIP|MATCH|FINAL)/).first)
+      if $enable_rule_proxy != 1 then
+         ruby_add_index = Value['rules'].index(Value['rules'].grep(/(GEOIP|MATCH|FINAL)/).first)
+      else
+         if Value['rules'].grep(/GEOIP/)[0].nil? or Value['rules'].grep(/GEOIP/)[0].empty? then
+            ruby_add_index = Value['rules'].index(Value['rules'].grep(/DST-PORT,80/).last)
+            ruby_add_index ||= Value['rules'].index(Value['rules'].grep(/(MATCH|FINAL)/).first)
+         else
+            ruby_add_index = Value['rules'].index(Value['rules'].grep(/GEOIP/).first)
+         end
+      end
       ruby_add_index ||= -1
       Value['rules'].insert(ruby_add_index,'RULE-SET,${1},${2}')
    else
@@ -1814,7 +1823,8 @@ if [ -n "$en_mode_tun" ]; then
    
    if [ "$en_mode_tun" -eq 1 ]; then
       iptables -t mangle -I PREROUTING -j openclash
-      iptables -t nat -I PREROUTING -m comment --comment "OpenClash TCP DNS Hijack" -p tcp --dport 53 -j ACCEPT
+      iptables -t nat -I PREROUTING -m comment --comment "OpenClash Google DNS Hijack" -p tcp -d 8.8.8.8 --dport 53 -j ACCEPT
+      iptables -t nat -I PREROUTING -m comment --comment "OpenClash Google DNS Hijack" -p tcp -d 8.8.4.4 --dport 53 -j ACCEPT
    else
       iptables -t mangle -I PREROUTING -p tcp --dport 53 -j openclash_dns_hijack
       iptables -t mangle -A openclash_dns_hijack -m comment --comment "OpenClash Google DNS Hijack" -d 8.8.8.8 -j MARK --set-mark "$PROXY_FWMARK"
@@ -2033,6 +2043,7 @@ get_config()
    stream_domains_prefetch=$(uci -q get openclash.config.stream_domains_prefetch || echo 0)
    append_wan_dns=$(uci -q get openclash.config.append_wan_dns || echo 1)
    store_fakeip=$(uci -q get openclash.config.store_fakeip || echo 1)
+   dns_remote=$(uci -q get openclash.config.dns_remote || echo 1)
    _koolshare=$(cat /usr/lib/os-release 2>/dev/null |grep OPENWRT_RELEASE 2>/dev/null |grep -i koolshare 2>/dev/null)
    [ -z "$dns_port" ] && dns_port=7874 && uci -q set openclash.config.dns_port=7874
    [ "$ipv6_enable" -eq 1 ] && [ "$intranet_allowed" -eq 1 ] && intranet_allowed=0 && uci -q set openclash.config.intranet_allowed=0
@@ -2066,7 +2077,7 @@ start()
       config_foreach yml_auth_get "authentication"
       yml_auth_custom "$CONFIG_FILE"
       yml_dns_custom "$enable_custom_dns" "$CONFIG_FILE" "$append_wan_dns" "$ipv6_dns"
-      /usr/share/openclash/yml_change.sh 2>/dev/null "$LOGTIME" "$en_mode" "$enable_custom_dns" "$da_password" "$cn_port" "$proxy_port" "$CONFIG_FILE" "$ipv6_enable" "$http_port" "$socks_port" "$lan_ip" "$log_level" "$proxy_mode" "$intranet_allowed" "$en_mode_tun" "$stack_type" "$dns_port" "$core_type" "$mixed_port" "$tproxy_port" "$ipv6_dns" "$store_fakeip" "$stream_domains_prefetch"
+      /usr/share/openclash/yml_change.sh 2>/dev/null "$LOGTIME" "$en_mode" "$enable_custom_dns" "$da_password" "$cn_port" "$proxy_port" "$CONFIG_FILE" "$ipv6_enable" "$http_port" "$socks_port" "$lan_ip" "$log_level" "$proxy_mode" "$intranet_allowed" "$en_mode_tun" "$stack_type" "$dns_port" "$core_type" "$mixed_port" "$tproxy_port" "$ipv6_dns" "$store_fakeip" "$stream_domains_prefetch" "$dns_remote"
       /usr/share/openclash/yml_rules_change.sh 2>/dev/null "$LOGTIME" "$rule_source" "$enable_custom_clash_rules" "$CONFIG_FILE" "$enable_rule_proxy" "$CONFIG_NAME"
       yml_custom_rule_provider
       yml_game_custom
@@ -2134,7 +2145,12 @@ stop()
    for watchdog_pid in $watchdog_pids; do
       kill -9 "$watchdog_pid" >/dev/null 2>&1
    done >/dev/null 2>&1
-
+   
+   streaming_unlock_pids=$(unify_ps_pids "openclash_streaming_unlock.lua")
+   for streaming_unlock_pid in $streaming_unlock_pids; do
+      kill -9 "$streaming_unlock_pid" >/dev/null 2>&1
+   done >/dev/null 2>&1
+   
    LOG_OUT "Step 4: Close The Clash Core Process..."
    if [ "$enable" != "1" ]; then
       kill_clash
