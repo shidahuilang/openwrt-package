@@ -1,7 +1,8 @@
-#
+#======================================================================================================================
 # Description: Support install OpenWrt to EMMC, update the OpenWrt firmware or kernel, and backup/restore config.
-# Borrow: luci-app-filetransfer, Vernesong, Flippy etc.
-#
+# Borrow/Copyright: https://github.com/unifreq/openwrt_packit, luci-app-filetransfer, luci-app-cpufreq, Vernesong, etc.
+#======================================================================================================================
+
 
 include $(TOPDIR)/rules.mk
 
