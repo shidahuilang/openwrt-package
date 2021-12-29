@@ -458,7 +458,7 @@ o:depends("stream_domains_prefetch", "1")
 o.template = "openclash/download_stream_domains"
 
 o = s:taboption("stream_enhance", Flag, "stream_auto_select", font_red..bold_on..translate("Auto Select Unlock Proxy")..bold_off..font_off)
-o.description = translate("Auto Select Proxy For Streaming Unlock, Support Netflix, Disney Plus, HBO And YouTube Premium")
+o.description = translate("Auto Select Proxy For Streaming Unlock, Support Netflix, Disney Plus, HBO And YouTube Premium, etc")
 o.default=0
 
 o = s:taboption("stream_enhance", Value, "stream_auto_select_interval", translate("Auto Select Interval(min)"))
@@ -516,8 +516,8 @@ o.default=0
 o:depends("stream_auto_select", "1")
 
 o = s:taboption("stream_enhance", Value, "stream_auto_select_group_key_hbo_now", translate("HBO Now Group Filter Keywords"))
-o.default = "HBO"
-o.placeholder = "HBO"
+o.default = "HBO|HBONow|HBO Now"
+o.placeholder = "HBO|HBONow|HBO Now"
 o.description = translate("It Will Be Searched According To The Keywords When Auto Search Group Fails")
 o:depends("stream_auto_select_hbo_now", "1")
 
@@ -526,18 +526,18 @@ o.default=0
 o:depends("stream_auto_select", "1")
 
 o = s:taboption("stream_enhance", Value, "stream_auto_select_group_key_hbo_max", translate("HBO Max Group Filter Keywords"))
-o.default = "HBO"
-o.placeholder = "HBO"
+o.default = "HBO|HBOMax|HBO Max"
+o.placeholder = "HBO|HBOMax|HBO Max"
 o.description = translate("It Will Be Searched According To The Keywords When Auto Search Group Fails")
 o:depends("stream_auto_select_hbo_max", "1")
 
-o = s:taboption("stream_enhance", Flag, "stream_auto_select_hbo_go_asia", translate("HBO GO Aaia"))
+o = s:taboption("stream_enhance", Flag, "stream_auto_select_hbo_go_asia", translate("HBO GO Asia"))
 o.default=0
 o:depends("stream_auto_select", "1")
 
-o = s:taboption("stream_enhance", Value, "stream_auto_select_group_key_hbo_go_asia", translate("HBO GO Aaia Group Filter Keywords"))
-o.default = "HBO"
-o.placeholder = "HBO"
+o = s:taboption("stream_enhance", Value, "stream_auto_select_group_key_hbo_go_asia", translate("HBO GO Asia Group Filter Keywords"))
+o.default = "HBO|HBOGO|HBO GO"
+o.placeholder = "HBO|HBOGO|HBO GO"
 o.description = translate("It Will Be Searched According To The Keywords When Auto Search Group Fails")
 o:depends("stream_auto_select_hbo_go_asia", "1")
 
