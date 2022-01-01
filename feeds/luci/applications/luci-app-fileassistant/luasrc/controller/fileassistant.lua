@@ -2,29 +2,29 @@ module("luci.controller.fileassistant", package.seeall)
 
 function index()
 
-
+    entry({"admin", "nas"}, firstchild(), "NAS", 44).dependent = false
 
     local page
-    page = entry({"admin", "services", "fileassistant"}, template("fileassistant"), _("文件助手"), 800)
+    page = entry({"admin", "nas", "fileassistant"}, template("fileassistant"), _("文件助手"), 1)
     page.i18n = "base"
     page.dependent = true
 
-    page = entry({"admin", "services", "fileassistant_list"}, call("fileassistant_list"), nil)
+    page = entry({"admin", "nas", "fileassistant", "list"}, call("fileassistant_list"), nil)     
     page.leaf = true
 
-    page = entry({"admin", "services", "fileassistant_open"}, call("fileassistant_open"), nil)
+    page = entry({"admin", "nas", "fileassistant", "open"}, call("fileassistant_open"), nil)
     page.leaf = true
 
-    page = entry({"admin", "services", "fileassistant_delete"}, call("fileassistant_delete"), nil)
+    page = entry({"admin", "nas", "fileassistant", "delete"}, call("fileassistant_delete"), nil)
     page.leaf = true
 
-    page = entry({"admin", "services", "fileassistant_rename"}, call("fileassistant_rename"), nil)
+    page = entry({"admin", "nas", "fileassistant", "rename"}, call("fileassistant_rename"), nil)
     page.leaf = true
 
-    page = entry({"admin", "services", "fileassistant_upload"}, call("fileassistant_upload"), nil)
+    page = entry({"admin", "nas", "fileassistant", "upload"}, call("fileassistant_upload"), nil)
     page.leaf = true
 
-    page = entry({"admin", "services", "fileassistant_install"}, call("fileassistant_install"), nil)
+    page = entry({"admin", "nas", "fileassistant", "install"}, call("fileassistant_install"), nil)
     page.leaf = true
 
 end

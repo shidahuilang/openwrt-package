@@ -66,26 +66,3 @@
         display: none;
     }
 }
-
-.cbi-section-table {
-    width: 100%;
-}
-
-.cbi-section-table-cell {
-    text-align: right;
-}
-
-.cbi-button-install {
-	border-color: #c44;
-    color: #c44;
-    margin-left: 3px;
-}
-
-.cbi-value-field {
-    padding: 10px 0;
-}
-
-.parent-icon {
-    height: 1.8rem;
-    padding: 10px 0;
-}

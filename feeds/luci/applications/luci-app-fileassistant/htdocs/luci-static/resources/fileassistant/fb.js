@@ -19,7 +19,7 @@ String.prototype.replaceAll = function(search, replacement) {
   function removePath(filename, isdir) {
     var c = confirm('你确定要删除 ' + filename + ' 吗？');
     if (c) {
-      iwxhr.get('/cgi-bin/luci/admin/services/fileassistant_delete',
+      iwxhr.get('/cgi-bin/luci/admin/nas/fileassistant/delete',
         {
           path: concatPath(currentPath, filename),
           isdir: isdir
@@ -44,7 +44,7 @@ String.prototype.replaceAll = function(search, replacement) {
     }
     var c = confirm('你确定要安装 ' + filename + ' 吗？');
     if (c) {
-      iwxhr.get('/cgi-bin/luci/admin/services/fileassistant_install',
+      iwxhr.get('/cgi-bin/luci/admin/nas/fileassistant/install',
         {
           filepath: concatPath(currentPath, filename),
           isdir: isdir
@@ -76,7 +76,7 @@ String.prototype.replaceAll = function(search, replacement) {
       newname = newname.trim();
       if (newname != filename) {
         var newpath = concatPath(currentPath, newname);
-        iwxhr.get('/cgi-bin/luci/admin/services/fileassistant_rename',
+        iwxhr.get('/cgi-bin/luci/admin/nas/fileassistant/rename',
           {
             filepath: concatPath(currentPath, filename),
             newpath: newpath
@@ -93,7 +93,7 @@ String.prototype.replaceAll = function(search, replacement) {
 
   function openpath(filename, dirname) {
     dirname = dirname || currentPath;
-    window.open('/cgi-bin/luci/admin/services/fileassistant_open?path='
+    window.open('/cgi-bin/luci/admin/nas/fileassistant/open?path='
       + encodeURIComponent(dirname) + '&filename='
       + encodeURIComponent(filename));
   }
@@ -175,6 +175,14 @@ String.prototype.replaceAll = function(search, replacement) {
             owner: f[3],
             icon: (f[1][0] === 'd') ? "folder-icon" : (isLink ? "link-icon" : "file-icon")
           };
+		  
+		  var install_btn = '<button class="cbi-button cbi-button-install" style="visibility: hidden;">安装</button>';
+          var index= o.filename.lastIndexOf(".");
+		  var ext = o.filename.substr(index+1);
+          if (ext === 'ipk') {
+            install_btn = '<button class="cbi-button cbi-button-install">安装</button>';
+          }
+		  
           listHtml += '<tr class="cbi-section-table-row cbi-rowstyle-' + (1 + i%2)
             + '" data-filename="' + o.filename + '" data-isdir="' + Number(f[1][0] === 'd' || f[1][0] === 'z') + '"'
             + ((f[1][0] === 'z' || f[1][0] === 'l') ? (' data-linktarget="' + f[9].split(' -> ')[1]) : '')
@@ -186,8 +194,11 @@ String.prototype.replaceAll = function(search, replacement) {
             + '<td class="cbi-value-field cbi-value-date">'+o.date+'</td>'
             + '<td class="cbi-value-field cbi-value-size">'+o.size+'</td>'
             + '<td class="cbi-value-field cbi-value-perm">'+o.perms+'</td>'
-            + '<td class="cbi-section-table-cell"><button class="cbi-button cbi-button-edit">重命名</button>\
-                <button class="cbi-button cbi-button-remove">删除</button><button class="cbi-button cbi-button-install">安装</button></td>'
+            + '<td class="cbi-section-table-cell">\
+				<button class="cbi-button cbi-button-edit">重命名</button>\
+                <button class="cbi-button cbi-button-remove">删除</button>'
+			+ install_btn
+			+ '</td>'
             + '</tr>';
         }
       }
@@ -199,7 +210,7 @@ String.prototype.replaceAll = function(search, replacement) {
     opt = opt || {};
     path = concatPath(path, '');
     if (currentPath != path) {
-      iwxhr.get('/cgi-bin/luci/admin/services/fileassistant_list',
+      iwxhr.get('/cgi-bin/luci/admin/nas/fileassistant/list',
         {path: path},
         function (x, res) {
           if (res.ec === 0) {
@@ -244,7 +255,7 @@ String.prototype.replaceAll = function(search, replacement) {
       formData.append('upload-dir', concatPath(currentPath, ''));
       formData.append('upload-file', uploadinput.files[0]);
       var xhr = new XMLHttpRequest();
-      xhr.open("POST", "/cgi-bin/luci/admin/services/fileassistant_upload", true);
+      xhr.open("POST", "/cgi-bin/luci/admin/nas/fileassistant/upload", true);
       xhr.onload = function() {
         if (xhr.status == 200) {
           var res = JSON.parse(xhr.responseText);
