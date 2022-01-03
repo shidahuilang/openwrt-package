@@ -59,10 +59,12 @@ core-lateset
 core_version
 gost
 gowebdav
+img
 ipset-lists
 iptvhelper
 k3screenctrl
 k3screenctrl_build
+luci-app-openclash
 mentohust
 netdata
 openwrt-subconverter
