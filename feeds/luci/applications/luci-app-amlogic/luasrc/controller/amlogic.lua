@@ -162,7 +162,12 @@ end
 function start_amlogic_update()
 	luci.sys.exec("chmod +x /usr/sbin/" .. device_update_script .. " >/dev/null 2>&1")
 	local amlogic_update_sel = luci.http.formvalue("amlogic_update_sel")
-	local state = luci.sys.call("/usr/sbin/" .. device_update_script .. " " .. amlogic_update_sel .. " " .. auto_write_bootloader .. " " .. update_restore_config .. " > /tmp/amlogic/amlogic_check_firmware.log && sync 2>/dev/null")
+	local res = string.split(amlogic_update_sel, "@")
+	local update_firmware_name = res[1]
+	local update_firmware_updated = res[2]
+	local update_write_path = res[3]
+	luci.sys.exec("echo " .. update_firmware_updated .. " > " .. update_write_path .. "/.luci-app-amlogic/op_release_code 2>/dev/null && sync")
+	local state = luci.sys.call("/usr/sbin/" .. device_update_script .. " " .. update_firmware_name .. " " .. auto_write_bootloader .. " " .. update_restore_config .. " > /tmp/amlogic/amlogic_check_firmware.log && sync 2>/dev/null")
 	return state
 end
 

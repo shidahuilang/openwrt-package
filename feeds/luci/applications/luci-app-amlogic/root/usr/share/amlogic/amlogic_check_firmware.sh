@@ -38,6 +38,7 @@ esac
 
 # Set the default download path
 FIRMWARE_DOWNLOAD_PATH="/mnt/${EMMC_NAME}${PARTITION_NAME}4"
+[ -d "${FIRMWARE_DOWNLOAD_PATH}/.luci-app-amlogic" ] || mkdir -p "${FIRMWARE_DOWNLOAD_PATH}/.luci-app-amlogic"
 
 # Log function
 tolog() {
@@ -141,8 +142,16 @@ check_updated() {
     api_op_down_line=$(echo ${api_updated_merge[*]} | tr ' ' '\n' | grep ${latest_updated_at} | cut -d '@' -f1)
     # return: api_openwrt_download_line: 123
 
+    # Check the firmware update code
+    op_release_code="${FIRMWARE_DOWNLOAD_PATH}/.luci-app-amlogic/op_release_code"
+    if [ -f "${op_release_code}" ]; then
+        update_check_code="$(cat ${op_release_code} | xargs)"
+        [[ -n "${update_check_code}" && "${update_check_code}" == "${latest_updated_at}" ]] && tolog "02.01 Already the latest version, no need to update." "1"
+    fi
+
+    # Prompt to update
     if [[ -n "${api_op_down_line}" && -n "$(echo ${api_op_down_line} | sed -n "/^[0-9]\+$/p")" ]]; then
-        tolog '<input type="button" class="cbi-button cbi-button-reload" value="Download" onclick="return b_check_firmware(this, '"'download_${api_op_down_line}'"')"/> Latest updated: '${latest_updated_at_format}''
+        tolog '<input type="button" class="cbi-button cbi-button-reload" value="Download" onclick="return b_check_firmware(this, '"'download_${api_op_down_line}_${latest_updated_at}'"')"/> Latest updated: '${latest_updated_at_format}''
     else
         tolog "02.02 Invalid firmware check." "1"
     fi
@@ -156,13 +165,14 @@ download_firmware() {
 
     # Get the openwrt firmware download path
     if [[ ${download_version} == download* ]]; then
-        download_version=$(echo "${download_version}" | cut -d '_' -f2)
+        download_firmware_line=$(echo "${download_version}" | cut -d '_' -f2)
+        download_latest_updated=$(echo "${download_version}" | cut -d '_' -f3)
         tolog "03.01 Start downloading..."
     else
         tolog "03.02 Invalid parameter" "1"
     fi
 
-    firmware_releases_path=$(cat ${github_api_openwrt} | sed -n "${download_version}p" | grep "browser_download_url" | grep -o "${firmware_download_url}" | head -n 1)
+    firmware_releases_path=$(cat ${github_api_openwrt} | sed -n "${download_firmware_line}p" | grep "browser_download_url" | grep -o "${firmware_download_url}" | head -n 1)
     firmware_download_name="openwrt_${SOC}_k${main_line_version}_github${firmware_suffix}"
     wget -c "${firmware_releases_path}" -O "${FIRMWARE_DOWNLOAD_PATH}/${firmware_download_name}" >/dev/null 2>&1 && sync
     if [[ "$?" -eq "0" && -s "${FIRMWARE_DOWNLOAD_PATH}/${firmware_download_name}" ]]; then
@@ -176,7 +186,7 @@ download_firmware() {
     rm -f ${github_api_openwrt} 2>/dev/null && sync
 
     #echo '<a href="javascript:;" onclick="return amlogic_update(this, '"'${firmware_download_name}'"')">Update</a>' >$START_LOG
-    tolog '<input type="button" class="cbi-button cbi-button-reload" value="Update" onclick="return amlogic_update(this, '"'${firmware_download_name}'"')"/>'
+    tolog '<input type="button" class="cbi-button cbi-button-reload" value="Update" onclick="return amlogic_update(this, '"'${firmware_download_name}@${download_latest_updated}@${FIRMWARE_DOWNLOAD_PATH}'"')"/>'
 
     exit 0
 }
