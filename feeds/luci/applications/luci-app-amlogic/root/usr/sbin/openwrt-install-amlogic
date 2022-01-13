@@ -18,6 +18,7 @@
 
 # Receive one-key command related parameters
 AUTO_MAINLINE_UBOOT=${1}
+ZSTD_LEVEL=6
 
 # For [luci-app-amlogic] input parameter: SOC & DTB
 # When there is no input parameter, select manually
@@ -136,7 +137,7 @@ else
 55:H96 Max X3:s905x3:meson-sm1-h96-max-x3.dtb:u-boot-x96maxplus.bin:/lib/u-boot/h96maxx3-u-boot.bin.sd.bin:NA:4C@2100Mhz,4GB Mem,1Gb Net,Wifi
 56:H96 Max X3:s905x3:meson-sm1-h96-max-x3-oc.dtb:u-boot-x96maxplus.bin:/lib/u-boot/h96maxx3-u-boot.bin.sd.bin:NA:4C@2208Mhz,4GB Mem,1Gb Net,Wifi
 57:Ugoos X3:s905x3:meson-sm1-ugoos-x3.dtb:u-boot-ugoos-x3.bin:NA:NA:4C@2100Mhz,2(Cube)/4(Pro,Plus)GB Mem,1Gb Net,Wifi
-58:Ugoos X3(OverClock):s905x3:meson-sm1-ugoos-x3.dtb:u-boot-ugoos-x3.bin:NA:NA:4C@2208Mhz,2(Cube)/4(Pro,Plus)GB Mem,1Gb Net,Wifi
+58:Ugoos X3(OverClock):s905x3:meson-sm1-ugoos-x3-oc.dtb:u-boot-ugoos-x3.bin:NA:NA:4C@2208Mhz,2(Cube)/4(Pro,Plus)GB Mem,1Gb Net,Wifi
 
 # Other
 0:Other::NA:NA:NA:NA:Enter the dtb file name of your box
@@ -469,7 +470,6 @@ umount -f /mnt/${EMMC_NAME}p3 2>/dev/null
 
 # mount and copy
 echo "Wait for the boot file system to mount ... "
-ZSTD_LEVEL=6
 i=1
 max_try=10
 while [ $i -le $max_try ]; do
@@ -595,6 +595,12 @@ while [ $i -le $max_try ]; do
    ]
 }
 EOF
+        # change data_root value in /etc/config/dockerd
+	if [ -f ./etc/init.d/dockerman ] && [ -f ./etc/config/dockerd ];then
+             tmp_dockerd=$(mktemp)
+             perl -npe "s/option data_root '.+'/option data_root '\/mnt\/${EMMC_NAME}p4\/docker\/'/" ./etc/config/dockerd > ${tmp_dockerd} && mv ${tmp_dockerd} ./etc/config/dockerd
+	     unset tmp_dockerd
+        fi
         rm -rf opt/docker && ln -sf /mnt/${EMMC_NAME}p4/docker/ opt/docker >/dev/null
         rm -rf usr/bin/AdGuardHome && ln -sf /mnt/${EMMC_NAME}p4/AdGuardHome usr/bin/ >/dev/null
 
