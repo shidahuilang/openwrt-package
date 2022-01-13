@@ -163,9 +163,9 @@ function start_amlogic_update()
 	luci.sys.exec("chmod +x /usr/sbin/" .. device_update_script .. " >/dev/null 2>&1")
 	local amlogic_update_sel = luci.http.formvalue("amlogic_update_sel")
 	local res = string.split(amlogic_update_sel, "@")
-	local update_firmware_name = res[1]
-	local update_firmware_updated = res[2]
-	local update_write_path = res[3]
+	local update_firmware_name = res[1] or "auto"
+	local update_firmware_updated = res[2] or "updated"
+	local update_write_path = res[3] or "/tmp"
 	luci.sys.exec("echo " .. update_firmware_updated .. " > " .. update_write_path .. "/.luci-app-amlogic/op_release_code 2>/dev/null && sync")
 	local state = luci.sys.call("/usr/sbin/" .. device_update_script .. " " .. update_firmware_name .. " " .. auto_write_bootloader .. " " .. update_restore_config .. " > /tmp/amlogic/amlogic_check_firmware.log && sync 2>/dev/null")
 	return state
@@ -176,9 +176,9 @@ function start_amlogic_install()
 	luci.sys.exec("chmod +x /usr/sbin/" .. device_install_script .. " >/dev/null 2>&1")
 	local amlogic_install_sel = luci.http.formvalue("amlogic_install_sel")
 	local res = string.split(amlogic_install_sel, "@")
-	soc_id = res[1]
+	soc_id = res[1] or "99"
 	if tonumber(res[1]) == 99 then
-		dtb_filename = res[2]
+		dtb_filename = res[2] or "auto_dtb"
 	else
 		dtb_filename = "auto_dtb"
 	end
