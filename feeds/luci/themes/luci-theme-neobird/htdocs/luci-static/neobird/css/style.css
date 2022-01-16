@@ -143,7 +143,7 @@ em {
 
 select {
     overflow: hidden !important;
-    width: 185px;
+    width: 290px;
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -1358,7 +1358,8 @@ div > .cbi-value:nth-of-type(2n) {
 .cbi-value-title {
     word-wrap: break-word;
     display: table-cell;
-    width: 35%;
+    width: 20%;
+    text-align: right;
     float: left;
     padding: 13px 10px;
 }
@@ -1465,7 +1466,7 @@ div > .cbi-value:nth-of-type(2n) {
 }
 
 .cbi-page-actions {
-    text-align: center;
+    text-align: right;
 }
 
 /* input */
@@ -2334,6 +2335,7 @@ body.lang_pl.node-main-login .cbi-value-title {
 
     .cbi-value-title {
         width: 42%;
+        text-align: center;
         display: block;
         float: left;
     }
