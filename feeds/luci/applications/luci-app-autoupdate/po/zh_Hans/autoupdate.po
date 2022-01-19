@@ -49,6 +49,9 @@ msgstr "强制刷写固件"
 msgid "Decompress [img.gz] Firmware"
 msgstr "解压 [img.gz] 格式固件"
 
+msgid "Upgrade without keeping config"
+msgstr "不保留配置更新"
+
 msgid "Please don't select it unless you know what you're doing!"
 msgstr "请勿随意勾选除非你知道自己在做什么!"
 

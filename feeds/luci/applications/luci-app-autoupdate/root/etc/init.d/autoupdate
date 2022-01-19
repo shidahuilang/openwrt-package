@@ -1,48 +1,59 @@
-#!/bin/bash /etc/rc.common
-START=99
+#!/bin/sh /etc/rc.common
 
-run_autoupdate()
-{
-	local enable
-	config_get_bool enable $1 enable
-	if [ $enable == "1" ]; then
-		local minute
-		local hour
-		config_get week $1 week
-		config_get minute $1 minute
-		config_get hour $1 hour
-		[ "$week" == 7 ] && week="*"
-		sed -i '/AutoUpdate/d' /etc/crontabs/root >/dev/null 2>&1
-		echo "$minute $hour * * $week bash /bin/AutoUpdate.sh -u" >> /etc/crontabs/root
+START=99
+LOGGER="logger -t [AutoUpdate]"
+
+script_Path="/bin/AutoUpdate.sh"
+script_Cmd="bash $script_Path -u"
+
+start() {
+	local basic_list="enable proxy proxy_type advanced_settings github flag week minute hour"
+	for i in $(echo $basic_list);do
+		local eval $i="$(uci_get_by_type autoupdate 0 $i)"
+	done;unset i
+	if [ ! -f "${script_Path}" ]
+	then
+		${LOGGER} "Unable to access AutoUpdate Script,exit ..."
+		stop
+		exit 1
 	else
-		sed -i '/AutoUpdate/d' /etc/crontabs/root >/dev/null 2>&1	
+		chmod 777 ${script_Path} 2> /dev/null
 	fi
-	if [ -f /bin/AutoUpdate.sh ] && [ -f /bin/openwrt_info ];then
-		custom_github_url="$(uci get autoupdate.@login[0].github)"
-		current_github_url="$(grep Github= /bin/openwrt_info | cut -c8-100)"
-		[[ -n "${custom_github_url}" ]] && {
-			[[ "${custom_github_url}" != "${current_github_url}" ]] && {
-				sed -i "s?${current_github_url}?${custom_github_url}?g" /bin/openwrt_info
-			}
-		}
+	if [ "$enable" == 1 ]
+	then
+		[ "$week" == 7 ] && week='*'
+		[ "$proxy" == 1 ] && script_Cmd="$script_Cmd -P $proxy_type"
+		script_Cmd="$script_Cmd $advanced_settings"
+		${LOGGER} "Creating corn_task [$minute $hour * * $week $script_Cmd] ..."
+		echo "$minute $hour * * $week $script_Cmd		## AutoUpdate crontab" >> /etc/crontabs/root
+		/etc/init.d/cron restart
+	else
+		${LOGGER} "AutoUpdate Service is now disabled ..."
+		stop
 	fi
+	${LOGGER} "Resetting Github URL to $github ..."
+	${LOGGER} "Resetting Firmware Flag to $flag ..."
+	$script_Path -C $github > /dev/null 2>&1
+	$script_Path --flag $flag > /dev/null 2>&1
+}
+
+stop() {
+	${LOGGER} "Removing all corn tasks ..."
+	sed -i '/## AutoUpdate crontab/d' /etc/crontabs/root 2> /dev/null
 	/etc/init.d/cron restart
 }
 
-
-start()
-{
-	config_load autoupdate
-	config_foreach run_autoupdate login
-}
-
-stop()
-{
-	sed -i '/AutoUpdate/d' /etc/crontabs/root >/dev/null 2>&1
-}
-
-restart()
-{
+disable() {
+	${LOGGER} "Closing AutoUpdate Service ..."
+	uci set autoupdate.@autoupdate[0].enable="0" 2> /dev/null
 	stop
-	start
+}
+
+service_triggers() {
+	procd_add_reload_trigger "autoupdate"
+}
+
+uci_get_by_type() {
+	local ret=$(uci get autoupdate.@$1[$2].$3 2>/dev/null)
+	echo ${ret:=$4}
 }
