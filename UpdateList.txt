@@ -4,6 +4,7 @@ luci-app-advanced
 luci-app-aliddns
 luci-app-amlogic
 luci-app-argon-config
+luci-app-autoupdate
 luci-app-clash
 luci-app-control-timewol
 luci-app-control-webrestriction
