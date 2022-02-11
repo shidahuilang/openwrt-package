@@ -1,4 +1,16 @@
 #!/bin/bash
+#==================================================================
+# This file is licensed under the terms of the GNU General Public
+# License version 2. This program is licensed "as is" without any
+# warranty of any kind, whether express or implied.
+#
+# This file is a part of the luci-app-amlogic plugin
+# https://github.com/ophub/luci-app-amlogic
+#
+# Description: Check and update OpenWrt firmware
+# Copyright (C) 2021- https://github.com/unifreq/openwrt_packit
+# Copyright (C) 2021- https://github.com/ophub/luci-app-amlogic
+#==================================================================
 
 # Set a fixed value
 check_option="${1}"
@@ -6,16 +18,41 @@ download_version="${2}"
 TMP_CHECK_DIR="/tmp/amlogic"
 AMLOGIC_SOC_FILE="/etc/flippy-openwrt-release"
 START_LOG="${TMP_CHECK_DIR}/amlogic_check_firmware.log"
+RUNNING_LOG="${TMP_CHECK_DIR}/amlogic_running_script.log"
 LOG_FILE="${TMP_CHECK_DIR}/amlogic.log"
 github_api_openwrt="${TMP_CHECK_DIR}/github_api_openwrt"
 LOGTIME=$(date "+%Y-%m-%d %H:%M:%S")
 [[ -d ${TMP_CHECK_DIR} ]] || mkdir -p ${TMP_CHECK_DIR}
 
+# Clean the running log
+clean_running() {
+    echo -e '' >${RUNNING_LOG} 2>/dev/null && sync
+}
+
+# Add log
+tolog() {
+    echo -e "${1}" >${START_LOG}
+    echo -e "${LOGTIME} ${1}" >>${LOG_FILE}
+    [[ -n "${2}" && "${2}" -eq "1" ]] && clean_running && exit 1
+}
+
+# Check running scripts, prohibit running concurrently
+this_running_log="3@OpenWrt update in progress, try again later!"
+running_script="$(cat ${RUNNING_LOG} 2>/dev/null | xargs)"
+if [ -n "${running_script}" ]; then
+    run_num=$(echo "${running_script}" | awk -F "@" '{print $1}')
+    run_log=$(echo "${running_script}" | awk -F "@" '{print $2}')
+fi
+if [[ -n "${run_log}" && "${run_num}" -ne "3" ]]; then
+    echo -e "${run_log}" >${START_LOG} 2>/dev/null && sync && exit 1
+else
+    echo -e "${this_running_log}" >${RUNNING_LOG} 2>/dev/null && sync
+fi
+
 # Find the partition where root is located
 ROOT_PTNAME=$(df / | tail -n1 | awk '{print $1}' | awk -F '/' '{print $3}')
 if [ "${ROOT_PTNAME}" == "" ]; then
-    echo "Cannot find the partition corresponding to the root file system!"
-    exit 1
+    tolog "Cannot find the partition corresponding to the root file system!" "1"
 fi
 
 # Find the disk where the partition is located, only supports mmcblk?p? sd?? hd?? vd?? and other formats
@@ -31,21 +68,13 @@ mmcblk?p[1-4])
     LB_PRE=""
     ;;
 *)
-    echo "Unable to recognize the disk type of ${ROOT_PTNAME}!"
-    exit 1
+    tolog "Unable to recognize the disk type of ${ROOT_PTNAME}!" "1"
     ;;
 esac
 
 # Set the default download path
 FIRMWARE_DOWNLOAD_PATH="/mnt/${EMMC_NAME}${PARTITION_NAME}4"
 [ -d "${FIRMWARE_DOWNLOAD_PATH}/.luci-app-amlogic" ] || mkdir -p "${FIRMWARE_DOWNLOAD_PATH}/.luci-app-amlogic"
-
-# Log function
-tolog() {
-    echo -e "${1}" >$START_LOG
-    echo -e "${LOGTIME} ${1}" >>$LOG_FILE
-    [[ -z "${2}" ]] || exit 1
-}
 
 # Current device model
 MYDEVICE_NAME=$(cat /proc/device-tree/model | tr -d '\000')
@@ -146,12 +175,14 @@ check_updated() {
     op_release_code="${FIRMWARE_DOWNLOAD_PATH}/.luci-app-amlogic/op_release_code"
     if [ -f "${op_release_code}" ]; then
         update_check_code="$(cat ${op_release_code} | xargs)"
-        [[ -n "${update_check_code}" && "${update_check_code}" == "${latest_updated_at}" ]] && tolog "02.01 Already the latest version, no need to update." "1"
+        if [[ -n "${update_check_code}" && "${update_check_code}" == "${latest_updated_at}" ]]; then
+            tolog "02.01 Already the latest version, no need to update." "1"
+        fi
     fi
 
     # Prompt to update
     if [[ -n "${api_op_down_line}" && -n "$(echo ${api_op_down_line} | sed -n "/^[0-9]\+$/p")" ]]; then
-        tolog '<input type="button" class="cbi-button cbi-button-reload" value="Download" onclick="return b_check_firmware(this, '"'download_${api_op_down_line}_${latest_updated_at}'"')"/> Latest updated: '${latest_updated_at_format}''
+        tolog '<input type="button" class="cbi-button cbi-button-reload" value="Download" onclick="return b_check_firmware(this, '"'download_${api_op_down_line}_${latest_updated_at}'"')"/> Latest updated: '${latest_updated_at_format}'' "1"
     else
         tolog "02.02 Invalid firmware check." "1"
     fi
@@ -186,7 +217,7 @@ download_firmware() {
     rm -f ${github_api_openwrt} 2>/dev/null && sync
 
     #echo '<a href="javascript:;" onclick="return amlogic_update(this, '"'${firmware_download_name}'"')">Update</a>' >$START_LOG
-    tolog '<input type="button" class="cbi-button cbi-button-reload" value="Update" onclick="return amlogic_update(this, '"'${firmware_download_name}@${download_latest_updated}@${FIRMWARE_DOWNLOAD_PATH}'"')"/>'
+    tolog '<input type="button" class="cbi-button cbi-button-reload" value="Update" onclick="return amlogic_update(this, '"'${firmware_download_name}@${download_latest_updated}@${FIRMWARE_DOWNLOAD_PATH}'"')"/>' "1"
 
     exit 0
 }
