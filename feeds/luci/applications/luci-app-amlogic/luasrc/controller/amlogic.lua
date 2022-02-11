@@ -121,6 +121,7 @@ function action_refresh_log()
 		luci.sys.exec("echo '' > /tmp/amlogic/amlogic_check_plugin.log && sync >/dev/null 2>&1")
 		luci.sys.exec("echo '' > /tmp/amlogic/amlogic_check_kernel.log && sync >/dev/null 2>&1")
 		luci.sys.exec("echo '' > /tmp/amlogic/amlogic_check_firmware.log && sync >/dev/null 2>&1")
+		luci.sys.exec("echo '' > /tmp/amlogic/amlogic_running_script.log && sync >/dev/null 2>&1")
 	end
 	luci.http.prepare_content("text/plain; charset=utf-8")
 	local f=io.open(logfile, "r+")
@@ -138,35 +139,39 @@ function action_del_log()
 	luci.sys.exec(": > /tmp/amlogic/amlogic_check_plugin.log")
 	luci.sys.exec(": > /tmp/amlogic/amlogic_check_kernel.log")
 	luci.sys.exec(": > /tmp/amlogic/amlogic_check_firmware.log")
-	return
-end
-
---Upgrade the kernel
-function start_amlogic_kernel()
-	luci.sys.exec("chmod +x /usr/sbin/" .. device_kernel_script .. " >/dev/null 2>&1")
-	local state = luci.sys.call("/usr/sbin/" .. device_kernel_script .. " " .. auto_write_bootloader .. " > /tmp/amlogic/amlogic_check_kernel.log && sync >/dev/null 2>&1")
-	return state
+	luci.sys.exec(": > /tmp/amlogic/amlogic_running_script.log")
 end
 
 --Upgrade luci-app-amlogic plugin
 function start_amlogic_plugin()
+	luci.sys.call("echo '1@Plugin update in progress, try again later!' > /tmp/amlogic/amlogic_running_script.log && sync >/dev/null 2>&1")
 	local ipk_state = luci.sys.call("[ -f /etc/config/amlogic ] && cp -vf /etc/config/amlogic /etc/config/amlogic_bak > /tmp/amlogic/amlogic_check_plugin.log && sync >/dev/null 2>&1")
 	local ipk_state = luci.sys.call("opkg --force-reinstall install /tmp/amlogic/*.ipk > /tmp/amlogic/amlogic_check_plugin.log && sync >/dev/null 2>&1")
 	local ipk_state = luci.sys.call("[ -f /etc/config/amlogic_bak ] && cp -vf /etc/config/amlogic_bak /etc/config/amlogic > /tmp/amlogic/amlogic_check_plugin.log && sync >/dev/null 2>&1")
 	local ipk_state = luci.sys.call("rm -rf /tmp/luci-indexcache /tmp/luci-modulecache/* /etc/config/amlogic_bak >/dev/null 2>&1")
+	luci.sys.call("echo '' > /tmp/amlogic/amlogic_running_script.log && sync >/dev/null 2>&1")
 	local state = luci.sys.call("echo 'Successful Update' > /tmp/amlogic/amlogic_check_plugin.log && sync >/dev/null 2>&1")
+	return state
+end
+
+--Upgrade the kernel
+function start_amlogic_kernel()
+	luci.sys.call("echo '2@Kernel update in progress, try again later!' > /tmp/amlogic/amlogic_running_script.log && sync >/dev/null 2>&1")
+	luci.sys.call("chmod +x /usr/sbin/" .. device_kernel_script .. " >/dev/null 2>&1")
+	local state = luci.sys.call("/usr/sbin/" .. device_kernel_script .. " " .. auto_write_bootloader .. " > /tmp/amlogic/amlogic_check_kernel.log && sync >/dev/null 2>&1")
 	return state
 end
 
 --Upgrade amlogic openwrt firmware
 function start_amlogic_update()
-	luci.sys.exec("chmod +x /usr/sbin/" .. device_update_script .. " >/dev/null 2>&1")
+	luci.sys.call("echo '3@OpenWrt update in progress, try again later!' > /tmp/amlogic/amlogic_running_script.log && sync >/dev/null 2>&1")
+	luci.sys.call("chmod +x /usr/sbin/" .. device_update_script .. " >/dev/null 2>&1")
 	local amlogic_update_sel = luci.http.formvalue("amlogic_update_sel")
 	local res = string.split(amlogic_update_sel, "@")
 	local update_firmware_name = res[1] or "auto"
 	local update_firmware_updated = res[2] or "updated"
 	local update_write_path = res[3] or "/tmp"
-	luci.sys.exec("echo " .. update_firmware_updated .. " > " .. update_write_path .. "/.luci-app-amlogic/op_release_code 2>/dev/null && sync")
+	luci.sys.call("echo " .. update_firmware_updated .. " > " .. update_write_path .. "/.luci-app-amlogic/op_release_code 2>/dev/null && sync")
 	local state = luci.sys.call("/usr/sbin/" .. device_update_script .. " " .. update_firmware_name .. " " .. auto_write_bootloader .. " " .. update_restore_config .. " > /tmp/amlogic/amlogic_check_firmware.log && sync 2>/dev/null")
 	return state
 end

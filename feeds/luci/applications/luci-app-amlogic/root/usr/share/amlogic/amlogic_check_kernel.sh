@@ -1,4 +1,16 @@
 #!/bin/bash
+#==================================================================
+# This file is licensed under the terms of the GNU General Public
+# License version 2. This program is licensed "as is" without any
+# warranty of any kind, whether express or implied.
+#
+# This file is a part of the luci-app-amlogic plugin
+# https://github.com/ophub/luci-app-amlogic
+#
+# Description: Check and update OpenWrt Kernel
+# Copyright (C) 2021- https://github.com/unifreq/openwrt_packit
+# Copyright (C) 2021- https://github.com/ophub/luci-app-amlogic
+#==================================================================
 
 # Set a fixed value
 check_option="${1}"
@@ -6,17 +18,42 @@ download_version="${2}"
 TMP_CHECK_DIR="/tmp/amlogic"
 AMLOGIC_SOC_FILE="/etc/flippy-openwrt-release"
 START_LOG="${TMP_CHECK_DIR}/amlogic_check_kernel.log"
+RUNNING_LOG="${TMP_CHECK_DIR}/amlogic_running_script.log"
 LOG_FILE="${TMP_CHECK_DIR}/amlogic.log"
 github_api_kernel_library="${TMP_CHECK_DIR}/github_api_kernel_library"
 github_api_kernel_file="${TMP_CHECK_DIR}/github_api_kernel_file"
 LOGTIME=$(date "+%Y-%m-%d %H:%M:%S")
 [[ -d ${TMP_CHECK_DIR} ]] || mkdir -p ${TMP_CHECK_DIR}
 
+# Clean the running log
+clean_running() {
+    echo -e '' >${RUNNING_LOG} 2>/dev/null && sync
+}
+
+# Add log
+tolog() {
+    echo -e "${1}" >${START_LOG}
+    echo -e "${LOGTIME} ${1}" >>${LOG_FILE}
+    [[ -n "${2}" && "${2}" -eq "1" ]] && clean_running && exit 1
+}
+
+# Check running scripts, prohibit running concurrently
+this_running_log="2@Kernel update in progress, try again later!"
+running_script="$(cat ${RUNNING_LOG} 2>/dev/null | xargs)"
+if [ -n "${running_script}" ]; then
+    run_num=$(echo "${running_script}" | awk -F "@" '{print $1}')
+    run_log=$(echo "${running_script}" | awk -F "@" '{print $2}')
+fi
+if [[ -n "${run_log}" && "${run_num}" -ne "2" ]]; then
+    echo -e "${run_log}" >${START_LOG} 2>/dev/null && sync && exit 1
+else
+    echo -e "${this_running_log}" >${RUNNING_LOG} 2>/dev/null && sync
+fi
+
 # Find the partition where root is located
 ROOT_PTNAME=$(df / | tail -n1 | awk '{print $1}' | awk -F '/' '{print $3}')
 if [ "${ROOT_PTNAME}" == "" ]; then
-    echo "Cannot find the partition corresponding to the root file system!"
-    exit 1
+    tolog "Cannot find the partition corresponding to the root file system!" "1"
 fi
 
 # Find the disk where the partition is located, only supports mmcblk?p? sd?? hd?? vd?? and other formats
@@ -32,20 +69,12 @@ mmcblk?p[1-4])
     LB_PRE=""
     ;;
 *)
-    echo "Unable to recognize the disk type of ${ROOT_PTNAME}!"
-    exit 1
+    tolog "Unable to recognize the disk type of ${ROOT_PTNAME}!" "1"
     ;;
 esac
 
 # Set the default download path
 KERNEL_DOWNLOAD_PATH="/mnt/${EMMC_NAME}${PARTITION_NAME}4"
-
-# Log function
-tolog() {
-    echo -e "${1}" >$START_LOG
-    echo -e "${LOGTIME} ${1}" >>$LOG_FILE
-    [[ -z "${2}" ]] || exit 1
-}
 
 # Current device model
 MYDEVICE_NAME=$(cat /proc/device-tree/model | tr -d '\000')
@@ -155,7 +184,7 @@ check_kernel() {
         tolog "02.04 Already the latest version, no need to update." "1"
         sleep 2
     else
-        tolog '<input type="button" class="cbi-button cbi-button-reload" value="Download" onclick="return b_check_kernel(this, '"'download_${main_line_version}.${latest_version}'"')"/> Latest version: '${main_line_version}.${latest_version}''
+        tolog '<input type="button" class="cbi-button cbi-button-reload" value="Download" onclick="return b_check_kernel(this, '"'download_${main_line_version}.${latest_version}'"')"/> Latest version: '${main_line_version}.${latest_version}'' "1"
     fi
 
     exit 0
@@ -235,7 +264,7 @@ download_kernel() {
     rm -f ${github_api_kernel_file} 2>/dev/null && sync
 
     #echo '<a href="javascript:;" onclick="return amlogic_kernel(this)">Update</a>' >$START_LOG
-    tolog '<input type="button" class="cbi-button cbi-button-reload" value="Update" onclick="return amlogic_kernel(this)"/>'
+    tolog '<input type="button" class="cbi-button cbi-button-reload" value="Update" onclick="return amlogic_kernel(this)"/>' "1"
 
     exit 0
 }
