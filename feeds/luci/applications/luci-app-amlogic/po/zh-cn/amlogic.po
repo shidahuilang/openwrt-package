@@ -137,6 +137,9 @@ msgstr "[s922x] Hardkernel ODROID N2"
 msgid "[s922x] UGOOS AM6 Plus"
 msgstr "[s922x] UGOOS AM6 Plus"
 
+msgid "[a311d] Khadas VIM3"
+msgstr "[a311d] Khadas VIM3"
+
 msgid "[s905x3] X96 Max+"
 msgstr "[s905x3] X96 Max+"
 
