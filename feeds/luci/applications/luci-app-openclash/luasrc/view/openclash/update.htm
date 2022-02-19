@@ -24,8 +24,8 @@
 	  	</select></td>
 	  	<td width="25%"><%:Release Branch Selected%></td>
 	  	<td width="25%" align="left"><select id="RELEASE_BRANCH">
-	  		<option value="master"><%:Master%></option>
-				<option value="dev"><%:Developer%></option>
+	  		<option value="master">Master</option>
+				<option value="dev">Developer</option>
 	  	</select></td>
 	  	</tr>
 		<tr>
@@ -33,14 +33,14 @@
 			<td width="25%"><%:CPU Architecture%></td><td width="25%" align="left" id="CPU_MODEL"><%:Collecting data...%></td></tr>
 	  <tr><td width="100%" colspan="4">
 	    <p align="center">
-	  		<b><%:Core path:%> /etc/openclash/core/clash</b>
+	  		<b><%:Core path:%>/etc/openclash/core/clash</b>
 	  	</p>
 	  </td></tr>
 		<tr><td width="25%">[dev] <%:Current Core%></td><td width="25%" align="left" id="CORE_CV"><%:Collecting data...%></td><td width="25%">[dev] <%:Latest Core%></td><td width="25%" align="left" id="CORE_LV"><%:Collecting data...%></td></tr>
 		<tr><td width="25%"><%:Update Core%></td><td width="25%" align="left" id="core_up"><%:Collecting data...%></td><td width="25%"><%:Download Latest Core%></td><td width="25%" align="left" id="ma_core_up"><%:Collecting data...%></td></tr>
 		<tr><td width="100%" colspan="4">
 	    <p align="center">
-	  		<b><%:Core path:%>/etc/openclash/core/clash_tun </b>
+	  		<b><%:Core path:%>/etc/openclash/core/clash_tun</b>
 	  	</p>
 	  </td></tr>
 		<tr><td width="25%">[TUN] <%:Current Core%></td><td width="25%" align="left" id="CORE_TUN_CV"><%:Collecting data...%></td><td width="25%">[TUN] <%:Latest Core%></td><td width="25%" align="left" id="CORE_TUN_LV"><%:Collecting data...%></td></tr>
@@ -116,6 +116,12 @@
 		  else {
 		     core_version.value = "0";
 		  }
+		  if ( status.release_branch != "" ) {
+		     release_branch.value = status.release_branch;
+		  }
+		  else {
+		     release_branch.value = "master";
+		  }
 		}
 	});
 	
@@ -173,7 +179,7 @@
       var oplvis = arr_op[0];
       var new_op = arr_op[1];
 			op_cv.innerHTML = status.opcv ? "<b style=color:green>"+status.opcv+"</b>" : "<b style=color:red><%:Unknown%></b>";
-			if ( new_op == "2" ) {
+			if ( new_op == "2" && oplvis != "") {
 			   op_lv.innerHTML = "<b style=color:green>"+oplvis+"<%:<New>%></b>";
 			}
 			else if (oplvis != "") {
