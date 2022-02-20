@@ -102,7 +102,7 @@ msgid "[s905d] Phicomm N1"
 msgstr "[s905d] 斐讯-N1"
 
 msgid "[s905d] Phicomm N1 (DMA thresh)"
-msgstr "[s905d] 斐讯-N1 (DMA thresh)"
+msgstr "[s905d] 斐讯-N1 (流控)"
 
 msgid "[s905x] HG680P & B860H"
 msgstr "[s905x] 烽火HG680 & 中兴B860H"
@@ -149,19 +149,19 @@ msgstr "[s905x3] X96 Max+ (超频@2208Mhz)"
 msgid "[s905x3] HK1 Box"
 msgstr "[s905x3] HK1 Box"
 
-msgid "[s905x3] HK1 Box (OveClock@2208Mhz)"
+msgid "[s905x3] HK1 Box (OverClock@2208Mhz)"
 msgstr "[s905x3] HK1 Box (超频@2208Mhz)"
 
 msgid "[s905x3] H96 Max X3"
 msgstr "[s905x3] H96 Max X3"
 
-msgid "[s905x3] H96 Max X3 (OveClock@2208Mhz)"
+msgid "[s905x3] H96 Max X3 (OverClock@2208Mhz)"
 msgstr "[s905x3] H96 Max X3 (超频@2208Mhz)"
 
 msgid "[s905x3] Ugoos X3"
 msgstr "[s905x3] Ugoos X3"
 
-msgid "[s905x3] Ugoos X3 (OveClock@2208Mhz)"
+msgid "[s905x3] Ugoos X3 (OverClock@2208Mhz)"
 msgstr "[s905x3] Ugoos X3 (超频@2208Mhz)"
 
 msgid "Or enter the dtb file name:"
@@ -236,8 +236,8 @@ msgstr "支持将 OpenWrt 系统写入 EMMC、升级固件与内核，备份与�
 msgid "Supported Boxes:"
 msgstr "支持的盒子："
 
-msgid "Amlogic s922x --- [ Belink, Belink-Pro, Ugoos-AM6-Plus, ODROID-N2 ]"
-msgstr "晶晨 s922x --- [ Belink, Belink-Pro, Ugoos-AM6-Plus, ODROID-N2 ]"
+msgid "Amlogic s922x --- [ Belink, Belink-Pro, Ugoos-AM6-Plus, ODROID-N2, Khadas VIM3(a311d) ]"
+msgstr "晶晨 s922x --- [ Belink, Belink-Pro, Ugoos-AM6-Plus, ODROID-N2, Khadas VIM3(a311d) ]"
 
 msgid "Amlogic s905x3 -- [ X96-Max+, HK1-Box, H96-Max-X3, Ugoos-X3, X96-Air, A95XF3-Air ]"
 msgstr "晶晨 s905x3 -- [ X96-Max+, HK1-Box, H96-Max-X3, Ugoos-X3, X96-Air, A95XF3-Air ]"
