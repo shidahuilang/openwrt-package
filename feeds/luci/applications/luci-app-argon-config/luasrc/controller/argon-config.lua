@@ -1,11 +1,12 @@
+--[[
+luci-app-argon-config
+]]--
+
 module("luci.controller.argon-config", package.seeall)
 
 function index()
 	if not nixio.fs.access('/www/luci-static/argon/css/cascade.css') then
-		return
-	end
-
-	local page = entry({"admin", "system", "argon-config"}, form("argon-config"), _("Argon Config"), 90)
-	page.dependent = true
-	page.acl_depends = { "luci-app-argon-config" }
+        return
+    end
+	entry({"admin", "system", "argon-config"}, form("argon-config/configuration"), _("Argon Config"),90)
 end
