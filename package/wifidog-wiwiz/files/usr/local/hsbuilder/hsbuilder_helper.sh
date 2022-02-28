@@ -41,6 +41,10 @@ passAuthed() {
 		mac=$(echo "$LINE" | cut -d ' ' -f 2)
 		ip=$(getIP "$mac")
 		
+		if [ "$ip" = "" ]; then
+			ip=$(echo "$LINE" | cut -d ' ' -f 3)
+		fi
+		
 		if [ "$ip" != "" ]; then
 			wdctl auth "$mac" "$ip" "$token"
 			echo "Helper: passAuthed() auth $mac $ip $token." >>$LOGFILE
