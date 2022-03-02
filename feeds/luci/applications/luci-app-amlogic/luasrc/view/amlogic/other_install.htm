@@ -73,7 +73,7 @@
 		btn.disabled = true;
 		btn.value    = '<%:Installing...%> ';
 
-		XHR.get('<%=luci.dispatcher.build_url("admin", "system", "amlogic","start_amlogic_install")%>',
+		XHR.get('<%=luci.dispatcher.build_url("admin", "system", "amlogic", "start_amlogic_install")%>',
 			{
 				amlogic_install_sel: amlogic_soc_value + '@' + amlogic_dtb_value
 			},

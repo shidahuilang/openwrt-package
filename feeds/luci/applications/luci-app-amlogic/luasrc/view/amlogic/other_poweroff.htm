@@ -1,0 +1,49 @@
+<style>
+.NewsTdHeight{ line-height:20px; }
+</style>
+<fieldset class="cbi-section">
+	<table width="100%" class="NewsTdHeight">
+		<tr><td width="100%" align="left">
+			<input class="cbi-button cbi-button-apply" type="button" value="<%:Perform PowerOff%>" onclick="poweroff(this)" />
+			<p style="display:none">
+				<img src="<%=resource%>/icons/loading.gif" alt="<%:Loading%>" style="vertical-align:middle" />
+				<span id="poweroff-message"><%:Device is shutting down...%></span>
+			</p>
+		</td></tr>
+	</table>
+</fieldset>
+
+<script type="text/javascript">//<![CDATA[
+
+	var tries = 0;
+
+	function ok() {
+		window.location = '<%=controller%>/admin';
+	}
+
+	function check() {
+		if (tries++ < 5)
+			window.setTimeout(ping, 1000);
+		else
+			alert('<%:The device has been turned off.%>');
+	}
+
+	function ping() {
+		var img = document.createElement('img');
+
+		img.onload = ok;
+		img.onerror = check;
+		img.src = '<%=resource%>/icons/loading.gif?' + Math.random();
+
+		document.getElementById('poweroff-message').innerHTML = '<%:Waiting for the device to shut down...%>';
+	}
+
+	function poweroff(button) {
+		button.style.display = 'none';
+		document.getElementById('poweroff-message').parentNode.style.display = '';
+
+		(new XHR()).post('<%=luci.dispatcher.build_url("admin", "system", "amlogic", "start_poweroff")%>', { token: '<%=token%>' }, check);
+	}
+
+
+//]]></script>
