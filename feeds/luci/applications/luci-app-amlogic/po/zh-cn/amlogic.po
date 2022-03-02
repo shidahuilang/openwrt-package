@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: \n"
 "PO-Revision-Date: \n"
-"Last-Translator: https://github.com/ophub/amlogic-s9xxx-openwrt \n"
+"Last-Translator: https://github.com/ophub/luci-app-amlogic \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -536,3 +536,20 @@ msgstr "CPU 检查切换的周期 (ms) 。注意：过于频繁的切换频率�
 msgid "Microarchitectures:"
 msgstr "微架构："
 
+msgid "PowerOff"
+msgstr "关机"
+
+msgid "Shut down your router device."
+msgstr "关闭你的路由器设备。"
+
+msgid "Perform PowerOff"
+msgstr "执行关机"
+
+msgid "Device is shutting down..."
+msgstr "设备正在关机..."
+
+msgid "The device has been turned off."
+msgstr "设备已经关机。"
+
+msgid "Waiting for the device to shut down..."
+msgstr "等待设备关机"

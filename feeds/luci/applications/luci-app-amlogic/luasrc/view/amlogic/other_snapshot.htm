@@ -46,7 +46,7 @@
 		btn.disabled = true;
 		btn.value    = '<%:Deleting...%> ';
 
-		XHR.get('<%=luci.dispatcher.build_url("admin", "system", "amlogic","start_snapshot_delete")%>',
+		XHR.get('<%=luci.dispatcher.build_url("admin", "system", "amlogic", "start_snapshot_delete")%>',
 			{
 				snapshot_delete_sel: snapshot_delete_sel
 			},
@@ -83,7 +83,7 @@
 		btn.disabled = true;
 		btn.value    = '<%:Restoring...%> ';
 
-		XHR.get('<%=luci.dispatcher.build_url("admin", "system", "amlogic","start_snapshot_restore")%>',
+		XHR.get('<%=luci.dispatcher.build_url("admin", "system", "amlogic", "start_snapshot_restore")%>',
 			{
 				snapshot_restore_sel: snapshot_restore_sel
 			},
