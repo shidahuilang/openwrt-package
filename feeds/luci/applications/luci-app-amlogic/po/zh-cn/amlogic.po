@@ -536,6 +536,9 @@ msgstr "CPU 检查切换的周期 (ms) 。注意：过于频繁的切换频率�
 msgid "Microarchitectures:"
 msgstr "微架构："
 
+msgid "Loading"
+msgstr "载入中"
+
 msgid "PowerOff"
 msgstr "关机"
 
@@ -545,11 +548,16 @@ msgstr "关闭你的路由器设备。"
 msgid "Perform PowerOff"
 msgstr "执行关机"
 
+msgid "Are you sure you want to shut down?"
+msgstr "你确定要关机吗？"
+
 msgid "Device is shutting down..."
 msgstr "设备正在关机..."
 
-msgid "The device has been turned off."
-msgstr "设备已经关机。"
-
 msgid "Waiting for the device to shut down..."
-msgstr "等待设备关机"
+msgstr "等待设备关机..."
+
+msgid "The device has been turned off"
+msgstr "设备已经关机"
+
+
