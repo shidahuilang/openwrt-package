@@ -29,7 +29,6 @@ luci-app-oled
 luci-app-onliner
 luci-app-openclash
 luci-app-oscam
-luci-app-passwall
 luci-app-poweroff
 luci-app-pppoe-server
 luci-app-rebootschedule
