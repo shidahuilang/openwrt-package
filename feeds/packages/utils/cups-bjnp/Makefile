@@ -8,14 +8,15 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=cups-bjnp
-PKG_VERSION:=2.0
-PKG_RELEASE:=1
+PKG_VERSION:=2.0.3
+PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=@SF/cups-bjnp
-PKG_HASH:=2acb716680d66f1378cf8dcd45fedf7f72ccc9b66fa80214d6dcb042b5e3c9ab
+PKG_HASH:=c914b2fd9d8e26ce22f2df6244d9defeec31ee9a5360f723eecb3b00f2168500
 
-PKG_BUILD_DEPENDS:=cups
+PKG_LICENSE:=GPL-2.0-or-later
+PKG_LICENSE_FILES:=COPYING
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -35,9 +36,9 @@ define Package/cups-bjnp/description
   is designed by reverse engineering.
 endef
 
-CONFIGURE_ARGS += --with-cupsbackenddir=$(STAGING_DIR)/usr/include/cups
+CONFIGURE_ARGS+= --with-cupsbackenddir=$(STAGING_DIR)/usr/include/cups
 
-TARGET_CFLAGS+=-Wl,-rpath-link=$(STAGING_DIR)/usr/lib
+TARGET_CFLAGS+= -Wl,-rpath-link=$(STAGING_DIR)/usr/lib
 
 define Package/cups-bjnp/install
 	$(INSTALL_DIR) $(1)/usr/lib/cups/backend
