@@ -1,13 +1,13 @@
 --- a/ppdc/Makefile
 +++ b/ppdc/Makefile
-@@ -238,13 +238,7 @@ framedhelp:
+@@ -182,13 +182,7 @@ local:	genstrings
  
  genstrings:		genstrings.o libcupsppdc.a ../cups/$(LIBCUPSSTATIC) \
  			sample.drv ../data/media.defs
 -	echo Linking $@...
--	$(CXX) $(ARCHFLAGS) $(LDFLAGS) -o genstrings genstrings.o \
--		libcupsppdc.a ../cups/$(LIBCUPSSTATIC) $(LIBGSSAPI) $(SSLLIBS) \
--		$(DNSSDLIBS) $(COMMONLIBS) $(LIBZ)
+-	$(LD_CXX) $(ARCHFLAGS) $(ALL_LDFLAGS) -o genstrings genstrings.o \
+-		libcupsppdc.a $(LINKCUPSSTATIC)
+-	$(CODE_SIGN) -s "$(CODE_SIGN_IDENTITY)" $@
 -	echo Generating localization strings...
 -	./genstrings >sample.c
 -

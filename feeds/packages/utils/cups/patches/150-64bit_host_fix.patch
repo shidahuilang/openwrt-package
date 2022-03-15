@@ -1,8 +1,8 @@
 --- a/config-scripts/cups-directories.m4
 +++ b/config-scripts/cups-directories.m4
-@@ -104,7 +104,7 @@ if test "$libdir" = "\${exec_prefix}/lib
- 	case "$uname" in
- 		Linux*)
+@@ -98,7 +98,7 @@ if test "$libdir" = "\${exec_prefix}/lib
+ 	case "$host_os_name" in
+ 		linux*)
  			if test -d /usr/lib64 -a ! -d /usr/lib64/fakeroot; then
 -				libdir="$exec_prefix/lib64"
 +				libdir="$exec_prefix/lib"
@@ -11,9 +11,9 @@
  	esac
 --- a/configure
 +++ b/configure
-@@ -6023,7 +6023,7 @@ if test "$libdir" = "\${exec_prefix}/lib
- 	case "$uname" in
- 		Linux*)
+@@ -6155,7 +6155,7 @@ if test "$libdir" = "\${exec_prefix}/lib
+ 	case "$host_os_name" in
+ 		linux*)
  			if test -d /usr/lib64 -a ! -d /usr/lib64/fakeroot; then
 -				libdir="$exec_prefix/lib64"
 +				libdir="$exec_prefix/lib"
@@ -22,7 +22,7 @@
  	esac
 --- a/cups-config.in
 +++ b/cups-config.in
-@@ -50,7 +50,7 @@ else
+@@ -43,7 +43,7 @@ else
  	CFLAGS="$CFLAGS -I$includedir"
      fi
  
