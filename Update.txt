@@ -67,6 +67,7 @@ mentohust
 netdata
 openwrt-subconverter
 openwrt-tmate
+cdnspeedtest
 oscam
 smartdns
 switch-lan-play
