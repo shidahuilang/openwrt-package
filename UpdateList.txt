@@ -5,6 +5,7 @@ luci-app-aliddns
 luci-app-amlogic
 luci-app-argon-config
 luci-app-clash
+luci-app-cloudflarespeedtest
 luci-app-control-timewol
 luci-app-control-webrestriction
 luci-app-control-weburl
@@ -57,6 +58,7 @@ luci-theme-opentomato
 luci-theme-opentomcat
 luci-theme-rosy
 adguardhome
+cdnspeedtest
 core-lateset
 core_version
 gost
