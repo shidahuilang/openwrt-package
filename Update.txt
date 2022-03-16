@@ -25,6 +25,7 @@ luci-app-mentohust
 luci-app-netdata
 luci-app-netkeeper-interception
 luci-app-oaf
+luci-app-cloudflarespeedtest
 luci-app-oled
 luci-app-onliner
 luci-app-openclash
