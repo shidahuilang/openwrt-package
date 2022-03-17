@@ -5,7 +5,6 @@ luci-app-aliddns
 luci-app-amlogic
 luci-app-argon-config
 luci-app-clash
-luci-app-cloudflarespeedtest
 luci-app-control-timewol
 luci-app-control-webrestriction
 luci-app-control-weburl
