@@ -164,6 +164,18 @@ msgstr "[s905x3] Ugoos X3"
 msgid "[s905x3] Ugoos X3 (OverClock@2208Mhz)"
 msgstr "[s905x3] Ugoos X3 (超频@2208Mhz)"
 
+msgid "[s905x3] TX3 BZ"
+msgstr "[s905x3] TX3 百兆"
+
+msgid "[s905x3] TX3 BZ (OverClock@2208Mhz)"
+msgstr "[s905x3] TX3 百兆 (超频@2208Mhz)"
+
+msgid "[s905x3] TX3 QZ"
+msgstr "[s905x3] TX3 千兆"
+
+msgid "[s905x3] TX3 QZ (OverClock@2208Mhz)"
+msgstr "[s905x3] TX3 千兆 (超频@2208Mhz)"
+
 msgid "Or enter the dtb file name:"
 msgstr "或者输入自定义 dtb 文件名："
 
@@ -239,8 +251,8 @@ msgstr "支持的盒子："
 msgid "Amlogic s922x --- [ Belink, Belink-Pro, Ugoos-AM6-Plus, ODROID-N2, Khadas VIM3(a311d) ]"
 msgstr "晶晨 s922x --- [ Belink, Belink-Pro, Ugoos-AM6-Plus, ODROID-N2, Khadas VIM3(a311d) ]"
 
-msgid "Amlogic s905x3 -- [ X96-Max+, HK1-Box, H96-Max-X3, Ugoos-X3, X96-Air, A95XF3-Air ]"
-msgstr "晶晨 s905x3 -- [ X96-Max+, HK1-Box, H96-Max-X3, Ugoos-X3, X96-Air, A95XF3-Air ]"
+msgid "Amlogic s905x3 -- [ X96-Max+, HK1-Box, H96-Max-X3, Ugoos-X3, TX3, X96-Air, A95XF3-Air ]"
+msgstr "晶晨 s905x3 -- [ X96-Max+, HK1-Box, H96-Max-X3, Ugoos-X3, TX3, X96-Air, A95XF3-Air ]"
 
 msgid "Amlogic s905x2 -- [ X96Max-4G, X96Max-2G ]"
 msgstr "晶晨 s905x2 -- [ X96Max-4G, X96Max-2G ]"
