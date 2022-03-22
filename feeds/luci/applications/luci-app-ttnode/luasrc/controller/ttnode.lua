@@ -8,7 +8,7 @@ function index()
         return
     end
     entry({'admin', 'services', 'ttnode'}, alias('admin', 'services', 'ttnode', 'client'), _('甜糖星愿自动采集'), 0).dependent = true -- 首页
-    entry({'admin', 'services', 'ttnode', 'client'}, cbi('ttnode/client', {hideapplybtn = true,hidesavebtn= true,hideresetbtn = true}), nil, 10).leaf = true -- 基本设置
+    entry({'admin', 'services', 'ttnode', 'client'}, cbi('ttnode', {hideapplybtn = true,hidesavebtn= true,hideresetbtn = true}), nil, 10).leaf = true -- 基本设置
     entry({"admin", "services", "ttnode", "get_code"}, call("getCode")) -- 获取验证码
     entry({"admin", "services", "ttnode", "login"}, call("login")) -- 登录
     entry({"admin", "services", "ttnode", "run"}, call("run")) -- 执行
