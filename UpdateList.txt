@@ -1,4 +1,3 @@
-luci-app-adblock-plus
 luci-app-adguardhome
 luci-app-advanced
 luci-app-aliddns
@@ -20,7 +19,6 @@ luci-app-ikoolproxy
 luci-app-ipsec-vpnserver-manyusers
 luci-app-iptvhelper
 luci-app-k3screenctrl
-luci-app-koolddns
 luci-app-linkease
 luci-app-mentohust
 luci-app-netdata
