@@ -1,0 +1,68 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "Screen"
+msgstr "屏幕"
+
+msgid "Customize your device screen"
+msgstr "自定义你的设备屏幕"
+
+msgid "General Setting"
+msgstr "基本设置"
+
+msgid "If it does not take effect immediately, please reboot the system."
+msgstr "如果没有立即生效，请重启系统。"
+
+msgid "Screen time :"
+msgstr "亮屏时间："
+
+msgid "This time no action, the screen will close."
+msgstr "这段时间没有操作，屏幕将关闭。"
+
+msgid "Refresh interval :"
+msgstr "刷新间隔："
+
+msgid "Screen refresh interval."
+msgstr "屏幕刷新间隔"
+
+msgid "Hide Wireless password"
+msgstr "隐藏无线密码"
+
+msgid "The fourth page of the wireless password."
+msgstr "第四页的无线密码"
+
+msgid "Display CPU temperature"
+msgstr "显示 CPU 温度"
+
+msgid "The first page shows the CPU temperature."
+msgstr "第一页显示 CPU 温度"
+
+msgid "2 s"
+msgstr "2 秒"
+
+msgid "5 s"
+msgstr "5 秒"
+
+msgid "10 s"
+msgstr "10 秒"
+
+msgid "30 s"
+msgstr "30 秒"
+
+msgid "60 s"
+msgstr "60 秒"
+
+msgid "5 m"
+msgstr "5 分"
+
+msgid "10 m"
+msgstr "10 分"
+
+msgid "15 m"
+msgstr "15 分"
+
+msgid "30 m"
+msgstr "30 分"
+
+msgid "60 m"
+msgid "60 分"

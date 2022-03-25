@@ -1,0 +1,22 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+STOP=99
+
+SCRIPTS_BASE=/lib/k3screenctrl/
+
+start() {
+    m=$(uci get k3screenctrl.@general[0].screen_time)
+    if [ $m -lt 10 ]; then
+        m=10
+    fi
+    d=$(uci get k3screenctrl.@general[0].refresh_time)
+    if [ $d -lt 2 ]; then
+        d=2
+    fi
+    /usr/bin/k3screenctrl -m $m -d $d &
+}
+
+stop() {
+    killall k3screenctrl
+}
