@@ -7,7 +7,6 @@ luci-app-linkease
 luci-app-netdata
 luci-app-openclash
 luci-app-passwall
-luci-app-poweroff
 luci-app-vssr
 luci-theme-Light
 luci-theme-argon
