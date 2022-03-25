@@ -1,6 +1,5 @@
 luci-app-adguardhome
 luci-app-advanced
-luci-app-aliddns
 luci-app-amlogic
 luci-app-argon-config
 luci-app-clash
@@ -8,11 +7,8 @@ luci-app-cloudflarespeedtest
 luci-app-control-timewol
 luci-app-control-webrestriction
 luci-app-control-weburl
-luci-app-cpulimit
-luci-app-cupsd
 luci-app-ddnsto
 luci-app-fileassistant
-luci-app-filebrowser
 luci-app-gost
 luci-app-gowebdav
 luci-app-ikoolproxy
