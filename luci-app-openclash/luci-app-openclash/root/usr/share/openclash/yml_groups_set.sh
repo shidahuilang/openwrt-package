@@ -178,8 +178,6 @@ yml_groups_set()
    config_get "test_url" "$section" "test_url" ""
    config_get "test_interval" "$section" "test_interval" ""
    config_get "tolerance" "$section" "tolerance" ""
-   config_get "interface_name" "$section" "interface_name" ""
-   config_get "routing_mark" "$section" "routing_mark" ""
    
    if [ ! -z "$if_game_group" ] && [ "$if_game_group" != "$name" ]; then
       return
@@ -226,9 +224,7 @@ yml_groups_set()
    #名字变化时处理规则部分
    if [ "$name" != "$old_name" ] && [ ! -z "$old_name" ]; then
       sed -i "s/,${old_name}/,${name}#d/g" "$CONFIG_FILE" 2>/dev/null
-      sed -i "s/: \"${old_name}\"/: \"${name}#d\"/g" "$CONFIG_FILE" 2>/dev/null
-      sed -i "s/return \"${old_name}\"$/return \"${name}#d\"/g" "$CONFIG_FILE" 2>/dev/null
-      sed -i "s/old_name \'${old_name}\'/old_name \'${name}\'/g" "$CFG_FILE" 2>/dev/null
+      sed -i "s/old_name \'${old_name}/old_name \'${name}/g" "$CFG_FILE" 2>/dev/null
       config_load "openclash"
    fi
    
@@ -260,20 +256,14 @@ yml_groups_set()
       sed -i "/use: ${group_name}/d" $GROUP_FILE 2>/dev/null
    fi
    
-   [ -n "$test_url" ] && {
+   [ ! -z "$test_url" ] && {
    	  echo "    url: $test_url" >>$GROUP_FILE
    }
-   [ -n "$test_interval" ] && {
+   [ ! -z "$test_interval" ] && {
       echo "    interval: \"$test_interval\"" >>$GROUP_FILE
    }
-   [ -n "$tolerance" ] && {
+   [ ! -z "$tolerance" ] && {
       echo "    tolerance: \"$tolerance\"" >>$GROUP_FILE
-   }
-   [ -n "$interface_name" ] && {
-      echo "    interface-name: \"$interface_name\"" >>$GROUP_FILE
-   }
-   [ -n "$routing_mark" ] && {
-      echo "    routing-mark: \"$routing_mark\"" >>$GROUP_FILE
    }
 }
 

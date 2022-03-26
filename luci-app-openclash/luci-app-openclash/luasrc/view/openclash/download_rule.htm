@@ -14,11 +14,11 @@
 				if ( x && x.status == 200 ) {
 					if(status.rule_download_status=="0")
 					{
-						btn.value = '<%:Download Failed%>';
+						btn.value = '<%:Downloading Fail%>';
 					}
 					else if (status.rule_download_status=="1")
 					{
-						btn.value = '<%:Download Successful%>';
+						btn.value = '<%:Downloading Successful%>';
 					}
 					else if (status.rule_download_status=="2")
 					{
@@ -26,7 +26,7 @@
 					}
 				}
 				else {
-					btn.value = '<%:Download Timeout%>';
+					btn.value = '<%:Downloading Timeout%>';
 				}
 			}
 		);

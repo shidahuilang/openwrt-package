@@ -26,13 +26,10 @@ fi
 
 CONFIG_FILE=$(unify_ps_cfgname)
 CONFIG_NAME=$(echo "$CONFIG_FILE" |awk -F '/' '{print $4}' 2>/dev/null)
-small_flash_memory=$(uci -q get openclash.config.small_flash_memory)
 HISTORY_PATH_OLD="/etc/openclash/history/${CONFIG_NAME%.*}"
 HISTORY_PATH="/etc/openclash/history/${CONFIG_NAME%.*}.db"
-core_version=$(uci -q get openclash.config.core_version || echo 0)
 CACHE_PATH_OLD="/etc/openclash/.cache"
-source "/etc/openwrt_release"
-
+CACHE_PATH="/etc/openclash/cache.db"
 set_lock
 
 if [ -z "$CONFIG_FILE" ] || [ ! -f "$CONFIG_FILE" ]; then
@@ -43,13 +40,10 @@ if [ -z "$CONFIG_FILE" ] || [ ! -f "$CONFIG_FILE" ]; then
 fi
 
 if [ -n "$(pidof clash)" ] && [ -f "$CONFIG_FILE" ]; then
-   if [ "$small_flash_memory" == "1" ] || [ -n "$(echo $core_version |grep mips)" ] || [ -n "$(echo $DISTRIB_ARCH |grep mips)" ] || [ -n "$(opkg status libc 2>/dev/null |grep 'Architecture' |awk -F ': ' '{print $2}' |grep mips)" ]; then
-   CACHE_PATH="/tmp/etc/openclash/cache.db"
-      if [ -f "$CACHE_PATH" ]; then
-         cmp -s "$CACHE_PATH" "$HISTORY_PATH"
-         if [ "$?" -ne "0" ]; then
-            cp "$CACHE_PATH" "$HISTORY_PATH" 2>/dev/null
-         fi
+   if [ -f "$CACHE_PATH" ]; then
+      cmp -s "$CACHE_PATH" "$HISTORY_PATH"
+      if [ "$?" -ne "0" ]; then
+         cp "$CACHE_PATH" "$HISTORY_PATH" 2>/dev/null
       fi
    fi
    if [ -f "$CACHE_PATH_OLD" ]; then

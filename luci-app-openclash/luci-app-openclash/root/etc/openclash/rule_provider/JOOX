@@ -1,6 +1,5 @@
 payload:  
   # > JOOX
-  - PROCESS-NAME,com.tencent.ibg.joox
-  - PROCESS-NAME,com.tencent.ibg.jooxtv
+  # - User-Agent,WeMusic*
+  # - User-Agent,JOOX*
   - DOMAIN-SUFFIX,joox.com
-  - DOMAIN-KEYWORD,jooxweb-api

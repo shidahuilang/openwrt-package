@@ -197,8 +197,8 @@ msgstr "选择内核日志的默认输出模式"
 msgid "Only intranet allowed"
 msgstr "仅允许内网"
 
-msgid "When Enabled, The Control Panel And The Connection Broker Port Will Not Be Accessible From The Public Network"
-msgstr "启用后将禁止从公网访问控制面板和连接代理端口"
+msgid "When Enabled, The Control Panel And The Connection Broker Port Will Not Be Accessible From The Public Network, Not Support IPv6 Yet"
+msgstr "启用后将禁止从公网访问控制面板和连接代理端口, 暂不支持和IPv6代理同时启用"
 
 msgid "Redirect Local DNS Setting"
 msgstr "*本地DNS劫持"
@@ -285,8 +285,8 @@ msgstr "(通讯协议)"
 msgid "Proxy IPv6 Traffic"
 msgstr "IPv6 流量代理"
 
-msgid "The Gateway and DNS of The Connected Device Must be The Router IP, Disable IPv6 DHCP To Avoid Abnormal Connection If You Do Not Use"
-msgstr "连接设备的网关和DNS须为路由器IP，如果您不使用，请禁用IPv6的DHCP以避免连接异常"
+msgid "Disable IPv6 DHCP To Avoid Abnormal Connection If You Do Not Use"
+msgstr "如果您不使用，请禁用IPv6的DHCP以避免连接异常"
 
 msgid "IPv6 DNS Resolve"
 msgstr "允许IPv6类型DNS解析"
@@ -311,9 +311,6 @@ msgstr "代理集文件"
 
 msgid "Rule Provider File"
 msgstr "规则集文件"
-
-msgid "Core File"
-msgstr "内核文件"
 
 msgid "Upload"
 msgstr "上传"
@@ -516,9 +513,6 @@ msgstr "必须代理的流量"
 msgid "Apple"
 msgstr "苹果服务（Apple）"
 
-msgid "Google FCM"
-msgstr "谷歌推送（Google FCM）"
-
 msgid "Scholar"
 msgstr "学术网站（Scholar）"
 
@@ -528,8 +522,8 @@ msgstr "微软服务（Microsoft）"
 msgid "Netflix"
 msgstr "奈飞（Netflix）"
 
-msgid "Disney Plus"
-msgstr "迪士尼+（Disney Plus）"
+msgid "Disney"
+msgstr "迪士尼（Disney）"
 
 msgid "Bilibili"
 msgstr "哔哩哔哩（Bilibili）"
@@ -579,8 +573,8 @@ msgstr "设置自定义Hosts，详细信息请参阅:"
 msgid "Set Custom Rules"
 msgstr "设置自定义规则（在上方规则设置中启用本功能后生效）"
 
-msgid "Set Custom Hosts (Does Not Override Config Settings)"
-msgstr "设置自定义Hosts（不会覆盖配置文件设置）"
+msgid "Set Custom Hosts, Only Work with Redir-Host Mode"
+msgstr "设置自定义Hosts，仅在Redir-Host模式下生效（不会覆盖配置文件设置）"
 
 msgid "Version Update"
 msgstr "版本更新"
@@ -929,9 +923,6 @@ msgstr "代理集路径（Path）"
 msgid "Update Your Proxy Provider File From Config Luci Page"
 msgstr "请先在配置文件管理页面上传您的代理集文件"
 
-msgid "Provider Filter"
-msgstr "代理集节点筛选"
-
 msgid "Provider URL"
 msgstr "代理集URL"
 
@@ -1078,9 +1069,6 @@ msgstr "配置文件编辑"
 
 msgid "Delete All File"
 msgstr "删除所有文件"
-
-msgid "SS/SSR/Vmess or Other Link And Subscription Address is Supported When Online Subscription Conversion is Enabled, Please Separate Multiple Links With |"
-msgstr "在线订阅转换启用时支持：SS/SSR/Vmess等节点链接和订阅链接，多个链接请用 | 分隔"
 
 msgid "Template Name"
 msgstr "订阅转换模板"
@@ -1304,14 +1292,14 @@ msgstr "注意：客户端可能无法更新，因为squashfs格式的固件更�
 msgid "Compiled Version Selected"
 msgstr "已选择编译版本"
 
-msgid "Release Branch Selected"
-msgstr "已选择更新分支"
-
-msgid "CPU Architecture"
-msgstr "处理器架构"
+msgid "CPU Architecture (OS)"
+msgstr "处理器架构（OS）"
 
 msgid "Last Check Update"
 msgstr "上次检查更新时间"
+
+msgid "CPU Architecture (OPKG)"
+msgstr "处理器架构（OPKG）"
 
 msgid "Current Core"
 msgstr "当前内核版本"
@@ -1812,13 +1800,13 @@ msgid "Proxy-providers That no Longer Exists in Subscription"
 msgstr "订阅中已不存在的代理集..."
 
 msgid "Proxies That no Longer Exists in Subscription"
-msgstr "订阅中已不存在的节点..."
+msgstr "订阅中已不存在的代理集..."
 
 msgid "Read Successful!"
 msgstr "读取完成！"
 
 msgid "Write Successful!"
-msgstr "写入完成！"
+msgstr "读取完成！"
 
 msgid "Creating By Using Connershua (rule set) Rules..."
 msgstr "使用ConnersHua(规则集)规则创建中..."
@@ -2150,16 +2138,16 @@ msgstr "Dler Cloud 签到失败，结果："
 msgid "Downloading Rule..."
 msgstr "正在下载规则..."
 
-msgid "Download Failed"
+msgid "Downloading Fail"
 msgstr "下载失败"
 
-msgid "Download Successful"
+msgid "Downloading Successful"
 msgstr "下载成功"
 
 msgid "Rule No Change"
 msgstr "规则没有更新"
 
-msgid "Download Timeout"
+msgid "Downloading Timeout"
 msgstr "下载超时"
 
 msgid "Rule Project:"
@@ -2215,6 +2203,9 @@ msgstr "警告：【Rule】写法已不再支持，自动替换为rules"
 
 msgid "Warning: rule-provider is no longer used. Auto replaced by rule-providers"
 msgstr "警告：【rule-provider】写法已不再支持，自动替换为rule-providers"
+
+msgid "Warning: Because of No Rules Field, Stop Setting BT/P2P DIRECT Rules!"
+msgstr "警告：未找到【rules】配置，停止添加BT/P2P直连规则！"
 
 msgid "Error: Load File Error,"
 msgstr "错误：文件解析失败，"
@@ -2393,29 +2384,23 @@ msgstr "被修改，暂停快速启动..."
 msgid "Click to Update"
 msgstr "点击更新规则"
 
-msgid "Prefetch Netflix, Disney Plus Domains"
-msgstr "实验性：预解析 Netflix、Disney Plus 域名"
+msgid "Prefetch Netflix Domains"
+msgstr "实验性：预解析 Netflix 域名"
 
 msgid "Prevent Some Devices From Directly Using IP Access To Cause Unlocking Failure"
 msgstr "防止部分设备直接使用IP访问导致DNS解锁失败"
 
-msgid "Update Preset Domains List"
-msgstr "更新预置域名列表"
+msgid "Update Netflix Domains List"
+msgstr "更新 Netflix 域名列表"
 
-msgid "Domains Prefetch Interval(min)"
-msgstr "域名预解析间隔（分钟）"
+msgid "Netflix Domains Prefetch Interval(min)"
+msgstr "Netflix 域名预解析间隔（分钟）"
 
 msgid "Tip: Start Prefetch Netflix Domains..."
 msgstr "提示：开始预解析 Netflix 域名..."
 
-msgid "Tip: Netflix Domains Prefetch Finished!"
-msgstr "提示：Netflix 域名预解析完成!"
-
-msgid "Tip: Start Prefetch Disney Plus Domains..."
-msgstr "提示：开始预解析 Disney Plus 域名..."
-
-msgid "Tip: Disney Plus Domains Prefetch Finished!"
-msgstr "提示：Disney Plus 域名预解析完成!"
+msgid "Tip: Netflix Domains Prefetch Finished..."
+msgstr "提示：Netflix 域名预解析完成..."
 
 msgid "Persistence Fake-IP"
 msgstr "Fake-IP 持久化"
@@ -2441,9 +2426,6 @@ msgstr "抓取结果将自动保存"
 msgid "Click to Catch"
 msgstr "手动抓取域名"
 
-msgid "Catch Netflix"
-msgstr "手动抓取 Netflix 域名"
-
 msgid "No domain names were catched..."
 msgstr "未抓取到任何域名..."
 
@@ -2461,291 +2443,3 @@ msgstr "指定出口网卡"
 
 msgid "routing-mark"
 msgstr "指定路由标记"
-
-msgid "Streaming Enhance"
-msgstr "流媒体增强"
-
-msgid "Auto Select Unlock Proxy"
-msgstr "自动选择解锁节点"
-
-msgid "Auto Select Proxy For Streaming Unlock, Support Netflix, Disney Plus, HBO And YouTube Premium, etc"
-msgstr "自动选择解锁节点，支持 Netflix、Disney Plus、HBO 和 YouTube Premium 等"
-
-msgid "Auto Select Interval(min)"
-msgstr "自动选择（检测）间隔（分钟）"
-
-msgid "Expand Group"
-msgstr "展开策略组"
-
-msgid "Automatically Expand The Group When Selected"
-msgstr "自动展开嵌套的策略组并进行解锁检测，启用后可能会造成网络不稳定"
-
-msgid "Netflix Group Filter"
-msgstr "Netflix 策略组筛选"
-
-msgid "Disney Plus Group Filter"
-msgstr "Disney Plus 策略组筛选"
-
-msgid "HBO Now Group Filter"
-msgstr "HBO Now 策略组筛选"
-
-msgid "HBO Max Group Filter"
-msgstr "HBO Max 策略组筛选"
-
-msgid "HBO GO Asia Group Filter"
-msgstr "HBO GO Asia 策略组筛选"
-
-msgid "YouTube Premium Group Filter"
-msgstr "YouTube Premium 策略组筛选"
-
-msgid "TVB Anywhere+ Group Filter"
-msgstr "TVB Anywhere+ 策略组筛选"
-
-msgid "Amazon Prime Video Group Filter"
-msgstr "Amazon Prime Video 策略组筛选"
-
-msgid "Netflix Unlock Region Filter"
-msgstr "Netflix 解锁区域筛选"
-
-msgid "Disney Plus Unlock Region Filter"
-msgstr "Disney Plus 解锁区域筛选"
-
-msgid "HBO Max Unlock Region Filter"
-msgstr "HBO Max 解锁区域筛选"
-
-msgid "HBO GO Asia Unlock Region Filter"
-msgstr "HBO GO Asia 解锁区域筛选"
-
-msgid "YouTube Premium Unlock Region Filter"
-msgstr "YouTube Premium 解锁区域筛选"
-
-msgid "TVB Anywhere+ Unlock Region Filter"
-msgstr "TVB Anywhere+ 解锁区域筛选"
-
-msgid "Amazon Prime Video Unlock Region Filter"
-msgstr "Amazon Prime Video 解锁区域筛选"
-
-msgid "Tip: Start Auto Select Proxy For Netflix Unlock..."
-msgstr "提示：开始自动选择（检测）Netflix 解锁节点..."
-
-msgid "Tip: Start Auto Select Proxy For Disney Plus Unlock..."
-msgstr "提示：开始自动选择（检测）Disney Plus 解锁节点..."
-
-msgid "Tip: Start Auto Select Proxy For HBO Now Unlock..."
-msgstr "提示：开始自动选择（检测）HBO Now 解锁节点..."
-
-msgid "Tip: Start Auto Select Proxy For HBO Max Unlock..."
-msgstr "提示：开始自动选择（检测）HBO Max 解锁节点..."
-
-msgid "Tip: Start Auto Select Proxy For HBO GO Asia Unlock..."
-msgstr "提示：开始自动选择（检测）HBO GO Asia 解锁节点..."
-
-msgid "Tip: Start Auto Select Proxy For YouTube Premium Unlock..."
-msgstr "提示：开始自动选择（检测）YouTube Premium 解锁节点..."
-
-msgid "Tip: Start Auto Select Proxy For TVB Anywhere+ Unlock..."
-msgstr "提示：开始自动选择（检测）TVB Anywhere+ 解锁节点..."
-
-msgid "Tip: Start Auto Select Proxy For Amazon Prime Video Unlock..."
-msgstr "提示：开始自动选择（检测）Amazon Prime Video 解锁节点..."
-
-msgid "Netflix Group:"
-msgstr "Netflix 策略组："
-
-msgid "Disney Plus Group:"
-msgstr "Disney Plus 策略组："
-
-msgid "HBO Now Group:"
-msgstr "HBO Now 策略组："
-
-msgid "HBO Max Group:"
-msgstr "HBO Max 策略组："
-
-msgid "HBO GO Asia Group:"
-msgstr "HBO GO Asia 策略组："
-
-msgid "TVB Anywhere+ Group:"
-msgstr "TVB Anywhere+ 策略组："
-
-msgid "Amazon Prime Video Group:"
-msgstr "Amazon Prime Video 策略组："
-
-msgid "YouTube Premium Group:"
-msgstr "YouTube Premium 策略组："
-
-msgid "full support."
-msgstr "完整解锁。"
-
-msgid "full support, area:"
-msgstr "完整解锁，区域："
-
-msgid "only support homemade!"
-msgstr "仅支持自制剧！"
-
-msgid "unlock test faild!"
-msgstr "解锁检测失败！"
-
-msgid "the type of group is not select, auto select could not work!"
-msgstr "当前策略组类型非Select，无法进行自动选择！"
-
-msgid "Start auto select unlock proxy..."
-msgstr "开始进行解锁节点自动选择..."
-
-msgid "only support homemade! the type of group is not select, auto select could not work!"
-msgstr "仅支持自制剧！当前策略组类型非 Select，无法进行自动选择！"
-
-msgid "unlock test faild! the type of group is not select, auto select could not work!"
-msgstr "解锁检测失败！当前策略组类型非 Select，无法进行自动选择！"
-
-msgid "only support homemade! start auto select unlock proxy..."
-msgstr "仅支持自制剧！开始进行解锁节点自动选择..."
-
-msgid "unlock test faild! start auto select unlock proxy..."
-msgstr "解锁检测失败！开始进行解锁节点自动选择..."
-
-msgid "It Will Be Searched According To The Regex When Auto Search Group Fails"
-msgstr "策略组自动获取失败时将会根据正则表达式进行匹配"
-
-msgid "It Will Be Selected Region According To The Regex"
-msgstr "解锁区域将会根据正则表达式进行匹配"
-
-msgid "not support unlock!"
-msgstr "不支持解锁！"
-
-msgid "not support unlock! the type of group is not select, auto select could not work!"
-msgstr "不支持解锁！当前策略组类型非 Select，无法进行自动选择！"
-
-msgid "not support unlock! start auto select unlock proxy..."
-msgstr "不支持解锁！开始进行解锁节点自动选择..."
-
-msgid "unlock node auto selected successfully, the current selected is"
-msgstr "解锁节点自动选择成功，当前选择的是"
-
-msgid "unlock node auto selected failed, no node available, rolled back to the"
-msgstr "解锁节点自动选择失败，无完整解锁节点，回退到"
-
-msgid ", area:"
-msgstr "，区域："
-
-msgid "failed to search based on keywords and automatically obtain the group, please confirm the validity of the regex!"
-msgstr "根据关键字搜索且自动获取策略组失败，请确认关键字的有效性！"
-
-msgid "unlock node auto selected failed, no node match the regex, rolled back to other full support node"
-msgstr "解锁节点自动选择失败，未找到区域匹配的节点，回退到其他区域的解锁节点"
-
-msgid "full support but not match the regex!"
-msgstr "完整解锁但区域不匹配！"
-
-msgid "but not match the regex! the type of group is not select, auto select could not work!"
-msgstr "完整解锁但区域不匹配！当前策略组类型非 Select，无法进行自动选择！"
-
-msgid "full support but not match the regex! start auto select unlock proxy..."
-msgstr "完整解锁但区域不匹配！开始进行解锁节点自动选择..."
-
-msgid "unlock node test finished, rolled back to the full support node"
-msgstr "解锁检测完成，回退到完整解锁的节点"
-
-msgid "unlock node test finished, no node match the regex, rolled back to other full support node"
-msgstr "解锁检测完成，未找到区域匹配的节点，回退到其他区域的解锁节点"
-
-msgid "unlock node test finished, no node available, rolled back to the"
-msgstr "解锁检测完成，无完整解锁节点，回退到"
-
-msgid "DNS Remote"
-msgstr "*远程域名解析"
-
-msgid "Add DNS Remote Support For Redir-Host"
-msgstr "Redir-Host模式强制进行远程域名解析"
-
-msgid "Bypass Gateway Compatible"
-msgstr "旁路网关（旁路由）兼容"
-
-msgid "If The Ntwork Cannot be Connected in Bypass Gateway Mode, Please Try to Enable."
-msgstr "旁路网关（旁路由）模式下网络无法连接时请尝试启用。"
-
-msgid "Suggestion: If The Device Does Not Have WLAN, Please Disable The Lan Interface's Bridge Option"
-msgstr "建议：如果设备没有WLAN，请禁用Lan接口的桥接接口选项"
-
-msgid "Github Address Modify"
-msgstr "Github 地址修改"
-
-msgid "Modify The Github Address In The Config And OpenClash With Proxy(CDN) To Prevent File Download Faild. Format Reference:"
-msgstr "使用指定代理（CDN）反代插件和配置文件中的Github地址，以防止文件下载失败，格式参考："
-
-msgid "File Edit"
-msgstr "文件编辑"
-
-msgid "Create File"
-msgstr "新建文件"
-
-msgid "Paste the name of the new file (including the extension) here:"
-msgstr "请在此输入要新建的文件名称（含扩展名）："
-
-msgid "Delay Start (s)"
-msgstr "延迟启动（秒）"
-
-msgid "Delay Start On Boot"
-msgstr "系统重启时延迟启动"
-
-msgid "Enable Delay Start, OpenClash Will Start After"
-msgstr "延迟启动已启用，OpenClash 将在"
-
-msgid "Secends..."
-msgstr "秒后开始启动..."
-
-msgid "Waiting for command to complete..."
-msgstr "等待命令执行完成..."
-
-msgid "Collecting data..."
-msgstr "正在收集数据..."
-
-msgid "Flushing..."
-msgstr "清理中..."
-
-msgid "Flush Fail"
-msgstr "清理失败"
-
-msgid "Flush Successful"
-msgstr "清理成功"
-
-msgid "Flush Timeout"
-msgstr "清理超时"
-
-msgid "Flush"
-msgstr "清理"
-
-msgid "Flush Fake-IP Cache"
-msgstr "Fake-IP 持久化缓存清理"
-
-msgid "No Specify Upload File"
-msgstr "未选择上传文件"
-
-msgid "Use Rule Provider"
-msgstr "使用规则集"
-
-msgid "Note: Please Make Sure Backend Service Supports This Feature"
-msgstr "注意：请确保您选择的后端服务支持此功能，否则可能导致内核启动失败"
-
-msgid "Rename"
-msgstr "重命名"
-
-msgid "Paste the new file name (including the extension) here:"
-msgstr "请在此输入新文件名（含扩展名）："
-
-msgid "Illegal extension!"
-msgstr "不支持的扩展名！"
-
-msgid "Manual Test"
-msgstr "手动测试"
-
-msgid "Unlock Test(Select)"
-msgstr "解锁检测(选择)"
-
-msgid "All Proxies Test"
-msgstr "测试所有节点"
-
-msgid "Something Wrong While Testing..."
-msgstr "发生了一些错误，测试失败..."
-
-msgid "Network instability may occur during testing, Are you sure want to start test?"
-msgstr "测试过程中可能会造成网络不稳定,确定要开始测试吗？"

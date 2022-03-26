@@ -3,7 +3,7 @@ payload:
   - DOMAIN-SUFFIX,fast.com
 
   # > Speedtest by Ookla
-  # - USER-AGENT,SpeedTest*
+  # - User-Agent,SpeedTest*
   - DOMAIN-KEYWORD,speedtest
   - DOMAIN-SUFFIX,ooklaserver.net
 

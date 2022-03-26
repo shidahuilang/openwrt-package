@@ -8,9 +8,9 @@ local fs = require "luci.openclash"
 local uci = require "luci.model.uci".cursor()
 local json = require "luci.jsonc"
 
-font_green = [[<b style=color:green>]]
-font_red = [[<b style=color:red>]]
-font_off = [[</b>]]
+font_green = [[<font color="green">]]
+font_red = [[<font color="red">]]
+font_off = [[</font>]]
 bold_on  = [[<strong>]]
 bold_off = [[</strong>]]
 
@@ -28,7 +28,6 @@ s.anonymous = true
 s:tab("op_mode", translate("Operation Mode"))
 s:tab("settings", translate("General Settings"))
 s:tab("dns", translate("DNS Setting"))
-s:tab("stream_enhance", translate("Streaming Enhance"))
 s:tab("lan_ac", translate("Access Control"))
 if op_mode == "fake-ip" then
 s:tab("rules", translate("Rules Setting(Access Control)"))
@@ -83,7 +82,7 @@ o:value("script", translate("Script Proxy Mode (Tun Core Only)"))
 o.default = "rule"
 
 o = s:taboption("op_mode", Flag, "ipv6_enable", font_red..bold_on..translate("Proxy IPv6 Traffic")..bold_off..font_off)
-o.description = font_red..bold_on..translate("The Gateway and DNS of The Connected Device Must be The Router IP, Disable IPv6 DHCP To Avoid Abnormal Connection If You Do Not Use")..bold_off..font_off
+o.description = font_red..bold_on..translate("Disable IPv6 DHCP To Avoid Abnormal Connection If You Do Not Use")..bold_off..font_off
 o.default=0
 
 o = s:taboption("op_mode", Flag, "china_ip6_route", translate("China IPv6 Route"))
@@ -113,9 +112,19 @@ o:depends("en_mode", "redir-host")
 o:depends("en_mode", "redir-host-tun")
 o:depends("en_mode", "redir-host-mix")
 
-o = s:taboption("op_mode", Flag, "bypass_gateway_compatible", translate("Bypass Gateway Compatible"))
-o.description = translate("If The Ntwork Cannot be Connected in Bypass Gateway Mode, Please Try to Enable.")..font_red..bold_on..translate("Suggestion: If The Device Does Not Have WLAN, Please Disable The Lan Interface's Bridge Option")..bold_off..font_off
+o = s:taboption("op_mode", Flag, "netflix_domains_prefetch", font_red..bold_on..translate("Prefetch Netflix Domains")..bold_off..font_off)
+o.description = translate("Prevent Some Devices From Directly Using IP Access To Cause Unlocking Failure")
 o.default=0
+
+o = s:taboption("op_mode", Value, "netflix_domains_prefetch_interval", translate("Netflix Domains Prefetch Interval(min)"))
+o.default=1440
+o.datatype = "uinteger"
+o.description = translate("Will Run Once Immediately After Started, The Interval Does Not Need To Be Too Short (Take Effect Immediately After Commit)")
+o:depends("netflix_domains_prefetch", "1")
+
+o = s:taboption("op_mode", DummyValue, "netflix_domains_update", translate("Update Netflix Domains List"))
+o:depends("netflix_domains_prefetch", "1")
+o.template = "openclash/download_netflix_domains"
 
 o = s:taboption("op_mode", Flag, "small_flash_memory", translate("Small Flash Memory"))
 o.description = translate("Move Core And GEOIP Data File To /tmp/etc/openclash For Small Flash Memory Device")
@@ -144,17 +153,6 @@ o:value("150")
 o.datatype = "uinteger"
 o.default = "0"
 
-o = s:taboption("settings", Value, "github_address_mod", font_red..bold_on..translate("Github Address Modify")..bold_off..font_off)
-o.description = translate("Modify The Github Address In The Config And OpenClash With Proxy(CDN) To Prevent File Download Faild. Format Reference:").." ".."<a href='javascript:void(0)' onclick='javascript:return winOpen(\"https://ghproxy.com/\")'>https://ghproxy.com/</a>"
-o:value("0", translate("Disable"))
-o:value("https://cdn.jsdelivr.net/")
-o.default = "0"
-
-o = s:taboption("settings", Value, "delay_start", translate("Delay Start (s)"))
-o.description = translate("Delay Start On Boot")
-o.default = "0"
-o.datatype = "uinteger"
-
 o = s:taboption("settings", ListValue, "log_level", translate("Log Level"))
 o.description = translate("Select Core's Log Level")
 o:value("info", translate("Info Mode"))
@@ -169,7 +167,7 @@ o.description = translate("Set Log File Size (KB)")
 o.default=1024
 
 o = s:taboption("settings", Flag, "intranet_allowed", translate("Only intranet allowed"))
-o.description = translate("When Enabled, The Control Panel And The Connection Broker Port Will Not Be Accessible From The Public Network")
+o.description = translate("When Enabled, The Control Panel And The Connection Broker Port Will Not Be Accessible From The Public Network, Not Support IPv6 Yet")
 o.default=0
 
 o = s:taboption("settings", Value, "dns_port")
@@ -223,12 +221,6 @@ o = s:taboption("dns", Flag, "enable_custom_dns", font_red..bold_on..translate("
 o.description = font_red..bold_on..translate("Set OpenClash Upstream DNS Resolve Server")..bold_off..font_off
 o.default=0
 
-if op_mode == "redir-host" then
-o = s:taboption("dns", Flag, "dns_remote", font_red..bold_on..translate("DNS Remote")..bold_off..font_off)
-o.description = font_red..bold_on..translate("Add DNS Remote Support For Redir-Host")..bold_off..font_off
-o.default=1
-end
-
 o = s:taboption("dns", Flag, "append_wan_dns", font_red..bold_on..translate("Append Upstream DNS")..bold_off..font_off)
 o.description = font_red..bold_on..translate("Append The Upstream Assigned DNS And Gateway IP To The Nameserver")..bold_off..font_off
 o.default=1
@@ -237,9 +229,6 @@ if op_mode == "fake-ip" then
 o = s:taboption("dns", Flag, "store_fakeip", font_red..bold_on..translate("Persistence Fake-IP")..bold_off..font_off)
 o.description = font_red..bold_on..translate("Cache Fake-IP DNS Resolution Records To File, Improve The Response Speed After Startup")..bold_off..font_off
 o.default=1
-
-o = s:taboption("dns", DummyValue, "flush_fakeip_cache", translate("Flush Fake-IP Cache"))
-o.template = "openclash/flush_fakeip_cache"
 end
 
 o = s:taboption("dns", Flag, "ipv6_dns", translate("IPv6 DNS Resolve"))
@@ -459,205 +448,6 @@ function custom_rules_2.write(self, section, value)
 		end
 	end
 end
-
---Stream Enhance
-o = s:taboption("stream_enhance", Flag, "stream_domains_prefetch", font_red..bold_on..translate("Prefetch Netflix, Disney Plus Domains")..bold_off..font_off)
-o.description = translate("Prevent Some Devices From Directly Using IP Access To Cause Unlocking Failure")
-o.default=0
-
-o = s:taboption("stream_enhance", Value, "stream_domains_prefetch_interval", translate("Domains Prefetch Interval(min)"))
-o.default=1440
-o.datatype = "uinteger"
-o.description = translate("Will Run Once Immediately After Started, The Interval Does Not Need To Be Too Short (Take Effect Immediately After Commit)")
-o:depends("stream_domains_prefetch", "1")
-
-o = s:taboption("stream_enhance", DummyValue, "stream_domains_update", translate("Update Preset Domains List"))
-o:depends("stream_domains_prefetch", "1")
-o.template = "openclash/download_stream_domains"
-
-o = s:taboption("stream_enhance", Flag, "stream_auto_select", font_red..bold_on..translate("Auto Select Unlock Proxy")..bold_off..font_off)
-o.description = translate("Auto Select Proxy For Streaming Unlock, Support Netflix, Disney Plus, HBO And YouTube Premium, etc")
-o.default=0
-
-o = s:taboption("stream_enhance", Value, "stream_auto_select_interval", translate("Auto Select Interval(min)"))
-o.default=30
-o.datatype = "uinteger"
-o:depends("stream_auto_select", "1")
-
-o = s:taboption("stream_enhance", Flag, "stream_auto_select_expand_group", font_red..bold_on..translate("Expand Group")..bold_off..font_off)
-o.description = translate("Automatically Expand The Group When Selected")
-o.default=0
-o:depends("stream_auto_select", "1")
-
-o = s:taboption("stream_enhance", Flag, "stream_auto_select_netflix", font_red..translate("Netflix")..font_off)
-o.default=1
-o:depends("stream_auto_select", "1")
-
-o = s:taboption("stream_enhance", Value, "stream_auto_select_group_key_netflix", translate("Netflix Group Filter"))
-o.default = "Netflix|奈飞"
-o.placeholder = "Netflix|奈飞"
-o.description = translate("It Will Be Searched According To The Regex When Auto Search Group Fails")
-o:depends("stream_auto_select_netflix", "1")
-
-o = s:taboption("stream_enhance", Value, "stream_auto_select_region_key_netflix", translate("Netflix Unlock Region Filter"))
-o.default = ""
-o.placeholder = "HK|SG|TW"
-o.description = translate("It Will Be Selected Region According To The Regex")
-o:depends("stream_auto_select_netflix", "1")
-
-o = s:taboption("stream_enhance", DummyValue, "Netflix", translate("Manual Test"))
-o.rawhtml = true
-o.template = "openclash/other_stream_option"
-o.value = "Netflix"
-o:depends("stream_auto_select_netflix", "1")
-
-o = s:taboption("stream_enhance", Flag, "stream_auto_select_disney", font_red..translate("Disney Plus")..font_off)
-o.default=0
-o:depends("stream_auto_select", "1")
-
-o = s:taboption("stream_enhance", Value, "stream_auto_select_group_key_disney", translate("Disney Plus Group Filter"))
-o.default = "Disney|迪士尼"
-o.placeholder = "Disney|迪士尼"
-o.description = translate("It Will Be Searched According To The Regex When Auto Search Group Fails")
-o:depends("stream_auto_select_disney", "1")
-
-o = s:taboption("stream_enhance", Value, "stream_auto_select_region_key_disney", translate("Disney Plus Unlock Region Filter"))
-o.default = ""
-o.placeholder = "HK|SG|TW"
-o.description = translate("It Will Be Selected Region According To The Regex")
-o:depends("stream_auto_select_disney", "1")
-
-o = s:taboption("stream_enhance", DummyValue, "Disney Plus", translate("Manual Test"))
-o.rawhtml = true
-o.template = "openclash/other_stream_option"
-o.value = "Disney Plus"
-o:depends("stream_auto_select_disney", "1")
-
-o = s:taboption("stream_enhance", Flag, "stream_auto_select_ytb", font_red..translate("YouTube Premium")..font_off)
-o.default=0
-o:depends("stream_auto_select", "1")
-
-o = s:taboption("stream_enhance", Value, "stream_auto_select_group_key_ytb", translate("YouTube Premium Group Filter"))
-o.default = "YouTube|油管"
-o.placeholder = "YouTube|油管"
-o.description = translate("It Will Be Searched According To The Regex When Auto Search Group Fails")
-o:depends("stream_auto_select_ytb", "1")
-
-o = s:taboption("stream_enhance", Value, "stream_auto_select_region_key_ytb", translate("YouTube Premium Unlock Region Filter"))
-o.default = ""
-o.placeholder = "HK|US"
-o.description = translate("It Will Be Selected Region According To The Regex")
-o:depends("stream_auto_select_ytb", "1")
-
-o = s:taboption("stream_enhance", DummyValue, "YouTube Premium", translate("Manual Test"))
-o.rawhtml = true
-o.template = "openclash/other_stream_option"
-o.value = "YouTube Premium"
-o:depends("stream_auto_select_ytb", "1")
-
-o = s:taboption("stream_enhance", Flag, "stream_auto_select_prime_video", font_red..translate("Amazon Prime Video")..font_off)
-o.default=0
-o:depends("stream_auto_select", "1")
-
-o = s:taboption("stream_enhance", Value, "stream_auto_select_group_key_prime_video", translate("Amazon Prime Video Group Filter"))
-o.default = "Amazon|Prime Video"
-o.placeholder = "Amazon|Prime Video"
-o.description = translate("It Will Be Searched According To The Regex When Auto Search Group Fails")
-o:depends("stream_auto_select_prime_video", "1")
-
-o = s:taboption("stream_enhance", Value, "stream_auto_select_region_key_prime_video", translate("Amazon Prime Video Unlock Region Filter"))
-o.default = ""
-o.placeholder = "HK|US|SG"
-o.description = translate("It Will Be Selected Region According To The Regex")
-o:depends("stream_auto_select_prime_video", "1")
-
-o = s:taboption("stream_enhance", DummyValue, "Amazon Prime Video", translate("Manual Test"))
-o.rawhtml = true
-o.template = "openclash/other_stream_option"
-o.value = "Amazon Prime Video"
-o:depends("stream_auto_select_prime_video", "1")
-
-o = s:taboption("stream_enhance", Flag, "stream_auto_select_hbo_now", font_red..translate("HBO Now")..font_off)
-o.default=0
-o:depends("stream_auto_select", "1")
-
-o = s:taboption("stream_enhance", Value, "stream_auto_select_group_key_hbo_now", translate("HBO Now Group Filter"))
-o.default = "HBO|HBONow|HBO Now"
-o.placeholder = "HBO|HBONow|HBO Now"
-o.description = translate("It Will Be Searched According To The Regex When Auto Search Group Fails")
-o:depends("stream_auto_select_hbo_now", "1")
-
-o = s:taboption("stream_enhance", DummyValue, "HBO Now", translate("Manual Test"))
-o.rawhtml = true
-o.template = "openclash/other_stream_option"
-o.value = "HBO Now"
-o:depends("stream_auto_select_hbo_now", "1")
-
-o = s:taboption("stream_enhance", Flag, "stream_auto_select_hbo_max", font_red..translate("HBO Max")..font_off)
-o.default=0
-o:depends("stream_auto_select", "1")
-
-o = s:taboption("stream_enhance", Value, "stream_auto_select_group_key_hbo_max", translate("HBO Max Group Filter"))
-o.default = "HBO|HBOMax|HBO Max"
-o.placeholder = "HBO|HBOMax|HBO Max"
-o.description = translate("It Will Be Searched According To The Regex When Auto Search Group Fails")
-o:depends("stream_auto_select_hbo_max", "1")
-
-o = s:taboption("stream_enhance", Value, "stream_auto_select_region_key_hbo_max", translate("HBO Max Unlock Region Filter"))
-o.default = ""
-o.placeholder = "US"
-o.description = translate("It Will Be Selected Region According To The Regex")
-o:depends("stream_auto_select_hbo_max", "1")
-
-o = s:taboption("stream_enhance", DummyValue, "HBO Max", translate("Manual Test"))
-o.rawhtml = true
-o.template = "openclash/other_stream_option"
-o.value = "HBO Max"
-o:depends("stream_auto_select_hbo_max", "1")
-
-o = s:taboption("stream_enhance", Flag, "stream_auto_select_hbo_go_asia", font_red..translate("HBO GO Asia")..font_off)
-o.default=0
-o:depends("stream_auto_select", "1")
-
-o = s:taboption("stream_enhance", Value, "stream_auto_select_group_key_hbo_go_asia", translate("HBO GO Asia Group Filter"))
-o.default = "HBO|HBOGO|HBO GO"
-o.placeholder = "HBO|HBOGO|HBO GO"
-o.description = translate("It Will Be Searched According To The Regex When Auto Search Group Fails")
-o:depends("stream_auto_select_hbo_go_asia", "1")
-
-o = s:taboption("stream_enhance", Value, "stream_auto_select_region_key_hbo_go_asia", translate("HBO GO Asia Unlock Region Filter"))
-o.default = ""
-o.placeholder = "HK|SG|TW"
-o.description = translate("It Will Be Selected Region According To The Regex")
-o:depends("stream_auto_select_hbo_go_asia", "1")
-
-o = s:taboption("stream_enhance", DummyValue, "HBO GO Asia", translate("Manual Test"))
-o.rawhtml = true
-o.template = "openclash/other_stream_option"
-o.value = "HBO GO Asia"
-o:depends("stream_auto_select_hbo_go_asia", "1")
-
-o = s:taboption("stream_enhance", Flag, "stream_auto_select_tvb_anywhere", font_red..translate("TVB Anywhere+")..font_off)
-o.default=0
-o:depends("stream_auto_select", "1")
-
-o = s:taboption("stream_enhance", Value, "stream_auto_select_group_key_tvb_anywhere", translate("TVB Anywhere+ Group Filter"))
-o.default = "TVB"
-o.placeholder = "TVB"
-o.description = translate("It Will Be Searched According To The Regex When Auto Search Group Fails")
-o:depends("stream_auto_select_tvb_anywhere", "1")
-
-o = s:taboption("stream_enhance", Value, "stream_auto_select_region_key_tvb_anywhere", translate("TVB Anywhere+ Unlock Region Filter"))
-o.default = ""
-o.placeholder = "HK|SG|TW"
-o.description = translate("It Will Be Selected Region According To The Regex")
-o:depends("stream_auto_select_tvb_anywhere", "1")
-
-o = s:taboption("stream_enhance", DummyValue, "TVB Anywhere+", translate("Manual Test"))
-o.rawhtml = true
-o.template = "openclash/other_stream_option"
-o.value = "TVB Anywhere+"
-o:depends("stream_auto_select_tvb_anywhere", "1")
 
 ---- update Settings
 o = s:taboption("rules_update", Flag, "other_rule_auto_update", translate("Auto Update"))
@@ -1005,10 +795,9 @@ o = s:option(Value, "password", translate("Password"))
 o.placeholder = translate("Not Null")
 o.rmempty = true
 
-s = m:section(NamedSection, "config")
-s.title=translate("Set Custom Hosts (Does Not Override Config Settings)")
+if op_mode == "redir-host" then
+s = m:section(NamedSection, "config", translate("Set Custom Hosts, Only Work with Redir-Host Mode"))
 s.anonymous = true
-s.addremove = false
 
 custom_hosts = s:option(Value, "custom_hosts")
 custom_hosts.template = "cbi/tvalue"
@@ -1027,6 +816,7 @@ function custom_hosts.write(self, section, value)
 			NXFS.writefile("/etc/openclash/custom/openclash_custom_hosts.list", value)
 		end
 	end
+end
 end
 
 local t = {

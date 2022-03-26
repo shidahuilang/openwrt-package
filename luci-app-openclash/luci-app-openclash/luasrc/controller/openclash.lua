@@ -10,7 +10,7 @@ function index()
 	page = entry({"admin", "services", "openclash"}, alias("admin", "services", "openclash", "client"), _("OpenClash"), 50)
 	page.dependent = true
 	page.acl_depends = { "luci-app-openclash" }
-	entry({"admin", "services", "openclash", "client"},form("openclash/client"),_("Overviews"), 20).leaf = true
+	entry({"admin", "services", "openclash", "client"},cbi("openclash/client"),_("Overviews"), 20).leaf = true
 	entry({"admin", "services", "openclash", "status"},call("action_status")).leaf=true
 	entry({"admin", "services", "openclash", "state"},call("action_state")).leaf=true
 	entry({"admin", "services", "openclash", "startlog"},call("action_start")).leaf=true
@@ -24,16 +24,14 @@ function index()
 	entry({"admin", "services", "openclash", "update_geoip"},call("action_update_geoip"))
 	entry({"admin", "services", "openclash", "currentversion"},call("action_currentversion"))
 	entry({"admin", "services", "openclash", "lastversion"},call("action_lastversion"))
-	entry({"admin", "services", "openclash", "save_corever_branch"},call("action_save_corever_branch"))
+	entry({"admin", "services", "openclash", "save_corever"},call("action_save_corever"))
 	entry({"admin", "services", "openclash", "update"},call("action_update"))
 	entry({"admin", "services", "openclash", "update_ma"},call("action_update_ma"))
 	entry({"admin", "services", "openclash", "opupdate"},call("action_opupdate"))
 	entry({"admin", "services", "openclash", "coreupdate"},call("action_coreupdate"))
 	entry({"admin", "services", "openclash", "ping"}, call("act_ping"))
-	entry({"admin", "services", "openclash", "flush_fakeip_cache"}, call("action_flush_fakeip_cache"))
 	entry({"admin", "services", "openclash", "download_rule"}, call("action_download_rule"))
 	entry({"admin", "services", "openclash", "download_netflix_domains"}, call("action_download_netflix_domains"))
-	entry({"admin", "services", "openclash", "download_disney_domains"}, call("action_download_disney_domains"))
 	entry({"admin", "services", "openclash", "catch_netflix_domains"}, call("action_catch_netflix_domains"))
 	entry({"admin", "services", "openclash", "write_netflix_domains"}, call("action_write_netflix_domains"))
 	entry({"admin", "services", "openclash", "restore"}, call("action_restore_config"))
@@ -48,7 +46,6 @@ function index()
 	entry({"admin", "services", "openclash", "dler_logout"}, call("action_dler_logout"))
 	entry({"admin", "services", "openclash", "dler_login"}, call("action_dler_login"))
 	entry({"admin", "services", "openclash", "dler_login_info_save"}, call("action_dler_login_info_save"))
-	entry({"admin", "services", "openclash", "sub_info_get"}, call("sub_info_get"))
 	entry({"admin", "services", "openclash", "config_name"}, call("action_config_name"))
 	entry({"admin", "services", "openclash", "switch_config"}, call("action_switch_config"))
 	entry({"admin", "services", "openclash", "toolbar_show"}, call("action_toolbar_show"))
@@ -61,14 +58,9 @@ function index()
 	entry({"admin", "services", "openclash", "switch_rule_mode"}, call("action_switch_rule_mode"))
 	entry({"admin", "services", "openclash", "switch_run_mode"}, call("action_switch_run_mode"))
 	entry({"admin", "services", "openclash", "get_run_mode"}, call("action_get_run_mode"))
-	entry({"admin", "services", "openclash", "create_file"}, call("create_file"))
-	entry({"admin", "services", "openclash", "rename_file"}, call("rename_file"))
-	entry({"admin", "services", "openclash", "manual_stream_unlock_test"}, call("manual_stream_unlock_test"))
-	entry({"admin", "services", "openclash", "all_proxies_stream_test"}, call("all_proxies_stream_test"))
 	entry({"admin", "services", "openclash", "settings"},cbi("openclash/settings"),_("Global Settings"), 30).leaf = true
 	entry({"admin", "services", "openclash", "servers"},cbi("openclash/servers"),_("Servers and Groups"), 40).leaf = true
 	entry({"admin", "services", "openclash", "other-rules-edit"},cbi("openclash/other-rules-edit"), nil).leaf = true
-	entry({"admin", "services", "openclash", "other-file-edit"},cbi("openclash/other-file-edit"), nil).leaf = true
 	entry({"admin", "services", "openclash", "rule-providers-settings"},cbi("openclash/rule-providers-settings"),_("Rule Providers and Groups"), 50).leaf = true
 	entry({"admin", "services", "openclash", "game-rules-manage"},form("openclash/game-rules-manage"), nil).leaf = true
 	entry({"admin", "services", "openclash", "rule-providers-manage"},form("openclash/rule-providers-manage"), nil).leaf = true
@@ -112,7 +104,12 @@ local function restricted_mode()
 end
 
 local function is_watchdog()
-	return process_status("openclash_watchdog.sh")
+	local ps_version = luci.sys.exec("ps --version 2>&1 |grep -c procps-ng |tr -d '\n'")
+	if ps_version == "0" then
+		return luci.sys.call("ps |grep openclash_watchdog.sh |grep -v grep >/dev/null") == 0
+	else
+		return luci.sys.call("ps -ef |grep openclash_watchdog.sh |grep -v grep >/dev/null") == 0
+	end
 end
 
 local function cn_port()
@@ -174,24 +171,35 @@ end
 
 local function startlog()
 	local info = ""
-	local line_trans = ""
 	if nixio.fs.access("/tmp/openclash_start.log") then
 		info = luci.sys.exec("sed -n '$p' /tmp/openclash_start.log 2>/dev/null")
-		line_trans = info
 		if string.len(info) > 0 then
 			if not string.find (info, "【") and not string.find (info, "】") then
-   			line_trans = luci.i18n.translate(string.sub(info, 0, -1))
+   			info = luci.i18n.translate(string.sub(info, 0, -1))
    		else
-   			line_trans = trans_line(line)
+   			local a = string.find (info, "【")
+   			local b = string.find (info, "】")+2
+   			if a <= 1 then
+   				info = string.sub(info, 0, b)..luci.i18n.translate(string.sub(info, b+1, -1))
+   			elseif b < string.len(info) then
+   				info = luci.i18n.translate(string.sub(info, 0, a-1))..string.sub(info, a, b)..luci.i18n.translate(string.sub(info, b+1, -1))
+   			elseif b == string.len(info) then
+   				info = luci.i18n.translate(string.sub(info, 0, a-1))..string.sub(info, a, -1)
+   			end
    		end
    	end
 	end
-	return line_trans
+	return info
 end
 
 local function coremodel()
-  local coremodel = luci.sys.exec("opkg status libc 2>/dev/null |grep 'Architecture' |awk -F ': ' '{print $2}' 2>/dev/null")
-  return coremodel
+  local coremodel = luci.sys.exec("cat /usr/lib/os-release 2>/dev/null |grep OPENWRT_ARCH 2>/dev/null |awk -F '\"' '{print $2}' 2>/dev/null")
+  local coremodel2 = luci.sys.exec("opkg status libc 2>/dev/null |grep 'Architecture' |awk -F ': ' '{print $2}' 2>/dev/null")
+  if not coremodel or coremodel == "" then
+     return coremodel2 .. "," .. coremodel2
+  else
+     return coremodel .. "," .. coremodel2
+  end
 end
 
 local function corecv()
@@ -244,17 +252,8 @@ local function corever()
 	return uci:get("openclash", "config", "core_version")
 end
 
-local function release_branch()
-	return uci:get("openclash", "config", "release_branch")
-end
-
-local function save_corever_branch()
-	if luci.http.formvalue("core_ver") then
-		uci:set("openclash", "config", "core_version", luci.http.formvalue("core_ver"))
-	end
-	if luci.http.formvalue("release_branch") then
-		uci:set("openclash", "config", "release_branch", luci.http.formvalue("release_branch"))
-	end
+local function save_corever()
+	uci:set("openclash", "config", "core_version", luci.http.formvalue("core_ver"))
 	uci:commit("openclash")
 	return "success"
 end
@@ -277,8 +276,8 @@ end
 local function historychecktime()
 	local CONFIG_FILE = uci:get("openclash", "config", "config_path")
 	if not CONFIG_FILE then return "0" end
-	local HISTORY_PATH_OLD = "/etc/openclash/history/" .. fs.filename(fs.basename(CONFIG_FILE))
-	local HISTORY_PATH = "/etc/openclash/history/" .. fs.filename(fs.basename(CONFIG_FILE)) .. ".db"
+  local HISTORY_PATH_OLD = "/etc/openclash/history/" .. fs.filename(fs.basename(CONFIG_FILE))
+  local HISTORY_PATH = "/etc/openclash/history/" .. fs.filename(fs.basename(CONFIG_FILE)) .. ".db"
 	if not nixio.fs.access(HISTORY_PATH) and not nixio.fs.access(HISTORY_PATH_OLD) then
   	return "0"
 	else
@@ -292,29 +291,9 @@ function download_rule()
   return state
 end
 
-function download_disney_domains()
-  local state = luci.sys.call(string.format('/usr/share/openclash/openclash_download_rule_list.sh "%s" >/dev/null 2>&1',"disney_domains"))
-  return state
-end
-
 function download_netflix_domains()
   local state = luci.sys.call(string.format('/usr/share/openclash/openclash_download_rule_list.sh "%s" >/dev/null 2>&1',"netflix_domains"))
   return state
-end
-
-function action_flush_fakeip_cache()
-	local state = 0
-	if is_running() then
-		local daip = daip()
-		local dase = dase() or ""
-		local cn_port = cn_port()
-		if not daip or not cn_port then return end
-  	state = luci.sys.exec(string.format('curl -sL -m 3 -H "Content-Type: application/json" -H "Authorization: Bearer %s" -XPOST http://"%s":"%s"/cache/fakeip/flush', dase, daip, cn_port))
-  end
-  luci.http.prepare_content("application/json")
-	luci.http.write_json({
-		flush_status = state;
-	})
 end
 
 function action_restore_config()
@@ -524,50 +503,6 @@ function action_switch_config()
 	uci:commit("openclash")
 end
 
-function sub_info_get()
-	local filename, sub_url, sub_info, info, upload, download, total, expire, http_code
-	filename = luci.http.formvalue("filename")
-	sub_info = ""
-	if filename then
-		uci:foreach("openclash", "config_subscribe",
-			function(s)
-				if s.name == filename and s.address then
-			  	sub_url = s.address
-			  	info = luci.sys.exec(string.format("curl -sLI -m 10 -w 'http_code='%%{http_code} -H 'User-Agent: Clash' '%s'", sub_url))
-			  	if info then
-			  		http_code=string.sub(string.match(info, "http_code=%d+"), 11, -1)
-			  		if tonumber(http_code) == 200 then
-			  			info = string.lower(info)
-			  			if string.find(info, "subscription%-userinfo") then
-			  				info = luci.sys.exec("echo '%s' |grep 'subscription-userinfo'" %info)
-			  				upload = string.sub(string.match(info, "upload=%d+"), 8, -1) or nil
-			  				download = string.sub(string.match(info, "download=%d+"), 10, -1) or nil
-			  				total = fs.filesize(string.sub(string.match(info, "total=%d+"), 7, -1)) or nil
-			  				expire = os.date("%Y-%m-%d %H:%M:%S", string.sub(string.match(info, "expire=%d+"), 8, -1)) or nil
-			  				used = fs.filesize(upload + download) or nil
-			  				sub_info = "Successful"
-			  			else
-			  				sub_info = "No Sub Info Found"
-			  			end
-			  		end
-			  	end
-				end
-			end
-		)
-		if not sub_url then
-			sub_info = "No Sub Info Found"
-		end
-	end
-	luci.http.prepare_content("application/json")
-	luci.http.write_json({
-		http_code = http_code,
-		sub_info = sub_info,
-		used = used,
-		total = total,
-		expire = expire;
-	})
-end
-
 function action_rule_mode()
 	local mode, info
 	if is_running() then
@@ -704,10 +639,10 @@ function action_toolbar_show_sys()
 	local mem, cpu
 	if pid and pid ~= "" then
 		mem = tonumber(luci.sys.exec(string.format("cat /proc/%s/status 2>/dev/null |grep -w VmRSS |awk '{print $2}'", pid)))
-		cpu = luci.sys.exec(string.format("top -b -n1 |grep -E '%s' 2>/dev/null |grep -v grep |awk '{for (i=1;i<=NF;i++) {if ($i ~ /clash/) break; else cpu=i}}; {print $cpu}' 2>/dev/null", pid))
+		cpu = luci.sys.exec(string.format("top -b -n1 |grep -E '(%s|PID)' 2>/dev/null |grep -v grep |awk '{for (i=1;i<=NF;i++) {if ($i ~ /CPU/) num=i}};{print $num}' 2>/dev/null | sed -n '2p' 2>/dev/null", pid))
 		if mem and cpu then
 			mem = fs.filesize(mem*1024)
-			cpu = string.match(cpu, "%d+")
+			cpu = string.gsub(cpu, "%%\n", "")
 		else
 			mem = "0 KB"
 			cpu = "0"
@@ -746,10 +681,10 @@ function action_toolbar_show()
 			connection = "0"
 		end
 		mem = tonumber(luci.sys.exec(string.format("cat /proc/%s/status 2>/dev/null |grep -w VmRSS |awk '{print $2}'", pid)))
-		cpu = luci.sys.exec(string.format("top -b -n1 |grep -E '%s' 2>/dev/null |grep -v grep |awk '{for (i=1;i<=NF;i++) {if ($i ~ /clash/) break; else cpu=i}}; {print $cpu}' 2>/dev/null", pid))
+		cpu = luci.sys.exec(string.format("top -b -n1 |grep -E '(%s|PID)' 2>/dev/null |grep -v grep |awk '{for (i=1;i<=NF;i++) {if ($i ~ /CPU/) num=i}};{print $num}' 2>/dev/null | sed -n '2p' 2>/dev/null", pid))
 		if mem and cpu then
 			mem = fs.filesize(mem*1024)
-			cpu = string.match(cpu, "%d+")
+			cpu = string.gsub(cpu, "%%\n", "")
 		else
 			mem = "0 KB"
 			cpu = "0"
@@ -777,10 +712,10 @@ function action_config_name()
 	})
 end
 
-function action_save_corever_branch()
+function action_save_corever()
 	luci.http.prepare_content("application/json")
 	luci.http.write_json({
-		save_corever_branch = save_corever_branch();
+		save_corever = save_corever();
 	})
 end
 
@@ -908,7 +843,6 @@ function action_update()
 			coretuncv = coretuncv(),
 			opcv = opcv(),
 			corever = corever(),
-			release_branch = release_branch(),
 			upchecktime = upchecktime(),
 			corelv = corelv(),
 			oplv = oplv();
@@ -981,18 +915,11 @@ function action_download_netflix_domains()
 	})
 end
 
-function action_download_disney_domains()
-	luci.http.prepare_content("application/json")
-	luci.http.write_json({
-		rule_download_status = download_disney_domains();
-	})
-end
-
 function action_refresh_log()
 	luci.http.prepare_content("application/json")
 	local logfile="/tmp/openclash.log"
 	local file = io.open(logfile, "r+")
-	local info, len, line, lens, cache, ex_match, line_trans
+	local info, len, line, lens, cache
 	local data = ""
 	local limit = 1000
 	local log_tb = {}
@@ -1014,33 +941,28 @@ function action_refresh_log()
 	string.gsub(info, '[^\n]+', function(w) table.insert(log_tb, w) end, lens)
 	for i=1, lens do
 		line = log_tb[i]:reverse()
-		line_trans = line
-		ex_match = false
-		while true do
-			ex_keys = {"^Sec%-Fetch%-Mode", "^User%-Agent", "^Access%-Control", "^Accept", "^Origin", "^Referer", "^Connection", "^Pragma", "^Cache-"}
-    	for key=1, #ex_keys do
-    		if string.find (line, ex_keys[key]) then
-    			ex_match = true
-    			break
-    		end
-    	end
-    	if ex_match then break end
-    	if not string.find (line, "level=") then
-				if not string.find (line, "【") and not string.find (line, "】") then
-   				line_trans = string.sub(line, 0, 20)..luci.i18n.translate(string.sub(line, 21, -1))
-   			else
-   				line_trans = trans_line(line)
+		if not string.find (line, "level=") then
+			if not string.find (line, "【") and not string.find (line, "】") then
+   			line = string.sub(line, 0, 20)..luci.i18n.translate(string.sub(line, 21, -1))
+   		else
+   			local a = string.find (line, "【")
+   			local b = string.find (line, "】")+2
+   			if a <= 21 then
+   				line = string.sub(line, 0, b)..luci.i18n.translate(string.sub(line, b+1, -1))
+   			elseif b < string.len(line) then
+   				line = string.sub(line, 0, 20)..luci.i18n.translate(string.sub(line, 21, a-1))..string.sub(line, a, b)..luci.i18n.translate(string.sub(line, b+1, -1))
+   			elseif b == string.len(line) then
+   				line = string.sub(line, 0, 20)..luci.i18n.translate(string.sub(line, 21, a-1))..string.sub(line, a, b)
    			end
-			end
-			if data == "" then
-    		data = line_trans
-    	elseif log_len == 0 and i == limit then
-    		data = data .."\n" .. line_trans .. "\n..."
-    	else
-    		data = data .."\n" .. line_trans
-  		end
-    	break
-    end
+   		end
+		end
+		if data == "" then
+    	data = line
+    elseif log_len == 0 and i == limit then
+    	data = data .."\n" .. line .. "\n..."
+    else
+    	data = data .."\n" .. line
+  	end
 	end
 	luci.http.write_json({
 		len = len,
@@ -1198,213 +1120,5 @@ function ltn12_popen(command)
 		fdi:close()
 		fdo:close()
 		nixio.exec("/bin/sh", "-c", command)
-	end
-end
-
-function create_file()
-	local file_name = luci.http.formvalue("filename")
-	local file_path = luci.http.formvalue("filepath")..file_name
-	fs.writefile(file_path, "")
-	if not fs.isfile(file_path) then
-		luci.http.status(500, "Create File Faild")
-	end
-	return
-end
-
-function rename_file()
-	local new_file_name = luci.http.formvalue("new_file_name")
-	local file_path = luci.http.formvalue("file_path")
-	local old_file_name = luci.http.formvalue("file_name")
-	local old_file_path = file_path .. old_file_name
-	local new_file_path = file_path .. new_file_name
-	local old_run_file_path = "/etc/openclash/" .. old_file_name
-	local new_run_file_path = "/etc/openclash/" .. new_file_name
-	local old_backup_file_path = "/etc/openclash/backup/" .. old_file_name
-	local new_backup_file_path = "/etc/openclash/backup/" .. new_file_name
-	if fs.rename(old_file_path, new_file_path) then
-		if file_path == "/etc/openclash/config/" then
-			if uci:get("openclash", "config", "config_path") == old_file_path then
-				uci:set("openclash", "config", "config_path", new_file_path)
-			end
-			
-			if fs.isfile(old_run_file_path) then
-				fs.rename(old_run_file_path, new_run_file_path)
-			end
-			
-			if fs.isfile(old_backup_file_path) then
-				fs.rename(old_backup_file_path, new_backup_file_path)
-			end
-			
-			uci:foreach("openclash", "config_subscribe",
-			function(s)
-				if s.name == fs.filename(old_file_name) and fs.filename(new_file_name) ~= new_file_name then
-					uci:set("openclash", s[".name"], "name", fs.filename(new_file_name))
-				end
-			end)
-			
-			uci:foreach("openclash", "other_rules",
-			function(s)
-				if s.config == old_file_name and fs.filename(new_file_name) ~= new_file_name then
-					uci:set("openclash", s[".name"], "config", new_file_name)
-				end
-			end)
-			
-			uci:foreach("openclash", "groups",
-			function(s)
-				if s.config == old_file_name and fs.filename(new_file_name) ~= new_file_name then
-					uci:set("openclash", s[".name"], "config", new_file_name)
-				end
-			end)
-			
-			uci:foreach("openclash", "proxy-provider",
-			function(s)
-				if s.config == old_file_name and fs.filename(new_file_name) ~= new_file_name then
-					uci:set("openclash", s[".name"], "config", new_file_name)
-				end
-			end)
-			
-			uci:foreach("openclash", "rule_provider_config",
-			function(s)
-				if s.config == old_file_name and fs.filename(new_file_name) ~= new_file_name then
-					uci:set("openclash", s[".name"], "config", new_file_name)
-				end
-			end)
-			
-			uci:foreach("openclash", "servers",
-			function(s)
-				if s.config == old_file_name and fs.filename(new_file_name) ~= new_file_name then
-					uci:set("openclash", s[".name"], "config", new_file_name)
-				end
-			end)
-			
-			uci:foreach("openclash", "game_config",
-			function(s)
-				if s.config == old_file_name and fs.filename(new_file_name) ~= new_file_name then
-					uci:set("openclash", s[".name"], "config", new_file_name)
-				end
-			end)
-			
-			uci:foreach("openclash", "rule_providers",
-			function(s)
-				if s.config == old_file_name and fs.filename(new_file_name) ~= new_file_name then
-					uci:set("openclash", s[".name"], "config", new_file_name)
-				end
-			end)
-			
-			uci:commit("openclash")
-		end
-		luci.http.status(200, "Rename File Successful")
-	else
-		luci.http.status(500, "Rename File Faild")
-	end
-	return
-end
-
-function manual_stream_unlock_test()
-	local type = luci.http.formvalue("type")
-	local cmd = string.format('/usr/share/openclash/openclash_streaming_unlock.lua "%s"', type)
-	local line_trans
-	luci.http.prepare_content("text/plain; charset=utf-8")
-	local util = io.popen(cmd)
-	if util and util ~= "" then
-		while true do
-			local ln = util:read("*l")
-			if ln then
-				if not string.find (ln, "【") and not string.find (ln, "】") then
-   				line_trans = luci.i18n.translate(string.sub(ln, 0, -1))
-   			else
-   				line_trans = trans_line(ln)
-   			end
-				luci.http.write(line_trans)
-				luci.http.write("\n")
-			end
-			if not process_status("openclash_streaming_unlock.lua") then
-				break
-			end
-		end
-		util:close()
-		return
-	end
-	luci.http.status(500, "Something Wrong While Testing...")
-end
-
-function all_proxies_stream_test()
-	local type = luci.http.formvalue("type")
-	local cmd = string.format('/usr/share/openclash/openclash_streaming_unlock.lua "%s" "%s"', type, "true")
-	local line_trans
-	luci.http.prepare_content("text/plain; charset=utf-8")
-	local util = io.popen(cmd)
-	if util and util ~= "" then
-		while true do
-			local ln = util:read("*l")
-			if ln then
-				if not string.find (ln, "【") and not string.find (ln, "】") then
-   				line_trans = luci.i18n.translate(string.sub(ln, 0, -1))
-   			else
-   				line_trans = trans_line(ln)
-   			end
-				luci.http.write(line_trans)
-				luci.http.write("\n")
-			end
-			if not process_status("openclash_streaming_unlock.lua") then
-				break
-			end
-		end
-		util:close()
-		return
-	end
-	luci.http.status(500, "Something Wrong While Testing...")
-end
-
-function trans_line(data)
-	local no_trans = {}
-	local line_trans = ""
-	local a = string.find (data, "【")
-	local b = string.find (data, "】") + 2
-	local c = 21
-	local d = 0
-	local v
-	local x
-	while true do
-		table.insert(no_trans, a)
-		table.insert(no_trans, b)
-		if string.find (data, "【", b+1) and string.find (data, "】", b+1) then
-			a = string.find (data, "【", b+1)
-			b = string.find (data, "】", b+1) + 2
-		else
-			break
-		end
-	end
-	for k = 1, #no_trans, 2 do
-		x = no_trans[k]
-		v = no_trans[k+1]
-		if x <= 21 then
-			line_trans = line_trans .. luci.i18n.translate(string.sub(data, d, x - 1)) .. string.sub(data, x, v)
-			d = v + 1
-		elseif v <= string.len(data) then
-			line_trans = line_trans .. luci.i18n.translate(string.sub(data, c, x - 1)) .. string.sub(data, x, v)
-		end
-		c = v + 1
-	end
-	if c > string.len(data) then
-		if d == 0 then
-			line_trans = string.sub(data, 0, 20) .. line_trans
-		end
-	else
-		if d == 0 then
-			line_trans = string.sub(data, 0, 20) .. line_trans .. luci.i18n.translate(string.sub(data, c, -1))
-		else
-			line_trans = line_trans .. luci.i18n.translate(string.sub(data, c, -1))
-		end
-	end
-	return line_trans
-end
-
-function process_status(name)
-	local ps_version = luci.sys.exec("ps --version 2>&1 |grep -c procps-ng |tr -d '\n'")
-	if ps_version == "1" then
-		return luci.sys.call(string.format("ps -efw |grep '%s' |grep -v grep >/dev/null", name)) == 0
-	else
-		return luci.sys.call(string.format("ps -w |grep '%s' |grep -v grep >/dev/null", name)) == 0
 	end
 end

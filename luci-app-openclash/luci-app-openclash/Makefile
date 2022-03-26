@@ -1,18 +1,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-openclash
-PKG_VERSION:=0.44.34
+PKG_VERSION:=0.43.09
 PKG_RELEASE:=beta
 PKG_MAINTAINER:=vernesong <https://github.com/vernesong/OpenClash>
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
 include $(INCLUDE_DIR)/package.mk
-
-define Package/$(PKG_NAME)/config
-	config PACKAGE_kmod-inet-diag
-	default y if PACKAGE_$(PKG_NAME)
-endef
 
 define Package/$(PKG_NAME)
 	CATEGORY:=LuCI
@@ -48,7 +43,6 @@ define Build/Prepare
 	cp -f "$(PKG_BUILD_DIR)/root/etc/openclash/custom/openclash_custom_domain_dns_policy.list" "$(PKG_BUILD_DIR)/root/usr/share/openclash/backup/openclash_custom_domain_dns_policy.list" >/dev/null 2>&1
 	cp -f "$(PKG_BUILD_DIR)/root/etc/openclash/custom/openclash_custom_fallback_filter.yaml" "$(PKG_BUILD_DIR)/root/usr/share/openclash/backup/openclash_custom_fallback_filter.yaml" >/dev/null 2>&1
 	cp -f "$(PKG_BUILD_DIR)/root/etc/openclash/custom/openclash_custom_netflix_domains.list" "$(PKG_BUILD_DIR)/root/usr/share/openclash/backup/openclash_custom_netflix_domains.list" >/dev/null 2>&1
-	exit 0
 endef
 
 define Build/Configure
@@ -62,11 +56,10 @@ endef
 
 define Package/$(PKG_NAME)/preinst
 #!/bin/sh
-	if [ -f "/etc/config/openclash" ]; then
-		cp -f "/etc/config/openclash" "/tmp/openclash.bak" >/dev/null 2>&1
-		cp -rf "/etc/openclash" "/tmp/openclash" >/dev/null 2>&1
-	fi
-	exit 0
+if [ -f "/etc/config/openclash" ]; then
+	cp -f "/etc/config/openclash" "/tmp/openclash.bak" >/dev/null 2>&1
+	cp -rf "/etc/openclash" "/tmp/openclash" >/dev/null 2>&1
+fi
 endef
 
 define Package/$(PKG_NAME)/postinst
@@ -78,33 +71,29 @@ define Package/$(PKG_NAME)/prerm
 	uci -q commit openclash
 	cp -f "/etc/config/openclash" "/tmp/openclash.bak" >/dev/null 2>&1
 	cp -rf "/etc/openclash" "/tmp/openclash" >/dev/null 2>&1
-	exit 0
 endef
 
 define Package/$(PKG_NAME)/postrm
 #!/bin/sh
-	rm -rf /etc/openclash >/dev/null 2>&1
-	rm -rf /tmp/openclash.log >/dev/null 2>&1
-	rm -rf /tmp/openclash_start.log >/dev/null 2>&1
-	rm -rf /tmp/openclash_last_version >/dev/null 2>&1
-	rm -rf /tmp/openclash_config.tmp >/dev/null 2>&1
-	rm -rf /tmp/openclash.change >/dev/null 2>&1
-	rm -rf /tmp/Proxy_Group >/dev/null 2>&1
-	rm -rf /tmp/rules_name >/dev/null 2>&1
-	rm -rf /tmp/rule_providers_name >/dev/null 2>&1
-	rm -rf /tmp/clash_last_version >/dev/null 2>&1
-	rm -rf /usr/share/openclash/backup >/dev/null 2>&1
-	rm -rf /tmp/openclash_fake_filter.list >/dev/null 2>&1
-	rm -rf /tmp/openclash_servers_fake_filter.conf >/dev/null 2>&1
-	rm -rf /tmp/dler* >/dev/null 2>&1
-	rm -rf /tmp/etc/openclash >/dev/null 2>&1
-	rm -rf /tmp/openclash_edit_file_name >/dev/null 2>&1
+	rm -rf /etc/openclash
+	rm -rf /tmp/openclash.log
+	rm -rf /tmp/openclash_start.log
+	rm -rf /tmp/openclash_last_version
+	rm -rf /tmp/openclash_config.tmp
+	rm -rf /tmp/openclash.change
+	rm -rf /tmp/Proxy_Group
+	rm -rf /tmp/rules_name
+	rm -rf /tmp/rule_providers_name
+	rm -rf /tmp/clash_last_version
+	rm -rf /usr/share/openclash/backup
+	rm -rf /tmp/openclash_fake_filter.list
+	rm -rf /tmp/openclash_servers_fake_filter.conf
+	rm -rf /tmp/dler*
 	uci -q delete firewall.openclash
 	uci -q commit firewall
 	uci -q delete ucitrack.@openclash[-1]
 	uci -q commit ucitrack
 	rm -rf /tmp/luci-*
-	exit 0
 endef
 
 define Package/$(PKG_NAME)/install

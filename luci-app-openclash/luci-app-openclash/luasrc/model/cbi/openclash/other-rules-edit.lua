@@ -6,9 +6,9 @@ local fs = require "luci.openclash"
 local sys = require "luci.sys"
 local sid = arg[1]
 
-font_red = [[<b style=color:red>]]
-font_green = [[<b style=color:green>]]
-font_off = [[</b>]]
+font_red = [[<font color="red">]]
+font_green = [[<font color="green">]]
+font_off = [[</font>]]
 bold_on  = [[<strong>]]
 bold_off = [[</strong>]]
 
@@ -145,18 +145,7 @@ end
 o:value("DIRECT")
 o:value("REJECT")
 
-o = s:option(ListValue, "HBOMax", translate("HBO Max"))
-o:depends("rule_name", "lhie1")
-o.rmempty = true
-for groupname in string.gmatch(groupnames, "([^'##\n']+)##") do
-  if groupname ~= nil and groupname ~= "" then
-    o:value(groupname)
-  end
-end
-o:value("DIRECT")
-o:value("REJECT")
-
-o = s:option(ListValue, "HBOGo", translate("HBO Go"))
+o = s:option(ListValue, "HBO", translate("HBO"))
 o:depends("rule_name", "lhie1")
 o.rmempty = true
 for groupname in string.gmatch(groupnames, "([^'##\n']+)##") do
@@ -179,17 +168,6 @@ o:value("DIRECT")
 o:value("REJECT")
 
 o = s:option(ListValue, "Apple", translate("Apple"))
-o:depends("rule_name", "lhie1")
-o.rmempty = true
-for groupname in string.gmatch(groupnames, "([^'##\n']+)##") do
-  if groupname ~= nil and groupname ~= "" then
-    o:value(groupname)
-  end
-end
-o:value("DIRECT")
-o:value("REJECT")
-
-o = s:option(ListValue, "GoogleFCM", translate("Google FCM"))
 o:depends("rule_name", "lhie1")
 o.rmempty = true
 for groupname in string.gmatch(groupnames, "([^'##\n']+)##") do
@@ -233,7 +211,7 @@ end
 o:value("DIRECT")
 o:value("REJECT")
 
-o = s:option(ListValue, "Disney", translate("Disney Plus"))
+o = s:option(ListValue, "Disney", translate("Disney"))
 o:depends("rule_name", "lhie1")
 o.rmempty = true
 for groupname in string.gmatch(groupnames, "([^'##\n']+)##") do

@@ -1,4 +1,3 @@
 payload:  
   # > Pandora
-  - PROCESS-NAME,com.pandora.android
   - DOMAIN-SUFFIX,pandora.com

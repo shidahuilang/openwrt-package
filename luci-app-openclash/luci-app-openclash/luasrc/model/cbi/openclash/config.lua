@@ -8,8 +8,8 @@ local fs = require "luci.openclash"
 local uci = require("luci.model.uci").cursor()
 local CHIF = "0"
 
-font_green = [[<b style=color:green>]]
-font_off = [[</b>]]
+font_green = [[<font color="green">]]
+font_off = [[</font>]]
 bold_on  = [[<strong>]]
 bold_off = [[</strong>]]
 align_mid = [[<p align="center">]]
@@ -76,11 +76,11 @@ dir = "/etc/openclash/config/"
 bakck_dir="/etc/openclash/backup"
 proxy_pro_dir="/etc/openclash/proxy_provider/"
 rule_pro_dir="/etc/openclash/rule_provider/"
-core_dir="/etc/openclash/core/core/"
 backup_dir="/tmp/"
 create_bakck_dir=fs.mkdir(bakck_dir)
 create_proxy_pro_dir=fs.mkdir(proxy_pro_dir)
 create_rule_pro_dir=fs.mkdir(rule_pro_dir)
+
 
 HTTP.setfilehandler(
 	function(meta, chunk, eof)
@@ -94,9 +94,6 @@ HTTP.setfilehandler(
 				if meta and chunk then fd = nixio.open(proxy_pro_dir .. meta.file, "w") end
 			elseif fp == "rule-provider" then
 				if meta and chunk then fd = nixio.open(rule_pro_dir .. meta.file, "w") end
-			elseif fp == "clash" or fp == "clash_tun" then
-				create_core_dir=fs.mkdir(core_dir)
-				if meta and chunk then fd = nixio.open(core_dir .. meta.file, "w") end
 			elseif fp == "backup-file" then
 				if meta and chunk then fd = nixio.open(backup_dir .. meta.file, "w") end
 			end
@@ -132,21 +129,6 @@ HTTP.setfilehandler(
 				um.value = translate("File saved to") .. ' "/etc/openclash/proxy_provider/"'
 			elseif fp == "rule-provider" then
 				um.value = translate("File saved to") .. ' "/etc/openclash/rule_provider/"'
-			elseif fp == "clash" or fp == "clash_tun" then
-				if string.lower(string.sub(meta.file, -7, -1)) == ".tar.gz" then
-					os.execute(string.format("tar -C '/etc/openclash/core/core' -xzf %s >/dev/null 2>&1", (core_dir .. meta.file)))
-					fs.unlink(core_dir .. meta.file)
-					os.execute(string.format("mv $(echo \"/etc/openclash/core/core/$(ls /etc/openclash/core/core/)\") '/etc/openclash/core/%s' >/dev/null 2>&1", fp))
-				elseif string.lower(string.sub(meta.file, -3, -1)) == ".gz" then
-					os.execute(string.format("mv %s '/etc/openclash/core/%s.gz' >/dev/null 2>&1", (core_dir .. meta.file), fp))
-					os.execute("gzip -fd '/etc/openclash/core/%s.gz' >/dev/null 2>&1" %fp)
-					fs.unlink("/etc/openclash/core/%s.gz" %fp)
-				else
-					os.execute(string.format("mv $(echo \"/etc/openclash/core/core/$(ls /etc/openclash/core/core/)\") '/etc/openclash/core/%s' >/dev/null 2>&1", fp))
-				end
-				os.execute("chmod 4755 /etc/openclash/core/%s >/dev/null 2>&1" %fp)
-				os.execute("rm -rf %s >/dev/null 2>&1" %core_dir)
-				um.value = translate("File saved to") .. ' "/etc/openclash/core/"'
 			elseif fp == "backup-file" then
 				os.execute("tar -C '/etc/openclash/' -xzf %s >/dev/null 2>&1" % (backup_dir .. meta.file))
 				os.execute("mv /etc/openclash/openclash /etc/config/openclash >/dev/null 2>&1")
@@ -161,7 +143,7 @@ HTTP.setfilehandler(
 if HTTP.formvalue("upload") then
 	local f = HTTP.formvalue("ulfile")
 	if #f <= 0 then
-		um.value = translate("No Specify Upload File")
+		um.value = translate("No specify upload file.")
 	end
 end
 
@@ -199,7 +181,6 @@ mt=tb:option(DummyValue,"mtime",translate("Update Time"))
 sz=tb:option(DummyValue,"size",translate("Size"))
 ck=tb:option(DummyValue,"check",translate("Grammar Check"))
 ck.template="openclash/cfg_check"
-nm.template="openclash/sub_info_show"
 
 btnis=tb:option(Button,"switch",translate("Switch Config"))
 btnis.template="openclash/other_button"
@@ -218,16 +199,6 @@ fs.unlink("/tmp/Proxy_Group")
 uci:set("openclash", "config", "config_path", "/etc/openclash/config/"..e[t].name)
 uci:commit("openclash")
 HTTP.redirect(luci.dispatcher.build_url("admin", "services", "openclash", "config"))
-end
-
-btned=tb:option(Button,"edit",translate("Edit"))
-btned.render=function(o,t,a)
-o.inputstyle="apply"
-Button.render(o,t,a)
-end
-btned.write=function(a,t)
-	local file_path = "etc/openclash/config/" .. fs.basename(e[t].name)
-	HTTP.redirect(DISP.build_url("admin", "services", "openclash", "other-file-edit", "config", "%s") %file_path)
 end
 
 btncp=tb:option(Button,"copy",translate("Copy Config"))
@@ -252,14 +223,6 @@ btncp.write=function(a,t)
 		end
 	end
 	HTTP.redirect(luci.dispatcher.build_url("admin", "services", "openclash", "config"))
-end
-
-btnrn=tb:option(DummyValue,"/etc/openclash/config/",translate("Rename"))
-btnrn.template="openclash/input_rename"
-btnrn.rawhtml = true
-btnrn.render=function(c,t,a)
-c.value = e[t].name
-Button.render(c,t,a)
 end
 
 btndl = tb:option(Button,"download",translate("Download Config"))
@@ -434,7 +397,7 @@ def.write = function(self, section, value)
 end
 
 local t = {
-    {Commit, Create, Apply}
+    {Commit, Apply}
 }
 
 a = m:section(Table, t)
@@ -446,11 +409,6 @@ o.write = function()
 	fs.unlink("/tmp/Proxy_Group")
   uci:commit("openclash")
 end
-
-o = a:option(DummyValue, "Create", " ")
-o.rawhtml = true
-o.template = "openclash/input_file_name"
-o.value = "/etc/openclash/config/"
 
 o = a:option(Button, "Apply", " ")
 o.inputtitle = translate("Apply Settings")

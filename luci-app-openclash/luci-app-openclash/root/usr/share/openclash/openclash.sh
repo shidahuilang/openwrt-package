@@ -31,9 +31,9 @@ set_lock
 urlencode() {
    local data
    if [ "$#" -eq 1 ]; then
-      data=$(curl -s -o /dev/null -w %{url_effective} --get --data-urlencode "key=$1" "")
+      data=$(curl -s -o /dev/null -w %{url_effective} --get --data-urlencode "$1" "")
       if [ ! -z "$data" ]; then
-         echo "$(echo ${data##/?key=} |sed 's/\//%2f/g' |sed 's/:/%3a/g' |sed 's/?/%3f/g' |sed 's/(/%28/g' |sed 's/)/%29/g' |sed 's/\^/%5e/g' |sed 's/=/%3d/g' |sed 's/|/%7c/g' |sed 's/+/%20/g')"
+         echo "$(echo ${data##/?} |sed 's/\//%2f/g' |sed 's/:/%3a/g' |sed 's/?/%3f/g' |sed 's/(/%28/g' |sed 's/)/%29/g' |sed 's/\^/%5e/g' |sed 's/=/%3d/g' |sed 's/|/%7c/g' |sed 's/+/%20/g')"
       fi
    fi
 }
@@ -43,26 +43,21 @@ kill_watchdog() {
    for watchdog_pid in $watchdog_pids; do
       kill -9 "$watchdog_pid" >/dev/null 2>&1
    done
-   
-   streaming_unlock_pids=$(unify_ps_pids "openclash_streaming_unlock.lua")
-   for streaming_unlock_pid in $streaming_unlock_pids; do
-      kill -9 "$streaming_unlock_pid" >/dev/null 2>&1
-   done >/dev/null 2>&1
 }
 
 config_download()
 {
 if [ -n "$subscribe_url_param" ]; then
    if [ -n "$c_address" ]; then
-      curl -sL -m 5 --retry 2 -H 'User-Agent: Clash' "$c_address""$subscribe_url_param" -o "$CFG_FILE" >/dev/null 2>&1
+      curl -sL --connect-timeout 10 --retry 2 "$c_address""$subscribe_url_param" -o "$CFG_FILE" >/dev/null 2>&1
    else
-      curl -sL -m 5 --retry 2 -H 'User-Agent: Clash' https://api.dler.io/sub"$subscribe_url_param" -o "$CFG_FILE" >/dev/null 2>&1
+      curl -sL --connect-timeout 10 --retry 2 https://api.dler.io/sub"$subscribe_url_param" -o "$CFG_FILE" >/dev/null 2>&1
       if [ "$?" -ne 0 ]; then
-         curl -sL -m 5 --retry 2 -H 'User-Agent: Clash' https://subconverter.herokuapp.com/sub"$subscribe_url_param" -o "$CFG_FILE" >/dev/null 2>&1
+         curl -sL --connect-timeout 10 --retry 2 https://subcon.dlj.tf/sub"$subscribe_url_param" -o "$CFG_FILE" >/dev/null 2>&1
       fi
    fi
 else
-   curl -sL -m 5 --retry 2 -H 'User-Agent: Clash' "$subscribe_url" -o "$CFG_FILE" >/dev/null 2>&1
+   curl -sL --connect-timeout 10 --retry 2 --user-agent "clash" "$subscribe_url" -o "$CFG_FILE" >/dev/null 2>&1
 fi
 }
 
@@ -162,14 +157,14 @@ config_cus_up()
 config_su_check()
 {
    LOG_OUT "Config File Download Successful, Check If There is Any Update..."
-   sed -i 's/!<str> /!!str /g' "$CFG_FILE" >/dev/null 2>&1
+   sed -i 's/!<str> //g' "$CFG_FILE" >/dev/null 2>&1
    if [ -f "$CONFIG_FILE" ]; then
       cmp -s "$BACKPACK_FILE" "$CFG_FILE"
       if [ "$?" -ne 0 ]; then
          LOG_OUT "Config File【$name】Are Updates, Start Replacing..."
          cp "$CFG_FILE" "$BACKPACK_FILE"
          #保留规则部分
-         if [ "$servers_update" -eq 1 ] && [ "$only_download" -eq 0 ]; then
+         if [ "$servers_update" -eq 1 ]; then
    	        ruby -ryaml -E UTF-8 -e "
                Value = YAML.load_file('$CONFIG_FILE');
                Value_1 = YAML.load_file('$CFG_FILE');
@@ -410,28 +405,17 @@ sub_info_get()
    config_get "convert_address" "$section" "convert_address" ""
    config_get "template" "$section" "template" ""
    config_get "node_type" "$section" "node_type" ""
-   config_get "rule_provider" "$section" "rule_provider" ""
    config_get "custom_template_url" "$section" "custom_template_url" ""
    config_get "de_ex_keyword" "$section" "de_ex_keyword" ""
    
+   
+
    if [ "$enabled" -eq 0 ]; then
       return
    fi
    
    if [ -z "$address" ]; then
       return
-   fi
-   
-   if [ "$udp" == "true" ]; then
-      udp="&udp=true"
-   else
-      udp=""
-   fi
-   
-   if [ "$rule_provider" == "true" ]; then
-      rule_provider="&expand=false&classic=true"
-   else
-      rule_provider=""
    fi
    
    if [ -z "$name" ]; then
@@ -472,7 +456,7 @@ sub_info_get()
          template_path_encode=$(urlencode "$template_path")
       	 [ -n "$key_match_param" ] && key_match_param="(?i)$(urlencode "$key_match_param")"
       	 [ -n "$key_ex_match_param" ] && key_ex_match_param="(?i)$(urlencode "$key_ex_match_param")"
-         subscribe_url_param="?target=clash&new_name=true&url=$subscribe_url&config=$template_path_encode&include=$key_match_param&exclude=$key_ex_match_param&emoji=$emoji&list=false&sort=$sort$udp&scv=$skip_cert_verify&append_type=$node_type&fdn=true$rule_provider"
+         subscribe_url_param="?target=clash&new_name=true&url=$subscribe_url&config=$template_path_encode&include=$key_match_param&exclude=$key_ex_match_param&emoji=$emoji&list=false&sort=$sort&udp=$udp&scv=$skip_cert_verify&append_type=$node_type&fdn=true"
          c_address="$convert_address"
       else
          subscribe_url=$address
