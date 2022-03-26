@@ -1,3 +1,13 @@
+msgid ""
+msgstr ""
+"openwrt/luciapplicationsacl/zh_Hans/>\n"
+"Language: zh_Hans\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+
+
+
 #/cgi-bin/luci/admin/services/AdGuardHome
 msgid "Base Setting"
 msgstr "基础设置"
