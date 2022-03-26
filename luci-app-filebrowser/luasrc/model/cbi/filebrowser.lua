@@ -1,4 +1,4 @@
-m = Map("filebrowser", translate("文件管理器"), translate("FileBrowser是一个基于Go的在线文件管理器，助您方便的管理设备上的文件，初始用户名跟密码都为：admin"))
+m = Map("filebrowser", translate("文件管理器"), translate("FileBrowser是一个基于Go的在线文件管理器，助您方便的管理设备上的文件。"))
 
 m:section(SimpleSection).template  = "filebrowser/filebrowser_status"
 

@@ -10,5 +10,5 @@ function index()
 
 	local page = entry({"admin", "services", "iptvhelper"}, cbi("iptvhelper"), _("IPTV Helper"))
 	page.dependent = true
-
+	page.acl_depends = { "luci-app-iptvhelper" }
 end
