@@ -1,0 +1,7 @@
+
+config oscam 'config'
+	option enabled '0'
+	option port '8888'
+	option user 'oscam'
+	option pwd 'oscam'
+	option pcscd '0'
