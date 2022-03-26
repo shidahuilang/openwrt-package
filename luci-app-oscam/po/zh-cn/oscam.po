@@ -1,0 +1,38 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "oscam"
+msgstr "oscam"
+
+msgid "Running"
+msgstr "运行"
+
+msgid "Not Running"
+msgstr "未运行"
+
+msgid "Settings"
+msgstr "设置"
+
+msgid "General Settings"
+msgstr "基本设置"
+
+msgid "Enable"
+msgstr "启用"
+
+msgid "Enable or disable oscam server"
+msgstr "启用或禁用oscam服务器"
+
+msgid "port"
+msgstr "端口"
+
+msgid "http server port"
+msgstr "网页服务端口"
+
+msgid "http server user"
+msgstr "网页服务账号"
+
+msgid "http server password"
+msgstr "网页服务用密码"
+
+msgid "Enable or disable pcscd"
+msgstr "启用或禁用pcscd"
