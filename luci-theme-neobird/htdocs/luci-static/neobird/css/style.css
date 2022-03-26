@@ -2334,6 +2334,7 @@ body.lang_pl.node-main-login .cbi-value-title {
     .node-network-diagnostics > .main .cbi-map fieldset > div:nth-child(4) input[type="text"] {
         margin: 0 !important;
     }
+        text-align: center;
 
     .node-network-diagnostics > .main .cbi-map fieldset > div select,
     .node-network-diagnostics > .main .cbi-map fieldset > div input[type="button"] {
