@@ -1,5 +1,5 @@
 #!/bin/sh
-uci batch <<-EOF
+	uci batch <<-EOF
 	set luci.themes.opentomcat=/luci-static/opentomcat
 	set luci.main.mediaurlbase=/luci-static/opentomcat
 	commit luci
