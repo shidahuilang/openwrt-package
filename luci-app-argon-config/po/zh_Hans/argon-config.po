@@ -8,11 +8,11 @@ msgstr ""
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: zh_CN\n"
+"Language: zh_Hans\n"
 "X-Generator: Poedit 2.3.1\n"
 
 msgid "Argon Config"
-msgstr "Argon 主题设置"
+msgstr "Argon设置"
 
 msgid "Here you can set the blur and transparency of the login page of argon theme, and manage the background pictures and videos.[Chrome is recommended]"
 msgstr "在这里你可以设置argon 主题的登录页面的模糊和透明度，并管理背景图片与视频。[建议使用 Chrome]"
