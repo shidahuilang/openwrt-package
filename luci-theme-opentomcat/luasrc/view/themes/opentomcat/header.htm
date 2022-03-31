@@ -219,21 +219,20 @@
 </head>
 <body class="lang_<%=luci.i18n.context.lang%> <%- if node then %><%= striptags( node.title ) %><%- end %> <% if luci.dispatcher.context.authsession then %>logged-in<% end %>">
 <header>
-	<div class="fill">
-		<div class="container">
-			<span class="showSide"></span>
-			<a class="brand" href="#"><img width="180" alt="Openwrt" src="<%=media%>/icons/logo.svg"></a>
-			<div class="pull-right">
-				<span id="xhr_poll_status" style="display:none" onclick="XHR.running() ? XHR.halt() : XHR.run()">
-					<span class="label success" id="xhr_poll_status_on"><span class="mobile-hide"><%:Auto Refresh%> </span><%:on%></span>
-					<span class="label" id="xhr_poll_status_off" style="display:none"><span class="mobile-hide"><%:Auto Refresh%> </span><%:off%></span>
-				</span>
-			</div>
+	<div class="container">
+		<span class="showSide"></span>
+		<a class="brand" href="#"><%="OpenWrt"%></a>
+		<div class="pull-right">
+			<% render_changes() %>
+			<span id="xhr_poll_status" style="display:none" onclick="XHR.running() ? XHR.halt() : XHR.run()">
+				<span class="label success" id="xhr_poll_status_on"><span class="mobile-hide"><%:Auto Refresh%></span> <%:on%></span>
+				<span class="label" id="xhr_poll_status_off" style="display:none"><span class="mobile-hide"><%:Auto Refresh%></span> <%:off%></span>
+			</span>
 		</div>
 	</div>
 </header>
 <div class="main">
-	<div style="" class="loading"><span><div class="loading-img"></div><%:Collecting data...%></span></div>
+	<div style="" class="loading"><span><div class="loading-img"></div>Loading...</span></div>
 	<div class="main-left">
 		<% render_topmenu() %>
 	</div>
