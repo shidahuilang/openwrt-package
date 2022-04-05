@@ -14,7 +14,7 @@ on:
       again-fork:
         description: '[fork-actions]改成[fork],再按[Run workflow]按钮启动,开启同步上游仓库'
         required: false
-        default: 'fork-actions'
+        default: 'fork'
 
 env:
   BILDYML: synchronization.yml
@@ -44,8 +44,8 @@ jobs:
       if: env.REPO_TOKEN && (github.event.inputs.again-fork == 'fork')
       run: |
         cd $GITHUB_WORKSPACE
-        git clone -b master https://github.com/281677160/luci-theme-argon-22.03 shangyou
-        git clone -b 22.03 https://github.com/281677160/luci-theme-argon.git repogx
+        git clone -b neobird https://github.com/281677160/luci-theme-argon shangyou
+        git clone -b neobird https://github.com/281677160/luci-theme-argon repogx
         
     - name: 同步上游仓库
       if: env.REPO_TOKEN && (github.event.inputs.again-fork == 'fork')
@@ -53,10 +53,10 @@ jobs:
         cd $GITHUB_WORKSPACE
         rm -fr repogx/*
         
-        cp -Rf $GITHUB_WORKSPACE/shangyou/* repogx
+        cp -Rf $GITHUB_WORKSPACE/shangyou/luci-theme-neobird2/* repogx
         chmod -R 775 repogx
         cd repogx
         git add .
         git commit -m "up"
-        git push --quiet "https://${{ secrets.REPO_TOKEN }}@github.com/${{github.repository}}" HEAD:22.03
+        git push --quiet "https://${{ secrets.REPO_TOKEN }}@github.com/${{github.repository}}" HEAD:neobird
         echo "同步完成，请注意查看[diy-part.sh]和[settings.ini]文件的变化和设置好!"
