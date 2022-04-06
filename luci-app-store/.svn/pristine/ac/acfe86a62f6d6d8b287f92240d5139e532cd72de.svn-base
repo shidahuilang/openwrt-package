@@ -1,40 +1,40 @@
 module("luci.controller.store", package.seeall)
 
 local myopkg = "is-opkg"
-local page_index = {"admin", "store", "pages"}
+local page_index = {"admin", "system", "store", "pages"}
 
 function index()
     local function store_api(action, onlypost)
-        local e = entry({"admin", "store", action}, onlypost and post("store_action", {action = action}) or call("store_action", {action = action}))
+        local e = entry({"admin", "system", "store", action}, onlypost and post("store_action", {action = action}) or call("store_action", {action = action}))
         e.dependent = false -- 父节点不是必须的
         e.leaf = true -- 没有子节点
     end
 
     local action
 
-    entry({"admin", "store"}, call("redirect_index"), _("iStore"), 31)
-    entry({"admin", "store", "pages"}, call("store_index")).leaf = true
+    entry({"admin", "system", "store"}, call("redirect_index"), _("iStore"), 31)
+    entry({"admin", "system", "store", "pages"}, call("store_index")).leaf = true
     if nixio.fs.access("/usr/lib/lua/luci/view/store/main_dev.htm") then
-        entry({"admin", "store", "dev"}, call("store_dev")).leaf = true
+        entry({"admin", "system", "store", "dev"}, call("store_dev")).leaf = true
     end
-    entry({"admin", "store", "token"}, call("store_token"))
-    entry({"admin", "store", "log"}, call("store_log"))
-    entry({"admin", "store", "uid"}, call("action_user_id"))
-    entry({"admin", "store", "upload"}, post("store_upload"))
-    entry({"admin", "store", "check_self_upgrade"}, call("check_self_upgrade"))
-    entry({"admin", "store", "do_self_upgrade"}, post("do_self_upgrade"))
+    entry({"admin", "system", "store", "token"}, call("store_token"))
+    entry({"admin", "system", "store", "log"}, call("store_log"))
+    entry({"admin", "system", "store", "uid"}, call("action_user_id"))
+    entry({"admin", "system", "store", "upload"}, post("store_upload"))
+    entry({"admin", "system", "store", "check_self_upgrade"}, call("check_self_upgrade"))
+    entry({"admin", "system", "store", "do_self_upgrade"}, post("do_self_upgrade"))
 
-    entry({"admin", "store", "get_support_backup_features"}, call("get_support_backup_features"))
-    entry({"admin", "store", "light_backup"}, post("light_backup"))
-    entry({"admin", "store", "get_light_backup_file"}, call("get_light_backup_file"))
-    entry({"admin", "store", "local_backup"}, post("local_backup"))
-    entry({"admin", "store", "light_restore"}, post("light_restore"))
-    entry({"admin", "store", "local_restore"}, post("local_restore"))
-    entry({"admin", "store", "get_backup_app_list_file_path"}, call("get_backup_app_list_file_path"))
-    entry({"admin", "store", "get_backup_app_list"}, call("get_backup_app_list"))
-    entry({"admin", "store", "get_available_backup_file_list"}, call("get_available_backup_file_list"))
-    entry({"admin", "store", "set_local_backup_dir_path"}, post("set_local_backup_dir_path"))
-    entry({"admin", "store", "get_local_backup_dir_path"}, call("get_local_backup_dir_path"))
+    entry({"admin", "system", "store", "get_support_backup_features"}, call("get_support_backup_features"))
+    entry({"admin", "system", "store", "light_backup"}, post("light_backup"))
+    entry({"admin", "system", "store", "get_light_backup_file"}, call("get_light_backup_file"))
+    entry({"admin", "system", "store", "local_backup"}, post("local_backup"))
+    entry({"admin", "system", "store", "light_restore"}, post("light_restore"))
+    entry({"admin", "system", "store", "local_restore"}, post("local_restore"))
+    entry({"admin", "system", "store", "get_backup_app_list_file_path"}, call("get_backup_app_list_file_path"))
+    entry({"admin", "system", "store", "get_backup_app_list"}, call("get_backup_app_list"))
+    entry({"admin", "system", "store", "get_available_backup_file_list"}, call("get_available_backup_file_list"))
+    entry({"admin", "system", "store", "set_local_backup_dir_path"}, post("set_local_backup_dir_path"))
+    entry({"admin", "system", "store", "get_local_backup_dir_path"}, call("get_local_backup_dir_path"))
 
     for _, action in ipairs({"update", "install", "upgrade", "remove"}) do
         store_api(action, true)
@@ -109,7 +109,7 @@ function store_index()
 end
 
 function store_dev()
-    luci.template.render("store/main_dev", {prefix=luci.dispatcher.build_url(unpack({"admin", "store", "dev"})),id=user_id()})
+    luci.template.render("store/main_dev", {prefix=luci.dispatcher.build_url(unpack({"admin", "system", "store", "dev"})),id=user_id()})
 end
 
 function store_log()
