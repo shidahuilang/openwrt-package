@@ -754,6 +754,7 @@ p#shadowsocksr_status {
     display: block;
     border-radius: 6px;
     cursor: pointer;
+    font-weight: bold;
     font-size: 1.1rem;
 }
 
@@ -836,7 +837,7 @@ p#shadowsocksr_status {
 }
 
 .main > .main-left > .nav > li > a[data-title="Logout"] {
-    padding: 10px 0px 10px 25px
+    padding: 5px 8px 7px 25px;
 }
 .main > .main-left > .nav > li > a[data-title="Logout"]:before {
     content: "\e641";
@@ -897,7 +898,7 @@ p#shadowsocksr_status {
     border: none !important;
     text-transform: capitalize;
     font-size: 1rem;
-    padding: 8px 0px 8px 25px;
+    padding: 5px 8px 7px 25px;
 }
 .main > .main-left > .nav > .slide > .slide-menu > li > a:after{
     font-family: "neobird2" !important;
