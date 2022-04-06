@@ -153,11 +153,11 @@
 <header>
 
 <div class="navbar">
-  <a href="/cgi-bin/luci/frp/status/overview"><img src="<%=media%>/images/home.png" /></a>
-  <a href="/cgi-bin/luci/frp/services/passwall"><img src="<%=media%>/images/ssr.png" /></a>
-  <a href="/cgi-bin/luci/frp/network/network"><img src="<%=media%>/images/link.png" /></a>
-  <a href="/cgi-bin/luci/frp/status/realtime"><img src="<%=media%>/images/rank.png" /></a>
-  <a href="/cgi-bin/luci/frp/system/frp"><img src="<%=media%>/images/user.png" /></a>
+  <a href="/cgi-bin/luci/admin/status/overview"><img src="<%=media%>/images/home.png" /></a>
+  <a href="/cgi-bin/luci/admin/services/passwall"><img src="<%=media%>/images/ssr.png" /></a>
+  <a href="/cgi-bin/luci/admin/network/network"><img src="<%=media%>/images/link.png" /></a>
+  <a href="/cgi-bin/luci/admin/status/realtime"><img src="<%=media%>/images/rank.png" /></a>
+  <a href="/cgi-bin/luci/admin/system/admin"><img src="<%=media%>/images/user.png" /></a>
 </div>
 
 <div class="container">
@@ -252,7 +252,7 @@
 					 <div class="alert-message warning">
 						 <h4><%:No password set!%></h4>
 						 <%:There is no password set on this router. Please configure a root password to protect the web interface and enable SSH.%><br>
-						 <a href="<%=pcdata(luci.dispatcher.build_url("frp/system/frp"))%>"><%:Go to password configuration...%></a>
+						 <a href="<%=pcdata(luci.dispatcher.build_url("admin/system/admin"))%>"><%:Go to password configuration...%></a>
 					 </div>
 				 <%- end -%>
 				 <% if category then subtree("/" .. category .. "/", cattree) end %>
