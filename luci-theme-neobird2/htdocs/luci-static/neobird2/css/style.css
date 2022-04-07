@@ -2143,9 +2143,12 @@ header > .container > .pull-right > * {
 .node-system-packages .cbi-section {
     border-radius: 0 0 10px 10px;
 }
+
+
 #cbi-ipkgconf .cbi-section {
     border-radius: 0 0 10px 10px;
 }
+
 **/
 
 
