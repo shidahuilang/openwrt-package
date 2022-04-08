@@ -20,7 +20,7 @@ jobs:
       - name: Run generate script
         run: |
           wget https://raw.githubusercontent.com/Loyalsoldier/geoip/release/geoip-only-cn-private.dat -nv -O ./dat/geoip.dat
-          wget https://raw.githubusercontent.com/Loyalsoldier/domain-list-custom/release/geosite.dat -nv -O ./dat/geosite.dat
+          wget https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat -nv -O ./dat/geosite.dat
 
           #wget 'https://pgl.yoyo.org/adservers/serverlist.php?hostformat=nohtml&showintro=0&mimetype=plaintext' -nv -O ./luci-app-mosdns/root/etc/mosdns/yoyo.txt
           #wget -qO - 'https://github.com/VeleSila/yhosts/raw/master/hosts' |  grep 0.0.0.0 > ./luci-app-mosdns/root/etc/mosdns/chn.txt
