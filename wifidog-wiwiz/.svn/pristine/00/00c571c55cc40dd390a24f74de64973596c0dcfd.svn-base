@@ -1,6 +1,0 @@
-config wiwiz portal
-        option enabled 0
-        option hotspotid ''
-        option username 'pinpinwifi'
-        option server 'cp.wiwiz.com:80'
-        option lan 'br-lan'

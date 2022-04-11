@@ -16,8 +16,9 @@ PKG_MAINTAINER:=Jianhui Zhao <jianhuizhao329@gmail.com>
 include $(INCLUDE_DIR)/package.mk
 
 define Package/eqos
+  SUBMENU:=Portal
   SECTION:=net
-  CATEGORY:=Network
+  CATEGORY:=Wiwiz/PinPinWiFi
   DEPENDS:=+tc +kmod-sched-core +kmod-ifb
   TITLE:=Easy QoS(Support speed limit based on IP address)
   PKGARCH:=all
@@ -25,12 +26,12 @@ endef
 
 
 define Package/luci-app-eqos
+  SUBMENU:=Portal
   SECTION:=luci
-  CATEGORY:=LuCI
+  CATEGORY:=Wiwiz/PinPinWiFi
   TITLE:=EQOS - LuCI interface
   PKGARCH:=all
   DEPENDS:=+luci-base +eqos
-  SUBMENU:=3. Applications
 endef
 
 define Package/luci-app-eqos/description
@@ -39,7 +40,7 @@ endef
 
 define Package/luci-i18n-eqos-zh-cn
 	SECTION:=luci
-	CATEGORY:=LuCI
+	CATEGORY:=Wiwiz/PinPinWiFi
 	TITLE:=luci-app-eqos - zh-cn translation
 	HIDDEN:=1
 	DEPENDS:=luci-app-eqos

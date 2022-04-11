@@ -18,9 +18,9 @@ PKG_INSTALL:=1
 include $(INCLUDE_DIR)/package.mk
 
 define Package/wifidog-wiwiz
-  SUBMENU:=Captive Portals
+  SUBMENU:=Portal
   SECTION:=net
-  CATEGORY:=Network
+  CATEGORY:=Wiwiz/PinPinWiFi
   DEPENDS:=+iptables-mod-extra +iptables-mod-ipopt +iptables-mod-nat-extra +libpthread +curl
   TITLE:=wifidog-wiwiz
   URL:=http://www.wiwiz.com
