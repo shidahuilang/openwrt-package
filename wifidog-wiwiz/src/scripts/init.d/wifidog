@@ -70,16 +70,14 @@ case "$1" in
 	killall wiwizroaming.sh 2>/dev/null
 	killall logread 2>/dev/null
 
-	    
     if $WD_DIR/wdctl status 2> /dev/null
     then
        	if $WD_DIR/wdctl stop
-	then
-		echo "OK"
-	else
-		echo "FAILED:  wdctl stop exited with non 0 status"
-	fi
-       
+		then
+			echo "OK"
+		else
+			echo "FAILED:  wdctl stop exited with non 0 status"
+		fi       
     else
        echo "FAILED:  Wifidog was not running"
     fi

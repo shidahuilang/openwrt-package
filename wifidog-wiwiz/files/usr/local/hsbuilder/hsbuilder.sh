@@ -2,7 +2,7 @@
 # Wiwiz HotSpot Builder Utility
 # Copyright wiwiz.com. All rights reserved.
 
-MY_VERSION="3.0.2"  #for Wiwiz-opensource
+MY_VERSION="3.1.0"  #for Wiwiz-opensource
 
 #SRV_SAVE='/usr/local/hsbuilder/srv'
 ENVINFO='wiwiz-opensource'
@@ -233,15 +233,24 @@ do
 	GW_ID=$(uci get wiwiz.portal.hotspotid 2>/dev/null)
 	USERNAME=$(uci get wiwiz.portal.username 2>/dev/null)
 	GWIF=$(uci get wiwiz.portal.lan 2>/dev/null)
+	DISABLE_IPV6=$(uci get wiwiz.portal.disable_ipv6 2>/dev/null)
 	
 	if [ "$ENABLED" != "1" ]; then
 		_p=$(ps | grep wifidog | grep -v grep 2>/dev/null)
 		if [ "$_p" != "" ]; then
 			echo "wiwiz disabled, wifidog shutting down " >>$LOGFILE
 			wdctl stop
+			
+			#uci get network.lan.ipv6 1>/dev/null 2>/dev/null && (uci del network.lan.ipv6 && uci commit)
 		fi
 		sleep 15
 		continue
+	else
+		if [ "$DISABLE_IPV6" = "1" ]; then
+			[ "$(uci get network.lan.ipv6 2>/dev/null)" != "0" ] && {
+				uci set network.lan.ipv6='0' && uci commit
+			}
+		fi
 	fi
 	
 	if [ "$GWIF" = "" ]; then
