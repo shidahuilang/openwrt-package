@@ -1,4 +1,4 @@
-#-- Copyright (C) 2018-2022 dz <dingzhong110@gmail.com>
+-- Copyright (C) 2018-2022 dz <dingzhong110@gmail.com>
 
 local sys = require("luci.sys")
 local util = require("luci.util")
