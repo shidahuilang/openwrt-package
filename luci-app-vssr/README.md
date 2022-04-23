@@ -1,7 +1,7 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/jerrykuku/staff/master/Helloworld_title.png"  >
+  <img src="https://raw.githubusercontent.com/jerrykuku/staff/master/helloworld-logo1.png" width="500px"  >
   <h1 align="center">
-    An openwrt Internet surfing plug-in
+    An OpenWrt Internet surfing plug-in
   </h1>
     <h3 align="center">
     HelloWorld是一个以用户最佳主观体验为导向的插件，它支持多种主流协议和多种自定义视频分流服务，拥有精美的操作界面，并配上直观的节点信息。<br><br>
@@ -40,6 +40,7 @@
 ### 更新日志 2022-04-23  v1.25
 - UPDATE: 适配19.07 LuCI。
 - FIX: 继续优化订阅节点时旗帜匹配的准确性。
+- FIX: 优化了一些block的间距问题，同时优化了暗黑模式下的颜色显示【最好搭配最新版argon主题】。
 
 
 详情见[具体日志](./relnotes.txt)。 
