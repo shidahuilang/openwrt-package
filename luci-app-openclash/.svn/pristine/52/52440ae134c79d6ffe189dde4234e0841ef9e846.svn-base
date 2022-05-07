@@ -1,4 +1,0 @@
-skip-sni:
-  - '+.apple.com'
-  - Mijia Cloud
-  - '+.jd.com'
