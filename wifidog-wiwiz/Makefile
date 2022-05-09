@@ -71,7 +71,21 @@ define Package/wifidog-wiwiz/install
 	$(INSTALL_DIR) $(1)/www
 	$(INSTALL_DIR) $(1)/www/cgi-bin
 	$(INSTALL_BIN) ./files/www/cgi-bin/mymac $(1)/www/cgi-bin/mymac
+	$(INSTALL_BIN) ./files/www/cgi-bin/myip $(1)/www/cgi-bin/myip
 	$(INSTALL_BIN) ./files/www/cgi-bin/showdevinfo $(1)/www/cgi-bin/showdevinfo
+	$(INSTALL_DATA) ./files/www/index.html.wiwiz $(1)/www/index.html.wiwiz
+	$(INSTALL_DATA) ./files/www/error.html.wiwiz $(1)/www/error.html.wiwiz
+	$(INSTALL_DIR) $(1)/etc/uci-defaults
+	$(INSTALL_BIN) ./files/etc/uci-defaults/199-noredir $(1)/etc/uci-defaults/199-noredir
+endef
+
+define Package/wifidog-wiwiz/postinst
+#!/bin/sh
+cp -f $${IPKG_INSTROOT}/www/index.html $${IPKG_INSTROOT}/www/index.html.org
+cp -f $${IPKG_INSTROOT}/www/index.html.wiwiz $${IPKG_INSTROOT}/www/index.html
+rm -f $${IPKG_INSTROOT}/www/index.html.wiwiz
+cp -f $${IPKG_INSTROOT}/www/error.html.wiwiz $${IPKG_INSTROOT}/www/error.html
+rm -f $${IPKG_INSTROOT}/www/error.html.wiwiz
 endef
 
 $(eval $(call BuildPackage,wifidog-wiwiz))

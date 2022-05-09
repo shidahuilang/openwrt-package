@@ -2,7 +2,7 @@
 # Wiwiz HotSpot Builder Utility
 # Copyright wiwiz.com. All rights reserved.
 
-LOAD_LIMIT=2.8
+LOAD_LIMIT=3.8
 
 DEST=""
 OS=""
