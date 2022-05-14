@@ -4,6 +4,7 @@ local white_list_file = "/etc/mosdns/whitelist.txt"
 local block_list_file = "/etc/mosdns/rule/blocklist.txt"
 local hosts_list_file = "/etc/mosdns/rule/hosts.txt"
 local redirect_list_file = "/etc/mosdns/rule/redirect.txt"
+local cus_config_file = "/etc/mosdns/cus_config.yaml"
 
 m = Map("mosdns")
 
@@ -14,6 +15,7 @@ s:tab("white_list", translate("White Lists"))
 s:tab("block_list", translate("Block Lists"))
 s:tab("hosts_list", translate("Hosts"))
 s:tab("redirect_list", translate("Redirect"))
+s:tab("cus_config", translate("Cus Config"))
 
 o = s:taboption("white_list", TextValue, "whitelist", "", "<font color='red'>" .. translate("These domain names allow DNS resolution with the highest priority. Please input the domain names of websites, every line can input only one website domain. For example: hm.baidu.com.") .. "</font>" .. "<font color='#00bd3e'>" .. translate("<br>The list of rules only apply to 'Default Config' profiles.") .. "</font>")
 o.rows = 15
@@ -22,16 +24,6 @@ o.cfgvalue = function(self, section) return nixio.fs.readfile(white_list_file) o
 o.write = function(self, section, value) nixio.fs.writefile(white_list_file , value:gsub("\r\n", "\n")) end
 o.remove = function(self, section, value) nixio.fs.writefile(white_list_file , "") end
 o.validate = function(self, value)
-    local hosts= {}
-    string.gsub(value, '[^' .. "\r\n" .. ']+', function(w) table.insert(hosts, w) end)
-    for index, host in ipairs(hosts) do
-        if host:find("#") and host:find("#") == 1 then
-            return value
-        end
-        if not datatypes.hostname(host) then
-            return nil, host .. " " .. translate("Not valid domain name, Please Re-enter.")
-        end
-    end
     return value
 end
 
@@ -42,16 +34,6 @@ o.cfgvalue = function(self, section) return nixio.fs.readfile(block_list_file) o
 o.write = function(self, section, value) nixio.fs.writefile(block_list_file, value:gsub("\r\n", "\n")) end
 o.remove = function(self, section, value) nixio.fs.writefile(block_list_file, "") end
 o.validate = function(self, value)
-    local hosts= {}
-    string.gsub(value, '[^' .. "\r\n" .. ']+', function(w) table.insert(hosts, w) end)
-    for index, host in ipairs(hosts) do
-        if host:find("#") and host:find("#") == 1 then
-            return value
-        end
-        if not datatypes.hostname(host) then
-            return nil, host .. " " .. translate("Not valid domain name, Please Re-enter.")
-        end
-    end
     return value
 end
 
@@ -62,13 +44,6 @@ o.cfgvalue = function(self, section) return nixio.fs.readfile(hosts_list_file) o
 o.write = function(self, section, value) nixio.fs.writefile(hosts_list_file, value:gsub("\r\n", "\n")) end
 o.remove = function(self, section, value) nixio.fs.writefile(hosts_list_file, "") end
 o.validate = function(self, value)
-    local hosts= {}
-    string.gsub(value, '[^' .. "\r\n" .. ']+', function(w) table.insert(hosts, w) end)
-    for index, host in ipairs(hosts) do
-        if host:find("#") and host:find("#") == 1 then
-            return value
-        end
-    end
     return value
 end
 
@@ -79,13 +54,16 @@ o.cfgvalue = function(self, section) return nixio.fs.readfile(redirect_list_file
 o.write = function(self, section, value) nixio.fs.writefile(redirect_list_file, value:gsub("\r\n", "\n")) end
 o.remove = function(self, section, value) nixio.fs.writefile(redirect_list_file, "") end
 o.validate = function(self, value)
-    local hosts= {}
-    string.gsub(value, '[^' .. "\r\n" .. ']+', function(w) table.insert(hosts, w) end)
-    for index, host in ipairs(hosts) do
-        if host:find("#") and host:find("#") == 1 then
-            return value
-        end
-    end
+    return value
+end
+
+o = s:taboption("cus_config", TextValue, "Cus Config", "", "<font color='red'>" .. translate("View the Custom YAML Configuration file used by this MosDNS. You can edit it as you own need.") .. "</font>" .. "<font color='#00bd3e'>" .. translate("<br>The list of rules only apply to 'Custom Config' profiles.") .. "</font>")
+o.rows = 30
+o.wrap = "off"
+o.cfgvalue = function(self, section) return nixio.fs.readfile(cus_config_file) or "" end
+o.write = function(self, section, value) nixio.fs.writefile(cus_config_file, value:gsub("\r\n", "\n")) end
+o.remove = function(self, section, value) nixio.fs.writefile(cus_config_file, "") end
+o.validate = function(self, value)
     return value
 end
 

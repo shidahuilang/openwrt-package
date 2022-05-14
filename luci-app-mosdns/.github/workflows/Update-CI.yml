@@ -40,7 +40,7 @@ jobs:
           sed -i '/:/d' ./luci-app-mosdns/root/etc/mosdns/serverlist.txt
           sed -i '/cm.bilibili.com/d' ./luci-app-mosdns/root/etc/mosdns/serverlist.txt
           cp -rf ./luci-app-mosdns/root/etc/mosdns/serverlist.txt ./dat/serverlist.txt
-          cp -rf ./luci-app-mosdns/root/etc/mosdns/def_config.yaml ./dat/def_config.yaml
+          cp -rf ./luci-app-mosdns/root/etc/mosdns/def_config.yaml ./dat/def_config_new.yaml
           rm ./luci-app-mosdns/root/etc/mosdns/yoyo.txt ./luci-app-mosdns/root/etc/mosdns/antiad.txt
 
           latest_commit="$(curl -s https://github.com/IrineSistiana/mosdns/commits/main | grep -E '"Copy the full SHA"' | awk -F 'value="' '{print $2}' | cut -b 1-7 | sed -n 1p)"
