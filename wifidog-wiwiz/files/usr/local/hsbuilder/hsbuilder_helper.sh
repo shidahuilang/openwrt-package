@@ -54,6 +54,16 @@ passAuthed() {
 	rm -f "$TMPFILE" 2>/dev/null	
 }
 
+getRandom() {
+	awk 'BEGIN {
+	   # seed
+	   srand()
+	   for (i=1;i<=1;i++){
+	     print int(1 + rand() * 10)
+	   }
+	}'
+}
+
 if [ "$1" = "-os" ]; then
 	if [ "$2" = "openwrt" ]; then
 #		WIFIDOG_START="wifidog-init start"
@@ -75,18 +85,23 @@ if [ "$1" = "-dest" ]; then
 fi
 echo "hsbuilder_helper.sh: $(date)" >> $LOGFILE
 
-LAN_IP=$(ifconfig br-lan | grep "inet addr" | awk '{ print $2}' | awk -F: '{print $2}')
-#_s=$(wget -O - -T 5 "http://$LAN_IP:2060/wifidog" 2>/dev/null)
-_s=$(curl -m 5 "http://$LAN_IP:2060/wifidog" 2>/dev/null)
-if [ "$_s" == "" ]; then
-	killall -9 wifidog 2>/dev/null
-	sleep 3
-	$WIFIDOG_START
-#	wdctl restart
-	echo "Helper: $(date) Wifidog not respond. Restarted." >>$LOGFILE
-	sleep 5
-	passAuthed
-	exit 0
+RDM=$(getRandom)
+#echo "Helper: $(date) RDM = $RDM" >>$LOGFILE
+if [ "$RDM" = "5" ]; then
+	echo "Helper: $(date) RDM is 5 !!!" >>$LOGFILE
+	LAN_IP=$(ifconfig br-lan | grep "inet addr" | awk '{ print $2}' | awk -F: '{print $2}')
+	#_s=$(wget -O - -T 5 "http://$LAN_IP:2060/wifidog" 2>/dev/null)
+	_s=$(curl -m 5 "http://$LAN_IP:2060/wifidog" 2>/dev/null)
+	if [ "$_s" == "" ]; then
+		killall -9 wifidog 2>/dev/null
+		sleep 3
+		$WIFIDOG_START
+	#	wdctl restart
+		echo "Helper: $(date) Wifidog not respond. Restarted." >>$LOGFILE
+		sleep 5
+		passAuthed
+		exit 0
+	fi
 fi
 
 LOAD=$(cat /proc/loadavg | cut -d " " -f 1)
