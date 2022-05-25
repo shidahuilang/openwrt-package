@@ -33,7 +33,7 @@ jobs:
           #curl -s -L https://easylist-downloads.adblockplus.org/easylist_noelemhide.txt https://easylist-downloads.adblockplus.org/easylistchina.txt https://github.com/cjx82630/cjxlist/raw/master/cjx-annoyance.txt > ./luci-app-mosdns/root/etc/mosdns/adblock.host
           #sort -u ./luci-app-mosdns/root/etc/mosdns/adblock.host | grep ^\|\|.*\^$ | grep -v \/ > ./luci-app-mosdns/root/etc/mosdns/serverlist.tmp
           #sed 's/[\|^]//g' < ./luci-app-mosdns/root/etc/mosdns/serverlist.tmp > ./luci-app-mosdns/root/etc/mosdns/serverlist.tmp2
-          wget 'https://block.energized.pro/bluGo/formats/domains.txt' -nv -O ./luci-app-mosdns/root/etc/mosdns/yoyo.txt
+          wget 'https://block.energized.pro/spark/formats/domains.txt' -nv -O ./luci-app-mosdns/root/etc/mosdns/yoyo.txt
           wget 'https://anti-ad.net/domains.txt' -nv -O ./luci-app-mosdns/root/etc/mosdns/antiad.txt
           cat ./luci-app-mosdns/root/etc/mosdns/antiad.txt ./luci-app-mosdns/root/etc/mosdns/yoyo.txt | sort | uniq > ./luci-app-mosdns/root/etc/mosdns/serverlist.txt
           sed -i '/#/d' ./luci-app-mosdns/root/etc/mosdns/serverlist.txt
