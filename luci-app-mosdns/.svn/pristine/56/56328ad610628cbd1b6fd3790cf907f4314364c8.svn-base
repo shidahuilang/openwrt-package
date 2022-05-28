@@ -1,0 +1,68 @@
+name: Update-CI
+
+on:
+  schedule:
+    - cron: 0 16 * * *
+  watch:
+    types: [started]
+  #push:
+  #  branches:
+  #    - master
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    if: github.event.repository.owner.id == github.event.sender.id
+
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Run generate script
+        run: |
+          wget https://raw.githubusercontent.com/Loyalsoldier/geoip/release/geoip-only-cn-private.dat -nv -O ./dat/geoip.dat
+          wget https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat -nv -O ./dat/geosite.dat
+
+          #wget 'https://pgl.yoyo.org/adservers/serverlist.php?hostformat=nohtml&showintro=0&mimetype=plaintext' -nv -O ./luci-app-mosdns/root/etc/mosdns/yoyo.txt
+          #wget -qO - 'https://github.com/VeleSila/yhosts/raw/master/hosts' |  grep 0.0.0.0 > ./luci-app-mosdns/root/etc/mosdns/chn.txt
+          #sed -i 's,0.0.0.0 ,,g' ./luci-app-mosdns/root/etc/mosdns/chn.txt
+          #sed -i '/#/d' ./luci-app-mosdns/root/etc/mosdns/chn.txt
+          #cat ./luci-app-mosdns/root/etc/mosdns/chn.txt ./luci-app-mosdns/root/etc/mosdns/yoyo.txt | sort | uniq > ./luci-app-mosdns/root/etc/mosdns/serverlist.txt
+          #rm -f ./luci-app-mosdns/root/etc/mosdns/yoyo.txt
+          #rm -f ./luci-app-mosdns/root/etc/mosdns/chn.txt
+
+          #curl -s -L https://easylist-downloads.adblockplus.org/easylist_noelemhide.txt https://easylist-downloads.adblockplus.org/easylistchina.txt https://github.com/cjx82630/cjxlist/raw/master/cjx-annoyance.txt > ./luci-app-mosdns/root/etc/mosdns/adblock.host
+          #sort -u ./luci-app-mosdns/root/etc/mosdns/adblock.host | grep ^\|\|.*\^$ | grep -v \/ > ./luci-app-mosdns/root/etc/mosdns/serverlist.tmp
+          #sed 's/[\|^]//g' < ./luci-app-mosdns/root/etc/mosdns/serverlist.tmp > ./luci-app-mosdns/root/etc/mosdns/serverlist.tmp2
+          wget 'https://block.energized.pro/spark/formats/domains.txt' -nv -O ./luci-app-mosdns/root/etc/mosdns/yoyo.txt
+          wget 'https://anti-ad.net/domains.txt' -nv -O ./luci-app-mosdns/root/etc/mosdns/antiad.txt
+          cat ./luci-app-mosdns/root/etc/mosdns/antiad.txt ./luci-app-mosdns/root/etc/mosdns/yoyo.txt | sort | uniq > ./luci-app-mosdns/root/etc/mosdns/serverlist.txt
+          sed -i '/#/d' ./luci-app-mosdns/root/etc/mosdns/serverlist.txt
+          sed -i '/:/d' ./luci-app-mosdns/root/etc/mosdns/serverlist.txt
+          sed -i '/cm.bilibili.com/d' ./luci-app-mosdns/root/etc/mosdns/serverlist.txt
+          cp -rf ./luci-app-mosdns/root/etc/mosdns/serverlist.txt ./dat/serverlist.txt
+          cp -rf ./luci-app-mosdns/root/etc/mosdns/def_config.yaml ./dat/def_config_new.yaml
+          rm ./luci-app-mosdns/root/etc/mosdns/yoyo.txt ./luci-app-mosdns/root/etc/mosdns/antiad.txt
+
+          latest_commit="$(curl -s https://github.com/IrineSistiana/mosdns/commits/main | grep -E '"Copy the full SHA"' | awk -F 'value="' '{print $2}' | cut -b 1-7 | sed -n 1p)"
+          sed -i '/PKG_VERSION:/d' ./mosdns/Makefile
+          sed -i "7 a PKG_VERSION:=$latest_commit" ./mosdns/Makefile
+          chmod -R 755 ./luci-app-mosdns/root/etc/mosdns/*.sh
+
+      - name: Commit file
+        run: |
+          git config --global user.email simonsqiu@foxmail.com
+          git config --global user.name SimonsQiu
+          git add .
+          git commit -m "Update `date +%Y/%m/%d\ %H:%M:%S\ %Z`" -a
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Cleanup Workflow Logs
+        uses: Mattraks/delete-workflow-runs@main
+        with:
+          token: ${{secrets.GITHUB_TOKEN}}
+          repository: ${{ github.repository }}
+          retain_days: 1
