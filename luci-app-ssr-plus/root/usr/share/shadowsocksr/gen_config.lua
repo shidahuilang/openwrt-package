@@ -46,6 +46,16 @@ function trojan_shadowsocks()
 			}
 		}
 	}
+
+	if (server.v2ray_protocol == "shadowsocks") and (server.mux ~= "1") and (not (outbound_settings.plugin or server.transport ~= "tcp" or server.tls or server.xtls)) then
+		server.v2ray_protocol = "shadowsocks_sing"
+		outbound_settings = outbound_settings.servers[1]
+	elseif (server.v2ray_protocol == "trojan") and (server.tls and server.mux ~= "1") and (not (server.transport ~= "tcp" or server.xtls)) then
+		server.v2ray_protocol = "trojan_sing"
+		outbound_settings = outbound_settings.servers[1]
+		outbound_settings.serverName = server.tls_host
+		outbound_settings.insecure = (server.insecure == "1") and true or false
+	end
 end
 function socks_http()
 	outbound_settings = {
@@ -138,7 +148,7 @@ local Xray = {
 		protocol = server.v2ray_protocol,
 		settings = outbound_settings,
 		-- 底层传输配置
-		streamSettings = {
+		streamSettings = (server.v2ray_protocol and server.v2ray_protocol:sub(-#"_sing") ~= "_sing") and {
 			network = server.transport or "tcp",
 			security = (server.xtls == '1') and "xtls" or (server.tls == '1') and "tls" or nil,
 			tlsSettings = (server.tls == '1' and (server.insecure == "1" or server.tls_host or server.fingerprint)) and {
@@ -176,11 +186,13 @@ local Xray = {
 			} or nil,
 			wsSettings = (server.transport == "ws") and (server.ws_path or server.ws_host or server.tls_host) and {
 				-- ws
-				path = server.ws_path,
 				headers = (server.ws_host or server.tls_host) and {
 					-- headers
 					Host = server.ws_host or server.tls_host
-				} or nil
+				} or nil,
+				path = server.ws_path,
+				maxEarlyData = tonumber(server.ws_ed) or nil,
+				earlyDataHeaderName = server.ws_ed_header or nil
 			} or nil,
 			httpSettings = (server.transport == "h2") and {
 				-- h2
@@ -198,13 +210,13 @@ local Xray = {
 			grpcSettings = (server.transport == "grpc") and {
 				-- grpc
 				serviceName = server.serviceName or "",
-				multiMode = (server.mux == "1") and true or false,
+				mode = (server.grpc_mode ~= "gun") and server.grpc_mode or nil,
 				idle_timeout = tonumber(server.idle_timeout) or nil,
 				health_check_timeout = tonumber(server.health_check_timeout) or nil,
 				permit_without_stream = (server.permit_without_stream == "1") and true or nil,
 				initial_windows_size = tonumber(server.initial_windows_size) or nil
 			} or nil
-		},
+		} or nil,
 		mux = (server.mux == "1" and server.xtls ~= "1" and server.transport ~= "grpc") and {
 			-- mux
 			enabled = true,
