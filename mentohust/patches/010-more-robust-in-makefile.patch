@@ -1,5 +1,3 @@
-diff --git a/src/Makefile b/src/Makefile
-index 05c95ab..03ea7cd 100644
 --- a/src/Makefile
 +++ b/src/Makefile
 @@ -1,11 +1,9 @@
@@ -16,7 +14,7 @@ index 05c95ab..03ea7cd 100644
  
  OBJ  = mentohust.o dlfunc.o md5.o mycheck.o myconfig.o myfunc.o strnormalize.o myini.o mystate.o
  .PHONY: all
-@@ -13,34 +11,34 @@ OBJ  = mentohust.o dlfunc.o md5.o mycheck.o myconfig.o myfunc.o strnormalize.o m
+@@ -13,34 +11,34 @@ OBJ  = mentohust.o dlfunc.o md5.o mychec
  all: mentohust
  
  mentohust: $(OBJ)
