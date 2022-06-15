@@ -31,7 +31,15 @@ function redirect_fallback()
 end
 
 function quickstart_index()
-    luci.template.render("quickstart/main", {prefix=luci.dispatcher.build_url(unpack(page_index))})
+    local jsonc = require "luci.jsonc"
+    local features = { "_lua_force_array_" }
+    if luci.sys.call("which ota >/dev/null 2>&1") == 0 then
+        features[#features+1] = "ota"
+    end
+    if luci.sys.call("[ -d /ext_overlay ] >/dev/null 2>&1") == 0 then
+        features[#features+1] = "sandbox"
+    end
+    luci.template.render("quickstart/main", {prefix=luci.dispatcher.build_url(unpack(page_index)),features=jsonc.stringify(features)})
 end
 
 function quickstart_dev()
