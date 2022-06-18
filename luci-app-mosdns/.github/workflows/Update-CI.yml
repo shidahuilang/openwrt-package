@@ -35,15 +35,15 @@ jobs:
           #sed 's/[\|^]//g' < ./luci-app-mosdns/root/etc/mosdns/serverlist.tmp > ./luci-app-mosdns/root/etc/mosdns/serverlist.tmp2
           wget 'https://block.energized.pro/spark/formats/domains.txt' -nv -O ./luci-app-mosdns/root/etc/mosdns/yoyo.txt
           wget 'https://anti-ad.net/domains.txt' -nv -O ./luci-app-mosdns/root/etc/mosdns/antiad.txt
-          cat ./luci-app-mosdns/root/etc/mosdns/antiad.txt ./luci-app-mosdns/root/etc/mosdns/yoyo.txt | sort | uniq > ./luci-app-mosdns/root/etc/mosdns/serverlist.txt
-          sed -i '/#/d' ./luci-app-mosdns/root/etc/mosdns/serverlist.txt
-          sed -i '/:/d' ./luci-app-mosdns/root/etc/mosdns/serverlist.txt
-          sed -i '/cm.bilibili.com/d' ./luci-app-mosdns/root/etc/mosdns/serverlist.txt
-          cp -rf ./luci-app-mosdns/root/etc/mosdns/serverlist.txt ./dat/serverlist.txt
-          cp -rf ./luci-app-mosdns/root/etc/mosdns/def_config.yaml ./dat/def_config_new.yaml
+          cat ./luci-app-mosdns/root/etc/mosdns/antiad.txt ./luci-app-mosdns/root/etc/mosdns/yoyo.txt | sort | uniq > ./luci-app-mosdns/root/etc/mosdns/rule/serverlist.txt
+          sed -i '/#/d' ./luci-app-mosdns/root/etc/mosdns/rule/serverlist.txt
+          sed -i '/:/d' ./luci-app-mosdns/root/etc/mosdns/rule/serverlist.txt
+          sed -i '/cm.bilibili.com/d' ./luci-app-mosdns/root/etc/mosdns/rule/serverlist.txt
+          cp -rf ./luci-app-mosdns/root/etc/mosdns/rule/serverlist.txt ./dat/serverlist.txt
+          cp -rf ./luci-app-mosdns/root/etc/mosdns/def_config_orig.yaml ./dat/def_config_v4.yaml
           rm ./luci-app-mosdns/root/etc/mosdns/yoyo.txt ./luci-app-mosdns/root/etc/mosdns/antiad.txt
 
-          latest_commit="$(curl -s https://github.com/IrineSistiana/mosdns/commits/main | grep -E '"Copy the full SHA"' | awk -F 'value="' '{print $2}' | cut -b 1-7 | sed -n 1p)"
+          latest_commit="$(curl -s https://github.com/IrineSistiana/mosdns/commits/v4 | grep -E '"Copy the full SHA"' | awk -F 'value="' '{print $2}' | cut -b 1-7 | sed -n 1p)"
           sed -i '/PKG_VERSION:/d' ./mosdns/Makefile
           sed -i "7 a PKG_VERSION:=$latest_commit" ./mosdns/Makefile
           chmod -R 755 ./luci-app-mosdns/root/etc/mosdns/*.sh
