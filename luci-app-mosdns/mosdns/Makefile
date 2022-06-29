@@ -4,11 +4,11 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=mosdns_neo
+PKG_NAME:=mosdns
 PKG_VERSION:=259bb47
 PKG_RELEASE:=$(AUTORELEASE)
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_SOURCE:=mosdns-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/IrineSistiana/mosdns/tar.gz/$(PKG_VERSION)?
 PKG_HASH:=skip
 
@@ -42,6 +42,11 @@ endef
 define Package/mosdns
   $(call Package/mosdns/Default)
   DEPENDS:=$(GO_ARCH_DEPENDS)
+endef
+
+define Package/mosdns-neo
+  $(call Package/mosdns/Default)
+  DEPENDS:=$(GO_ARCH_DEPENDS) +mosdns
 endef
 
 define Package/mosdns/config
@@ -78,3 +83,4 @@ endef
 
 $(eval $(call GoBinPackage,mosdns))
 $(eval $(call BuildPackage,mosdns))
+$(eval $(call BuildPackage,mosdns-neo))
