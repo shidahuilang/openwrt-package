@@ -33,6 +33,7 @@ luci-app-gowebdav
 luci-app-iptvhelper
 luci-app-koolddns
 luci-app-linkease
+luci-app-wizard
 luci-app-mentohust
 luci-app-mosdns
 luci-app-netdata
