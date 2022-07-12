@@ -234,7 +234,7 @@ void load_feature_buf_from_file(char **config_buf)
 {
 	struct inode *inode = NULL;
 	struct file *fp = NULL;
-	 mm_segment_t fs;
+	#//mm_segment_t fs;
 	off_t size;
 	fp = filp_open(AF_FEATURE_CONFIG_FILE, O_RDONLY, 0);
 
