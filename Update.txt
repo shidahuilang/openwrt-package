@@ -61,6 +61,7 @@ luci-app-unblockneteasemusic
 luci-app-vssr
 luci-app-wifidog
 luci-app-wolplus
+luci-app-xiaolaoshu
 luci-app-wrtbwmon
 luci-theme-Light
 luci-theme-argon
