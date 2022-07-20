@@ -11,3 +11,6 @@ msgstr ""
 
 msgid "NetData"
 msgstr "实时监控"
+
+msgid "NetData Restart"
+msgstr "服务重启"

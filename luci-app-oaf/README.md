@@ -19,19 +19,9 @@ git clone https://github.com/destan19/OpenAppFilter.git package/OpenAppFilter
 2. 关闭软硬加速、广告过滤、QOS、多WAN等涉及到nf_conn mark的模块,高通的AX系列产品需要将ecm允许慢速转发的包个数调整到最大值，直接stop ecm会导致吞吐非常低。
 3. 开启应用过滤并选择需要过滤的app即可生效  
 
-### 如何自定义特征码
-https://zhuanlan.zhihu.com/p/419053529  
-
 ### 特征库下载地址
 https://destan19.github.io/feature/
 
-### 深度优化的上网行为管理系统FROS  
-基于OpenAppFilter开发了一套行为管理系统，全新架构  
-支持应用过滤、网址过滤、端口过滤、防沉迷、游戏记录等  
-官网： www.ifros.cn  
-
-### 演示视频 
-抖音(douyin)号： linux4096 (linux开发者-derry)  
 
 ### 插件截图
 ![](https://github.com/destan19/picture/blob/main/oaf1.jpg)
