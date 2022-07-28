@@ -105,6 +105,11 @@ if [ "$RDM" = "5" ]; then
 fi
 
 LOAD=$(cat /proc/loadavg | cut -d " " -f 1)
+MY_LOAD_LIMIT=$(uci get wiwiz.portal.load_limit 2>/dev/null)
+if [ "$MY_LOAD_LIMIT" != "" ]; then
+	LOAD_LIMIT="$MY_LOAD_LIMIT"
+fi
+
 IS_LOAD_HIGH=$(awk -v num1="$LOAD" -v num2="$LOAD_LIMIT" 'BEGIN{print(num1>num2)?"true":"false"}')
 
 #debug starts
@@ -117,7 +122,7 @@ if [ "$IS_LOAD_HIGH" = "true" ]; then
 	sleep 3
 	$WIFIDOG_START
 #	wdctl restart
-	echo "Helper: $(date) Wifidog too busy! Restarted (wdctl)." >>$LOGFILE
+	echo "Helper: $(date) Wifidog too busy! Restarted (wdctl). LOAD=$LOAD" >>$LOGFILE
 	sleep 5
 	passAuthed
 	exit 0
