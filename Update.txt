@@ -59,6 +59,15 @@ luci-app-ttnode
 luci-app-udp2raw
 luci-app-unblockneteasemusic
 luci-app-vssr
+luci-app-xunyou
+luci-app-ubuntu
+luci-app-nextcloud
+luci-app-nastools
+luci-app-jackett
+luci-app-homeassistant
+luci-app-heimdall
+luci-app-jellyfin
+luci-app-wxedge
 luci-app-wifidog
 luci-app-wolplus
 luci-app-xiaolaoshu

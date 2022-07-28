@@ -1,0 +1,27 @@
+msgid "The nextcloud service is running."
+msgstr "nextcloud已启动"
+
+msgid "The nextcloud service is not running."
+msgstr "nextcloud服务未启动"
+
+msgid "The nextcloud service is not installed."
+msgstr "nextcloud服务未安装"
+
+msgid "open nextcloud"
+msgstr "打开nextcloud"
+
+msgid "stop nextcloud"
+msgstr "停止nextcloud"
+
+msgid "run nextcloud"
+msgstr "启动nextcloud"
+
+msgid "uninstall nextcloud"
+msgstr "删除nextcloud"
+
+msgid "install nextcloud"
+msgstr "安装nextcloud"
+
+msgid "Collecting data..."
+msgstr "收集数据..."
+

@@ -1,0 +1,2 @@
+msgid "heimdall"
+msgstr "Heimdall 精美导航"
