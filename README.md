@@ -8,6 +8,7 @@
 #
 
 ##### 添加以下插件
+###### [luci-app-autotimeset](#/README.md) &emsp;&emsp; # 定时设置插件(定时重启、定时关机、定时重启网络)
 ###### [luci-app-adblock-plus](#/README.md) &emsp;&emsp; # 拦截广告
 ###### [luci-app-adguardhome](#/README.md) &emsp;&emsp; # adguardhome
 ###### [luci-app-advanced](#/README.md) &emsp;&emsp; # 高级设置（内置luci-app-fileassistant文件助手）
