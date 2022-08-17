@@ -2,7 +2,7 @@
 # Wiwiz HotSpot Builder Utility
 # Copyright wiwiz.com. All rights reserved.
 
-MY_VERSION="3.2.4"  #for Wiwiz-opensource
+MY_VERSION="3.2.5"  #for Wiwiz-opensource
 
 #SRV_SAVE='/usr/local/hsbuilder/srv'
 ENVINFO='wiwiz-opensource'
@@ -274,7 +274,7 @@ do
 	touch $USERBLOCKPORT
 	touch $DOMAINNAME
 	touch $IPLIST.lasttime
-	echo "hsbuilder.sh: $(date)" >> $LOGFILE
+	echo "hsbuilder.sh $MY_VERSION: $(date)" >> $LOGFILE
 
 	AS_HOSTNAME_X=$AS_HOSTNAME
 	if [ "$AS_HOSTNAME_X" = "" ]; then
