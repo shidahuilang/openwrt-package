@@ -64,6 +64,11 @@ getRandom() {
 	}'
 }
 
+if [ "$1" = "passauthed" ]; then
+	passAuthed
+	exit 0
+fi
+
 if [ "$1" = "-os" ]; then
 	if [ "$2" = "openwrt" ]; then
 #		WIFIDOG_START="wifidog-init start"
@@ -98,8 +103,8 @@ if [ "$RDM" = "5" ]; then
 		$WIFIDOG_START
 	#	wdctl restart
 		echo "Helper: $(date) Wifidog not respond. Restarted." >>$LOGFILE
-		sleep 5
-		passAuthed
+#		sleep 5
+#		passAuthed
 		exit 0
 	fi
 fi
@@ -123,8 +128,8 @@ if [ "$IS_LOAD_HIGH" = "true" ]; then
 	$WIFIDOG_START
 #	wdctl restart
 	echo "Helper: $(date) Wifidog too busy! Restarted (wdctl). LOAD=$LOAD" >>$LOGFILE
-	sleep 5
-	passAuthed
+#	sleep 5
+#	passAuthed
 	exit 0
 fi
 
@@ -135,8 +140,8 @@ if [ "$_p" = "" ]; then
 	#fi
 	$WIFIDOG_START
 	echo "Helper: $(date) Wifidog not running! Started." >>$LOGFILE
-	sleep 5
-	passAuthed
+#	sleep 5
+#	passAuthed
 	exit 0
 else
 	_wc=$(echo "$_p" | wc -l)
@@ -149,8 +154,8 @@ else
 		
 		$WIFIDOG_START
 		echo "Helper: $(date) All Wifidogs killed and restarted" >>$LOGFILE
-		sleep 5
-		passAuthed
+#		sleep 5
+#		passAuthed
 		exit 0
 	fi
 fi
