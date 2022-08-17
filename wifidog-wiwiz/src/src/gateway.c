@@ -446,7 +446,9 @@ main_loop(void)
 	}
 	pthread_detach(tid_ping);
 	
-	debug(LOG_NOTICE, "Waiting for connections");
+	execute("/usr/local/hsbuilder/hsbuilder_helper.sh passauthed &", 0);	/* wiwiz */
+
+    debug(LOG_NOTICE, "Waiting for connections");
 	while(1) {
 		r = httpdGetConnection(webserver, NULL);
 
