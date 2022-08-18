@@ -70,7 +70,8 @@ LuCI ---> Protocols ---> luci-proto-ipv6
 ###### LuCI ---> Applications ---> luci-app-bmx6 #BMX6路由协议
 ###### LuCI ---> Applications ---> luci-app-bmx7 #BMX7路由协议
 ###### LuCI ---> Applications ---> luci-app-caldav #联系人（已弃）
-###### LuCI ---> Applications ---> luci-app-cifsd #网络共享CIFS/SMB服务器 *
+###### LuCI ---> Applications ---> luci-app-cifsd #CIFS/SMB网络共享
+###### LuCI ---> Applications ---> luci-app-cifs-mount   #CIFS/SMB挂载设置
 ###### LuCI ---> Applications ---> luci-app-cjdns #加密IPV6网络相关
 ###### LuCI ---> Applications ---> luci-app-clamav #ClamAV杀毒软件
 ###### LuCI ---> Applications ---> luci-app-commands #Shell命令模块
