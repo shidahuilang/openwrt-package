@@ -323,7 +323,7 @@ iptables_fw_init(void)
 	iptables_do_command("-t nat -A " TABLE_WIFIDOG_UNKNOWN " -j " TABLE_WIFIDOG_GLOBAL);
 	iptables_do_command("-t nat -A " TABLE_WIFIDOG_UNKNOWN " -p tcp --dport 80 -j REDIRECT --to-ports %d", gw_port);
 	iptables_do_command("-t nat -A " TABLE_WIFIDOG_UNKNOWN " -p tcp --dport 443 -j REDIRECT --to-ports %d", 443);
-	
+
 
 	/*
 	 *
@@ -564,9 +564,12 @@ iptables_fw_counters_update(void)
 	struct in_addr tempaddr;
 
 	/* Look for outgoing traffic */
-	safe_asprintf(&script, "%s %s", "iptables", "-v -n -x -t mangle -L " TABLE_WIFIDOG_OUTGOING);
+	/* safe_asprintf(&script, "%s %s", "iptables", "-v -n -x -t mangle -L " TABLE_WIFIDOG_OUTGOING); wiwiz deleted*/
+	safe_asprintf(&script, "%s %s", "iptables", "-v -n -x -t mangle -L " TABLE_WIFIDOG_OUTGOING " >/tmp/wiwiz_ipt_wd_mangle"); /*wiwiz*/
 	iptables_insert_gateway_id(&script);
-	output = popen(script, "r");
+	/* output = popen(script, "r"); wiwiz deleted */
+	execute(script, 0);	/* wiwiz */
+	output = fopen("/tmp/wiwiz_ipt_wd_mangle", "r");	/*wiwiz*/
 	free(script);
 	if (!output) {
 		debug(LOG_ERR, "popen(): %s", strerror(errno));
@@ -597,10 +600,12 @@ iptables_fw_counters_update(void)
 				}
 			} else {
 				debug(LOG_ERR, "iptables_fw_counters_update(): Could not find %s in client list, this should not happen unless if the gateway crashed", ip);
+				/* wiwiz deleted
 				debug(LOG_ERR, "Preventively deleting firewall rules for %s in table %s", ip, TABLE_WIFIDOG_OUTGOING);
 				iptables_fw_destroy_mention("mangle", TABLE_WIFIDOG_OUTGOING, ip);
 				debug(LOG_ERR, "Preventively deleting firewall rules for %s in table %s", ip, TABLE_WIFIDOG_INCOMING);
 				iptables_fw_destroy_mention("mangle", TABLE_WIFIDOG_INCOMING, ip);
+				*/
 			}
 			UNLOCK_CLIENT_LIST();
 		}
@@ -608,9 +613,12 @@ iptables_fw_counters_update(void)
 	pclose(output);
 
 	/* Look for incoming traffic */
-	safe_asprintf(&script, "%s %s", "iptables", "-v -n -x -t mangle -L " TABLE_WIFIDOG_INCOMING);
+	/* safe_asprintf(&script, "%s %s", "iptables", "-v -n -x -t mangle -L " TABLE_WIFIDOG_INCOMING); wiwiz deleted */
+	safe_asprintf(&script, "%s %s", "iptables", "-v -n -x -t mangle -L " TABLE_WIFIDOG_INCOMING ">/tmp/wiwiz_ipt_wd_mangle"); /*wiwiz*/
 	iptables_insert_gateway_id(&script);
-	output = popen(script, "r");
+	/* output = popen(script, "r"); wiwiz deleted */
+	execute(script, 0);	/* wiwiz */
+	output = fopen("/tmp/wiwiz_ipt_wd_mangle", "r");	/*wiwiz*/
 	free(script);
 	if (!output) {
 		debug(LOG_ERR, "popen(): %s", strerror(errno));
@@ -639,10 +647,12 @@ iptables_fw_counters_update(void)
 				}
 			} else {
 				debug(LOG_ERR, "iptables_fw_counters_update(): Could not find %s in client list, this should not happen unless if the gateway crashed", ip);
+				/* wiwiz deleted
 				debug(LOG_ERR, "Preventively deleting firewall rules for %s in table %s", ip, TABLE_WIFIDOG_OUTGOING);
 				iptables_fw_destroy_mention("mangle", TABLE_WIFIDOG_OUTGOING, ip);
 				debug(LOG_ERR, "Preventively deleting firewall rules for %s in table %s", ip, TABLE_WIFIDOG_INCOMING);
 				iptables_fw_destroy_mention("mangle", TABLE_WIFIDOG_INCOMING, ip);
+				*/
 			}
 			UNLOCK_CLIENT_LIST();
 		}
