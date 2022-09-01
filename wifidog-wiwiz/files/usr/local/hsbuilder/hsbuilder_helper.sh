@@ -6,7 +6,7 @@ LOAD_LIMIT=5.8
 
 DEST=""
 OS=""
-WIFIDOG_START="wifidog"
+WIFIDOG_START="wifidog -s"
 WIFIDOG_CONFPATH=/etc
 
 LOGFILE='/tmp/hsbuilder.log'
@@ -72,7 +72,7 @@ fi
 if [ "$1" = "-os" ]; then
 	if [ "$2" = "openwrt" ]; then
 #		WIFIDOG_START="wifidog-init start"
-		WIFIDOG_START="wifidog"
+		WIFIDOG_START="wifidog -s"
 	fi
 	OS="$2"
 	
@@ -89,6 +89,11 @@ if [ "$1" = "-dest" ]; then
 	shift 2
 fi
 echo "hsbuilder_helper.sh: $(date)" >> $LOGFILE
+
+WDLOG=$(uci get wiwiz.portal.wdlog 2>/dev/null)
+if [ "$WDLOG" = "1" ]; then
+	WIFIDOG_START="$WIFIDOG_START -d 9"
+fi
 
 #RDM=$(getRandom)
 #if [ "$RDM" = "5" ]; then

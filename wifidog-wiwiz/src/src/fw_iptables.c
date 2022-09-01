@@ -565,7 +565,7 @@ iptables_fw_counters_update(void)
 
 	/* Look for outgoing traffic */
 	/* safe_asprintf(&script, "%s %s", "iptables", "-v -n -x -t mangle -L " TABLE_WIFIDOG_OUTGOING); wiwiz deleted*/
-	safe_asprintf(&script, "%s %s", "iptables", "-v -n -x -t mangle -L " TABLE_WIFIDOG_OUTGOING " >/tmp/wiwiz_ipt_wd_mangle"); /*wiwiz*/
+	safe_asprintf(&script, "%s %s", "iptables", "-v -n -x -t mangle -L " TABLE_WIFIDOG_OUTGOING " | tail -n +3 | awk \'{print $2 \" \" $8}\' >/tmp/wiwiz_ipt_wd_mangle"); /*wiwiz*/
 	iptables_insert_gateway_id(&script);
 	/* output = popen(script, "r"); wiwiz deleted */
 	execute(script, 0);	/* wiwiz */
@@ -575,14 +575,15 @@ iptables_fw_counters_update(void)
 		debug(LOG_ERR, "popen(): %s", strerror(errno));
 		return -1;
 	}
-
-	/* skip the first two lines */
-	while (('\n' != fgetc(output)) && !feof(output))
-		;
-	while (('\n' != fgetc(output)) && !feof(output))
-		;
+//wiwiz deleted
+//	/* skip the first two lines */
+//	while (('\n' != fgetc(output)) && !feof(output))
+//		;
+//	while (('\n' != fgetc(output)) && !feof(output))
+//		;
 	while (output && !(feof(output))) {
-		rc = fscanf(output, "%*s %llu %*s %*s %*s %*s %*s %15[0-9.] %*s %*s %*s %*s %*s %*s", &counter, ip);
+		//rc = fscanf(output, "%*s %llu %*s %*s %*s %*s %*s %15[0-9.] %*s %*s %*s %*s %*s %*s", &counter, ip);	//wiwiz deleted
+		rc = fscanf(output, "%llu %15[0-9.]", &counter, ip);	//wiwiz
 		//rc = fscanf(output, "%*s %llu %*s %*s %*s %*s %*s %15[0-9.] %*s %*s %*s %*s %*s 0x%*u", &counter, ip);
 		if (2 == rc && EOF != rc) {
 			/* Sanity*/
@@ -643,7 +644,8 @@ iptables_fw_counters_update(void)
 			if ((p1 = client_list_find_by_ip(ip))) {
 				if ((p1->counters.incoming - p1->counters.incoming_history) < counter) {
 					p1->counters.incoming = p1->counters.incoming_history + counter;
-					debug(LOG_DEBUG, "%s - Updated counter.incoming to %llu bytes", ip, counter);
+					p1->counters.last_updated = time(NULL);
+					debug(LOG_DEBUG, "%s - Updated counter.incoming to %llu bytes, last_updated = %", ip, counter, p1->counters.last_updated);
 				}
 			} else {
 				debug(LOG_ERR, "iptables_fw_counters_update(): Could not find %s in client list, this should not happen unless if the gateway crashed", ip);
