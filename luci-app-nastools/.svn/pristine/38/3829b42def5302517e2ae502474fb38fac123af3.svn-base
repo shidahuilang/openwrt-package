@@ -9,6 +9,7 @@ local container_running = container_status == "running"
     <div class="cbi-value-field">
         <% if container_running then %>
         <button class="cbi-button cbi-button-success" disabled="true"><%:NasTools is running%></button>
+        <div class="cbi-value-description"><%:Default username: admin, password: password%></div>
         <% else %>
         <button class="cbi-button cbi-button-negative" disabled="true"><%:NasTools is not running%></button>
         <% end %>

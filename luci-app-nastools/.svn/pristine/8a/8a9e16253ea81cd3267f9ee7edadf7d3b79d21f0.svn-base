@@ -34,6 +34,9 @@ msgstr "状态"
 msgid "NasTools is running"
 msgstr "NasTools 运行中"
 
+msgid "Default username: admin, password: password"
+msgstr "默认用户名：admin，密码：password"
+
 msgid "NasTools is not running"
 msgstr "NasTools 未运行"
 
