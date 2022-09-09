@@ -155,6 +155,13 @@ parse_commandline(int argc, char **argv)
 		    fprintf(stderr, "wdctl: it should be: wdctl auth MAC IP TOKEN \n");
 		    exit(1);
 		}
+	} else if (strcmp(*(argv + optind), "sleep") == 0) {
+		config.command = WDCTL_SLEEP;
+
+		if(argc < 3) {
+		    fprintf(stderr, "wdctl: it should be: wdctl sleep <N milliseconds>  \n");
+		    exit(1);
+		}
 	}
     /* end: added by Wiwiz */
 	 else {
@@ -396,6 +403,9 @@ main(int argc, char **argv)
 	/* start: added by Wiwiz */
 	case WDCTL_AUTH:
 		wdctl_auth(argv[2], argv[3], argv[4]);
+		break;
+	case WDCTL_SLEEP:
+		usleep(atoi(argv[2]));
 		break;
 	/* end: added by Wiwiz */
 

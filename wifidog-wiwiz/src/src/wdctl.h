@@ -35,6 +35,7 @@
 #define WDCTL_KILL		3
 #define WDCTL_RESTART	4
 #define WDCTL_AUTH		9	/* by Wiwiz */
+#define WDCTL_SLEEP		10	/* by Wiwiz */
 
 typedef struct {
 	char	*socket;
