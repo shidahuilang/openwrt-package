@@ -49,9 +49,30 @@ if [ "$1" = "" ]; then
 	exit 1
 fi
 
+GIVEUP=""
+for i in `seq 0 30`; do
+	LOCK=$(cat /tmp/wiwiz_setspeed.lock 2>/dev/null)
+	if [ "$LOCK" = "1" ]; then
+		echo "Locked, waiting..."
+		wdctl sleep 50000
+	else
+		break
+	fi
+	if [ "$i" = "30" ]; then
+		GIVEUP="1"
+	fi	
+done
+if [ "$GIVEUP" = "1" ]; then
+	echo "waited too long. giving up."
+	exit 9
+fi
+
+echo '1'>/tmp/wiwiz_setspeed.lock
+
 if [ "$1" = "clear" ]; then
 	cnt=$(uci show eqos 2>/dev/null | grep '=device' | wc -l)
 	if [ "$cnt" = "0" ]; then
+		rm -f /tmp/wiwiz_setspeed.lock 2>/dev/null
 		exit 0;
 	fi
 	let maxindex=$cnt-1
@@ -74,16 +95,19 @@ if [ "$1" = "set" ]; then
 	ip=$(getIP $MAC)
 	
 	if [ "$ip" = "" ]; then
+		rm -f /tmp/wiwiz_setspeed.lock 2>/dev/null
 		exit 2
 	fi
 	
 	updown=$(getUpDown)
 	# updown="speed 3 2"
 	if [ "$updown" = "" ]; then
+		rm -f /tmp/wiwiz_setspeed.lock 2>/dev/null
 		exit 3
 	fi
 	
 	if [ "$(echo $updown | grep speed)" = "" ]; then
+		rm -f /tmp/wiwiz_setspeed.lock 2>/dev/null
 		exit 4
 	fi
 	
@@ -92,6 +116,7 @@ if [ "$1" = "set" ]; then
 	
 	if [ "$dl" = "" -o "$ul" = "" ]; then
 		echo "empty speed data"
+		rm -f /tmp/wiwiz_setspeed.lock 2>/dev/null
 		exit 0;
 	fi
 	
@@ -125,6 +150,7 @@ fi
 if [ "$1" = "unset" ]; then
 	ip=$(getIP2 $MAC)
 	if [ "$ip" = "" ]; then
+		rm -f /tmp/wiwiz_setspeed.lock 2>/dev/null
 		exit 5
 	fi
 	
@@ -146,3 +172,5 @@ if [ "$1" = "unset" ]; then
 	/etc/init.d/eqos stop; /etc/init.d/eqos start
 	echo "SetSpeed: $(date) unset $MAC" >>$LOGFILE
 fi
+
+rm -f /tmp/wiwiz_setspeed.lock 2>/dev/null
