@@ -1,10 +1,10 @@
-# Copyright (C) 2020-2021 Hyy2001X <https://github.com/Hyy2001X>
+# Copyright (C) 2020-2022 Hyy2001X <https://github.com/Hyy2001X>
 # See more information at https://webd.cf/
 
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=webd
-PKG_VERSION:=20220327
+PKG_VERSION:=20220512
 PKG_RELEASE:=$(AUTORELESE)
 
 include $(INCLUDE_DIR)/package.mk
@@ -14,11 +14,7 @@ define Package/$(PKG_NAME)
 	CATEGORY:=Network
 	TITLE:=A Lightweight self-hosted netdisk application
 	DEPENDS:=@(arm||x86_64||mipsel||mips||aarch64)
-	URL:=https://webd.cf/
-endef
-
-define Package/$(PKG_NAME)/description
-	webd - A Lightweight self-hosted netdisk application
+	URL:=https://webd.cf
 endef
 
 ifeq ($(ARCH),aarch64)
