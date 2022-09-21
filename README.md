@@ -163,6 +163,7 @@ LuCI ---> Protocols ---> luci-proto-ipv6
 ###### LuCI ---> Applications ---> luci-app-vsftpd #FTP服务器
 ###### LuCI ---> Applications ---> luci-app-watchcat #断网检测功能与定时重启
 ###### LuCI ---> Applications ---> luci-app-webadmin #Web管理页面设置
+###### LuCI ---> Applications ---> luci-app-wxedge #网心云
 ###### LuCI ---> Applications ---> luci-app-webshell #网页命令行终端（已弃）
 ###### LuCI ---> Applications ---> luci-app-wifischedule #WiFi 计划
 ###### LuCI ---> Applications ---> luci-app-wireguard #virtual**服务器 WireGuard状态
@@ -170,6 +171,8 @@ LuCI ---> Protocols ---> luci-proto-ipv6
 ###### LuCI ---> Applications ---> luci-app-wrtbwmon #实时流量监测
 ###### LuCI ---> Applications ---> luci-app-xlnetacc #迅雷快鸟
 ###### LuCI ---> Applications ---> luci-app-zerotier #ZeroTier内网穿透
+###### LuCI ---> Applications ---> luci-app-homeassistant #智能家居
+###### LuCI ---> Applications ---> luci-app-homebox #内网测速
 ###### [luci-app-gowebdav](#/README.md) &emsp;&emsp; # GoWebDav 是一个轻巧、简单、快速的 WebDav 服务端程序
 ###### [luci-app-ipsec-vpnserver-manyusers](#/README.md) &emsp;&emsp; # ipsec-vpn
 ###### [luci-app-iptvhelper](#/README.md) &emsp;&emsp; # iptvhelper,帮助你轻松配置IPTV
