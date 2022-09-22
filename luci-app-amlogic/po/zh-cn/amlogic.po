@@ -111,8 +111,11 @@ msgstr "[s905d] 斐讯-N1"
 msgid "[s905d] Phicomm N1 (DMA thresh)"
 msgstr "[s905d] 斐讯-N1 (流控)"
 
-msgid "[s905x] HG680P & B860H"
-msgstr "[s905x] 烽火HG680 & 中兴B860H"
+msgid "[s905x] HG680P"
+msgstr "[s905x] 烽火HG680"
+
+msgid "[s905x] B860H"
+msgstr "[s905x] 中兴B860H"
 
 msgid "[s905w] X96-Mini & TX3-Mini"
 msgstr "[s905w] X96-Mini & TX3-Mini"
@@ -264,14 +267,14 @@ msgstr "晶晨 s905x3 -- [ X96-Max+, HK1-Box, H96-Max-X3, Ugoos-X3, TX3, X96-Air
 msgid "Amlogic s905x2 -- [ X96Max-4G, X96Max-2G ]"
 msgstr "晶晨 s905x2 -- [ X96Max-4G, X96Max-2G ]"
 
-msgid "Amlogic s905x --- [ HG680P, B860H ]"
-msgstr "晶晨 s905x --- [ 烽火HG680 & 中兴B860H ]"
+msgid "Amlogic s905x --- [ HG680P, B860H, TBee, MECOOL-KI-Pro ]"
+msgstr "晶晨 s905x --- [ 烽火HG680, 中兴B860H, TBee, MECOOL-KI-Pro ]"
 
 msgid "Amlogic s905w --- [ X96-Mini, TX3-Mini ]"
 msgstr "晶晨 s905w --- [ X96-Mini, TX3-Mini ]"
 
-msgid "Amlogic s912 ---- [ H96-Pro-Plus, Octopus-Planet ]"
-msgstr "晶晨 s912 ---- [ H96-Pro-Plus, 章鱼星球 ]"
+msgid "Amlogic s912 ---- [ H96-Pro-Plus, Octopus-Planet, A1, A2, Z6-Plus, TX92, X92, TX8-MAX, TX9-Pro ]"
+msgstr "晶晨 s912 ---- [ H96-Pro-Plus, 章鱼星球, A1, A2, Z6-Plus, TX92, X92, TX8-MAX, TX9-Pro ]"
 
 msgid "Amlogic s905d --- [ Phicomm-N1 ]"
 msgstr "晶晨 s905d --- [ 斐讯-N1 ]"
@@ -284,6 +287,30 @@ msgstr "全志 H6 ------ [ 微加云 ]"
 
 msgid "Rockchip 3328 --- [ BeikeYun, Chainedbox L1 Pro ]"
 msgstr "瑞芯微 3328 -- [ 贝壳云、我家云 ]"
+
+msgid "Used in KVM ----- [ Can be used in KVM virtual machine of Armbian system. ]"
+msgstr "KVM 中使用 --- [ 可以在 Armbian 系统的 KVM 虚拟机中使用。 ]"
+
+msgid "KVM dual system switching"
+msgstr "KVM 双系统切换"
+
+msgid "You can freely switch between KVM dual partitions, using OpenWrt systems in different partitions."
+msgstr "您可以在 KVM 双分区之间自由切换，使用不同分区中的 OpenWrt 系统。"
+
+msgid "Switch System"
+msgstr "切换系统"
+
+msgid "System is switching..."
+msgstr "系统切换中..."
+
+msgid "Waiting for system switching..."
+msgstr "等待系统完成切换..."
+
+msgid "System switchover succeeded, restarting..."
+msgstr "系统切换成功，正在重启..."
+
+msgid "Are you sure you want to switch systems?"
+msgstr "你确定要切换系统吗？"
 
 msgid "Install Ipk"
 msgstr "安装Ipk"
