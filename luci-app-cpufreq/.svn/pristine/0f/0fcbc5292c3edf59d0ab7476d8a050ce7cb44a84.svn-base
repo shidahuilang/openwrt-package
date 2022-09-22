@@ -1,0 +1,64 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+#: applications/luci-app-cpufreq/htdocs/luci-static/resources/view/cpufreq/cpufreq.js:43
+msgid "<h4>Apply for CPU %s.</h4>"
+msgstr ""
+
+#: applications/luci-app-cpufreq/root/usr/share/rpcd/luci/menu.d/luci-app-cpufreq.json:3
+msgid "CPU Freq"
+msgstr ""
+
+#: applications/luci-app-cpufreq/htdocs/luci-static/resources/view/cpufreq/cpufreq.js:24
+msgid "CPU Freq Settings"
+msgstr ""
+
+#: applications/luci-app-cpufreq/htdocs/luci-static/resources/view/cpufreq/cpufreq.js:45
+msgid "CPU Scaling Governor"
+msgstr ""
+
+#: applications/luci-app-cpufreq/htdocs/luci-static/resources/view/cpufreq/cpufreq.js:64
+msgid "CPU Switching Sampling rate"
+msgstr ""
+
+#: applications/luci-app-cpufreq/htdocs/luci-static/resources/view/cpufreq/cpufreq.js:71
+msgid "CPU Switching Threshold"
+msgstr ""
+
+#: applications/luci-app-cpufreq/root/usr/share/rpcd/acl.d/luci-app-cpufreq.json:3
+msgid "Grant access to CPUFreq configuration"
+msgstr ""
+
+#: applications/luci-app-cpufreq/htdocs/luci-static/resources/view/cpufreq/cpufreq.js:72
+msgid "Kernel make a decision on whether it should increase the frequency (%)"
+msgstr ""
+
+#: applications/luci-app-cpufreq/htdocs/luci-static/resources/view/cpufreq/cpufreq.js:59
+msgid "Max CPU Freq cannot be lower than Min CPU Freq."
+msgstr ""
+
+#: applications/luci-app-cpufreq/htdocs/luci-static/resources/view/cpufreq/cpufreq.js:53
+msgid "Max Turbo Boost CPU Freq"
+msgstr ""
+
+#: applications/luci-app-cpufreq/htdocs/luci-static/resources/view/cpufreq/cpufreq.js:49
+msgid "Min Idle CPU Freq"
+msgstr ""
+
+#: applications/luci-app-cpufreq/htdocs/luci-static/resources/view/cpufreq/cpufreq.js:25
+msgid "Set CPU Scaling Governor to Max Performance or Balance Mode"
+msgstr ""
+
+#: applications/luci-app-cpufreq/htdocs/luci-static/resources/view/cpufreq/cpufreq.js:65
+msgid ""
+"The sampling rate determines how frequently the governor checks to tune the "
+"CPU (ms)"
+msgstr ""
+
+#: applications/luci-app-cpufreq/htdocs/luci-static/resources/view/cpufreq/cpufreq.js:36
+msgid "Unsupported device!"
+msgstr ""
+
+#: applications/luci-app-cpufreq/htdocs/luci-static/resources/view/cpufreq/cpufreq.js:37
+msgid "Your device/kernel does not support CPU frequency scaling."
+msgstr ""
