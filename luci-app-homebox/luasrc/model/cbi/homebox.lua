@@ -5,7 +5,7 @@ m = Map("homebox", translate("Homebox"), translate("Homebox is a tool for local 
 
 m:section(SimpleSection).template  = "homebox_status"
 
-s=m:section(TypedSection, "homebox", translate("Global settings"))
+s=m:section(TypedSection, "homebox", translate("Global Settings"))
 s.addremove=false
 s.anonymous=true
 

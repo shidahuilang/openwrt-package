@@ -1,8 +1,8 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
 msgid "Homebox"
 msgstr "Homebox"
-
-msgid "Running state"
-msgstr "运行状态"
 
 msgid "Click to open Homebox"
 msgstr "点击打开Homebox"
