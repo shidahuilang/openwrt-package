@@ -7,16 +7,16 @@ local ltn12 = require "luci.ltn12"
 local table = require "table"
 local util = require "luci.util"
 
-module("luci.controller.istore_backend", package.seeall)
+module("luci.controller.linkease_backend", package.seeall)
 
 local BLOCKSIZE = 2048
-local ISTOREOS_PORT = 3038
+local LINKEASE_UNIX = "/var/run/linkease.sock"
 
 function index()
-    entry({"istore"}, call("istore_backend")).leaf=true
+    entry({"linkease"}, call("linkease_backend")).leaf=true
 end
 
-function sink_socket(sock, io_err) 
+local function sink_socket(sock, io_err) 
   if sock then 
     return function(chunk, err) 
       if not chunk then 
@@ -50,9 +50,52 @@ local function get_session(sid)
   return nil, nil
 end
 
-function istore_backend() 
-  local sock = nixio.connect("127.0.0.1", ISTOREOS_PORT) 
-  if not sock then
+local function chunksource(sock, buffer)
+	buffer = buffer or ""
+	return function()
+		local output
+		local _, endp, count = buffer:find("^([0-9a-fA-F]+);?.-\r\n")
+		while not count and #buffer <= 1024 do
+			local newblock, code = sock:recv(1024 - #buffer)
+			if not newblock then
+				return nil, code
+			end
+			buffer = buffer .. newblock  
+			_, endp, count = buffer:find("^([0-9a-fA-F]+);?.-\r\n")
+		end
+		count = tonumber(count, 16)
+		if not count then
+			return nil, -1, "invalid encoding"
+		elseif count == 0 then
+			return nil
+		elseif count + 2 <= #buffer - endp then
+			output = buffer:sub(endp+1, endp+count)
+			buffer = buffer:sub(endp+count+3)
+			return output
+		else
+			output = buffer:sub(endp+1, endp+count)
+			buffer = ""
+			if count - #output > 0 then
+				local remain, code = sock:recvall(count-#output)
+				if not remain then
+					return nil, code
+				end
+				output = output .. remain
+				count, code = sock:recvall(2)
+			else
+				count, code = sock:recvall(count+2-#buffer+endp)
+			end
+			if not count then
+				return nil, code
+			end
+			return output
+		end
+	end
+end
+
+function linkease_backend() 
+  local sock = nixio.socket("unix", "stream")
+  if sock:connect(LINKEASE_UNIX) ~= true then
     http.status(500, "connect failed")
     return
   end
@@ -138,45 +181,3 @@ function istore_backend()
   sock:close()
 end
 
-function chunksource(sock, buffer)
-	buffer = buffer or ""
-	return function()
-		local output
-		local _, endp, count = buffer:find("^([0-9a-fA-F]+);?.-\r\n")
-		while not count and #buffer <= 1024 do
-			local newblock, code = sock:recv(1024 - #buffer)
-			if not newblock then
-				return nil, code
-			end
-			buffer = buffer .. newblock  
-			_, endp, count = buffer:find("^([0-9a-fA-F]+);?.-\r\n")
-		end
-		count = tonumber(count, 16)
-		if not count then
-			return nil, -1, "invalid encoding"
-		elseif count == 0 then
-			return nil
-		elseif count + 2 <= #buffer - endp then
-			output = buffer:sub(endp+1, endp+count)
-			buffer = buffer:sub(endp+count+3)
-			return output
-		else
-			output = buffer:sub(endp+1, endp+count)
-			buffer = ""
-			if count - #output > 0 then
-				local remain, code = sock:recvall(count-#output)
-				if not remain then
-					return nil, code
-				end
-				output = output .. remain
-				count, code = sock:recvall(2)
-			else
-				count, code = sock:recvall(count+2-#buffer+endp)
-			end
-			if not count then
-				return nil, code
-			end
-			return output
-		end
-	end
-end
