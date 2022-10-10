@@ -542,6 +542,14 @@ iptables_fw_access(fw_access_t type, const char *ip, const char *mac, int tag)
 			iptables_do_command("-t mangle -D " TABLE_WIFIDOG_OUTGOING " -s %s -m mac --mac-source %s -j MARK --set-mark 0x%d00/0xff00", ip, mac, tag);	//wiwiz
 //			iptables_do_command("-t mangle -D " TABLE_WIFIDOG_OUTGOING " -s %s -m mac --mac-source %s -j MARK --set-mark 0x%d/0x00ff", ip, mac, tag);	//wiwiz
 			rc = iptables_do_command("-t mangle -D " TABLE_WIFIDOG_INCOMING " -d %s -j ACCEPT", ip);
+
+			//wiwiz add start
+			for(int i = 0; i < 10; i++) {
+				iptables_do_command("-t mangle -D " TABLE_WIFIDOG_OUTGOING " -s %s -m mac --mac-source %s -j MARK --set-mark 0x%d00/0xff00", ip, mac, tag);
+				iptables_do_command("-t mangle -D " TABLE_WIFIDOG_INCOMING " -d %s -j ACCEPT", ip);
+			}
+			//wiwiz add end
+			
 			break;
 		default:
 			rc = -1;
