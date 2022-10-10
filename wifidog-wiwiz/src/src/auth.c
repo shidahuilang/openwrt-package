@@ -101,9 +101,18 @@ authenticate_client(request *r)
 	s_config	*config = NULL;
 	t_auth_serv	*auth_server = NULL;
 
+	//wiwiz add start
+	if (!(mac = arp_get(r->clientAddr))) {
+		/* We could not get their MAC address */
+		debug(LOG_ERR, "Failed to retrieve MAC address for ip %s", r->clientAddr);
+		return;
+	}
+	//wiwiz add end
+
 	LOCK_CLIENT_LIST();
 
-	client = client_list_find_by_ip(r->clientAddr);
+	//client = client_list_find_by_ip(r->clientAddr);	wiwiz deleted
+	client = client_list_find(r->clientAddr, mac);	//wiwiz
 
 	if (client == NULL) {
 		debug(LOG_ERR, "authenticate_client(): Could not find client for %s", r->clientAddr);
