@@ -11,3 +11,7 @@ msgstr ""
 
 msgid "NetData"
 msgstr "实时监控"
+
+msgid "Set the netdata access port"
+msgstr "设置访问端口"
+
