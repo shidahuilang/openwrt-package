@@ -2,12 +2,11 @@
 <a href="#readme">
     <img src="https://img.vim-cn.com/7f/270400123d9c4385c11d0aed32979f35d80578.png" alt="图飞了😂" title="opentopd" align="right" height="180" />
 </a>
-欢迎来到sirpdboy的源码仓库！
-=
-Welcome to sirpdboy's  git source of packages
--
+
+![screenshots](https://raw.githubusercontent.com/sirpdboy/openwrt/master/doc/说明1.jpg)
+
 [luci-theme-opentopd  thme openwrt主题](https://github.com/sirpdboy/luci-theme-opentopd)
--
+
 
 [![](https://img.shields.io/badge/-目录:-696969.svg)](#readme) [![](https://img.shields.io/badge/-编译说明-F5F5F5.svg)](#编译说明-) [![](https://img.shields.io/badge/-捐助-F5F5F5.svg)](#捐助-) 
 
@@ -139,9 +138,9 @@ opentopd是一款基于luci-theme-material构建,使用HTML5、CSS3编写的Luci
 
 源码来源：https://github.com/sirpdboy/luci-theme-opentopd
 
+![screenshots](https://raw.githubusercontent.com/sirpdboy/openwrt/master/doc/说明2.jpg)
 
-你可以随意使用其中的源码，但请注明出处。
-============================
+### 你可以随意使用其中的源码，但请注明出处。
 
 
 # My other project
@@ -165,8 +164,7 @@ ddns-go动态域名: https://github.com/sirpdboy/luci-app-ddns-go
 
 ## 捐助
 
--如果你觉得此项目对你有帮助，请捐助我们，以使项目能持续发展，更加完善。··请作者喝杯咖啡~~~**
--你们的支持就是我的动力！**
+![screenshots](https://raw.githubusercontent.com/sirpdboy/openwrt/master/doc/说明3.jpg)
 
 |     <img src="https://img.shields.io/badge/-支付宝-F5F5F5.svg" href="#赞助支持本项目-" height="25" alt="图飞了😂"/>  |  <img src="https://img.shields.io/badge/-微信-F5F5F5.svg" height="25" alt="图飞了😂" href="#赞助支持本项目-"/>  | 
 | :-----------------: | :-------------: |
