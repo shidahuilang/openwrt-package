@@ -22,7 +22,7 @@ getIP() {
 	mac="$1"	
 	
 	for i in $(seq 6); do	
-		s=$(cat /proc/net/arp | grep -F "$mac" | grep -F '0x2')
+		s=$(cat /proc/net/arp | grep -F 'br-lan' | grep -F "$mac" | grep -F '0x2')
 		if [ "$s" = "" ]; then
 			sleep 1
 			continue
