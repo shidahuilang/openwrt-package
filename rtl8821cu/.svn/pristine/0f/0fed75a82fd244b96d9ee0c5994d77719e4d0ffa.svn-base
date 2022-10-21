@@ -9,7 +9,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=rtl8821cu
-PKG_RELEASE:=28
+PKG_RELEASE:=29
 
 PKG_SOURCE_URL:=https://github.com/brektrou/rtl8821CU.git
 PKG_SOURCE_PROTO:=git
