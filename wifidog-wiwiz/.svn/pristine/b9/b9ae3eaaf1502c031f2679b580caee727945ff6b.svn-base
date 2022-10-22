@@ -2,7 +2,7 @@
 # Wiwiz HotSpot Builder Utility
 # Copyright wiwiz.com. All rights reserved.
 
-MY_VERSION="3.2.10"  #for Wiwiz-opensource
+MY_VERSION="3.2.11"  #for Wiwiz-opensource
 
 #SRV_SAVE='/usr/local/hsbuilder/srv'
 ENVINFO='wiwiz-opensource'
