@@ -8,6 +8,7 @@ include $(TOPDIR)/rules.mk
 LUCI_TITLE:=LuCI support for Wakeup-On-Lan-plus
 LUCI_DEPENDS:=+etherwake
 LUCI_PKGARCH:=all
+PKG_NAME:=luci-app-wolplus
 PKG_VERSION:=1.0.2
 PKG_RELEASE:=1
 
