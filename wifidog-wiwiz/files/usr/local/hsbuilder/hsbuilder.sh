@@ -2,7 +2,7 @@
 # Wiwiz HotSpot Builder Utility
 # Copyright wiwiz.com. All rights reserved.
 
-MY_VERSION="3.2.11"  #for Wiwiz-opensource
+MY_VERSION="3.2.12"  #for Wiwiz-opensource
 
 #SRV_SAVE='/usr/local/hsbuilder/srv'
 ENVINFO='wiwiz-opensource'
@@ -248,7 +248,13 @@ do
 	else
 		if [ "$DISABLE_IPV6" = "1" ]; then
 			[ "$(uci get network.lan.ipv6 2>/dev/null)" != "0" ] && {
-				uci set network.lan.ipv6='0' && uci commit
+				uci set network.lan.ipv6='0' && uci commit network
+			}
+			[ "$(uci get network.wan6.reqaddress 2>/dev/null)" != "none" ] && {
+				uci set network.wan6.reqaddress='none' && uci commit network
+			}
+			[ "$(uci get network.wan6.reqprefix 2>/dev/null)" != "no" ] && {
+				uci set network.wan6.reqprefix='no' && uci commit network
 			}
 		fi
 	fi
@@ -412,6 +418,7 @@ do
 	rm -f $DOMAINNAME
 	rm -f $TRUSTMAC 2>/dev/null
 	
+	sleep 20
 	/usr/local/hsbuilder/hsbuilder_helper.sh -os openwrt
 	
 	if [ "$ENVINFO_SENT" = "0" ]; then
@@ -420,5 +427,5 @@ do
 		ENVINFO_SENT=1
 	fi
 	
-	sleep 30
+	sleep 20
 done
