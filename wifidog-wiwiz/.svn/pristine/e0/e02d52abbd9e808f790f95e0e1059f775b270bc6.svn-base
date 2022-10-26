@@ -24,6 +24,7 @@ define Package/wifidog-wiwiz
   DEPENDS:=+iptables-mod-extra +iptables-mod-ipopt +iptables-mod-nat-extra +libpthread +curl
   TITLE:=wifidog-wiwiz
   URL:=http://www.wiwiz.com
+  MENU:=1
 endef
 
 define Package/wifidog-wiwiz/description
@@ -32,6 +33,10 @@ endef
 
 define Package/wifidog-wiwiz/conffiles
 /etc/wifidog.conf
+endef
+
+define Package/wifidog-wiwiz/config
+	source "$(SOURCE)/Config.in"
 endef
 
 define Package/wifidog-wiwiz/install
@@ -77,6 +82,10 @@ define Package/wifidog-wiwiz/install
 	$(INSTALL_DATA) ./files/www/error.html.wiwiz $(1)/www/error.html.wiwiz
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(INSTALL_BIN) ./files/etc/uci-defaults/199-noredir $(1)/etc/uci-defaults/199-noredir
+	
+ifeq ($(CONFIG_NO_PORTAL),y)
+	$(INSTALL_BIN) ./files/etc/uci-defaults/299-noportal $(1)/etc/uci-defaults/299-noportal
+endif
 endef
 
 define Package/wifidog-wiwiz/postinst
@@ -89,3 +98,4 @@ rm -f $${IPKG_INSTROOT}/www/error.html.wiwiz
 endef
 
 $(eval $(call BuildPackage,wifidog-wiwiz))
+
