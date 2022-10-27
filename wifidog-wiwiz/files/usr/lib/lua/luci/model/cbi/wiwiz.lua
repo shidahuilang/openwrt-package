@@ -10,13 +10,15 @@ hotspotid = portal:option(Value, "hotspotid", "Hotspot ID", "注意区分大小�
 hotspotid.optional = false 
 hotspotid.rmempty = false
 
-username = portal:option(Value, "username", "User Name", "Wiwiz平台用户请填写Wiwiz平台用户名；拼拼WiFi平台用户填写pinpinwifi"); 
-username.optional = false 
-username.rmempty = false
+--username = portal:option(Value, "username", "User Name", "Wiwiz平台用户请填写Wiwiz平台用户名；拼拼WiFi平台用户填写pinpinwifi"); 
+--username.optional = false 
+--username.rmempty = false
 
 server = portal:option(Value, "server", "服务器地址与端口"); 
 server.optional = false 
 server.rmempty = false
 server.default = "cp.wiwiz.com:80"
+
+ver = portal:option(DummyValue, "ver", "Wiwiz插件版本", "");
 
 return m
