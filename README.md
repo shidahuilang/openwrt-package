@@ -10,7 +10,11 @@
 ##### 添加以下插件
 ###### [luci-app-autotimeset](#/README.md) &emsp;&emsp; # 定时设置插件(定时重启、定时关机、定时重启网络)
 ###### [luci-app-adblock-plus](#/README.md) &emsp;&emsp; # 拦截广告
+###### [luci-app-netspeedtest](#/README.md) &emsp;&emsp; # 网络测速
+###### [luci-app-homeredirect](#/README.md) &emsp;&emsp; # 端口转发
+###### [luci-app-quickstart](#/README.md) &emsp;&emsp; # iStoreOS-web
 ###### [luci-app-adguardhome](#/README.md) &emsp;&emsp; # adguardhome
+###### [luci-app-lucky](#/README.md) &emsp;&emsp; # #替代socat,主要用于公网IPv6 tcp/udp转 内网ipv4
 ###### [luci-app-advanced](#/README.md) &emsp;&emsp; # 高级设置（内置luci-app-fileassistant文件助手）
 ###### LuCI ---> Applications ---> luci-app-accesscontrol&emsp;&emsp; #访问时间控制
 ###### LuCI ---> Applications ---> luci-app-adbyby-plus&emsp;&emsp; #广告屏蔽大师Plus +
