@@ -24,10 +24,14 @@ case "$1" in
     echo "Starting Wifidog ... "
     if $WD_DIR/wdctl status 2> /dev/null
     then
-	echo "FAILED:  Wifidog already running"
+      echo "FAILED:  Wifidog already running"
     else
         $0 test-module
         
+        MY_VERSION="$(cat /usr/local/hsbuilder/ver 2>/dev/null)"
+        uci set wiwiz.portal.ver="$MY_VERSION"
+        uci commit wiwiz
+
         (/usr/local/hsbuilder/hsbuilder.sh -conf /usr/local/hsbuilder/hsbuilder.conf -mypath /usr/local/hsbuilder/hsbuilder.sh -nomsgfile -noresolve -envinfo "wiwiz-opsrc")&
         
        	echo 1 >/tmp/wiwizroaming
