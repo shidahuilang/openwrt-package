@@ -275,8 +275,8 @@ iptables_fw_init(void)
 
 	for (p = config->trustedmaclist; p != NULL; p = p->next)
 		//iptables_do_command("-t mangle -A " TABLE_WIFIDOG_TRUSTED " -m mac --mac-source %s -j MARK --set-mark %d", p->mac, FW_MARK_KNOWN);
-		iptables_do_command("-t mangle -A " TABLE_WIFIDOG_TRUSTED " -m mac --mac-source %s -j MARK --set-mark 0x%d00/0xff00", p->mac, FW_MARK_KNOWN);	//wiwiz
-		//iptables_do_command("-t mangle -A " TABLE_WIFIDOG_TRUSTED " -m mac --mac-source %s -j MARK --set-mark 0x%d/0x00ff", p->mac, FW_MARK_KNOWN);	//wiwiz
+		//iptables_do_command("-t mangle -A " TABLE_WIFIDOG_TRUSTED " -m mac --mac-source %s -j MARK --set-mark 0x%d00/0xff00", p->mac, FW_MARK_KNOWN);	//wiwiz
+		iptables_do_command("-t mangle -A " TABLE_WIFIDOG_TRUSTED " -m mac --mac-source %s -j MARK --set-mark 0x%d/0x00ff", p->mac, FW_MARK_KNOWN);	//wiwiz
 
 	/*
 	 *
@@ -304,19 +304,19 @@ iptables_fw_init(void)
 		debug(LOG_DEBUG,"Proxy port set, setting proxy rule");
 //		iptables_do_command("-t nat -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -p tcp --dport 80 -m mark --mark 0x%u -j REDIRECT --to-port %u", FW_MARK_KNOWN, proxy_port);
 //		iptables_do_command("-t nat -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -p tcp --dport 80 -m mark --mark 0x%u -j REDIRECT --to-port %u", FW_MARK_PROBATION, proxy_port);
-		iptables_do_command("-t nat -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -p tcp --dport 80 -m mark --mark 0x%u00/0xff00 -j REDIRECT --to-port %u", FW_MARK_KNOWN, proxy_port);		//wiwiz
-		iptables_do_command("-t nat -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -p tcp --dport 80 -m mark --mark 0x%u00/0xff00 -j REDIRECT --to-port %u", FW_MARK_PROBATION, proxy_port);	//wiwiz
-//		iptables_do_command("-t nat -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -p tcp --dport 80 -m mark --mark 0x%u/0x00ff -j REDIRECT --to-port %u", FW_MARK_KNOWN, proxy_port);		//wiwiz
-//		iptables_do_command("-t nat -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -p tcp --dport 80 -m mark --mark 0x%u/0x00ff -j REDIRECT --to-port %u", FW_MARK_PROBATION, proxy_port);	//wiwiz
+//		iptables_do_command("-t nat -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -p tcp --dport 80 -m mark --mark 0x%u00/0xff00 -j REDIRECT --to-port %u", FW_MARK_KNOWN, proxy_port);		//wiwiz
+//		iptables_do_command("-t nat -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -p tcp --dport 80 -m mark --mark 0x%u00/0xff00 -j REDIRECT --to-port %u", FW_MARK_PROBATION, proxy_port);	//wiwiz
+		iptables_do_command("-t nat -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -p tcp --dport 80 -m mark --mark 0x%u/0x00ff -j REDIRECT --to-port %u", FW_MARK_KNOWN, proxy_port);		//wiwiz
+		iptables_do_command("-t nat -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -p tcp --dport 80 -m mark --mark 0x%u/0x00ff -j REDIRECT --to-port %u", FW_MARK_PROBATION, proxy_port);	//wiwiz
 
 	}
 
 //	iptables_do_command("-t nat -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -m mark --mark 0x%u -j ACCEPT", FW_MARK_KNOWN);
 //	iptables_do_command("-t nat -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -m mark --mark 0x%u -j ACCEPT", FW_MARK_PROBATION);
-	iptables_do_command("-t nat -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -m mark --mark 0x%u00/0xff00 -j ACCEPT", FW_MARK_KNOWN);		//wiwiz
-	iptables_do_command("-t nat -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -m mark --mark 0x%u00/0xff00 -j ACCEPT", FW_MARK_PROBATION);	//wiwiz
-//	iptables_do_command("-t nat -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -m mark --mark 0x%u/0x00ff -j ACCEPT", FW_MARK_KNOWN);		//wiwiz
-//	iptables_do_command("-t nat -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -m mark --mark 0x%u/0x00ff -j ACCEPT", FW_MARK_PROBATION);	//wiwiz
+//	iptables_do_command("-t nat -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -m mark --mark 0x%u00/0xff00 -j ACCEPT", FW_MARK_KNOWN);		//wiwiz
+//	iptables_do_command("-t nat -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -m mark --mark 0x%u00/0xff00 -j ACCEPT", FW_MARK_PROBATION);	//wiwiz
+	iptables_do_command("-t nat -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -m mark --mark 0x%u/0x00ff -j ACCEPT", FW_MARK_KNOWN);		//wiwiz
+	iptables_do_command("-t nat -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -m mark --mark 0x%u/0x00ff -j ACCEPT", FW_MARK_PROBATION);	//wiwiz
 	iptables_do_command("-t nat -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -j " TABLE_WIFIDOG_UNKNOWN);
 
 	iptables_do_command("-t nat -A " TABLE_WIFIDOG_UNKNOWN " -j " TABLE_WIFIDOG_AUTHSERVERS);
@@ -362,8 +362,8 @@ iptables_fw_init(void)
 	iptables_fw_set_authservers();
 
 	//iptables_do_command("-t filter -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -m mark --mark 0x%u -j " TABLE_WIFIDOG_LOCKED, FW_MARK_LOCKED);
-	iptables_do_command("-t filter -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -m mark --mark 0x%u00/0xff00 -j " TABLE_WIFIDOG_LOCKED, FW_MARK_LOCKED);	//wiwiz
-	//iptables_do_command("-t filter -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -m mark --mark 0x%u/0x00ff -j " TABLE_WIFIDOG_LOCKED, FW_MARK_LOCKED);	//wiwiz
+	//iptables_do_command("-t filter -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -m mark --mark 0x%u00/0xff00 -j " TABLE_WIFIDOG_LOCKED, FW_MARK_LOCKED);	//wiwiz
+	iptables_do_command("-t filter -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -m mark --mark 0x%u/0x00ff -j " TABLE_WIFIDOG_LOCKED, FW_MARK_LOCKED);	//wiwiz
 	iptables_load_ruleset("filter", "locked-users", TABLE_WIFIDOG_LOCKED);
 
 	iptables_do_command("-t filter -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -j " TABLE_WIFIDOG_GLOBAL);
@@ -371,13 +371,13 @@ iptables_fw_init(void)
 	iptables_load_ruleset("nat", "global", TABLE_WIFIDOG_GLOBAL);
 
 //	iptables_do_command("-t filter -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -m mark --mark 0x%u -j " TABLE_WIFIDOG_VALIDATE, FW_MARK_PROBATION);
-	iptables_do_command("-t filter -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -m mark --mark 0x%u00/0xff00 -j " TABLE_WIFIDOG_VALIDATE, FW_MARK_PROBATION);	//wiwiz
-//	iptables_do_command("-t filter -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -m mark --mark 0x%u/0x00ff -j " TABLE_WIFIDOG_VALIDATE, FW_MARK_PROBATION);	//wiwiz
+//	iptables_do_command("-t filter -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -m mark --mark 0x%u00/0xff00 -j " TABLE_WIFIDOG_VALIDATE, FW_MARK_PROBATION);	//wiwiz
+	iptables_do_command("-t filter -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -m mark --mark 0x%u/0x00ff -j " TABLE_WIFIDOG_VALIDATE, FW_MARK_PROBATION);	//wiwiz
 	iptables_load_ruleset("filter", "validating-users", TABLE_WIFIDOG_VALIDATE);
 
 //	iptables_do_command("-t filter -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -m mark --mark 0x%u -j " TABLE_WIFIDOG_KNOWN, FW_MARK_KNOWN);
-	iptables_do_command("-t filter -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -m mark --mark 0x%u00/0xff00 -j " TABLE_WIFIDOG_KNOWN, FW_MARK_KNOWN);	//wiwiz
-//	iptables_do_command("-t filter -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -m mark --mark 0x%u/0x00ff -j " TABLE_WIFIDOG_KNOWN, FW_MARK_KNOWN);	//wiwiz
+//	iptables_do_command("-t filter -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -m mark --mark 0x%u00/0xff00 -j " TABLE_WIFIDOG_KNOWN, FW_MARK_KNOWN);	//wiwiz
+	iptables_do_command("-t filter -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -m mark --mark 0x%u/0x00ff -j " TABLE_WIFIDOG_KNOWN, FW_MARK_KNOWN);	//wiwiz
 	iptables_load_ruleset("filter", "known-users", TABLE_WIFIDOG_KNOWN);
 
 	iptables_do_command("-t filter -A " TABLE_WIFIDOG_WIFI_TO_INTERNET " -j " TABLE_WIFIDOG_UNKNOWN);
@@ -533,19 +533,20 @@ iptables_fw_access(fw_access_t type, const char *ip, const char *mac, int tag)
 	switch(type) {
 		case FW_ACCESS_ALLOW:
 //			iptables_do_command("-t mangle -A " TABLE_WIFIDOG_OUTGOING " -s %s -m mac --mac-source %s -j MARK --set-mark %d", ip, mac, tag);
-			iptables_do_command("-t mangle -A " TABLE_WIFIDOG_OUTGOING " -s %s -m mac --mac-source %s -j MARK --set-mark 0x%d00/0xff00", ip, mac, tag);	//wiwiz
-			//iptables_do_command("-t mangle -A " TABLE_WIFIDOG_OUTGOING " -s %s -m mac --mac-source %s -j MARK --set-mark 0x%d/0x00ff", ip, mac, tag);	//wiwiz
+			//iptables_do_command("-t mangle -A " TABLE_WIFIDOG_OUTGOING " -s %s -m mac --mac-source %s -j MARK --set-mark 0x%d00/0xff00", ip, mac, tag);	//wiwiz
+			iptables_do_command("-t mangle -A " TABLE_WIFIDOG_OUTGOING " -s %s -m mac --mac-source %s -j MARK --set-mark 0x%d/0x00ff", ip, mac, tag);	//wiwiz
 			rc = iptables_do_command("-t mangle -A " TABLE_WIFIDOG_INCOMING " -d %s -j ACCEPT", ip);
 			break;
 		case FW_ACCESS_DENY:
 //			iptables_do_command("-t mangle -D " TABLE_WIFIDOG_OUTGOING " -s %s -m mac --mac-source %s -j MARK --set-mark %d", ip, mac, tag);
-			iptables_do_command("-t mangle -D " TABLE_WIFIDOG_OUTGOING " -s %s -m mac --mac-source %s -j MARK --set-mark 0x%d00/0xff00", ip, mac, tag);	//wiwiz
-//			iptables_do_command("-t mangle -D " TABLE_WIFIDOG_OUTGOING " -s %s -m mac --mac-source %s -j MARK --set-mark 0x%d/0x00ff", ip, mac, tag);	//wiwiz
+			//iptables_do_command("-t mangle -D " TABLE_WIFIDOG_OUTGOING " -s %s -m mac --mac-source %s -j MARK --set-mark 0x%d00/0xff00", ip, mac, tag);	//wiwiz
+			iptables_do_command("-t mangle -D " TABLE_WIFIDOG_OUTGOING " -s %s -m mac --mac-source %s -j MARK --set-mark 0x%d/0x00ff", ip, mac, tag);	//wiwiz
 			rc = iptables_do_command("-t mangle -D " TABLE_WIFIDOG_INCOMING " -d %s -j ACCEPT", ip);
 
 			//wiwiz add start
 			for(int i = 0; i < 10; i++) {
-				iptables_do_command("-t mangle -D " TABLE_WIFIDOG_OUTGOING " -s %s -m mac --mac-source %s -j MARK --set-mark 0x%d00/0xff00", ip, mac, tag);
+				//iptables_do_command("-t mangle -D " TABLE_WIFIDOG_OUTGOING " -s %s -m mac --mac-source %s -j MARK --set-mark 0x%d00/0xff00", ip, mac, tag);
+				iptables_do_command("-t mangle -D " TABLE_WIFIDOG_OUTGOING " -s %s -m mac --mac-source %s -j MARK --set-mark 0x%d/0x00ff", ip, mac, tag);
 				iptables_do_command("-t mangle -D " TABLE_WIFIDOG_INCOMING " -d %s -j ACCEPT", ip);
 			}
 			//wiwiz add end
