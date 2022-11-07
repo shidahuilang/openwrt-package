@@ -28,6 +28,8 @@
 </script>
 <div id="app">
 </div>
-<script type="module" crossorigin src="/luci-static/quickstart/index.js<%# ?v=PKG_VERSION %>"></script>
-<link rel="stylesheet" href="/luci-static/quickstart/style.css<%# ?v=PKG_VERSION %>">
+<input type="button" class="cbi-button cbi-button-apply" value="<%:更新教程%> " onclick="window.open('https://github.com/shidahuilang/openwrt')" />
+<input type="button" class="cbi-button cbi-button-apply" value="<%:固件下载%> " onclick="window.open('https://github.com/shidahuilang/openwrt/releases')" />
+<script type="module" crossorigin src="/luci-static/quickstart/index.js?v=0.5.8-1"></script>
+<link rel="stylesheet" href="/luci-static/quickstart/style.css?v=0.5.8-1">
 <%+footer%>
