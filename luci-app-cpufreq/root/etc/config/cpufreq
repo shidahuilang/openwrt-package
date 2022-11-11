@@ -1,3 +1,5 @@
 
 config settings 'cpufreq'
 
+config settings 'global'
+
