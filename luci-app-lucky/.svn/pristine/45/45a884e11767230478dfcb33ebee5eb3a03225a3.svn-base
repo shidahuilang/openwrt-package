@@ -5,7 +5,7 @@ msgid "Lucky"
 msgstr "Lucky大吉"
 
 msgid "Main functions of Lucky: dynamic domain name ddns-go service, which replaces socat. It is mainly used for public IPv6 tcp/udp to intranet ipv4, http/https reverse proxy frp, and the default login username and password are 666"
-msgstr "大吉主要功能：动态域名ddns-go服务,替代socat主要用于公网IPv6 tcp/udp转内网ipv4,http/https反向代理frp，默认登陆用户名密码都是666"
+msgstr "大吉主要功能：动态域名ddns-go服务,替代socat主要用于公网IPv6 tcp/udp转内网ipv4,http/https反向代理，网络唤醒(可通过第三方物联网平台接入各大语音助手实现语音控制开关电脑)，默认登陆用户名密码都是666"
 
 msgid "Running state"
 msgstr "运行状态"

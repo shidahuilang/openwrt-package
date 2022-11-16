@@ -2,5 +2,5 @@
 
 /etc/init.d/lucky enable
 /etc/init.d/lucky start
-rm -f /tmp/luci*
+rm -rf /tmp/luci*
 exit 0

@@ -1,4 +1,14 @@
+<%
+  local safeURL = luci.sys.exec("cat /etc/lucky/lucky.conf | grep SafeURL |  sed 's/\"//g' | sed 's/: /\\n/g'|sed '1d' ");
+  local luckyHttpPort = luci.model.uci.cursor():get("lucky", "lucky", "port");
+-%>
+
+
 <script type="text/javascript">//<![CDATA[
+
+var luckyAdminURL = ""+ window.location.protocol + "//" + window.location.hostname +":"+ `<%=luckyHttpPort%>`+`<%=safeURL%>`;
+
+
 	XHR.poll(3, '<%=url([[admin]], [[services]], [[lucky_status]])%>', null,
 		function(x, data) {
 			var tb = document.getElementById('lucky_status');
@@ -7,6 +17,7 @@
 				if (data.running)
 				{
 					tb.innerHTML = '<br/><em style=\"color:green\"><%:The Lucky service is running.%></em>';
+					tb.innerHTML +='<br/><br/>' + '<a href="' +luckyAdminURL+'"'+' target="_blank">'+luckyAdminURL+'</a> '
 				}
 				else
 				{

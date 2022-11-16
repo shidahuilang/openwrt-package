@@ -4,6 +4,11 @@
  Licensed to the public under the Apache License 2.0.
 -%>
 
+<%
+  local safeURL = luci.sys.exec("cat /etc/lucky/lucky.conf | grep SafeURL |  sed 's/\"//g' | sed 's/: /\\n/g'|sed '1d' ");
+  local luckyHttpPort = luci.model.uci.cursor():get("lucky", "lucky", "port");
+-%>
+
 <%+header%>
 <div class="cbi-map">
 
@@ -12,11 +17,22 @@
 </iframe>
 
 </div>
+
 <script type="text/javascript">
-        document.getElementById("lucky").src = window.location.protocol + "//" + window.location.hostname + ":<%=luci.model.uci.cursor():get("lucky", "lucky", "port") %>";
- 		document.getElementById("lucky").height = document.documentElement.clientHeight;
+
+
+       var luckyAdminURL = ""+ window.location.protocol + "//" + window.location.hostname +":"+ `<%=luckyHttpPort%>`+`<%=safeURL%>`;
+        console.log(luckyAdminURL);
+        
+         document.getElementById("lucky").src = luckyAdminURL
+          		document.getElementById("lucky").height = document.documentElement.clientHeight;
         window.onresize = function(){
             document.getElementById("lucky").height = document.documentElement.clientHeight;
         }
+    
+
+  
+    
+
 </script>
 <%+footer%>

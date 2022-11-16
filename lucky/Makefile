@@ -9,13 +9,13 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=lucky
 PKG_VERSION:=1.6.1
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 ifeq ($(ARCH),mipsel)
-	LUCKY_ARCH:=mipsle-softfloat
+	LUCKY_ARCH:=mipsle_softfloat
 endif
 ifeq ($(ARCH),mips)
-	LUCKY_ARCH:=mips-softfloat
+	LUCKY_ARCH:=mips_softfloat
 endif
 ifeq ($(ARCH),i386)
 	LUCKY_ARCH:=i386
@@ -73,6 +73,7 @@ define Build/Prepare
 endef
 
 define Build/Configure
+
 endef
 
 define Build/Compile
@@ -83,7 +84,6 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/lucky $(1)/usr/bin/lucky
 	$(INSTALL_BIN) ./files/lucky.init $(1)/etc/init.d/lucky
 	$(INSTALL_BIN) ./files/luci-lucky.uci-default $(1)/etc/uci-defaults/luci-lucky
-	$(INSTALL_DATA) ./files/lucky-default.conf $(1)/etc/lucky/lucky.conf
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
