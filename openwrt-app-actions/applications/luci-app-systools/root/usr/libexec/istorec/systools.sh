@@ -30,6 +30,12 @@ case ${ACTION} in
   "speedtest")
     /usr/share/systools/speedtest.run ${1}
   ;;
+  "openssl-aes256gcm")
+    bash "/usr/share/systools/${ACTION}.run"
+  ;;
+  "openssl-chacha20-poly1305")
+    bash "/usr/share/systools/${ACTION}.run"
+  ;;
   *)
     usage
     exit 1
