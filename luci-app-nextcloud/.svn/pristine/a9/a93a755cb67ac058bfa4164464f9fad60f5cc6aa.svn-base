@@ -1,3 +1,0 @@
-config nextcloud
-	option 'port' '8082'
-	option 'config_path' '/root/nextcloud/config'
