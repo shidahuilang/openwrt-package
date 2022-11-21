@@ -1,0 +1,14 @@
+msgid ""
+msgstr ""
+"openwrt/luciapplicationsacl/zh_Hans/>\n"
+"Language: zh_Hans\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+
+
+
+
+msgid "Enable or disable server"
+msgstr "启用或禁用服务"
+
