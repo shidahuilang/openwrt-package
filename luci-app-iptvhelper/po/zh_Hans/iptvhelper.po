@@ -1,12 +1,5 @@
 msgid ""
-msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
-"Language: zh_Hans\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
+msgstr "Content-Type: text/plain; charset=UTF-8\n"
 
 #: luci-app-iptvhelper/luasrc/model/cbi/iptvhelper.lua:19
 msgid "Create ipset"
@@ -20,9 +13,8 @@ msgstr "启用"
 msgid ""
 "Help you configure IPTV easily. <a href=\"https://github.com/riverscn/"
 "openwrt-iptvhelper\">Github</a>"
-msgstr ""
-"帮助你轻松配置IPTV。<a href=\"https://github.com/riverscn/openwrt-iptvhelper"
-"\">Github</a>"
+msgstr "帮助你轻松配置IPTV。<a href=\"https://github.com/riverscn/"
+"openwrt-iptvhelper\">Github</a>"
 
 #: luci-app-iptvhelper/luasrc/controller/iptvhelper.lua:11
 #: luci-app-iptvhelper/luasrc/model/cbi/iptvhelper.lua:6

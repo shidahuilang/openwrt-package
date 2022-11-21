@@ -45,7 +45,7 @@ define Package/$(PKG_NAME)/install
 	cp -pR ./luasrc/* $(1)/usr/lib/lua/luci/
 	
 	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/i18n
-	po2lmo ./po/zh_Hans/lingti.po $(1)/usr/lib/lua/luci/i18n/lingti.zh-cn.lmo
+	po2lmo ./po/zh-cn/lingti.po $(1)/usr/lib/lua/luci/i18n/lingti.zh-cn.lmo
 endef
 
 define Package/$(PKG_NAME)/postinst

@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=CloudflareSpeedTest
 PKG_VERSION:=2.1.0
-PKG_RELEASE:=1
+PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/XIU2/CloudflareSpeedTest/tar.gz/v$(PKG_VERSION)?
@@ -31,7 +31,7 @@ define Package/cdnspeedtest
   CATEGORY:=Network
   TITLE:=Getting the fastest ips to your network of CDN
   URL:=https://github.com/XIU2/CloudflareSpeedTest
-  DEPENDS:=$(GO_ARCH_DEPENDS)
+  DEPENDS:=$(GO_ARCH_DEPENDS) +ca-bundle
 endef
 
 define Package/cdnspeedtest/install
@@ -44,5 +44,4 @@ define Package/cdnspeedtest/install
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/ipv6.txt $(1)/usr/share/CloudflareSpeedTest/
 endef
 
-$(eval $(call GoBinPackage,cdnspeedtest))
 $(eval $(call BuildPackage,cdnspeedtest))

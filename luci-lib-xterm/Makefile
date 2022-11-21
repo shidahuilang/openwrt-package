@@ -12,6 +12,8 @@ LUCI_TITLE:=Xterm.js library
 LUCI_DEPENDS:=
 
 PKG_LICENSE:=MIT
+PKG_VERSION:=4.18.0
+PKG_RELEASE:=
 PKG_MAINTAINER:=jjm2473 <jjm2473@gmail.com>
 
 include $(TOPDIR)/feeds/luci/luci.mk
