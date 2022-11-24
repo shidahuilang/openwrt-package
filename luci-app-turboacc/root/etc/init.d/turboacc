@@ -21,7 +21,7 @@ inital_conf(){
 	config_get "dns_caching_mode" "config" "dns_caching_mode" "0"
 	config_get "dns_caching_dns" "config" "dns_caching_dns"
 
-	[ -e "/lib/modules/$(uname -r)/mtkhnat.ko" ] && { sw_flow="0"; hw_flow="1"; }
+	[ ! -e "/lib/modules/$(uname -r)/mtkhnat.ko" ] && hw_flow="0";
 	[ ! -e "/lib/modules/$(uname -r)/xt_FLOWOFFLOAD.ko" ] && { sw_flow="0"; hw_flow="0"; }
 	[ ! -e "/lib/modules/$(uname -r)/tcp_bbr.ko" ] && bbr_cca="0"
 }
