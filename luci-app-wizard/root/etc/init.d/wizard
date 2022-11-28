@@ -90,6 +90,11 @@ add_wizard() {
 			uci set network.wan.username="${wan_pppoe_user}"
 			uci set network.wan.password="${wan_pppoe_pass}"
 			uci set network.wan.keepalive='5 5'
+				config_get wan_dns "$cfg" wan_dns
+				test -n "${wan_dns}" && {
+					uci set network.wan.peerdns='0'
+					uci set network.wan.dns="${wan_dns}"
+				}
 			}
 		;;
 		siderouter)
@@ -104,10 +109,10 @@ add_wizard() {
 				[ -n "$lan_dhcp" ] && uci set dhcp.lan.ignore="0" || uci set dhcp.lan.ignore="1"
 				uci set network.lan.dns="${lan_dns}"
 				uci set firewall.@zone[0].masq='1'
-        if [ ${b} -gt 1 ] ; then
+				if [ ${b} -gt 1 ] ; then
 				     [ "x$ifname" = "xdevice" ] &&  uci -q set network.@$ifname[0].ports="${lannet} ${wan_interface}"  || uci -q set network.lan.$ifname="${lannet} ${wan_interface}"
 				fi
-				sed -i '/br-lan -j MASQUERADE/d'   /etc/firewall.user
+				sed -i '/br-lan -j MASQUERADE/d' /etc/firewall.user
 				echo 'iptables -t nat -I POSTROUTING -o br-lan -j MASQUERADE' >> /etc/firewall.user
 			}
 		;;		
@@ -135,7 +140,7 @@ add_wizard() {
 			uci -q set dhcp.lan.dhcpv6='hybrid'
 			uci -q delete dhcp.@dnsmasq[0].filter_aaaa
 			uci -q set dhcp.lan.ndp=''
-			uci -q set dhcp.lan.ignore='0'
+			#uci -q set dhcp.lan.ignore='0'
 			uci -q set dhcp.lan.ra_management='1'
 			uci -q set dhcp.lan.ra_default='1'
 			uci -q set dhcp.lan.force='1'
