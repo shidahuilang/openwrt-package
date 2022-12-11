@@ -230,7 +230,7 @@ do
 	echo "Reading Configuration ..."
 	
 	ENABLED=$(uci get wiwiz.portal.enabled 2>/dev/null)
-	GW_ID=$(uci get wiwiz.portal.hotspotid 2>/dev/null)
+	GW_ID=$(uci get wiwiz.portal.hotspotid | xargs 2>/dev/null)
 	USERNAME=$(uci get wiwiz.portal.username 2>/dev/null)
 	GWIF=$(uci get wiwiz.portal.lan 2>/dev/null)
 	DISABLE_IPV6=$(uci get wiwiz.portal.disable_ipv6 2>/dev/null)

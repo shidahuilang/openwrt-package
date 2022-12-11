@@ -80,7 +80,7 @@ logread -f | while read LINE; do
 				
         if [ "$s" != "" ]; then
 				debug "s=$s"
-				HID=$(uci get wiwiz.portal.hotspotid 2>/dev/null)
+				HID=$(uci get wiwiz.portal.hotspotid | xargs 2>/dev/null)
 				if [ "$HID" = "" ]; then
 					continue
 				fi
