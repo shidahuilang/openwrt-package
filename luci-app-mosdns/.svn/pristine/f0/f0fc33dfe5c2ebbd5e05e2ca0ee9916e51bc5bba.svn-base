@@ -1,6 +1,6 @@
 log:
-  level: log_level
-  file: "log_file"
+  level: info
+  file: "/tmp/mosdns.log"
 
 include: []
 
@@ -21,10 +21,6 @@ data_providers:
     file: "/etc/mosdns/rule/blocklist.txt"
     auto_reload: true
 
-  - tag: greylist
-    file: "/etc/mosdns/rule/greylist.txt"
-    auto_reload: true
-
   - tag: hosts
     file: "/etc/mosdns/rule/hosts.txt"
     auto_reload: true
@@ -33,40 +29,32 @@ data_providers:
     file: "/etc/mosdns/rule/redirect.txt"
     auto_reload: true
 
-  - tag: local_ptr
-    file: "/etc/mosdns/rule/local-ptr.txt"
-    auto_reload: true
-
-  - tag: adlist
-    file: "/etc/mosdns/rule/adlist.txt"
-    auto_reload: true
-
 plugins:
   - tag: lazy_cache
     type: cache
     args:
-      size: cache_size
-      lazy_cache_ttl: cache_survival_time
+      size: 200000
+      lazy_cache_ttl: 259200
 
   - tag: modify_ttl
     type: ttl
     args:
-      minimal_ttl: minimal_ttl_custom
-      maximum_ttl: maximum_ttl_custom
+      minimal_ttl: 0
+      maximum_ttl: 0
 
   - tag: "forward_local"
-    type: forward
+    type: fast_forward
     args:
       upstream:
-        - addr: local_dns
-      bootstrap:
-        - "bootstrap_dns"
+        - addr: 119.29.29.29
+        - addr: 114.114.114.114
 
   - tag: "forward_remote"
     type: fast_forward
     args:
       upstream:
-        - addr: remote_dns
+        - addr: tls://8.8.8.8
+        - addr: tls://1.1.1.1
 
   - tag: query_is_whitelist_domain
     type: query_matcher
@@ -79,12 +67,6 @@ plugins:
     args:
       domain:
         - "provider:blocklist"
-
-  - tag: query_is_greylist_domain
-    type: query_matcher
-    args:
-      domain:
-        - "provider:greylist"
 
   - tag: query_is_hosts_domain
     type: hosts
@@ -102,7 +84,7 @@ plugins:
     type: query_matcher
     args:
       domain:
-        - "provider:geosite:cn,apple-cn,icloud,google-cn,tld-cn"
+        - "provider:geosite:cn"
 
   - tag: query_is_non_local_domain
     type: query_matcher
@@ -120,14 +102,7 @@ plugins:
     type: query_matcher
     args:
       domain:
-        - "adblock"
-
-  - tag: match_local_ptr
-    type: query_matcher
-    args:
-      qtype: [12]
-      domain:
-        - "provider:local_ptr"
+        - "provider:geosite:category-ads-all"
 
   - tag: match_qtype65
     type: query_matcher
@@ -148,18 +123,12 @@ plugins:
             - modify_ttl
             - _return
 
-        - if: "query_is_blocklist_domain || query_is_ad_domain || match_local_ptr || match_qtype65"
+        - if: "query_is_blocklist_domain || query_is_ad_domain || match_qtype65"
           exec:
             - _new_nxdomain_response
             - _return
 
         - lazy_cache
-
-        - if: query_is_greylist_domain
-          exec:
-            - forward_remote
-            - modify_ttl
-            - _return
 
         - if: query_is_local_domain
           exec:
@@ -188,6 +157,6 @@ servers:
   - exec: main_sequence
     listeners:
       - protocol: udp
-        addr: ":listen_port"
+        addr: ":5335"
       - protocol: tcp
-        addr: ":listen_port"
+        addr: ":5335"
