@@ -2,15 +2,15 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_VERSION:=1.2.0-20221212
+PKG_VERSION:=1.0.0-20221117
 PKG_RELEASE:=
 
-LUCI_TITLE:=LuCI support for kodexplorer
+LUCI_TITLE:=LuCI support for Xunlei
 LUCI_PKGARCH:=all
 LUCI_DEPENDS:=+docker +luci-lib-taskd
 
-define Package/luci-app-kodexplorer/conffiles
-/etc/config/kodexplorer
+define Package/luci-app-xunlei/conffiles
+/etc/config/xunlei
 endef
 
 include $(TOPDIR)/feeds/luci/luci.mk
