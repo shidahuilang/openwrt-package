@@ -37,24 +37,7 @@ luci-app-partexp 一键自动格式化分区、扩容、自动挂载插件
 
 - 将luci-app-partexp添加至 LEDE/OpenWRT 源码的方法。
 
-### 下载源码方法一：
-- 编辑源码文件夹根目录feeds.conf.default并加入如下内容:
-
-```Brach
-
-    # feeds获取源码：
-	
-    src-git luci-app-partexp https://github.com/sirpdboy/luci-app-partexp
- ``` 
-  ```Brach
-  
-   # 更新feeds，并安装主题：
-   
-    scripts/feeds update luci-app-partexp
-	scripts/feeds install luci-app-partexp
- ``` 	
-
-### 下载源码方法二：
+### 下载源码方法：
 
  ```Brach
  
