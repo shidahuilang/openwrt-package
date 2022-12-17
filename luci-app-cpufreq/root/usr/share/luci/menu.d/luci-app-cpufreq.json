@@ -1,10 +1,10 @@
 {
-	"admin/services/cpufreq": {
-		"title": "Kernel Manager",
-		"order": 50,
+	"admin/system/cpufreq": {
+		"title": "CPU Freq",
+		"order": 90,
 		"action": {
 			"type": "view",
-			"path": "cpufreq"
+			"path": "cpufreq/cpufreq"
 		},
 		"depends": {
 			"acl": [ "luci-app-cpufreq" ],

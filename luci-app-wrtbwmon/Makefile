@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2019 Openwrt.org
+# Copyright (C) 2020 xxx <xxx@xxx.com>
 #
 # This is free software, licensed under the Apache License, Version 2.0 .
 #
@@ -7,8 +7,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-wrtbwmon
-PKG_VERSION:=1.6.3
-PKG_RELEASE:=2
+PKG_VERSION:=2.0.10
+PKG_RELEASE:=1
 
 PKG_LICENSE:=Apache-2.0
 PKG_MAINTAINER:=
