@@ -9,7 +9,7 @@ msgstr ""
 
 
 msgid "Usage"
-msgstr "流量统计"
+msgstr "统计"
 
 msgid "Traffic Configuration"
 msgstr "流量设置"
