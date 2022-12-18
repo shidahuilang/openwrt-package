@@ -24,11 +24,11 @@ ZSTD_LEVEL="6"
 # When there is no input parameter, select manually
 SPECIFY_SOC=""
 SPECIFY_DTB=""
-if [[ -n "$(echo ${2} | sed -n "/^[0-9]\+$/p")" ]]; then
-    SPECIFY_SOC=${2}
+[[ -n "${2}" ]] && {
+    SPECIFY_SOC="${2}"
     if [[ "${2}" -eq "99" ]]; then
         if [[ -n "${3}" ]]; then
-            SPECIFY_DTB=${3}
+            SPECIFY_DTB="${3}"
         else
             echo "Please enter the DTB file name!"
             exit 1
@@ -36,7 +36,7 @@ if [[ -n "$(echo ${2} | sed -n "/^[0-9]\+$/p")" ]]; then
     else
         SPECIFY_DTB="auto_dtb"
     fi
-fi
+}
 
 # shared partition can be ext4, xfs, btrfs, f2fs
 SHARED_FSTYPE="${4}"
@@ -134,6 +134,7 @@ else
 # Amlogic G12A Family
 31:X96 Max 4GB:s905x2:meson-g12a-x96-max.dtb:u-boot-x96max.bin:/lib/u-boot/x96max-u-boot.bin.sd.bin:NA:4C@1908Mhz,4GB Mem,1Gb Nic
 32:X96 Max 2GB:s905x2:meson-g12a-x96-max-rmii.dtb:u-boot-x96max.bin:/lib/u-boot/x96max-u-boot.bin.sd.bin:NA:4C@1908Mhz,2GB Mem,100M Nic
+33:CM311-1a-YST:s905l3a:meson-g12a-s905l3a-cm311.dtb:u-boot-e900v22c.bin:NA:NA:4C@1908Mhz,2+16G,Bluetooth rtl8761b,100Mb Nic
 
 # Amlogic G12B Family
 41:Beelink GT-King:s922x:meson-g12b-gtking.dtb:u-boot-gtking.bin:/lib/u-boot/gtking-u-boot.bin.sd.bin:NA:2C@1800Mhz(A53)+4C@1908Mhz(A73),4GB Mem,1Gb Nic,brcm4356 wifi
@@ -159,7 +160,7 @@ else
 5c:TX3 QZ (OverClock):s905x3:meson-sm1-tx3-qz-oc.dtb:u-boot-tx3-qz.bin:/lib/u-boot/x96maxplus-u-boot.bin.sd.bin::4C@2208Mhz,4GB Mem,1Gb Nic,bcm4330 wifi
 5d:X96 Max+ (IP1001M phy):s905x3:meson-sm1-x96-max-plus-ip1001m.dtb:u-boot-x96maxplus.bin:/lib/u-boot/x96maxplus-u-boot.bin.sd.bin:NA:4C@2208Mhz,4GB Mem,1Gb Nic (IP1001M phy),bcm4354 wifi
 5e:X96 Max+ Q2 & X96 Air Q1000:s905x3:meson-sm1-x96-max-plus-q2.dtb:u-boot-x96maxplus.bin:/lib/u-boot/x96maxplus-u-boot.bin.sd.bin:NA:4C@2208Mhz,4GB Mem,1Gb Nic,qca9377 wifi
-5f:skyworthbox:s905x3:meson-sm1-skyworth-lb2004-a4091.dtb:u-boot-skyworth-lb2004.bin:NA:NA:4C@2016Mhz,4GB Mem,1Gb Nic,mtk7661rsn
+5f:Tencent Aurora 3Pro:s905x3:meson-sm1-skyworth-lb2004-a4091.dtb:u-boot-skyworth-lb2004.bin:/lib/u-boot/skyworth-lb2004-u-boot.bin.sd.bin:/lib/u-boot/skyworth-lb2004-bootloader.img:4C@2016Mhz,4GB Mem,32G Rom,JL2121 1Gb Nic,MT7661RSN
 
 # Other
 0:Other::NA:NA:NA:NA:Enter the dtb file name of your box
@@ -320,10 +321,16 @@ elif [[ "${AMLOGIC_SOC}" == "s905x" ]]; then
     BLANK2=0
     BLANK3=0
     BLANK4=0
-elif [[ "${AMLOGIC_SOC}" == "s905x3" ]] && [[ "${FDTFILE}" == "meson-sm1-skyworth-lb2004-a4091.dtb" ]];then
-    BOOT=768
-    BLANK1=68
-    BLANK2=202
+elif [[ "${FDTFILE}" == "meson-sm1-skyworth-lb2004-a4091.dtb" ]]; then
+    BOOT=512
+    BLANK1=108
+    BLANK2=562
+    BLANK3=0
+    BLANK4=0
+elif [[ "${AMLOGIC_SOC}" == "s905l3a" ]]; then
+    BOOT=512
+    BLANK1=108
+    BLANK2=778
     BLANK3=0
     BLANK4=0
 else

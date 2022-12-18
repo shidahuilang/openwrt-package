@@ -4,45 +4,50 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=redsocks2
-PKG_VERSION:=0.67
-PKG_RELEASE:=5
+PKG_NAME:=dns2socks
+PKG_VERSION:=2.1
+PKG_RELEASE:=2
 
-PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://github.com/semigodking/redsocks.git
-PKG_SOURCE_DATE:=2020-05-10
-PKG_SOURCE_VERSION:=d94c245ea47859cda5b4b7373308589206b97bdc
-PKG_MIRROR_HASH:=5ca32b2f849af7ebda2cab90bbe286bfd97a69de1a85dac09c8df2fbdd8c947c
+PKG_SOURCE:=SourceCode.zip
+PKG_SOURCE_URL:=@SF/dns2socks
+PKG_SOURCE_DATE:=2020-02-18
+PKG_HASH:=406b5003523577d39da66767adfe54f7af9b701374363729386f32f6a3a995f4
 
-PKG_MAINTAINER:=semigodking <semigodking@gmail.com>
-PKG_LICENSE:=Apache-2.0
+PKG_MAINTAINER:=ghostmaker
+PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILE:=LICENSE
-
-PKG_BUILD_PARALLEL:=1
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/redsocks2
+UNZIP_CMD:=unzip -q -d $(PKG_BUILD_DIR) $(DL_DIR)/$(PKG_SOURCE)
+
+define Package/dns2socks
   SECTION:=net
   CATEGORY:=Network
-  SUBMENU:=Web Servers/Proxies
-  TITLE:=Redirect TCP connection to proxy server
-  URL:=https://github.com/semigodking/redsocks
-  DEPENDS:=+libevent2 +libopenssl
+  SUBMENU:=IP Addresses and Names
+  TITLE:=DNS to SOCKS or HTTP proxy
+  URL:=http://dns2socks.sourceforge.net/
+  DEPENDS:=+libpthread
 endef
 
-define Package/redsocks2/description
-  This is a modified version of original redsocks.
-  Transparent redirector of any TCP/UDP connection to proxy.
+define Package/dns2socks/description
+  This is a command line utility to resolve DNS requests via
+  a SOCKS tunnel like Tor or a HTTP proxy.
 endef
 
-MAKE_VARS += DISABLE_SHADOWSOCKS=true
-
-define Package/redsocks2/install
-	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/redsocks2 $(1)/usr/sbin
-	$(INSTALL_DIR) $(1)/etc/redsocks2
-	$(INSTALL_DATA) ./files/redsocks2.template $(1)/etc/redsocks2/config.template
+define Build/Compile
+	$(TARGET_CC) \
+	$(TARGET_CFLAGS) \
+	$(TARGET_CPPFLAGS) \
+	$(FPIC) \
+	-o $(PKG_BUILD_DIR)/DNS2SOCKS/dns2socks \
+	$(PKG_BUILD_DIR)/DNS2SOCKS/DNS2SOCKS.c \
+	$(TARGET_LDFLAGS) -pthread
 endef
 
-$(eval $(call BuildPackage,redsocks2))
+define Package/dns2socks/install
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/DNS2SOCKS/dns2socks $(1)/usr/bin/dns2socks
+endef
+
+$(eval $(call BuildPackage,dns2socks))

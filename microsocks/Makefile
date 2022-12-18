@@ -4,45 +4,40 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=redsocks2
-PKG_VERSION:=0.67
-PKG_RELEASE:=5
+PKG_NAME:=microsocks
+PKG_VERSION:=1.0.3
+PKG_RELEASE:=$(AUTORELEASE)
 
-PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://github.com/semigodking/redsocks.git
-PKG_SOURCE_DATE:=2020-05-10
-PKG_SOURCE_VERSION:=d94c245ea47859cda5b4b7373308589206b97bdc
-PKG_MIRROR_HASH:=5ca32b2f849af7ebda2cab90bbe286bfd97a69de1a85dac09c8df2fbdd8c947c
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=https://codeload.github.com/rofl0r/microsocks/tar.gz/v$(PKG_VERSION)?
+PKG_HASH:=6801559b6f8e17240ed8eef17a36eea8643412b5a7476980fd4e24b02a021b82
 
-PKG_MAINTAINER:=semigodking <semigodking@gmail.com>
-PKG_LICENSE:=Apache-2.0
-PKG_LICENSE_FILE:=LICENSE
+PKG_LICENSE:=MIT
+PKG_LICENSE_FILES:=COPYING
+PKG_MAINTAINER:=lean
 
 PKG_BUILD_PARALLEL:=1
+PKG_INSTALL:=1
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/redsocks2
+define Package/microsocks
   SECTION:=net
   CATEGORY:=Network
   SUBMENU:=Web Servers/Proxies
-  TITLE:=Redirect TCP connection to proxy server
-  URL:=https://github.com/semigodking/redsocks
-  DEPENDS:=+libevent2 +libopenssl
+  TITLE:=Tiny, portable SOCKS5 server
+  URL:=https://github.com/rofl0r/microsocks
+  DEPENDS:=+libpthread
 endef
 
-define Package/redsocks2/description
-  This is a modified version of original redsocks.
-  Transparent redirector of any TCP/UDP connection to proxy.
+define Package/microsocks/description
+  A SOCKS5 service that you can run on your remote boxes to tunnel connections
+  through them, if for some reason SSH doesn't cut it for you.
 endef
 
-MAKE_VARS += DISABLE_SHADOWSOCKS=true
-
-define Package/redsocks2/install
-	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/redsocks2 $(1)/usr/sbin
-	$(INSTALL_DIR) $(1)/etc/redsocks2
-	$(INSTALL_DATA) ./files/redsocks2.template $(1)/etc/redsocks2/config.template
+define Package/microsocks/install
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/local/bin/microsocks $(1)/usr/bin/microsocks
 endef
 
-$(eval $(call BuildPackage,redsocks2))
+$(eval $(call BuildPackage,microsocks))

@@ -4,45 +4,42 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=redsocks2
-PKG_VERSION:=0.67
-PKG_RELEASE:=5
+PKG_NAME:=ipt2socks
+PKG_VERSION:=1.1.3
+PKG_RELEASE:=3
 
-PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://github.com/semigodking/redsocks.git
-PKG_SOURCE_DATE:=2020-05-10
-PKG_SOURCE_VERSION:=d94c245ea47859cda5b4b7373308589206b97bdc
-PKG_MIRROR_HASH:=5ca32b2f849af7ebda2cab90bbe286bfd97a69de1a85dac09c8df2fbdd8c947c
-
-PKG_MAINTAINER:=semigodking <semigodking@gmail.com>
-PKG_LICENSE:=Apache-2.0
-PKG_LICENSE_FILE:=LICENSE
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=https://codeload.github.com/zfl9/ipt2socks/tar.gz/v$(PKG_VERSION)?
+PKG_HASH:=73a2498dc95934c225d358707e7f7d060b5ce81aa45260ada09cbd15207d27d1
 
 PKG_BUILD_PARALLEL:=1
+PKG_USE_MIPS16:=0
+
+PKG_LICENSE:=AGPL-3.0
+PKG_LICENSE_FILE:=LICENSE
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/redsocks2
+define Package/ipt2socks
   SECTION:=net
   CATEGORY:=Network
-  SUBMENU:=Web Servers/Proxies
-  TITLE:=Redirect TCP connection to proxy server
-  URL:=https://github.com/semigodking/redsocks
-  DEPENDS:=+libevent2 +libopenssl
+  TITLE:=Convert iptables to socks5
+  URL:=https://github.com/zfl9/ipt2socks
+  DEPENDS:=+libpthread
 endef
 
-define Package/redsocks2/description
-  This is a modified version of original redsocks.
-  Transparent redirector of any TCP/UDP connection to proxy.
+define Package/ipt2socks/description
+  Utility for converting iptables (redirect/tproxy) to socks5.
 endef
 
-MAKE_VARS += DISABLE_SHADOWSOCKS=true
+TARGET_CFLAGS+= $(FPIC) -flto
+MAKE_FLAGS+= \
+	CFLAGS="-std=c99 -pthread $(TARGET_CFLAGS)" \
+	EVCFLAGS="$(TARGET_CFLAGS)"
 
-define Package/redsocks2/install
-	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/redsocks2 $(1)/usr/sbin
-	$(INSTALL_DIR) $(1)/etc/redsocks2
-	$(INSTALL_DATA) ./files/redsocks2.template $(1)/etc/redsocks2/config.template
+define Package/ipt2socks/install
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ipt2socks $(1)/usr/bin
 endef
 
-$(eval $(call BuildPackage,redsocks2))
+$(eval $(call BuildPackage,ipt2socks))
