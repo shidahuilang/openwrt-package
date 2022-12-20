@@ -6,7 +6,7 @@ CACHE=/var/run/argon_bing.url
 WRLOCK=/var/lock/argon_bing.lock
 
 fetch_url_path() {
-    wget -T1 -qO- \
+    curl --fail --show-error --max-time 1 \
         "$BING_BASE/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=en-US" 2>/dev/null \
         | jsonfilter -q -e '@.images[0].url'
 }
