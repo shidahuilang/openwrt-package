@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=v2rayA
 PKG_VERSION:=2.0.1
-PKG_RELEASE:=37
+PKG_RELEASE:=38
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/v2rayA/v2rayA/tar.gz/v$(PKG_VERSION)?
@@ -37,8 +37,6 @@ define Package/v2raya
   SUBMENU:=Web Servers/Proxies
   DEPENDS:=$(GO_ARCH_DEPENDS) \
     +ca-bundle \
-    +iptables \
-    +IPV6:ip6tables \
     +iptables-mod-conntrack-extra \
     +iptables-mod-extra \
     +iptables-mod-filter \
