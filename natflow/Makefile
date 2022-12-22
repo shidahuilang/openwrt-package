@@ -88,6 +88,7 @@ endef
 
 define Package/natflow-auth/install
 	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_BIN) ./files/natflow-qos.init $(1)/etc/init.d/natflow-qos
 	$(INSTALL_BIN) ./files/natflow-user.init $(1)/etc/init.d/natflow-user
 	$(INSTALL_BIN) ./files/natflow-zone.init $(1)/etc/init.d/natflow-zone
 	$(INSTALL_DIR) $(1)/etc/config
