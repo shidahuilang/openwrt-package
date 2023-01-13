@@ -72,10 +72,6 @@ case "$action" in
 						fi
 					;;
 				esac
-				grep -q "wget returned 8" /tmp/opkg.err && {
-						opkg update </dev/null >/tmp/opkg.out 2>/tmp/opkg.err
-						$opkg $action "$@" </dev/null >>/tmp/opkg.out 2>>/tmp/opkg.err
-					}
 				stderr=$(cat /tmp/opkg.err)
 				[ -n "$stderr" ] || {
 					echo "🎉 已完成, 请关闭本窗口~" >>/tmp/opkg.out
