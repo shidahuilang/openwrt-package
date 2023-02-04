@@ -11,8 +11,10 @@ PKG_VERSION:=0.9
 PKG_RELEASE:=20210309
 
 LUCI_TITLE:=LuCI page for Argon Config
-LUCI_DEPENDS:=+luci-theme-argon
 LUCI_PKGARCH:=all
+LUCI_DEPENDS:= \
+	+luci-theme-argon \
+	+luci-lib-ipkg
 
 include $(TOPDIR)/feeds/luci/luci.mk
 
