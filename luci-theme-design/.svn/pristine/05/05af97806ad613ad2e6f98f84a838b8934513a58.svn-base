@@ -10,6 +10,7 @@
 - 修改和优化了很多插件显示，完善的icon图标，尽量视觉统一
 - 简洁的登录界面，底部导航栏，类App的沉浸式体验；
 - 适配深色模式，适配系统自动切换；
+- 适配openwrt 21/22、lede
 
 ## 体验Webapp方法
 
@@ -36,9 +37,9 @@
 - Update uci-change overflow
 - Fix nlbw component
 - 支持QWRT(QSDK)、iStore向导导航
-- 支持openwrt21/22、lede
+- 适配OpenWrt 21/22
 
-## PS
+## Q&A
 
 - 资源接口icon未完善，如果有能力画图的欢迎pr，但请确保跟现有icon颜色风格一致
 - 有bug欢迎提issue
