@@ -8,7 +8,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-tencentddns
 PKG_VERSION:=0.2.0
-PKG_RELEASE:=8
+PKG_RELEASE:=10
 
 PKG_LICENSE:=MIT
 PKG_LICENSE_FILES:=LICENSE
