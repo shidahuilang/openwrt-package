@@ -3211,3 +3211,7 @@ form[action="/cgi-bin/luci/admin/network/wireless_join"] input[class="cbi-button
     min-width: 70px;
 }
 
+/* fix node-services-aliyundrive-webdav mask-box background style */
+.node-services-aliyundrive-webdav #mask-box {
+    background: rgb(64 64 64 / 0%);
+}
