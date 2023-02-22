@@ -3215,3 +3215,12 @@ form[action="/cgi-bin/luci/admin/network/wireless_join"] input[class="cbi-button
 .node-services-aliyundrive-webdav #mask-box {
     background: rgb(64 64 64 / 0%);
 }
+
+/* fix node-servces-ddns input style */
+.node-services-ddns #cbi-ddns-service input {
+    width: unset;
+}
+.node-services-ddns .cbi-value input[type="password"],
+.node-services-ddns .cbi-value input[type="text"] {
+    width: 100% !important;
+}
