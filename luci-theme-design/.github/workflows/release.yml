@@ -1,4 +1,4 @@
-name: Build
+name: Release
 
 on:
   push:
@@ -8,9 +8,25 @@ on:
   workflow_dispatch:
 
 jobs:
+
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+
+      - run: npx changelogithub # or changelogithub@0.12 if ensure the stable result
+        env:
+          GITHUB_TOKEN: ${{secrets.TOKEN}}
+
   build:
     runs-on: ubuntu-20.04
-      
+    needs: release
     steps:
 
       - name: Initialization Environment
@@ -54,34 +70,23 @@ jobs:
           echo "TARGET=$(pwd)/$TARGET" >> $GITHUB_OUTPUT
           echo "status=success" >> $GITHUB_OUTPUT
 
-      - name: Generate release tag
+      - name: Get tag
         id: tag
-        run: |
-          cd openwrt-sdk && cd package/luci-theme-design
-          release_date="$(cat Makefile | grep PKG_RELEASE | sed 's/PKG_RELEASE:=//')"
-          release_tag="$(cat Makefile | grep PKG_VERSION | sed 's/PKG_VERSION:=//')"-"$release_date"
-          echo "release_date=${release_date}"
-          echo "release_tag="${release_tag}"
-          
-      - name: Build Changelog
-        if: steps.build.outputs.status == 'success' && !cancelled()
-        uses: google-github-actions/release-please-action@v3
+        uses: dawidd6/action-get-tag@v1
         with:
-          token: ${{ secrets.TOKEN }}
-          release-type: simple
-          release-as: ${{ steps.tag.outputs.release_tag }}
-          package-name: standard-version
-          changelog-types: '[{"type": "types", "section":"Types", "hidden": false},{"type": "revert", "section":"Reverts", "hidden": false},{"type": "feat", "section": "Features", "hidden": false},{"type": "fix", "section": "Bug Fixes", "hidden": false},{"type": "improvement", "section": "Feature Improvements", "hidden": false},{"type": "docs", "section":"Docs", "hidden": false},{"type": "style", "section":"Styling", "hidden": false},{"type": "refactor", "section":"Code Refactoring", "hidden": false},{"type": "perf", "section":"Performance Improvements", "hidden": false},{"type": "test", "section":"Tests", "hidden": false},{"type": "build", "section":"Build System", "hidden": false},{"type": "ci", "section":"CI", "hidden":false}]'
-          extra-files: |
+        # Optionally strip `v` prefix
+          strip_v: false
+
+      - name: Upload to release
+        uses: softprops/action-gh-release@v1
+        if: steps.build.outputs.status == 'success' && !cancelled()
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        with:
+          name: ${{ steps.tag.outputs.tag }}
+          tag_name: ${{ steps.tag.outputs.tag }}
+          prerelease: false
+          generate_release_notes: true
+          files: |
             ${{ steps.build.outputs.TARGET }}
-
-      # - name: Upload to release
-      #   uses: softprops/action-gh-release@v1
-      #   if: steps.build.outputs.status == 'success' && !cancelled()
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.TOKEN }}
-      #   with:
-      #     name: luci-theme-design
-      #     tag_name: ${{ steps.tag.outputs.release_tag }}
-      #     files: ${{ steps.build.outputs.TARGET }}
-
+            LICENSE

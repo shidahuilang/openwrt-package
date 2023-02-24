@@ -754,7 +754,7 @@ img[src*="/luci-static/resources/icons/loading.gif"] {
     padding: 0 0 0 22px !important;
 }
 .ifacebox-head {
-    /* background-color: #1096db !important; */
+    background-color: #337ab7 !important;
     border-radius: 4px 4px 0 0;
 }
 
