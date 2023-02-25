@@ -18,12 +18,18 @@
 <br>
 
 <br>English | [简体中文](README_zh.md)
+
 # luci-theme-design
 
 luci-theme-design is an OpenWrt LuCI theme for immersive WebApp experience and optimization on mobile and PC
 
 > **luci-theme-design** based on luci-theme-neobird, suitable for [lede](https://github.com/coolsnowwolf/lede) / [OpenWrt](https://github.com/openwrt/openwrt ).
-> The default branch only supports the lua version of the lede source code. If you use openwrt 21/22, please pull the [js](https://github.com/gngpp/luci-theme-design/tree/js) version.
+> The default branch only supports the lua version of the lede source code. If you use openwrt 21/22, please pull the [js](https://github.com/gngpp/luci-theme-design/tree/js) version(Development stage).
+
+### Release version
+
+- Lua version select 5.x version
+- JS version select 6.x version
 
 ### Features
 
@@ -39,6 +45,7 @@ luci-theme-design is an OpenWrt LuCI theme for immersive WebApp experience and o
 - If the SSL certificate is not used, iOS/iPadOS will display the menu bar at the top of the browser after opening a new page for security reasons.
 
 ### Optimization
+
 - Fix the white background of the installation package prompt information
 - Optimize menu collapsing and zooming
 - Optimized to display network port down state display icon

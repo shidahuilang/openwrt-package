@@ -122,15 +122,6 @@ div{
     font-family: 'HYk2gj';
 }
 
-::-webkit-scrollbar {
-    width: 4px;
-}
-::-webkit-scrollbar-thumb {
-    background: var(--scrollbarColor) ;
-    border-radius: 2px;
-}
-
-
 html {
     -webkit-text-size-adjust: 100%;
     -ms-text-size-adjust: 100%;
@@ -3232,4 +3223,16 @@ form[action="/cgi-bin/luci/admin/network/wireless_join"] input[class="cbi-button
 /* fix luci-app-appfilter table overflow style */
 .node-services-appfilter .cbi-section.cbi-tblsection {
     overflow: auto;
+}
+
+/* update node-system-commands style */
+.node-system-commands h3 {
+    text-transform: unset;
+}
+.node-system-commands .commandbox {
+    margin: 10px;
+}
+.node-system-commands .commandbox p {
+    word-break:keep-all;
+    white-space:nowrap;
 }
