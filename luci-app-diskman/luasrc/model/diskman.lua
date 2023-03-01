@@ -181,7 +181,7 @@ local get_parted_info = function(device)
         partition_temp["number"] = -1
         partition_temp["fs"] = "Free Space"
         partition_temp["name"] = "-"
-      elseif device:match("sd") or device:match("sata") then
+      elseif device:match("sd") or device:match("sata") or device:match("vd") then
         partition_temp["name"] = device..partition_temp["number"]
       elseif device:match("mmcblk") or device:match("md") or device:match("nvme") then
         partition_temp["name"] = device.."p"..partition_temp["number"]
@@ -246,7 +246,7 @@ local get_parted_info = function(device)
       end
     end
   end
-  result = disk_temp
+  result = disk_temp or result
   result.partitions = partitions_temp
 
   return result
@@ -405,6 +405,7 @@ d.list_devices = function()
       or dev:match("^mmcblk%d+$")
       or dev:match("^sata[a-z]$")
       or dev:match("^nvme%d+n%d+$")
+      or dev:match("^vd[a-z]$")
       then
       table.insert(target_devnames, dev)
     end
@@ -474,6 +475,18 @@ d.get_format_cmd = function()
   return result
 end
 
+d.find_free_md_device = function()
+  for num=0,127 do
+    local md = io.open("/dev/md"..tostring(num), "r")
+    if md == nil then
+      return "/dev/md"..tostring(num)
+    else
+      io.close(md)
+    end
+  end
+  return nil
+end
+
 d.create_raid = function(rname, rlevel, rmembers)
   local mb = {}
   for _, v in ipairs(rmembers) do
@@ -494,18 +507,8 @@ d.create_raid = function(rname, rlevel, rmembers)
       return "ERR: Invalid raid name"
     end
   else
-    local mdnum = 0
-    for num=1,127 do
-      local md = io.open("/dev/md"..tostring(num), "r")
-      if md == nil then
-        mdnum = num
-        break
-      else
-        io.close(md)
-      end
-    end
-    if mdnum == 0 then return "ERR: Cannot find proper md number" end
-    rname = "/dev/md"..mdnum
+    rname = d.find_free_md_device()
+    if rname == nil then return "ERR: Cannot find free md device" end
   end
 
   if rlevel == "5" or rlevel == "6" then
