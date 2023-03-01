@@ -325,9 +325,14 @@ text, line {
     -moz-osx-font-smoothing: grayscale;
 }
 
-input.cbi-button.cbi-button-add {
-    /* margin-left: 10px; */
+/* fix luci-app-passwall2 button style */
+.node-services-passwall2 #cbi-passwall2 {
+    text-align: center;
 }
+.node-services-passwall2 input.cbi-button.cbi-button {
+    max-width: unset;
+}
+
 
 .h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
     font-family: -apple-system, 'Microsoft Yahei';
@@ -2058,6 +2063,16 @@ width:50px !important;
     font-family: monospace;
 }
 
+.uci-change-list *:first-child {
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+  
+.uci-change-list *:nth-last-child(2) {
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
 .uci-change-list ins,
 .uci-change-legend-label ins {
     text-decoration: none;
@@ -2066,10 +2081,13 @@ width:50px !important;
     display: block;
     padding: 2px;
     color: black;
-    /* border-radius: 5px; */
     overflow-x: auto;
 }
-
+.uci-change-legend .uci-change-legend-label ins {
+    overflow-x: unset;
+    border-radius: 5px;
+}
+    
 .uci-change-list del,
 .uci-change-legend-label del {
     text-decoration: none;
@@ -2079,8 +2097,11 @@ width:50px !important;
     font-style: normal;
     padding: 2px;
     color:black;
-    /* border-radius: 5px; */
     overflow-x: auto;
+}
+.uci-change-legend .uci-change-legend-label del {
+    overflow-x: unset;
+    border-radius: 5px;
 }
 
 .uci-change-list var,
@@ -2092,9 +2113,13 @@ width:50px !important;
     font-style: normal;
     padding: 2px;
     color:black;
-    /* border-radius: 5px; */
+
     overflow-x: auto;
 }
+.uci-change-legend .uci-change-legend-label var {
+    overflow-x: unset;
+    border-radius: 5px;
+}    
 
 .uci-change-list var ins,
 .uci-change-list var del {
@@ -3246,10 +3271,17 @@ form[action="/cgi-bin/luci/admin/network/wireless_join"] input[class="cbi-button
 }
 .node-system-commands .commandbox {
     width: auto;
+    display: inline-block;
+    float: none;
 }
 .node-system-commands .commandbox p {
     word-break:keep-all;
     white-space:nowrap;
+}
+.node-system-commands fieldset.cbi-section {
+    align-items: center;
+    text-align: center;
+    margin:auto;
 }
 
 .node-network-network .ifacebox strong{
