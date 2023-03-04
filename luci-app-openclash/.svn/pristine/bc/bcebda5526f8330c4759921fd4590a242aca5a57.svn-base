@@ -1,4 +1,0 @@
-skip-domain:
-  - '+.apple.com'
-  - Mijia Cloud
-  - '+.jd.com'
