@@ -1,0 +1,32 @@
+name: fmt
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  repository_dispatch:
+  workflow_dispatch:
+
+jobs:
+  fmt:
+    runs-on: ubuntu-20.04
+
+    permissions:
+      # Give the default GITHUB_TOKEN write permission to commit and push the changed files back to the repository.
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        ref: ${{ github.head_ref }}
+
+    - name: fmt
+      run: |
+        sudo apt update && sudo apt install minify
+        echo "$(minify dev/style.css)" > htdocs/luci-static/design/css/style.css
+        echo "$(minify dev/script.js)" > htdocs/luci-static/design/js/script.js
+
+    - uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: "style: format and compress js and css resources"
