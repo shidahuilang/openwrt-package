@@ -2303,7 +2303,7 @@ header > .container > .pull-right > * {
     color: #fff;
     font-size: .8rem;
     padding: 2.8px 10px;
-    border-radius: 20px;
+    border-radius: 10px;
     z-index: 10;
     top: 22px;
     margin-right: 30px;
@@ -3323,4 +3323,8 @@ form[action="/cgi-bin/luci/admin/network/wireless_join"] input[class="cbi-button
 .node-system-diskman.dialog-format-active #dialog_format .dialog_box {
     background: var(--alertBackground);
     border-radius: 5px;
+}
+/* adaption plug-in luci-app-watchcat-plus */
+.node-services-watchcat-plus select[id*="cbi.opt.watchcat"] {
+    width: auto;
 }
