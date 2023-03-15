@@ -363,11 +363,11 @@ function to_check()
     elseif board_name:match("r619ac%-64m$") then
 		model = "ipq40xx_generic/p2w_r619ac-64m"
 		check_update()
-		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-ipq40xx-generic-p2w_r619ac-64m-squashfs-nand-sysupgrade.bin"
+		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-ipq40xx-generic-p2w_r619ac-64m-squashfs-sysupgrade.bin"
     elseif board_name:match("r619ac%-128m$") then
 		model = "ipq40xx_generic/p2w_r619ac-128m"
 		check_update()
-		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-ipq40xx-generic-p2w_r619ac-128m-squashfs-nand-sysupgrade.bin"
+		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-ipq40xx-generic-p2w_r619ac-128m-squashfs-sysupgrade.bin"
     elseif board_name:match("rt%-ac42u$") then
 		model = "ipq40xx_generic/asus_rt-ac42u"
 		check_update()
