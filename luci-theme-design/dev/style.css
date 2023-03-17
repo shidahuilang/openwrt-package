@@ -46,7 +46,7 @@
     --logo_color: #222b36;
     --alertColor: #000000;
     --alertBackground: rgb(230 230 230);
-    --scrollbarColor:#d0d0d0;
+    --scrollbarColor:#c5c5c5;
     --ifaceboxBorderColor: #b8b8b8bd;
     --ifaceboxFontColor: #404040;
     --liSelectedColor: #c5c5c5;
@@ -90,7 +90,7 @@
     --logo_color: #fefefe;
     --alertColor: #ffffff;
     --alertBackground: rgb(30 30 30);
-    --scrollbarColor:#222;
+    --scrollbarColor:#2f2f2f;
     --ifaceboxBorderColor: #636363bd;
     --ifaceboxFontColor: #404040;
     --liSelectedColor: #2f2f2f;
@@ -335,7 +335,10 @@ text, line {
 .node-services-passwall2 input.cbi-button.cbi-button {
     max-width: unset;
 }
-
+/* fix luci-app-passwall node_div style */
+.node-services-passwall #set_node_div {
+    background: var(--sectionbgColor);
+}
 
 .h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
     font-family: -apple-system, 'Microsoft Yahei';
@@ -1001,7 +1004,6 @@ img[src*="/luci-static/resources/icons/signal-none.png"]
 
 .node-main-login > .main form > div:nth-last-child(1) {
 }
-
 
 .node-main-login > .main .cbi-value > * {
     display: inline-block !important;

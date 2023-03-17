@@ -37,6 +37,12 @@ jobs:
         id: build
         run: | 
           cd openwrt-sdk
+          echo -n > feeds.conf.default
+          echo "src-git packages https://github.com/coolsnowwolf/packages" >> feeds.conf.default
+          echo "src-git luci https://github.com/coolsnowwolf/luci" >> feeds.conf.default
+          echo "src-git routing https://github.com/coolsnowwolf/routing" >> feeds.conf.default
+          echo "src-git telephony https://git.openwrt.org/feed/telephony.git" >> feeds.conf.default
+
           git clone  --depth=1 -b "${{ github.ref_name }}" https://github.com/gngpp/luci-theme-design.git package/luci-theme-design
           sudo apt update && sudo apt install minify
           pushd package/luci-theme-design
@@ -46,7 +52,7 @@ jobs:
           ./scripts/feeds update -a && ./scripts/feeds install -a
           echo "CONFIG_PACKAGE_luci-theme-design=y" >> .config
           make defconfig
-          make package/luci-theme-design/compile V=s -j$(nproc)
+          make package/luci-theme-design/compile V=sc -j1
           TARGET="$(find bin/ | grep  luci-theme-design)"
           echo "TARGET=$(pwd)/$TARGET"
           echo "TARGET=$(pwd)/$TARGET" >> $GITHUB_OUTPUT
