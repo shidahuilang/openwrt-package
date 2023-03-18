@@ -72,6 +72,9 @@ if [[ ! "$version" || "$version" -lt 1 ]]; then
 		uci commit firewall
 	fi
 
+	sed -i '/option disabled/d' /etc/config/wireless
+	sed -i '/set wireless.radio${devidx}.disabled/d' /lib/wifi/mac80211.sh
+
 	wifi_setup_radio(){
 	local radio=$1
 	htmode="$(uci -q get wireless.${radio}.htmode)"
