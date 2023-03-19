@@ -22,13 +22,13 @@ chore: small change in table format
 --- a/conf/environmentConfig.go
 +++ b/conf/environmentConfig.go
 @@ -24,6 +24,7 @@ type Params struct {
- 	WebDir                  string   `id:"webdir" desc:"v2rayA web files directory. use embedded files if not specify."`
- 	VlessGrpcInboundCertKey []string `id:"vless-grpc-inbound-cert-key" desc:"Specify the certification path instead of automatically generating a self-signed certificate. Example: /etc/v2raya/grpc_certificate.crt,/etc/v2raya/grpc_private.key"`
- 	IPV6Support             string   `id:"ipv6-support" default:"auto" desc:"Optional values: auto, on, off. Make sure your IPv6 network works fine before you turn it on."`
-+	NFTablesSupport         string   `id:"nftables-support" default:"off" desc:"Optional values: auto, on, off. Experimental feature. Make sure you have installed nftables."`
- 	PassCheckRoot           bool     `desc:"Skip privilege checking. Use it only when you cannot start v2raya but confirm you have root privilege"`
- 	ResetPassword           bool     `id:"reset-password"`
- 	LogLevel                string   `id:"log-level" default:"info" desc:"Optional values: trace, debug, info, warn or error"`
+ 	PluginManager        string `id:"plugin-manager" desc:"the executable file to run in the v2ray-core life-cycle. v2rayA will pass in the --stage (pre-start, post-start, pre-stop, post-stop) argument."`
+ 	WebDir               string `id:"webdir" desc:"v2rayA web files directory. use embedded files if not specify."`
+ 	IPV6Support          string `id:"ipv6-support" default:"auto" desc:"Optional values: auto, on, off. Make sure your IPv6 network works fine before you turn it on."`
++	NFTablesSupport      string `id:"nftables-support" default:"off" desc:"Optional values: auto, on, off. Experimental feature. Make sure you have installed nftables."`
+ 	PassCheckRoot        bool   `id:"passcheckroot" desc:"Skip privilege checking. Use it only when you cannot start v2raya but confirm you have root privilege"`
+ 	ResetPassword        bool   `id:"reset-password" ignore:"1"`
+ 	LogLevel             string `id:"log-level" default:"info" desc:"Optional values: trace, debug, info, warn or error"`
 --- a/core/iptables/dropSpoofing.go
 +++ b/core/iptables/dropSpoofing.go
 @@ -34,7 +34,7 @@ ip6tables -w 2 -I FORWARD -j DROP_SPOOFI
@@ -65,17 +65,15 @@ chore: small change in table format
  )
  
  // http://briteming.hatenablog.com/entry/2019/06/18/175518
-@@ -56,6 +57,10 @@ func (c Setter) Run(stopAtError bool) er
+@@ -56,7 +57,7 @@ func (c Setter) Run(stopAtError bool) er
  	if common.IsDocker() {
  		commands = strings.ReplaceAll(commands, "iptables", "iptables-legacy")
  		commands = strings.ReplaceAll(commands, "ip6tables", "ip6tables-legacy")
+-	} else if !cmds.IsCommandValid("iptables") &&
 +	} else if (!cmds.IsCommandValid("iptables") || IsNFTablesSupported()) &&
-+		cmds.IsCommandValid("iptables-nft") {
-+		commands = strings.ReplaceAll(commands, "iptables", "iptables-nft")
-+		commands = strings.ReplaceAll(commands, "ip6tables", "ip6tables-nft")
- 	}
- 	var errs []error
- 	if c.PreFunc != nil {
+ 		cmds.IsCommandValid("iptables-nft") {
+ 		commands = strings.ReplaceAll(commands, "iptables", "iptables-nft")
+ 		commands = strings.ReplaceAll(commands, "ip6tables", "ip6tables-nft")
 --- a/core/iptables/redirect.go
 +++ b/core/iptables/redirect.go
 @@ -2,15 +2,34 @@ package iptables
@@ -263,17 +261,24 @@ chore: small change in table format
  }
 --- a/core/iptables/tproxy.go
 +++ b/core/iptables/tproxy.go
-@@ -2,18 +2,36 @@ package iptables
+@@ -2,23 +2,42 @@ package iptables
  
  import (
  	"fmt"
+-	"github.com/v2rayA/v2rayA/common/cmds"
+-	"github.com/v2rayA/v2rayA/db/configure"
 +	"os"
-+	"strings"
+ 	"strconv"
+ 	"strings"
 +
- 	"github.com/v2rayA/v2rayA/common/cmds"
++	"github.com/v2rayA/v2rayA/common/cmds"
 +	"github.com/v2rayA/v2rayA/core/v2ray/asset"
- 	"github.com/v2rayA/v2rayA/db/configure"
--	"strings"
++	"github.com/v2rayA/v2rayA/db/configure"
++
+ )
+ 
+ var (
+ 	TproxyNotSkipBr string
  )
  
 -type tproxy struct {
@@ -304,7 +309,7 @@ chore: small change in table format
  	// avoid duplication
  	t.RemoveIPWhitelist(cidr)
  	pos := 7
-@@ -30,7 +48,7 @@ func (t *tproxy) AddIPWhitelist(cidr str
+@@ -38,7 +57,7 @@ func (t *tproxy) AddIPWhitelist(cidr str
  	cmds.ExecCommands(commands, false)
  }
  
@@ -313,7 +318,7 @@ chore: small change in table format
  	var commands string
  	commands = fmt.Sprintf(`iptables -w 2 -t mangle -D TP_RULE -d %s -j RETURN`, cidr)
  	if !strings.Contains(cidr, ".") {
-@@ -40,7 +58,7 @@ func (t *tproxy) RemoveIPWhitelist(cidr
+@@ -48,7 +67,7 @@ func (t *tproxy) RemoveIPWhitelist(cidr
  	cmds.ExecCommands(commands, false)
  }
  
@@ -322,7 +327,7 @@ chore: small change in table format
  	commands := `
  ip rule add fwmark 0x40/0xc0 table 100
  ip route add local 0.0.0.0/0 dev lo table 100
-@@ -158,7 +176,7 @@ ip6tables -w 2 -t mangle -A TP_MARK -j C
+@@ -174,7 +193,7 @@ ip6tables -w 2 -t mangle -A TP_MARK -j C
  	}
  }
  
@@ -331,8 +336,8 @@ chore: small change in table format
  	commands := `
  ip rule del fwmark 0x40/0xc0 table 100 
  ip route del local 0.0.0.0/0 dev lo table 100
-@@ -195,3 +213,166 @@ ip6tables -w 2 -t mangle -X TP_MARK
- 		Cmds:      commands,
+@@ -211,3 +230,166 @@ ip6tables -w 2 -t mangle -X TP_MARK
+ 		Cmds: commands,
  	}
  }
 +
@@ -518,7 +523,7 @@ chore: small change in table format
  func IPNet2CIDR(ipnet *net.IPNet) string {
 @@ -44,3 +45,21 @@ func IsIPv6Supported() bool {
  	}
- 	return cmds.IsCommandValid("ip6tables")
+ 	return cmds.IsCommandValid("ip6tables") || cmds.IsCommandValid("ip6tables-nft")
  }
 +
 +func IsNFTablesSupported() bool {
@@ -577,7 +582,7 @@ chore: small change in table format
  )
  
  func GetV2rayLocationAssetOverride() string {
-@@ -140,6 +141,10 @@ func GetV2rayConfigDirPath() (p string)
+@@ -143,6 +144,10 @@ func GetV2rayConfigDirPath() (p string)
  	return conf.GetEnvironmentConfig().V2rayConfigDirectory
  }
  
