@@ -26,6 +26,7 @@ jobs:
         sudo apt update && sudo apt install minify
         echo "$(minify dev/style.css)" > htdocs/luci-static/design/css/style.css
         echo "$(minify dev/script.js)" > htdocs/luci-static/design/js/script.js
+        echo "$(minify dev/xhr.js)" > htdocs/luci-static/design/js/xhr.js
 
     - uses: stefanzweifel/git-auto-commit-action@v4
       with:
