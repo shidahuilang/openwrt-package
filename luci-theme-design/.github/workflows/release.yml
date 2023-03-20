@@ -49,6 +49,7 @@ jobs:
           echo "$(minify dev/style.css)" > htdocs/luci-static/design/css/style.css
           echo "$(minify dev/script.js)" > htdocs/luci-static/design/js/script.js
           echo "$(minify dev/xhr.js)" > htdocs/luci-static/design/js/xhr.js
+          echo "$(minify dev/design.js)" > htdocs/luci-static/design/js/design.js
           popd
           ./scripts/feeds update -a && ./scripts/feeds install -a
           echo "CONFIG_PACKAGE_luci-theme-design=y" >> .config
