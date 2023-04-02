@@ -7,7 +7,7 @@
 		},
 		"depends": {
 			"acl": [ "luci-app-msd_lite" ],
-			"uci": { "msd_lite": true }
+			"fs": { "/etc/config/msd_lite": "file" }
 		}
 	}
 }
