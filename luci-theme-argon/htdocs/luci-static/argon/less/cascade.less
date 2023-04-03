@@ -1498,7 +1498,6 @@ tr>th,
 }
 
 #cbi-wireless .td,
-#cbi-network .tr:first-child>.td,
 .table[width="100%"]>.tr:first-child>.td,
 [data-page="admin-network-diagnostics"] .tr>.td,
 .tr.table-titles>.th,
@@ -1507,6 +1506,10 @@ tr>th,
     background-color: #f6f9fc;
     padding: 1.1em 1.25rem;
     line-height: 1.3rem;
+}
+
+#cbi-network .tr:first-child>.td {
+    border-top: 0;
 }
 
 .table[width="100%"]>.tr:first-child>.td {
@@ -2188,6 +2191,7 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
     transition: box-shadow 0.15s ease;
     box-sizing: border-box;
     min-width: 15.5rem;
+    width: 15.5rem;
 }
 
 .cbi-dynlist>.add-item {
@@ -2228,6 +2232,7 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
 .cbi-dynlist>.add-item:not([ondrop])>input {
     overflow: hidden;
     min-width: 15.5rem;
+    width: 15.5rem;
     white-space: nowrap;
     text-overflow: ellipsis;
 }
