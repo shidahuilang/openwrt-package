@@ -60,6 +60,10 @@ function to_check()
 		model = "rockchip_armv8/friendlyarm_nanopi-r5s"
 		check_update()
 		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-rockchip-armv8-friendlyarm_nanopi-r5s-squashfs-sysupgrade.img.gz"
+    elseif board_name:match("nanopi%-r5c$") then
+		model = "rockchip_armv8/friendlyarm_nanopi-r5c"
+		check_update()
+		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-rockchip-armv8-friendlyarm_nanopi-r5c-squashfs-sysupgrade.img.gz"
     elseif board_name:match("nanopi%-r4se$") then
 		model = "rockchip_armv8/friendlyarm_nanopi-r4se"
 		check_update()
