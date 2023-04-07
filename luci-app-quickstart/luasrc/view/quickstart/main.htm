@@ -1,0 +1,35 @@
+<%+header%>
+<%
+  local jsonc = require "luci.jsonc"
+  local features = { "_lua_force_array_" }
+  if luci.sys.call("which ota >/dev/null 2>&1") == 0 then
+      features[#features+1] = "ota"
+  end
+  if luci.sys.call("[ -d /ext_overlay ] >/dev/null 2>&1") == 0 then
+      features[#features+1] = "sandbox"
+  end
+  if luci.sys.call("[ -e /etc/init.d/dockerd ] >/dev/null 2>&1") == 0 then
+      features[#features+1] = "dockerd"
+  end
+-%>
+<script>
+    (function(){
+      var vue_prefix="<%=prefix%>";
+      window.vue_base = vue_prefix + '/';
+      window.quickstart_features = <%=jsonc.stringify(features)%>;
+      if (location.pathname != vue_prefix && !location.pathname.startsWith(window.vue_base)) {
+        if (window.history && window.history.replaceState) {
+          window.history.replaceState({}, null, vue_prefix);
+        } else {
+          location.href = vue_prefix;
+        }
+      }
+    })();
+</script>
+<div id="app">
+</div>
+<input type="button" class="cbi-button cbi-button-apply" value="<%:更新教程%> " onclick="window.open('https://github.com/shidahuilang/openwrt')" />
+<input type="button" class="cbi-button cbi-button-apply" value="<%:固件下载%> " onclick="window.open('https://github.com/shidahuilang/openwrt/releases')" />
+<script type="module" crossorigin src="/luci-static/quickstart/index.js?v=0.5.8-1"></script>
+<link rel="stylesheet" href="/luci-static/quickstart/style.css?v=0.5.8-1">
+<%+footer%>
