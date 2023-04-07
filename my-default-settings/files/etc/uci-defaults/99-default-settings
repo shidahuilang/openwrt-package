@@ -229,7 +229,6 @@ if [[ ! "$version" || "$version" -lt 1 ]]; then
 	version=1
 fi
 
-cp -pR /www/cgi-bin/* /www/
 rm -rf /tmp/luci-*
 
 uci -q set base_config.@status[0].version=$version
