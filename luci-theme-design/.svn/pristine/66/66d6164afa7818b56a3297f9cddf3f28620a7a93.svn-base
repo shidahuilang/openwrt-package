@@ -239,3 +239,28 @@ XHR.running = function()
 {
 	return !!(XHR._r && XHR._i);
 }
+
+;(function ($) {
+  // Fixed status realtime table overflow style
+  function settingsStatusRealtimeOverflow() {
+    if (self.location.pathname.includes("status/realtime")) {
+      const nodeStatusRealtime = $('.node-status-realtime');
+      const selectorValues = ['bandwidth', 'wifirate', 'wireless'];
+      // .node-status-realtime embed[src="/luci-static/resources/bandwidth.svg"] + div + br + table
+      // .node-status-realtime embed[src="/luci-static/resources/wifirate.svg"] + div + br + table
+      // .node-status-realtime embed[src="/luci-static/resources/wireless.svg"] + div + br + table
+      for (let i = 0; i < selectorValues.length; i++) {
+        const value = selectorValues[i];
+        const target = nodeStatusRealtime.find(`embed[src="/luci-static/resources/${value}.svg"] + div + br + table`);
+        if (target.length) {
+          target.wrap('<div style="overflow-x: auto;"></div>');
+        }
+      }
+    }
+  }
+
+  $(document).ready(() => {
+    settingsStatusRealtimeOverflow();
+  });
+
+})(jQuery);

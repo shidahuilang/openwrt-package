@@ -23,7 +23,6 @@ jobs:
         sudo apt update && sudo apt install minify
         echo "$(minify dev/style.css)" > htdocs/luci-static/design/css/style.css
         echo "$(minify dev/script.js)" > htdocs/luci-static/design/js/script.js
-        echo "$(minify dev/xhr.js)" > htdocs/luci-static/design/js/xhr.js
         echo "$(minify dev/design.js)" > htdocs/luci-static/design/js/design.js
 
     # - uses: stefanzweifel/git-auto-commit-action@v4
@@ -41,7 +40,6 @@ jobs:
         add-paths: |
           htdocs/luci-static/design/css/style.css
           htdocs/luci-static/design/js/script.js
-          htdocs/luci-static/design/js/xhr.js
           htdocs/luci-static/design/js/design.js
         title: ${{ github.event.head_commit.message }}
         commit-message: ${{ github.event.head_commit.message }}
