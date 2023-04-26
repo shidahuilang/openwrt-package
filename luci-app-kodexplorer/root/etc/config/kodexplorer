@@ -1,11 +1,10 @@
 
 config global
-	option port '8081'
-	option upload_max_filesize '64M'
-	list open_basedir '/'
-	option https '0'
-	option project_directory '/tmp/kodexplorer'
-	option ipv6 '0'
-	option memory_limit '64M'
+	option port '8080'
+	option storage_device_path '/opt/kodexplorer/'
+	option project_directory '/opt/kodexplorer'
 	option enable '0'
+	option memory_limit '120M'
+	option post_max_size '100M'
+	option upload_max_filesize '100M'
 
