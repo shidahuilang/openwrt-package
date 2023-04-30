@@ -11,8 +11,6 @@ LUCI_DEPENDS:=+wget +npc
 LUCI_PKGARCH:=all
 
 PKG_NAME:=luci-app-nps
-PKG_VERSION:=1.1
-PKG_RELEASE:=10
 
 include $(TOPDIR)/feeds/luci/luci.mk
 
