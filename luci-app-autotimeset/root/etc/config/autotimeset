@@ -1,0 +1,48 @@
+config stime
+	option hour '*/4'
+	option stype '7'
+	option week '*'
+	option minute '0'
+	option month '*'
+	option enable '0'
+
+config stime
+	option minute '0'
+	option stype '8'
+	option week '1'
+	option hour '5'
+	option month '*'
+	option enable '0'
+
+config stime
+	option week '*'
+	option stype '1'
+	option hour '2'
+	option minute '30'
+	option month '*'
+	option enable '0'
+
+config stime
+	option week '*'
+	option minute '0'
+	option stype '2'
+	option hour '1'
+	option month '*'
+	option enable '0'
+
+config stime
+	option week '*'
+	option month '*'
+	option stype '10'
+	option minute '*/5'
+	option hour '*'
+	option enable '0'
+
+config stime
+	option week '*'
+	option stype '9'
+	option minute '*/5'
+	option month '*'
+	option enable '0'
+	option hour '*'
+
