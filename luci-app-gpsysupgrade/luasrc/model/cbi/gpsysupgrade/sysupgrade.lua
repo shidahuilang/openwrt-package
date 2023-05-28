@@ -496,14 +496,14 @@ function to_check()
 		model = "ramips_mt7620/hiwifi_r33"
 		check_update()
 		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-ramips-mt7620-hiwifi_r33-squashfs-sysupgrade.bin"
-    elseif board_name:match("redmi%-router%-ax6000$") then
-		model = "mediatek_mt7986/xiaomi_redmi-router-ax6000"
+    elseif board_name:match("redmi%-router%-ax6000%-ubootmod$") then
+		model = "mediatek_filogic/xiaomi_redmi-router-ax6000-ubootmod"
 		check_update()
-		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-mediatek-mt7986-xiaomi_redmi-router-ax6000-squashfs-sysupgrade.bin"
-    elseif board_name:match("mt7981%-360%-t7%-108M$") then
-		model = "mediatek_mt7981/mt7981-360-t7-108M"
+		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-mediatek-filogic-xiaomi_redmi-router-ax6000-ubootmod-squashfs-sysupgrade.itb"
+    elseif board_name:match("360%-t7%-ubootmod$") then
+		model = "mediatek_filogic/qihoo_360-t7-ubootmod"
 		check_update()
-		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-mediatek-mt7981-mt7981-360-t7-108M-squashfs-sysupgrade.bin"
+		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-mediatek-filogic-qihoo_360-t7-ubootmod-squashfs-sysupgrade.bin"
     elseif board_name:match("linksys,ea4500$") then
 		model = "kirkwood_generic/linksys_ea4500"
 		check_update()
@@ -565,19 +565,19 @@ function to_check()
 		check_update()
 		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-ath79-nand-zte_mf286-squashfs-sysupgrade.bin"
     elseif board_name:match("gl%-mt2500$") then
-		model = "mt7981/glinet-mt2500"
+		model = "mediatek_mt7981/glinet_gl-mt2500"
 		check_update()
 		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-mediatek-mt7981-glinet_gl-mt2500-squashfs-sysupgrade.bin"
     elseif board_name:match("gl%-mt3000$") then
-		model = "mt7981/glinet-mt3000"
+		model = "mediatek_filogic/glinet_gl-mt3000"
 		check_update()
-		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-mediatek-mt7981-glinet_gl-mt3000-squashfs-sysupgrade.bin"
+		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-mediatek-filogic-glinet_gl-mt3000-squashfs-sysupgrade.bin"
     elseif board_name:match("gl%-x3000$") then
-		model = "mt7981/glinet-x3000"
+		model = "mediatek_mt7981/glinet_gl-x3000"
 		check_update()
 		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-mediatek-mt7981-glinet_gl-x3000-squashfs-sysupgrade.bin"
     elseif board_name:match("gl%-xe3000$") then
-		model = "mt7981/glinet-xe3000"
+		model = "mediatek_mt7981/glinet_gl-xe3000"
 		check_update()
 		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-mediatek-mt7981-glinet_gl-xe3000-squashfs-sysupgrade.bin"
     else
