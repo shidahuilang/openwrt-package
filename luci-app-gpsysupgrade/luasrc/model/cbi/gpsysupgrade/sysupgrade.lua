@@ -496,14 +496,14 @@ function to_check()
 		model = "ramips_mt7620/hiwifi_r33"
 		check_update()
 		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-ramips-mt7620-hiwifi_r33-squashfs-sysupgrade.bin"
-    elseif board_name:match("redmi%-router%-ax6000%-ubootmod$") then
-		model = "mediatek_filogic/xiaomi_redmi-router-ax6000-ubootmod"
+    elseif board_name:match("redmi%-router%-ax6000$") then
+		model = "mediatek_mt7986/xiaomi_redmi-router-ax6000"
 		check_update()
-		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-mediatek-filogic-xiaomi_redmi-router-ax6000-ubootmod-squashfs-sysupgrade.itb"
-    elseif board_name:match("360%-t7%-ubootmod$") then
-		model = "mediatek_filogic/qihoo_360-t7-ubootmod"
+		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-mediatek-mt7986-xiaomi_redmi-router-ax6000-squashfs-sysupgrade.bin"
+    elseif board_name:match("mt7981%-360%-t7%-108M$") then
+		model = "mediatek_mt7981/mt7981-360-t7-108M"
 		check_update()
-		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-mediatek-filogic-qihoo_360-t7-ubootmod-squashfs-sysupgrade.bin"
+		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-mediatek-mt7981-mt7981-360-t7-108M-squashfs-sysupgrade.bin"
     elseif board_name:match("linksys,ea4500$") then
 		model = "kirkwood_generic/linksys_ea4500"
 		check_update()
