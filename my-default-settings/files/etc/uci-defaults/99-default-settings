@@ -234,6 +234,8 @@ if [[ ! "$version" || "$version" -lt 1 ]]; then
 	version=1
 fi
 
+grep -q "location /luci " /etc/nginx/conf.d/luci.locations 2>/dev/null &&
+	cp -pR /www/cgi-bin/* /www/
 rm -rf /tmp/luci-*
 
 uci -q set base_config.@status[0].version=$version
