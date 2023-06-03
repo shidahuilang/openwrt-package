@@ -580,6 +580,14 @@ function to_check()
 		model = "mediatek_mt7981/glinet_gl-xe3000"
 		check_update()
 		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-mediatek-mt7981-glinet_gl-xe3000-squashfs-sysupgrade.bin"
+    elseif board_name:match("wr30u%-112M$") then
+		model = "mediatek_mt7981/xiaomi_wr30u-112M"
+		check_update()
+		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-mediatek-mt7981-xiaomi_wr30u-112M-squashfs-sysupgrade.bin"
+    elseif board_name:match("redmi,ax3000$") then
+		model = "ipq50xx_arm/redmi_ax3000"
+		check_update()
+		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-ipq50xx-arm-redmi_ax3000-squashfs-sysupgrade.bin"
     else
 		local needs_update = false
 		return {
