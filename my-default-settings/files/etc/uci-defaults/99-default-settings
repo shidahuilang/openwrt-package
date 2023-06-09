@@ -67,6 +67,9 @@ if [[ ! "$version" || "$version" -lt 1 ]]; then
 	uci -q set uhttpd.main.script_timeout='120'
 	uci commit uhttpd
 	
+	uci -q set upnpd.config.enabled='1'
+	uci commit upnpd
+	
 	(echo "root"; sleep 1; echo "root") | /bin/busybox passwd root >/dev/null 2>&1 &
 	
 	. /etc/openwrt_release
