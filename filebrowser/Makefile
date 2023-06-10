@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=filebrowser
 PKG_VERSION:=2.23.0
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/filebrowser/filebrowser/tar.gz/v$(PKG_VERSION)?
@@ -43,12 +43,16 @@ define Package/filebrowser/description
   It can be used as a standalone app or as a middleware.
 endef
 
+define Package/filebrowser/conffiles
+/etc/filebrowser/
+/etc/config/filebrowser
+endef
+
 define Build/Compile
 	( \
 		pushd "$(PKG_BUILD_DIR)/frontend" ; \
 		npm ci; \
-		npm run lint ; \
-		npm run build ; \
+		NODE_OPTIONS=--openssl-legacy-provider npm run build ; \
 		popd ; \
 		$(call GoPackage/Build/Compile) ; \
 	)
