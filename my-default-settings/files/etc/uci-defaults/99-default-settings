@@ -14,11 +14,6 @@ if [ "$(uci -q get dhcp.@dnsmasq[0].port)" != "53" ]; then
 	uci commit dhcp
 fi
 
-uci -q batch <<EOF
-set attendedsysupgrade.server.url='https://op.supes.top'
-commit attendedsysupgrade
-EOF
-
 uci -q set dockerd.firewall.extra_iptables_args='--match conntrack ! --ctstate RELATED,ESTABLISHED'
 uci commit dockerd
 
@@ -89,6 +84,8 @@ if [[ ! "$version" || "$version" -lt 1 ]]; then
 	if uci -q get wireless.${radio} >/dev/null; then
 			uci -q del wireless.${radio}.disabled
 			uci -q set wireless.${radio}.country='US'
+			uci -q set wireless.${radio}.mu_beamformer='1'
+			uci -q set wireless.${radio}.cell_density='3'
 		
 		if [ "$(uci -q get wireless.${radio}.band)" = "5g" ]; then
 			uci -q set wireless.default_${radio}.ssid="${SSID}_5G"
@@ -243,6 +240,10 @@ fi
 
 grep -q "location /luci " /etc/nginx/conf.d/luci.locations 2>/dev/null &&
 	cp -pR /www/cgi-bin/* /www/
+
+sed -i "s/client_max_body_size 128/client_max_body_size 3072/" /etc/nginx/uci.conf.template
+sed -i "s/large_client_header_buffers 2 1k/large_client_header_buffers 4 512k/" /etc/nginx/uci.conf.template
+
 rm -rf /tmp/luci-*
 
 uci -q set base_config.@status[0].version=$version
