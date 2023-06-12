@@ -18,11 +18,17 @@ AMLOGIC_SOC_FILE="/etc/flippy-openwrt-release"
 START_LOG="${TMP_CHECK_DIR}/amlogic_check_plugin.log"
 RUNNING_LOG="${TMP_CHECK_DIR}/amlogic_running_script.log"
 LOG_FILE="${TMP_CHECK_DIR}/amlogic.log"
+all_plugin_list="${TMP_CHECK_DIR}/josn_api_plugin"
 support_platform=("allwinner" "rockchip" "amlogic" "qemu-aarch64")
 LOGTIME="$(date "+%Y-%m-%d %H:%M:%S")"
+# Set github API default value
+github_page="1"
+github_per_page="100"
+
 [[ -d ${TMP_CHECK_DIR} ]] || mkdir -p ${TMP_CHECK_DIR}
 rm -f ${TMP_CHECK_DIR}/*.ipk 2>/dev/null && sync
 rm -f ${TMP_CHECK_DIR}/sha256sums 2>/dev/null && sync
+rm -f ${all_plugin_list}
 
 # Clean the running log
 clean_running() {
@@ -98,18 +104,47 @@ sleep 2
 # 02. Check the version on the server
 tolog "02. Start querying plugin version..."
 
-# Query the latest version
-latest_version="$(
-    curl -s \
-        -H "Accept: application/vnd.github+json" \
-        https://api.github.com/repos/ophub/luci-app-amlogic/releases |
-        jq -r '.[].tag_name' |
-        sort -rV | head -n 1
-)"
-[[ -n "${latest_version}" ]] || tolog "02.01 Query failed, please try again." "1"
-tolog "02.01 current version: ${current_plugin_v}, Latest version: ${latest_version}"
-sleep 2
+# Get the release list
+while true; do
+    response="$(
+        curl -s -L \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/ophub/luci-app-amlogic/releases?per_page=${github_per_page}&page=${github_page}"
+    )"
 
+    # Check if the response is empty or an error occurred
+    if [[ -z "${response}" ]] || [[ "${response}" == *"Not Found"* ]]; then
+        tolog "02.01 Query failed, please try again." "1"
+        break
+    else
+        echo "${response}" |
+            jq -r '.[].tag_name' | sort -rV \
+            >>${all_plugin_list}
+    fi
+
+    # Check if the current page has fewer results than the per_page limit
+    if [[ "$(echo "${response}" | jq '. | length')" -lt "${github_per_page}" ]]; then
+        break
+    else
+        github_page="$((github_page + 1))"
+    fi
+done
+
+# Get the latest version
+if [[ -s "${all_plugin_list}" ]]; then
+    latest_version="$(cat ${all_plugin_list} | sort -rV | head -n 1)"
+    if [[ -z "${latest_version}" ]]; then
+        tolog "02.01 Query failed, please try again." "1"
+    else
+        tolog "02.01 current version: ${current_plugin_v}, Latest version: ${latest_version}"
+        sleep 2
+    fi
+else
+    tolog "02.01 The search results for releases are empty." "1"
+fi
+
+# Compare the version and download the latest version
 if [[ "${current_plugin_v}" == "${latest_version}" ]]; then
     tolog "02.02 Already the latest version, no need to update." "1"
 else
@@ -143,6 +178,6 @@ tolog "03. The plug is ready, you can update."
 sleep 2
 
 #echo '<a href=upload>Update</a>' >$START_LOG
-tolog '<input type="button" class="cbi-button cbi-button-reload" value="Update" onclick="return amlogic_plugin(this)"/> Latest version: '${server_plugin_version}'' "1"
+tolog '<input type="button" class="cbi-button cbi-button-reload" value="Update" onclick="return amlogic_plugin(this)"/> Latest version: '${latest_version}'' "1"
 
 exit 0
