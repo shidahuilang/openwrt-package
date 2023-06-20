@@ -18,7 +18,7 @@ s = m:section(TypedSection, "main", translate("Setup"), translate("The following
 s.addremove=false
 s.anonymous=true
 
-o = s:option(Flag, "hostnet", translate("Host network"), translate("Xunlei running in host network, for DLNA application, port is always 32400 if enabled"))
+o = s:option(Flag, "hostnet", translate("Host network"), translate("Xunlei running in host network, port is always 2345 if enabled"))
 o.default = 0
 o.rmempty = false
 
