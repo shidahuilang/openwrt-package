@@ -24,16 +24,6 @@ case "$DISTRIB_TARGET" in
 	"ipq40xx/generic")
 		uci_write_config 0 ondemand 200000 716000 10 50
 		;;
-	"ipq60xx/generic")
-		if echo "$CPU_FREQS" | grep -q "1800000"; then
-			# IPQ6010/18/28
-			CPU_MAX_FREQ="1800000"
-		else
-			# IPQ6000
-			CPU_MAX_FREQ="1200000"
-		fi
-		uci_write_config 0 ondemand 864000 "$CPU_MAX_FREQ" 10 50
-		;;
 	"ipq806x/generic")
 		if echo "$CPU_FREQS" | grep -q "1725000"; then
 			# IPQ8065
@@ -49,7 +39,20 @@ case "$DISTRIB_TARGET" in
 		# IPQ8064/5
 		echo "$CPU_POLICYS" | grep -q "1" && uci_write_config 1 performance 600000 1200000
 		;;
-	"ipq807x/generic")
+	"mediatek/mt7622")
+		uci_write_config 0 ondemand 600000 1350000 10 50
+		;;
+	"qualcommax/ipq60xx")
+		if echo "$CPU_FREQS" | grep -q "1800000"; then
+			# IPQ6010/18/28
+			CPU_MAX_FREQ="1800000"
+		else
+			# IPQ6000
+			CPU_MAX_FREQ="1200000"
+		fi
+		uci_write_config 0 ondemand 864000 "$CPU_MAX_FREQ" 10 50
+		;;
+	"qualcommax/ipq807x")
 		if echo "$CPU_FREQS" | grep -q "2208000"; then
 			# IPQ8072/4/6/8A
 			CPU_MAX_FREQ="2208000"
@@ -58,9 +61,6 @@ case "$DISTRIB_TARGET" in
 			CPU_MAX_FREQ="1382400"
 		fi
 		uci_write_config 0 schedutil 1017600 "$CPU_MAX_FREQ"
-		;;
-	"mediatek/mt7622")
-		uci_write_config 0 ondemand 600000 1350000 10 50
 		;;
 	"rockchip/armv8")
 		if echo "$CPU_POLICYS" | grep -q "6"; then
