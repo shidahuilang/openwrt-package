@@ -64,6 +64,22 @@ function to_check()
 		model = "rockchip_armv8/friendlyarm_nanopi-r5c"
 		check_update()
 		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-rockchip-armv8-friendlyarm_nanopi-r5c-squashfs-sysupgrade.img.gz"
+    elseif board_name:match("nanopi%-r6s$") then
+		model = "rockchip_rk3588_armv8/friendlyelec_nanopi-r6s"
+		check_update()
+		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-rockchip_rk3588_armv8-friendlyelec_nanopi-r6s-squashfs-sysupgrade.img.gz"
+    elseif board_name:match("nanopi%-r6c$") then
+		model = "rockchip_rk3588_armv8/friendlyelec_nanopi-r6c"
+		check_update()
+		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-rockchip_rk3588_armv8-friendlyelec_nanopi-r6c-squashfs-sysupgrade.img.gz"
+    elseif board_name:match("orangepi%-5$") then
+		model = "rockchip_rk3588_armv8/xunlong_orangepi-5"
+		check_update()
+		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-rockchip_rk3588_armv8-xunlong_orangepi-5-squashfs-sysupgrade.img.gz"
+    elseif board_name:match("orangepi%-5%-plus$") then
+		model = "rockchip_rk3588_armv8/xunlong_orangepi-5-plus"
+		check_update()
+		download_url = "https://op.supes.top/firmware/" ..model.. "/" ..remote_version.. "-openwrt-rockchip_rk3588_armv8-xunlong_orangepi-5-plus-squashfs-sysupgrade.img.gz"
     elseif board_name:match("nanopi%-r4se$") then
 		model = "rockchip_armv8/friendlyarm_nanopi-r4se"
 		check_update()
