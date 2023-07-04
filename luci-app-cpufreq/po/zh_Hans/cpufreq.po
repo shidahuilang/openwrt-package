@@ -34,7 +34,7 @@ msgstr "CPU 切换频率触发阈值"
 
 #: applications/luci-app-cpufreq/htdocs/luci-static/resources/view/cpufreq.js:68
 msgid "Expecting: %s"
-msgstr ""
+msgstr "请输入：%s"
 
 #: applications/luci-app-cpufreq/root/usr/share/rpcd/acl.d/luci-app-cpufreq.json:3
 msgid "Grant access to CPUFreq configuration"
