@@ -1,0 +1,26 @@
+<%#
+ Copyright 2021-2022 zxlhhyccc Wich <zxlhhy@gmail.com>
+ https://github.com/zxlhhyccc/luci-app-v2raya
+ Licensed to the public under the Apache License 2.0.
+-%>
+
+<%
+  local v2rayaHttpPort = luci.model.uci.cursor():get("v2raya", "config", "address"):match(":[0-9]+"):gsub(":", "");
+-%>
+
+<%+header%>
+<div class="cbi-map">
+
+<iframe  id="v2raya" style="width: 100%; min-height: 780px; border: none; border-radius: .375rem;box-shadow: rgba(0, 0, 0, 0.75) 0px 0px 15px -5px;"><br/><em style=\"color:red\">
+<p ><em><%:NOT RUNNING%></em></p>
+</iframe>
+
+</div>
+<script type="text/javascript">
+        document.getElementById("v2raya").src = window.location.protocol + "//" + window.location.hostname + ":<%=v2rayaHttpPort%>";
+ 		document.getElementById("v2raya").height = document.documentElement.clientHeight;
+        window.onresize = function(){
+            document.getElementById("v2raya").height = document.documentElement.clientHeight;
+        }
+</script>
+<%+footer%>

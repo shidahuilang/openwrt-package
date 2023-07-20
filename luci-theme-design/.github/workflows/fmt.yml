@@ -1,0 +1,45 @@
+name: fmt
+
+on:
+  push:
+    branches:
+      - main
+  repository_dispatch:
+  workflow_dispatch:
+
+jobs:
+  fmt:
+    runs-on: ubuntu-20.04
+
+    permissions:
+      # Give the default GITHUB_TOKEN write permission to commit and push the changed files back to the repository.
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: fmt
+      run: |
+        sudo apt update && sudo apt install minify
+        echo "$(minify dev/style.css)" > htdocs/luci-static/design/css/style.css
+        echo "$(minify dev/script.js)" > htdocs/luci-static/design/js/script.js
+        echo "$(minify dev/design.js)" > htdocs/luci-static/design/js/design.js
+
+    # - uses: stefanzweifel/git-auto-commit-action@v4
+    #   with:
+    #     branch: dev
+    #     commit_message: "style: format and compress js/css"
+        
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v4
+      with:
+        base: main
+        token: ${{ secrets.TOKEN }}
+        branch: fmt
+        delete-branch: true
+        add-paths: |
+          htdocs/luci-static/design/css/style.css
+          htdocs/luci-static/design/js/script.js
+          htdocs/luci-static/design/js/design.js
+        title: ${{ github.event.head_commit.message }}
+        commit-message: ${{ github.event.head_commit.message }}
