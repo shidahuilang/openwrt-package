@@ -5,5 +5,7 @@ function index()
 		return
 	end
 
-	entry({"admin", "services", "aliddns"}, cbi("aliddns"), _("AliDDNS"), 58).dependent = true
+	local page = entry({"admin", "services", "aliddns"}, cbi("aliddns"), _("AliDDNS"), 58)
+	page.dependent = true
+	page.acl_depends = { "luci-app-aliddns" }
 end

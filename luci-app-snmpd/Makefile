@@ -1,13 +1,15 @@
+#
+# Copyright (C) 2018-2019 Ycarus (Yannick Chabanois) <ycarus@zugaina.org>
+#
+#
+
 include $(TOPDIR)/rules.mk
 
-LUCI_TITLE:= Net-SNMP LuCI interface
-LUCI_DEPENDS:=+luci-base +snmpd
-LUCI_PKGARCH:=all
-LUCI_DESCRIPTION:=Some common net-snmp config items. In no way is this comprehensive.
+LUCI_TITLE:=LuCI SNMPD Interface
+LUCI_DEPENDS:=+snmpd +snmptrapd +snmp-utils +snmp-mibs
 
-PKG_MAINTAINER:= Karl Palsson <karlp@etactica.com>
-PKG_LICENSE:=Apache-2.0
+PKG_LICENSE:=GPLv3
 
+#include ../luci/luci.mk
 include $(TOPDIR)/feeds/luci/luci.mk
-
 # call BuildPackage - OpenWrt buildroot signature

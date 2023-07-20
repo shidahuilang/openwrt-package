@@ -5,7 +5,7 @@
                          className="form-control"
                          component={renderInputField}
 -                        placeholder={t('username_placeholder')}
-+                        placeholder="默认用户名密码都是admin"
++                        placeholder="默认用户名密码都是root"
                          autoComplete="username"
                          autocapitalize="none"
                          disabled={processing}

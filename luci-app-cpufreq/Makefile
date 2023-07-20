@@ -1,15 +1,12 @@
-
-# Copyright (C) 2016 Openwrt.org
+# SPDX-License-Identifier: GPL-3.0-only
 #
-# This is free software, licensed under the Apache License, Version 2.0 .
-#
+# Copyright (C) 2021-2022 ImmortalWrt.org
 
 include $(TOPDIR)/rules.mk
 
-LUCI_TITLE:=LuCI for Kernel Manager
+LUCI_TITLE:=LuCI for CPU Freq Setting
 LUCI_DEPENDS:=@(arm||aarch64)
 LUCI_PKGARCH:=all
-PKG_NAME:=luci-app-cpufreq
 
 include $(TOPDIR)/feeds/luci/luci.mk
 

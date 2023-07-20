@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-only
 #
-# Copyright (C) 2021-2023 ImmortalWrt.org
+# Copyright (C) 2021 ImmortalWrt.org
 
 include $(TOPDIR)/rules.mk
 
@@ -13,13 +13,12 @@ PKG_SOURCE_URL:=https://codeload.github.com/XIU2/CloudflareSpeedTest/tar.gz/v$(P
 PKG_HASH:=9025102b4302cc2e7e91e8ed60ce49ca7c5b2494b09f14edfd4e012ea828e61d
 
 PKG_LICENSE:=GPL-3.0-only
-PKG_LICENSE_FILE:=LICENSE
+PKG_LICENSE_FILES:=LICENSE
 PKG_MAINTAINER:=Tianling Shen <cnsztl@immortalwrt.org>
 
 PKG_BUILD_DEPENDS:=golang/host
 PKG_BUILD_PARALLEL:=1
 PKG_BUILD_FLAGS:=no-mips16
-PKG_USE_MIPS16:=0
 
 GO_PKG:=github.com/XIU2/CloudflareSpeedTest
 GO_PKG_LDFLAGS_X:=main.version=v$(PKG_VERSION)
@@ -35,8 +34,6 @@ define Package/cdnspeedtest
   DEPENDS:=$(GO_ARCH_DEPENDS) +ca-bundle
 endef
 
-GO_PKG_TARGET_VARS:=$(filter-out CGO_ENABLED=%,$(GO_PKG_TARGET_VARS)) CGO_ENABLED=0
-
 define Package/cdnspeedtest/install
 	$(call GoPackage/Package/Install/Bin,$(PKG_INSTALL_DIR))
 	$(INSTALL_DIR) $(1)/usr/bin
@@ -47,5 +44,4 @@ define Package/cdnspeedtest/install
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/ipv6.txt $(1)/usr/share/CloudflareSpeedTest/
 endef
 
-$(eval $(call GoBinPackage,cdnspeedtest))
 $(eval $(call BuildPackage,cdnspeedtest))

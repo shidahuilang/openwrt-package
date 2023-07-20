@@ -5,26 +5,25 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=filebrowser
-PKG_VERSION:=2.21.1
-PKG_RELEASE:=$(AUTORELEASE)
+PKG_VERSION:=2.23.0
+PKG_RELEASE:=2
 
-PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=b73d278
-PKG_SOURCE_URL:=https://github.com/filebrowser/filebrowser
-PKG_MIRROR_HASH:=66b9df31f98bec22715a7fe9ca73962c1e5a5c1b3bcfb99fd0ac1703118ee4c8
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=https://codeload.github.com/filebrowser/filebrowser/tar.gz/v$(PKG_VERSION)?
+PKG_HASH:=9a99f0c51114ff7e3df89190729a8ca1c0ed48c491a5c6f9d9e266eb6657898d
 
 PKG_LICENSE:=Apache-2.0
 PKG_LICENSE_FILES:=LICENSE
-PKG_MAINTAINER:=CN_SZTL <cnsztl@immortalwrt.org>
+PKG_MAINTAINER:=Tianling Shen <cnsztl@immortalwrt.org>
 
 PKG_BUILD_DEPENDS:=golang/host node/host
 PKG_BUILD_PARALLEL:=1
-PKG_USE_MIPS16:=0
+PKG_BUILD_FLAGS:=no-mips16
 
-GO_PKG:=github.com/filebrowser/filebrowser
+GO_PKG:=github.com/filebrowser/filebrowser/v2
 GO_PKG_LDFLAGS_X:= \
-	$(GO_PKG)/v2/version.CommitSHA=$(PKG_SOURCE_VERSION) \
-	$(GO_PKG)/v2/version.Version=v$(PKG_VERSION)
+	$(GO_PKG)/version.CommitSHA=$(PKG_VERSION) \
+	$(GO_PKG)/version.Version=v$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 include $(TOPDIR)/feeds/packages/lang/golang/golang-package.mk
@@ -44,12 +43,16 @@ define Package/filebrowser/description
   It can be used as a standalone app or as a middleware.
 endef
 
+define Package/filebrowser/conffiles
+/etc/filebrowser/
+/etc/config/filebrowser
+endef
+
 define Build/Compile
 	( \
 		pushd "$(PKG_BUILD_DIR)/frontend" ; \
 		npm ci; \
-		npm run lint ; \
-		npm run build ; \
+		NODE_OPTIONS=--openssl-legacy-provider npm run build ; \
 		popd ; \
 		$(call GoPackage/Build/Compile) ; \
 	)
