@@ -1,0 +1,21 @@
+
+config chinadns-ng
+	option enable '0'
+	option bind_addr '0.0.0.0'
+	option bind_port '5353'
+	option china_dns '223.5.5.5,119.29.29.29'
+	option trust_dns '8.8.8.8,8.8.4.4'
+	option ipset_name4 'chnroute'
+	option ipset_name6 'chnroute6'
+	option gfwlist_file '/etc/chinadns-ng/gfwlist.txt'
+	#option chnlist_file '/etc/chinadns-ng/chinalist.txt'
+	option default_tag 'none'
+	option timeout_sec '3'
+	option repeat_times '2'
+	option no_ipv6 '0'
+	option chnlist_first '0'
+	option add_tagchn_ip '0'
+	option reuse_port '1'
+	option noip_as_chnip '0'
+	option verbose '0'
+
