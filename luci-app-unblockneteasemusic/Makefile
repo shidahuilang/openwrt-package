@@ -4,19 +4,23 @@
 
 include $(TOPDIR)/rules.mk
 
-LUCI_TITLE:=LuCI support for UnblockNeteaseMusic
-LUCI_DEPENDS:=+dnsmasq-full +ipset +node \
+LUCI_TITLE:=LuCI support for UnblockNeteaseMusic (JavaScript)
+LUCI_DEPENDS:=+dnsmasq-full +firewall4 +node \
 	@(PACKAGE_libustream-mbedtls||PACKAGE_libustream-openssl||PACKAGE_libustream-wolfssl)
 LUCI_PKGARCH:=all
 
 PKG_NAME:=luci-app-unblockneteasemusic
-PKG_VERSION:=2.13
-PKG_RELEASE:=5
+PKG_VERSION:=3.2
+PKG_RELEASE:=3
 
 PKG_MAINTAINER:=Tianling Shen <cnsztl@immortalwrt.org>
 
 define Package/luci-app-unblockneteasemusic/conffiles
 /etc/config/unblockneteasemusic
+/usr/share/unblockneteasemusic/core/
+/usr/share/unblockneteasemusic/core_local_ver
+/usr/share/unblockneteasemusic/server.crt
+/usr/share/unblockneteasemusic/server.key
 endef
 
 include $(TOPDIR)/feeds/luci/luci.mk
