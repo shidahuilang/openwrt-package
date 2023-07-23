@@ -1,0 +1,54 @@
+name: API
+on:
+  workflow_dispatch:
+    inputs:
+      again-fork:
+        description: '[fork-actions]改成[fork],再按[Run workflow]按钮启动,开启同步上游仓库'
+        required: false
+        default: 'fork'
+        
+  schedule:
+   - cron: 35 4 * * *
+
+env:
+  TZ: Asia/Shanghai
+
+jobs:
+  build:
+    name: API
+    runs-on: ubuntu-22.04
+    
+    steps:
+    - name: 准备结束
+      uses: actions/checkout@v3
+      
+    - name: 部署环境
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        sudo -E apt-get -qq update
+        sudo -E apt-get -qq install -y git git-core wget curl
+        sudo timedatectl set-timezone "$TZ"
+        
+    - name: API
+      if: steps.regular.outcome == 'success' && env.UPDATE_FIRMWARE_ONLINE == 'true' && env.REPO_TOKEN
+      run: |
+        mkdir -p Github_Api
+        cd Github_Api
+        wget -q --no-check-certificate https://api.github.com/repos/ophub/kernel/contents/pub/stable -O stable.api
+        if [[ $? -ne 0 ]]; then
+          curl -fsSL https://api.github.com/repos/ophub/kernel/contents/pub/stable -O stable.api
+        fi
+        wget -q --no-check-certificate https://api.github.com/repos/vernesong/OpenClash/contents/core-lateset/premium -O premium.api
+        if [[ $? -ne 0 ]]; then
+          curl -fsSL https://api.github.com/repos/vernesong/OpenClash/contents/core-lateset/premium -o premium.api
+        fi
+        
+    - name: API
+      uses: ncipollo/release-action@main
+      with:
+        name: API
+        tag: API
+        token: ${{ secrets.REPO_TOKEN }}
+        artifacts: "Github_Api/*"
+        allowUpdates: true
