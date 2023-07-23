@@ -1,30 +1,21 @@
--- Copyright (C) 2018-2022 dz <dingzhong110@gmail.com>
+#-- Copyright (C) 2018 dz <dingzhong110@gmail.com>
 
 local sys = require("luci.sys")
 local util = require("luci.util")
 local fs = require("nixio.fs")
-local uci = require "luci.model.uci".cursor()
 
-local cport = uci:get_first("oscam", "oscam", "port") or 8888
+local trport = 8888
 local button = ""
 
-local running=(luci.sys.call("pidof oscam > /dev/null") == 0)
-
-if running then
-        state_msg = "<b><font color=\"green\">" .. translate("Running") .. "</font></b>"
+if luci.sys.call("pidof oscam >/dev/null") == 0 then
+	m = Map("oscam", translate("oscam"), "%s - %s" %{translate("oscam"), translate("<strong><font color=\"green\">Running</font></strong>")})
+	button = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type=\"button\" value=\" " .. translate("Open Web Interface") .. " \" onclick=\"window.open('http://'+window.location.hostname+':" .. trport .. "')\"/>"
 else
-        state_msg = "<b><font color=\"red\">" .. translate("Not Running") .. "</font></b>"
+	m = Map("oscam", translate("oscam"), "%s - %s" %{translate("oscam"), translate("<strong><font color=\"red\">Not Running</font></strong>")})
 end
-
-if running  then
-	button = "<br/><br/>---<input class=\"cbi-button cbi-button-apply\" type=\"submit\" value=\" "..translate("打开管理界面").." \" onclick=\"window.open('http://'+window.location.hostname+':"..cport.."')\"/>---"
-end
-
-m = Map("oscam", translate("oscam"))
-m.description = translate("<font color=\"green\">oscam</font><br/><br/>" .. translate("运行状态").. " : "  .. state_msg .. "".. button  .. "<br />")
 
 -- Basic
-s = m:section(TypedSection, "oscam", translate("Settings"), translate("General Settings"))
+s = m:section(TypedSection, "oscam", translate("Settings"), translate("General Settings") .. button)
 s.anonymous = true
 
 ---- Eanble
@@ -32,27 +23,28 @@ enable = s:option(Flag, "enabled", translate("Enable"), translate("Enable or dis
 enable.default = 0
 enable.rmempty = false
 
----- port
-port = s:option(Value, "port", translate("port"), translate("http server port"))
-port.datatype = "port"
-port.placeholder = "8888"
-port.rmempty = true
+-- Doman addresss
+s = m:section(TypedSection, "oscam", translate("oscam conf"), 
+	translate("oscam conf"))
+s.anonymous = true
 
----- user
-user = s:option(Value, "user", translate("user"), translate("http server user"))
-user.default = "oscam"
-user.rmempty = true
+---- address
+addr = s:option(Value, "address",
+	translate(""), 
+	translate("-------------------------------------------------------------------- " ..
+	  "----------------------------------------------------------------------------. " ..
+	  ""))
 
----- password
-pwd = s:option(Value, "pwd", translate("password"), translate("http server password"))
-pwd.default = "oscam"
-pwd.rmempty = true
+addr.template = "cbi/tvalue"
+addr.rows = 30
 
----- pcscd
-if nixio.fs.access("/usr/sbin/pcscd") then
-pcscd = s:option(Flag, "pcscd", translate("pcscd"), translate("Enable or disable pcscd"))
-pcscd.default = 0
-pcscd.rmempty = false
+function addr.cfgvalue(self, section)
+	return nixio.fs.readfile("/etc/oscam/oscam.conf")
+end
+
+function addr.write(self, section, value)
+	value = value:gsub("\r\n?", "\n")
+	nixio.fs.writefile("/etc/oscam/oscam.conf", value)
 end
 
 return m

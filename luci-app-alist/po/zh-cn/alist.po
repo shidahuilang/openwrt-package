@@ -50,7 +50,7 @@ msgid "Collecting data..."
 msgstr "收集数据..."
 
 msgid "NAS"
-msgstr "网络存储"
+msgstr "NAS"
 
 msgid "User Manual"
 msgstr "用户手册"

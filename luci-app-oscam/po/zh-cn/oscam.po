@@ -4,11 +4,11 @@ msgstr "Content-Type: text/plain; charset=UTF-8\n"
 msgid "oscam"
 msgstr "oscam"
 
-msgid "Running"
-msgstr "运行"
+msgid "<strong><font color=\"green\">Running</font></strong>"
+msgstr "<strong><font color=\"green\">运行</font></strong>"
 
-msgid "Not Running"
-msgstr "未运行"
+msgid "<strong><font color=\"red\">Not Running</font></strong>"
+msgstr "<strong><font color=\"red\">未运行</font></strong>"
 
 msgid "Settings"
 msgstr "设置"
@@ -22,17 +22,11 @@ msgstr "启用"
 msgid "Enable or disable oscam server"
 msgstr "启用或禁用oscam服务器"
 
-msgid "port"
-msgstr "端口"
+msgid "oscam conf"
+msgstr "oscam配置文件"
 
-msgid "http server port"
-msgstr "网页服务端口"
+msgid "oscam server"
+msgstr "oscam服务器配置"
 
-msgid "http server user"
-msgstr "网页服务账号"
-
-msgid "http server password"
-msgstr "网页服务用密码"
-
-msgid "Enable or disable pcscd"
-msgstr "启用或禁用pcscd"
+msgid "oscam user"
+msgstr "oscam用户配置"

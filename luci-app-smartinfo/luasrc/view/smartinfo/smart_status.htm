@@ -1,6 +1,6 @@
 <script type="text/javascript">//<![CDATA[
 
-	XHR.poll(5, '<%=luci.dispatcher.build_url("admin", "services", "smartinfo", "status")%>', null,
+	XHR.poll(5, '<%=luci.dispatcher.build_url("admin", "nas", "smartinfo", "status")%>', null,
 		function(x, st)
 		{
 			var tb = document.getElementById('smart_status_table');
@@ -58,7 +58,7 @@
 <script type="text/javascript">
   function show_detail(dev)
   {
-    window.open('<%=luci.dispatcher.build_url("admin", "services", "smartinfo", "smartdetail")%>/' + dev,
+    window.open('<%=luci.dispatcher.build_url("admin", "nas", "smartinfo", "smartdetail")%>/' + dev,
       'newwindow','height=480,width=800,top=100,left=200,toolbar=no,menubar=no,scrollbars=yes, resizable=no,location=no, status=no')
   }
 </script>
