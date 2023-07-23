@@ -1,0 +1,78 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+#: applications/luci-app-3ginfo/luasrc/controller/modem/3ginfo.lua:9
+msgid "3G/4G Modem Information"
+msgstr "3G/4G模块信息"
+
+
+msgid "Information about 3G/4G connection"
+msgstr "3G/4G连接信息"
+
+#: applications/luci-app-3ginfo/luasrc/controller/modem/3ginfo.lua:10
+msgid "Details"
+msgstr "详情"
+
+#: applications/luci-app-3ginfo/luasrc/controller/modem/3ginfo.lua:11
+msgid "Configuration"
+msgstr "配置"
+
+#: applications/luci-app-3ginfo/luasrc/view/modem/3gdetail.lua:110
+msgid "Status:"
+msgstr "当前状态:"
+
+#: applications/luci-app-3ginfo/luasrc/view/modem/3gdetail.lua:111
+msgid "Connection time:"
+msgstr "已连接时间:"
+
+#: applications/luci-app-3ginfo/luasrc/view/modem/3gdetail.lua:112
+msgid "Downloaded:"
+msgstr "下行流量:"
+
+#: applications/luci-app-3ginfo/luasrc/view/modem/3gdetail.lua:113
+msgid "Uploaded:"
+msgstr "上行流量:"
+
+#: applications/luci-app-3ginfo/luasrc/view/modem/3gdetail.lua:114
+msgid "Mode:"
+msgstr "当前制式:"
+
+#: applications/luci-app-3ginfo/luasrc/view/modem/3gdetail.lua:115
+msgid "Operator:"
+msgstr "运营商:"
+
+#: applications/luci-app-3ginfo/luasrc/view/modem/3gdetail.lua:117
+msgid "Signal strength:"
+msgstr "信号值:"
+
+#: applications/luci-app-3ginfo/luasrc/view/modem/3gdetail.lua:119
+msgid "Modem type:"
+msgstr "模块型号"
+
+#: applications/luci-app-3ginfo/luasrc/view/modem/3gdetail.lua:124
+msgid "Additional information"
+msgstr "更多信息"
+
+#: applications/luci-app-3ginfo/luasrc/model/cbi/modem/3gconfig.lua:11
+msgid "Configuration 3ginfo"
+msgstr "配置模块"
+
+#: applications/luci-app-3ginfo/luasrc/model/cbi/modem/3gconfig.lua:12
+msgid "Configuration panel for the 3ginfo application."
+msgstr "配置当前显示模块信息"
+
+#: applications/luci-app-3ginfo/luasrc/model/cbi/modem/3gconfig.lua:17
+msgid "Network"
+msgstr "网络"
+
+#: applications/luci-app-3ginfo/luasrc/model/cbi/modem/3gconfig.lua:20
+msgid "Device"
+msgstr "设备"
+
+#: applications/luci-app-3ginfo/luasrc/model/cbi/modem/3gconfig.lua:28
+msgid "SIM PIN (optional)"
+msgstr "SIM PIN码(可选)"
+
+#: applications/luci-app-3ginfo/luasrc/model/cbi/modem/3gconfig.lua:31
+msgid "Language"
+msgstr "语言"
