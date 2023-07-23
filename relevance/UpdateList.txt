@@ -7,6 +7,7 @@ Wiwiz-PinPinWiFi
 adguardhome
 alist
 alist2
+aliyundrive-webdav
 app-lucky
 ardhome
 assets
@@ -30,6 +31,7 @@ luci-app-alist
 luci-app-amlogic
 luci-app-autoipsetadder
 luci-app-autotimeset
+luci-app-bypass
 luci-app-chinadns-ng
 luci-app-clash
 luci-app-cloudflarespeedtest
@@ -89,6 +91,7 @@ luci-app-vssr
 luci-app-webd
 luci-app-wifidog
 luci-app-wolplus
+luci-app-xiaolaoshu
 luci-lib-iform
 lucky
 mentohust
@@ -103,6 +106,7 @@ netdata
 network
 oaf
 open-app-filter
+openwrt-app-actions
 openwrt-subconverter
 openwrt-tmate
 oscam
@@ -115,6 +119,7 @@ rclone-ng
 rclone-webui-react
 rclone
 shadowsocks-libev
+small
 smartmontools
 socat
 switch-lan-play
