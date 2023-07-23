@@ -21,8 +21,6 @@ gost
 gowebdav
 iptvhelper
 kcptun
-lang
-lang1
 lua-maxminddb
 luci-app-3ginfo
 luci-app-adguardhome
