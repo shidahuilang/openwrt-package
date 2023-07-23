@@ -1,7 +1,7 @@
 local fs = require "nixio.fs"
 local sys = require "luci.sys"
 
-local m = Map("supervisord",translate("Supervisord"), translate("A golang development process management") .. [[<br /><br /><a href="https://github.com/sundaqiang/openwrt-packages" target="_blank">Powered by sundaqiang</a>]])
+local m = Map("supervisord",translate("Supervisord"), translate("A golang development process management") .. [[<br /><br /><a href="https://github.com/sundaqiang/openwrt-packages" target="_blank"></a>]])
 m:section(SimpleSection).template  = "supervisord/index"
 
 s = m:section(TypedSection, "supervisord")
