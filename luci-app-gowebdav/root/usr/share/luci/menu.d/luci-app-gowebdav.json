@@ -1,0 +1,13 @@
+{
+	"admin/services/gowebdav": {
+		"title": "GoWebDav",
+		"action": {
+			"type": "view",
+			"path": "gowebdav"
+		},
+		"depends": {
+			"acl": [ "luci-app-gowebdav" ],
+			"uci": { "gowebdav": true }
+		}
+	}
+}

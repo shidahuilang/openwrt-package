@@ -1,1 +1,0 @@
-# luci-theme-neobird2

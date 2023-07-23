@@ -1,6 +1,6 @@
 local i = require "luci.sys"
 local t, e
-t = Map("wolplus", translate("WOL Plus"), translate("Wake up your LAN device"))
+t = Map("wolplus", translate("wolplus"), translate("Wake up your LAN device"))
 t.template = "wolplus/index"
 e = t:section(TypedSection, "macclient", translate("macclient"))
 e.template = "cbi/tblsection"

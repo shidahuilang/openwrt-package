@@ -64,7 +64,7 @@ echo ""
 main_process() {
   do_smart_check $1
   local RETVAL=$?
-  local Device=`echo $1 |awk -F/ '{print $NF}`
+  local Device=`echo $1 |awk -F/ '{print $NF}'`
   local Model
   # 如果指定的磁盘在线则获取型号
   [ -d /sys/class/block/$Device ] && Model=`cat /sys/class/block/$Device/device/vendor``cat /sys/class/block/$Device/device/model`

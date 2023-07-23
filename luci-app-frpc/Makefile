@@ -1,12 +1,16 @@
-# This is free software, licensed under the Apache License, Version 2.0
+#
+# Copyright (C) 2008-2014 The LuCI Team <luci@lists.subsignal.org>
+#
+# This is free software, licensed under the Apache License, Version 2.0 .
+#
 
 include $(TOPDIR)/rules.mk
 
-LUCI_TITLE:=LuCI Support for frp client
-LUCI_DEPENDS:=+frpc
-
-PKG_LICENSE:=Apache-2.0
-PKG_MAINTAINER:=Richard Yu <yurichard3839@gmail.com>
+LUCI_TITLE:=LuCI for FRPC
+LUCI_DEPENDS:=+wget +frpc
+LUCI_PKGARCH:=all
+PKG_VERSION:=1.4
+PKG_RELEASE:=2
 
 include $(TOPDIR)/feeds/luci/luci.mk
 
