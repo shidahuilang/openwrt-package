@@ -57,6 +57,7 @@ luci-app-mosdns
 luci-app-msd_lite
 luci-app-natter
 luci-app-netdata
+luci-app-netdata1
 luci-app-netwizard
 luci-app-nginx-manager
 luci-app-nginx-pingos
@@ -118,7 +119,6 @@ rclone-ng
 rclone-webui-react
 rclone
 shadowsocks-libev
-small
 smartmontools
 socat
 switch-lan-play
