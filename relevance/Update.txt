@@ -1,0 +1,12 @@
+feed-netkeeper
+luci-app-argon-config
+luci-app-design-config
+luci-app-netkeeper-interception
+luci-app-smartdns
+luci-proto-netkeeper
+luci-theme-argon
+luci-theme-bootstrap-mod
+luci-theme-design
+netkeeper-interception
+netkeeper
+smartdns
