@@ -27,11 +27,9 @@ luci-app-adguardhome
 luci-app-advanced
 luci-app-aliddns
 luci-app-alist
-luci-app-aliyundrive-webdav
 luci-app-amlogic
 luci-app-autoipsetadder
 luci-app-autotimeset
-luci-app-bypass
 luci-app-chinadns-ng
 luci-app-clash
 luci-app-cloudflarespeedtest
