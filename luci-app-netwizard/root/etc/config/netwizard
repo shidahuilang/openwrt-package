@@ -1,7 +1,0 @@
-config netwizard 'default'
-	option lan_netmask '255.255.255.0'
-	option redirectdns '1'
-	option synflood '1'
-	option lan_snat '1'
-	option masq '1'
-
