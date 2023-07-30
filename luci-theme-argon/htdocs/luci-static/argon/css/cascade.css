@@ -18,7 +18,7 @@
  *  luci-theme-material:
  *      https://github.com/LuttyYang/luci-theme-material/
  *
- *  Argon Theme
+ *  Agron Theme
  *	    https://demos.creative-tim.com/argon-dashboard/index.html
  *
  *  Login background
@@ -128,7 +128,7 @@ body {
   margin: 0px;
   padding: 0px;
   height: 100%;
-  font-size: rem;
+  font-size: 16px;
   font-family: "Google Sans", "Microsoft Yahei", "WenQuanYi Micro Hei", "sans-serif", "Helvetica Neue", "Helvetica", "Hiragino Sans GB";
   font-family: var(--font-family-sans-serif);
 }
@@ -158,14 +158,9 @@ body {
 a:link,
 a:visited,
 a:active {
-  color: var(--default);
-  text-decoration: none;
-}
-a:-webkit-any-link:not(.main-left a):not(li a):not(.brand):not(.login-container footer .ftc a) {
-  color: -webkit-link;
-  cursor: pointer;
+  color: #5e72e4;
   color: var(--primary);
-  text-shadow: 1px 1px 2px #ccc;
+  text-decoration: none;
 }
 a:hover {
   text-decoration: underline;
@@ -288,28 +283,19 @@ li {
   display: flex;
   -webkit-box-align: center;
   align-items: center;
-  margin: 50px auto 15px auto;
+  margin: 50px auto 100px 50px;
   color: #525461;
   color: var(--default);
 }
 .login-page .login-container .login-form .brand .icon {
   width: 50px;
   height: auto;
+  margin-right: 25px;
 }
-.login-page .login-container .login-form .brand-text {
-  font-size: 1.8rem;
+.login-page .login-container .login-form .brand .brand-text {
+  font-size: 1.25rem;
   font-weight: 700;
-  margin-bottom: 85px;
   font-family: "TypoGraphica";
-  width: 420px;
-  padding: 0 0.5rem 0 0.5rem;
-  text-align: center;
-  word-break: break-word;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
 }
 .login-page .login-container .login-form .brand:hover {
   text-decoration: none;
@@ -510,9 +496,13 @@ header .fill .container .brand {
 footer {
   text-align: right;
   padding: 1rem;
+  color: #aaa;
+  color: var(--footer-color);
   font-size: 0.8rem;
 }
 footer a {
+  color: #aaa;
+  color: var(--footer-color);
   text-decoration: none;
 }
 /***********************
@@ -899,7 +889,7 @@ footer a {
   box-shadow: 0 0px 2px rgba(0, 0, 0, 0.12), 0 2px 2px rgba(0, 0, 0, 0.2);
 }
 .cbi-button:active {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.19), 0 5px 5px rgba(0, 0, 0, 0.23);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
 }
 .cbi-button:disabled {
   cursor: not-allowed;
@@ -957,34 +947,6 @@ form.inline + form.inline,
 .cbi-value-field .cbi-button-neutral {
   min-width: 2.5rem !important;
 }
-/* Replace LuCI's default file and folder type icons */
-img[src="/luci-static/resources/cbi/reload.gif"] {
-  content: url("/luci-static/argon/img/reload.webp");
-}
-img[src="/luci-static/resources/cbi/file.gif"] {
-  content: url("/luci-static/argon/img/file.webp");
-}
-img[src="/luci-static/resources/cbi/add.gif"] {
-  content: url("/luci-static/argon/img/add.webp");
-}
-img[src="/luci-static/resources/cbi/remove.gif"] {
-  content: url("/luci-static/argon/img/remove.webp");
-}
-img[src="/luci-static/resources/cbi/edit.gif"] {
-  content: url("/luci-static/argon/img/edit.webp");
-}
-img[src="/luci-static/resources/cbi/fieldadd.gif"] {
-  content: url("/luci-static/argon/img/fieldadd.webp");
-}
-img[src="/luci-static/resources/cbi/link.gif"] {
-  content: url("/luci-static/argon/img/link.webp");
-}
-img[src="/luci-static/resources/cbi/find.gif"] {
-  content: url("/luci-static/argon/img/find.webp");
-}
-img[src="/luci-static/resources/cbi/folder.gif"] {
-  content: url("/luci-static/argon/img/folder.webp");
-}
 /* input */
 .cbi-value input[type="password"],
 .cbi-value input[type="text"] {
@@ -1011,14 +973,12 @@ select {
   text-align: center;
 }
 /*textarea*/
-textarea {
-  /* border: fuchsia; */
-  outline: none;
-  min-height: 14rem !important;
-  padding: 0.8rem !important;
-  background-color: #fff;
-  font-family: var(--font-family-monospace) !important;
-  font-size: inherit;
+.cbi-input-textarea {
+  width: 100%;
+  min-height: 14rem;
+  padding: 0.8rem;
+  font-size: 0.8rem;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   color: black;
 }
 /* change */
@@ -1095,13 +1055,12 @@ input[type="checkbox"] {
   appearance: none !important;
   -webkit-appearance: none !important;
   border: 1px solid #dee2e6;
-  width: 17px !important;
-  height: 17px !important;
+  width: 16px !important;
+  height: 16px !important;
   padding: 0;
   cursor: pointer;
   transition: all 0.2s;
-  margin: 0.5rem 0.25rem 0.7rem 0.25rem;
-  vertical-align: middle;
+  margin: 0.9rem 0.25rem 0 0.25rem;
 }
 input[type="checkbox"]:checked {
   border: 1px solid #5e72e4;
@@ -1114,8 +1073,7 @@ input[type="checkbox"]:checked {
   background-position: center;
 }
 ul li .cbi-input-checkbox {
-  margin: 0.5rem 0.25rem 0.7rem 0.25rem !important;
-  vertical-align: middle !important;
+  margin: 0.5rem 0.25rem !important;
 }
 .cbi-input-radio {
   appearance: none !important;
@@ -1228,7 +1186,7 @@ ul li .cbi-input-checkbox {
 }
 .cbi-section-create {
   margin: 0;
-  padding-left: 0.5rem;
+  padding-left: 1rem;
   align-items: center;
 }
 .cbi-section-create > * {
@@ -1287,41 +1245,10 @@ small {
 .cbi-section > legend {
   display: none !important;
 }
-/* Define the error text border breathe display animation */
-@keyframes error-border-breathe {
-  0%{
-    border-color: #fb6340;
-  }
-  50%{
-    border-color: transparent;
-  }
-  100%{
-    border-color: #fb6340;
-  }
-}
-/* Center display error text box */
-.cbi-section-error > ul{
-  text-align: center;
-}
-/* Add border for error text box, and border breathe display animation to make it more noticeable */
-.cbi-section-error > ul > li {
+.cbi-section-error {
+  padding: 1.5rem;
+  color: #fb6340;
   font-weight: 600;
-  max-width: 60%;
-  color: #fb6340;
-  line-height: 1rem;
-  display: inline-block;
-  border: 2px solid #fb6340;
-  border-radius: 0.3rem;
-  animation: error-border-breathe 1.5s ease-in-out infinite;
-  padding-left: 4px;
-  padding-right: 4px;
-  padding-top: 2px;
-  padding-bottom: 2px;
-}
-.cbi-input-invalid, 
-.cbi-value-error input {
-  color: #fb6340;
-  border: 1px dashed #fb6340;
 }
 fieldset > fieldset {
   margin: 0;
@@ -1382,7 +1309,6 @@ input[name="nslookup"] {
   height: 1.6rem !important;
   line-height: 1.6rem;
   border-radius: 0.25rem;
-  overflow: hidden;
 }
 #swaptotal > div > div,
 #swapfree > div > div,
@@ -1473,30 +1399,6 @@ td > table > tbody > tr > td,
 }
 .a-to-btn {
   text-decoration: none;
-}
-/* file selector button */
-::file-selector-button {
-  color: #fff;
-  border-radius: .25rem;
-  border: 1px solid #2e6da4;
-  padding: .4rem .5rem;
-  background-color: #337ab7;
-  box-sizing: border-box;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-}
-::file-selector-button:hover,
-::file-selector-button:focus,
-::file-selector-button:active {
-  outline: 0;
-  text-decoration: none;
-}
-::file-selector-button:hover,
-::file-selector-button:focus {
-  box-shadow: 0 0px 2px rgba(0, 0, 0, 0.12), 0 2px 2px rgba(0, 0, 0, 0.2);
-}
-::file-selector-button:active {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.19), 0 5px 5px rgba(0, 0, 0, 0.23);
 }
 /* table */
 .cbi-section-table .cbi-section-table-titles .cbi-section-table-cell {
@@ -1612,40 +1514,6 @@ td > table > tbody > tr > td,
 #cbi-network-switch_vlan .td {
   flex-basis: 12%;
 }
-/* Fix background color of table-titles */
-.cbi-section-node > .cbi-section-table > tbody > .cbi-section-table-titles th {
-  background-color: var(--lighter);
-  border: none;
-}
-/* Fix background color of table-descr */
-.cbi-section-node > .cbi-section-table > tbody > .cbi-section-table-descr th {
-  border: none;
-}
-/* Fix background color not change when the H tag is in the table rowstyle-1 */
-.cbi-section-node > .cbi-section-table > tbody > .cbi-rowstyle-1 th {
-  background-color: #fff;
-  border-top: 1px solid #ddd;
-  border-bottom: none;
-}
-/* Fix background color not change when the H tag is in the table rowstyle-2 */
-.cbi-section-node > .cbi-section-table > tbody > .cbi-rowstyle-2 th {
-  background-color: #f9f9f9;
-  border-top: 1px solid #ddd;
-  border-bottom: none;
-}
-/* Change the color of the H label in the table to make it more visible */
-th h1, td h1,
-th h2, td h2,
-th h3, td h3,
-th h4, td h4,
-th h5, td h5,
-th h6, td h6 {
-  background: var(--lighter);
-}
-/* OCD: Change the background color of the "now in use" node in PassWall  */
-.cbi-section-table > tbody > ._now_use {
-  background: #5e72e473 !important;
-}
 /* language fix */
 body.lang_pl.node-main-login .cbi-value-title {
   width: 12rem;
@@ -1759,7 +1627,7 @@ body.lang_pl.node-main-login .cbi-value-title {
 }
 .cbi-rowstyle-2 .cbi-button-up,
 .cbi-rowstyle-2 .cbi-button-down {
-  background-color: var(--lighter);
+  background-color: #FFF !important;
 }
 .cbi-button-up,
 .cbi-button-down,
@@ -1785,14 +1653,14 @@ select {
   background-image: none;
   border: 1px solid #ccc;
 }
-.btn,select,
+select,
 input {
   font-size: 0.875rem;
   transition: all 0.15s ease-in-out;
   line-height: 1.5;
   padding: 0.625rem 0.75rem;
   color: #8898aa;
-  border: 1px solid #ddd;
+  border: 1px solid #dee2e6;
   border-radius: 0.25rem;
   background-color: #fff;
   background-clip: padding-box;
@@ -1909,19 +1777,11 @@ table > thead > tr > th,
 .cbi-section-table-row:last-child {
   margin-bottom: 0;
 }
-.cbi-section-table-row > .cbi-value-field .cbi-dropdown,
 .cbi-section-table-row > .cbi-value-field .cbi-input-select,
 .cbi-section-table-row > .cbi-value-field .cbi-input-text,
-.cbi-section-table-row > .cbi-value-field .cbi-input-password {
+.cbi-section-table-row > .cbi-value-field .cbi-input-password,
+.cbi-section-table-row > .cbi-value-field .cbi-dropdown {
   width: 100%;
-}
-.cbi-section-table-row > .cbi-value-field .cbi-input-text,
-.cbi-section-table-row > .cbi-value-field .cbi-input-password {
-  min-width: 100px;
-}
-#lease6_status_table > tbody > .cbi-section-table-row.cbi-rowstyle-1 div,
-#lease6_status_table > tbody > .cbi-section-table-row.cbi-rowstyle-2 div {
-  min-width: 100%;
 }
 .cbi-section-table-row > .cbi-value-field [data-dynlist] > input,
 .cbi-section-table-row > .cbi-value-field input.cbi-input-password {
@@ -1940,27 +1800,10 @@ div > .table > .tbody > .tr:nth-of-type(2n) {
   background-color: var(--danger) !important;
   color: #fff !important;
 }
-/* Define the warning background-color breathe display animation */
-@keyframes warning-background-color-breathe {
-  0%{
-    color: #fff;
-    background-color: #fb6340;
-  }
-  50%{
-    color: #32325d;
-    background-color: #fff;
-  }
-  100%{
-    color: #fff;
-    background-color: #fb6340;
-  }
-}
-.warning,
-.warning * {
-  background-color: #fb6340;
-  background-color: var(--warning);
-  color: #fff;
-  /* animation: warning-background-color-breathe 1.5s ease-in-out infinite !important; */
+.warning {
+  background-color: #fb6340 !important;
+  background-color: var(--warning) !important;
+  color: #fff !important;
 }
 .notice {
   background-color: #5e72e4 !important;
@@ -1984,7 +1827,7 @@ div > .table > .tbody > .tr:nth-of-type(2n) {
   min-width: inherit;
   overflow: auto;
   border-radius: 0.3rem;
-  background-color: #fb6340;
+  background-color: #FFF;
   box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.16), 0 0 2px 0 rgba(0, 0, 0, 0.12);
 }
 .errorbox {
@@ -2088,7 +1931,7 @@ table > tbody > tr > td,
 table > tfoot > tr > td,
 table > thead > tr > td {
   font-size: 0.875rem;
-  color: #3c3c3c;
+  color: #525f7f;
   line-height: 1.4em;
   vertical-align: middle !important;
   padding: 0.8rem 1.5rem;
@@ -2105,6 +1948,7 @@ table > thead > tr > th {
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
   letter-spacing: 1px;
+  text-transform: uppercase;
   border-bottom: 1px solid #e9ecef;
 }
 table > tbody > tr:first-child > td,
@@ -2187,7 +2031,7 @@ td > table > tbody > tr > td {
 }
 .cbi-tabmenu {
   color: white;
-  padding: 0.5rem 0.5rem 0 0.5rem;
+  padding: 0.5rem 1rem 0 1rem;
   white-space: nowrap;
   overflow-x: auto;
   border-bottom: 1px solid #ddd !important;
@@ -2453,10 +2297,9 @@ select[multiple="multiple"] {
   overflow-y: visible;
 }
 .cbi-section-node .cbi-value {
-  padding: 0.5rem 1rem 0.5rem 1rem !important;
+  padding: 0.3rem 1rem 0.3rem 1rem;
 }
-.cbi-tabcontainer > .cbi-value:nth-of-type(2n),
-.cbi-tabcontainer > .cbi-value:nth-of-type(2n)>textarea {
+.cbi-tabcontainer > .cbi-value:nth-of-type(2n) {
   background-color: #f9f9f9;
 }
 .cbi-value-field,
@@ -2464,18 +2307,6 @@ select[multiple="multiple"] {
   display: table-cell;
   line-height: 1.6;
   font-size: 0.875rem;
-}
-/* Fix text position of the luci-app-filebrowser running state */
-#cbi-filebrowser > .cbi-section > .cbi-section > .cbi-value > .cbi-value-field,
-/* Fix text position of the luci-apps running state of the [Control] type */
-form > .cbi-map > .cbi-section > .cbi-section-node > .cbi-value > .cbi-value-field font {
-  word-wrap: break-word;
-  font-size: 0.875rem;
-  line-height: 1.6;
-  padding: 0.7rem;
-  padding-left: 0;
-  text-align: right;
-  display: table-cell;
 }
 .cbi-value-helpicon > img {
   display: none;
@@ -2496,6 +2327,7 @@ form > .cbi-map > .cbi-section > .cbi-section-node > .cbi-value > .cbi-value-fie
   padding: 0.7rem;
   padding-left: 0;
   width: 23rem;
+  float: left;
   text-align: right;
   display: table-cell;
 }
@@ -2554,11 +2386,23 @@ td > .ifacebadge {
   float: right;
   margin: 0 0.3rem;
 }
+/*textarea*/
+.cbi-input-textarea {
+  width: 100%;
+  border: 0;
+  outline: none;
+  min-height: 14rem;
+  padding: 0.8rem;
+  font-size: 0.8rem;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: black;
+}
 #syslog {
   width: 100%;
   min-height: 15rem;
   padding: 1rem;
   line-height: 1.4em;
+  font-size: small;
   color: #1e1e1e;
   border-radius: 0;
   background-color: #fff;
@@ -2671,20 +2515,16 @@ td > .ifacebadge,
   min-width: 10rem;
   margin-top: 0.3rem;
 }
-.cbi-value-field .cbi-input-checkbox {
-  margin: 0.5rem 0.25rem 0.7rem 0.25rem;
-  vertical-align: middle;
+.cbi-value-field .cbi-input-checkbox,
+.cbi-value-field .cbi-input-radio {
+  margin: 0.9rem 0.25rem 0 0.25rem;
   height: 1rem;
   line-height: 1.6;
 }
 .cbi-input-checkbox {
-  margin: 0.5rem 0.25rem 0.7rem 0.25rem;
-  vertical-align: middle;
+  margin: 0.9rem 0.25rem 0 0.25rem;
 }
 .cbi-value-field .cbi-input-radio {
-  margin: 0rem 0.25rem;
-}
-.cbi-input-radio {
   margin: 0rem 0.25rem;
 }
 .cbi-value-field > input + .cbi-value-description {
@@ -2707,7 +2547,7 @@ td > .ifacebadge,
   min-width: 7rem;
 }
 .cbi-section-create > .cbi-button-add {
-  margin: 0.75rem 0.75rem 0.75rem 0.25rem;
+  margin: 0.5rem 0.5rem 0.5rem 0.5rem;
 }
 .cbi-section-remove {
   padding: 0.5rem;
@@ -2811,10 +2651,6 @@ input[name="nslookup"] {
   border-right: 0 !important;
   background-color: #5e72e4 !important;
   background-color: var(--primary) !important;
-  height: 100% !important;
-  background-image: url(../img/trafficbar.png);
-  background-position: left top;
-  animation: sparkle 1500ms linear infinite;
 }
 .node-system-leds .cbi-section em {
   display: block;
@@ -2834,8 +2670,7 @@ input[name="nslookup"] {
   padding: 0.75rem 1.5rem;
   font-size: 0.7rem;
   font-weight: 600;
-  color: var(--primary);
-  text-shadow: 1px 1px 2px #ccc;
+  color: #525f7f;
   text-align: center;
 }
 .cbi-section h4 {
@@ -2936,6 +2771,9 @@ input[name="nslookup"] {
   fieldset {
     padding: 0;
   }
+  .cbi-input-textarea {
+    font-size: small;
+  }
   .node-status-iptables > .main fieldset li > a {
     padding: 0.3rem 0.6rem;
   }
@@ -3013,6 +2851,10 @@ input[name="nslookup"] {
   }
   header > .fill > .container > .brand {
     display: inline-block;
+  }
+  .cbi-value-title {
+    width: 9rem;
+    padding-right: 1rem;
   }
   .node-network-diagnostics > .main .cbi-map fieldset > div * {
     width: 100% !important;
@@ -3120,6 +2962,12 @@ input[name="nslookup"] {
     display: inline-block;
     width: 100%;
     position: relative;
+  }
+  .cbi-value-field .cbi-input-checkbox,
+  .cbi-value-field .cbi-input-radio {
+    margin: 0rem 0.25rem 0 0.25rem;
+    height: 1rem;
+    line-height: 1.6;
   }
   .cbi-page-actions > div > input {
     display: none;

@@ -1,8 +1,8 @@
 <%#
-	Argon is a clean HTML5 theme for LuCI. It is based on luci-theme-material Argon Template
+	Argon is a clean HTML5 theme for LuCI. It is based on luci-theme-material and Argon Template
 
 	luci-theme-argon
-	Copyright 2020 Jerrykuku <jerrykuku@qq.com>
+	Copyright 2019 Jerrykuku <jerrykuku@qq.com>
 
 	Have a bug? Please create an issue here on GitHub!
 	https://github.com/jerrykuku/luci-theme-argon/issues
@@ -18,7 +18,7 @@
 	luci-theme-material:
 	https://github.com/LuttyYang/luci-theme-material/
 
-	Argon Theme
+	Agron Theme
 	https://demos.creative-tim.com/argon-dashboard/index.html
 
 	Login background
@@ -41,10 +41,7 @@
 </div>
 <footer>
 	<div class="ftc">
-		<a class="luci-link" href="/cgi-bin/luci/admin/status/overview">
-			
-		
-		<%= ver.distversion %> </a>
+		<a class="luci-link" href="/cgi-bin/luci/admin/status/overview"><%= ver.distversion %></a>
 		<% if #categories > 1 then %>
 		<ul class="breadcrumb pull-right" id="modemenu">
 			<% for i, r in ipairs(categories) do %>
@@ -58,28 +55,31 @@
 </footer>
 </div>
 </div>
-	<script>
-		// thanks for Jo-Philipp Wich <jow@openwrt.org>
-		var winHeight = $(window).height();
-		$(window).resize(function () {
-			if($(document.body).height() < 525 ){
-				if($(".ftc").css('display') != 'none'){
-					$(".ftc").hide()
-				}
-			}else{
-				if($(".ftc").css('display') == 'none'){
-					$(".ftc").show()
-				}
-			}
-		})
-	</script>
 
-	<script>
-		if (window.orientation == 90 || window.orientation == -90) {
-			$(".ftc").hide()
+<script>
+	// thanks for Jo-Philipp Wich <jow@openwrt.org>
+	var luciLocation = <%= luci.http.write_json(luci.dispatcher.context.path) %>;
+	var winHeight = $(window).height();
+	$(window).resize(function () {
+		var winWidth = $(window).width()
+		if(winWidth < 600){
+			var newHeight = $(this).height();
+			var keyboradHeight = newHeight - winHeight;
+			$(".ftc").css("bottom", keyboradHeight + 30);
 		}
-	</script>
+		if($(document.body).height() < 525 ){
+			if($(".ftc").css('display') != 'none'){
+				$(".ftc").hide()
+			}
+		}else{
+			if($(".ftc").css('display') == 'none'){
+				$(".ftc").show()
+			}
+		}
+	})
+</script>
 
-	<script src="<%=media%>/js/styles-argon.js<%# ?v=PKG_VERSION %>"></script>
+<script src="<%=media%>/js/script.js"></script>
 </body>
+
 </html>
