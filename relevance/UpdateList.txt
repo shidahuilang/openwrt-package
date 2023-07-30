@@ -30,6 +30,7 @@ luci-app-alist
 luci-app-amlogic
 luci-app-autoipsetadder
 luci-app-autotimeset
+luci-app-chatgpt
 luci-app-chinadns-ng
 luci-app-clash
 luci-app-cloudflarespeedtest
