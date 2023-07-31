@@ -90,11 +90,6 @@ luci-app-webd
 luci-app-wifidog
 luci-app-wolplus
 luci-lib-iform
-luci-theme-neobird
-luci-theme-neobird2
-luci-theme-opentomato
-luci-theme-opentomcat
-luci-theme-opentopd
 lucky
 mentohust
 mosdns
