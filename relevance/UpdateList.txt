@@ -27,6 +27,7 @@ luci-app-adguardhome
 luci-app-advanced
 luci-app-aliddns
 luci-app-alist
+luci-app-aliyundrive-webdav
 luci-app-amlogic
 luci-app-autoipsetadder
 luci-app-autotimeset
@@ -45,6 +46,7 @@ luci-app-fileassistant
 luci-app-filebrowser
 luci-app-gost
 luci-app-gowebdav
+luci-app-homeassistant
 luci-app-ikoolproxy
 luci-app-iptvhelper
 luci-app-istorex
@@ -53,6 +55,7 @@ luci-app-lucky
 luci-app-mentohust
 luci-app-mosdns
 luci-app-msd_lite
+luci-app-nastools
 luci-app-natter
 luci-app-netdata
 luci-app-netwizard
@@ -89,6 +92,7 @@ luci-app-vssr
 luci-app-webd
 luci-app-wifidog
 luci-app-wolplus
+luci-app-wxedge
 luci-lib-iform
 lucky
 mentohust
