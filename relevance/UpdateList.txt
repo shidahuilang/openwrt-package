@@ -7,6 +7,7 @@ Wiwiz-PinPinWiFi
 adguardhome
 alist
 alist2
+aliyundrive-fuse
 app-lucky
 ardhome
 assets
@@ -19,6 +20,9 @@ ddns-go
 filebrowser
 gost
 gowebdav
+haproxy
+homebox
+hysteria
 iptvhelper
 kcptun
 lua-maxminddb
@@ -27,10 +31,12 @@ luci-app-adguardhome
 luci-app-advanced
 luci-app-aliddns
 luci-app-alist
+luci-app-aliyundrive-fuse
 luci-app-aliyundrive-webdav
 luci-app-amlogic
 luci-app-autoipsetadder
 luci-app-autotimeset
+luci-app-bypass
 luci-app-chinadns-ng
 luci-app-clash
 luci-app-cloudflarespeedtest
@@ -46,10 +52,13 @@ luci-app-fileassistant
 luci-app-filebrowser
 luci-app-gost
 luci-app-gowebdav
+luci-app-guest-wifi
 luci-app-homeassistant
+luci-app-homebox
 luci-app-ikoolproxy
 luci-app-iptvhelper
 luci-app-istorex
+luci-app-jackett
 luci-app-linkease
 luci-app-lucky
 luci-app-mentohust
@@ -73,6 +82,7 @@ luci-app-pushbot
 luci-app-quickstart
 luci-app-rclone
 luci-app-shutdown
+luci-app-smartdns
 luci-app-smartinfo
 luci-app-socat
 luci-app-ssr-mudb-server
@@ -84,6 +94,7 @@ luci-app-tcpdump
 luci-app-tencentddns
 luci-app-timecontrol
 luci-app-ttnode
+luci-app-ubuntu
 luci-app-udp2raw
 luci-app-unblockmusic
 luci-app-unblockneteasemusic
@@ -119,6 +130,7 @@ rclone-ng
 rclone-webui-react
 rclone
 shadowsocks-libev
+smartdns
 smartmontools
 socat
 switch-lan-play
