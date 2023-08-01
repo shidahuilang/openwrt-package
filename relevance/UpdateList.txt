@@ -21,6 +21,7 @@ dns2socks
 dns2tcp
 filebrowser
 gn
+go-aliyundrive-webdav
 gost
 gowebdav
 haproxy
@@ -41,7 +42,9 @@ luci-app-aliyundrive-webdav
 luci-app-amlogic
 luci-app-autoipsetadder
 luci-app-autotimeset
+luci-app-bandwidthd
 luci-app-bypass
+luci-app-chatgpt
 luci-app-chinadns-ng
 luci-app-clash
 luci-app-cloudflarespeedtest
@@ -53,6 +56,7 @@ luci-app-cupsd
 luci-app-ddns-go
 luci-app-ddnsto
 luci-app-diskman
+luci-app-eqos
 luci-app-fileassistant
 luci-app-filebrowser
 luci-app-gost
