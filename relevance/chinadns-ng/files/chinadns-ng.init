@@ -58,7 +58,7 @@ append_param_with_val() {
 	if [ "$_loctmp" = 1 ]; then
 		procd_append_param command "$switch"
 	else
-		procd_append_param command "${switch}=${_loctmp}"
+		procd_append_param command "$switch" "$_loctmp"
 	fi
 }
 
@@ -153,18 +153,19 @@ start_chinadns_ng() {
 		append_param "$1" bind_port "-l"
 		append_param "$1" china_dns "-c"
 		append_param "$1" trust_dns "-t"
+		append_param "$1" chnlist_file "-m"
+		append_param "$1" gfwlist_file "-g"
+		append_bool "$1" chnlist_first "-M"
+		append_param_if_neq "$1" default_tag "-d" "none"
+		append_param_with_val "$1" add_tagchn_ip "-a"
+		append_param_with_val "$1" add_taggfw_ip "-A"
 		append_param_if_neq "$1" ipset_name4 "-4" "chnroute"
 		append_param_if_neq "$1" ipset_name6 "-6" "chnroute6"
-		append_param "$1" gfwlist_file "-g"
-		append_param "$1" chnlist_file "-m"
-		append_param_if_neq "$1" default_tag "-d" "none"
+		append_param_with_val "$1" no_ipv6 "-N"
 		append_param_if_neq "$1" timeout_sec "-o" "5"
 		append_param_if_neq "$1" repeat_times "-p" "1"
-		append_param_with_val "$1" no_ipv6 "-N"
-		append_bool "$1" chnlist_first "-M"
-		append_bool "$1" add_tagchn_ip "-a"
-		append_bool "$1" reuse_port "-r"
 		append_bool "$1" noip_as_chnip "-n"
+		append_bool "$1" reuse_port "-r"
 		append_bool "$1" verbose "-v"
 		procd_close_instance
 	done
