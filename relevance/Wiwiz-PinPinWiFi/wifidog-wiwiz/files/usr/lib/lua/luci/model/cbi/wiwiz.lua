@@ -19,6 +19,6 @@ server.optional = false
 server.rmempty = false
 server.default = "cp.wiwiz.com:80"
 
-ver = portal:option(DummyValue, "ver", "Wiwiz插件版本", "");
+ver = portal:option(DummyValue, "ver", "Wiwiz插件版本", "<a href='http://www.wiwiz.com/pinpinwifi/wiwiz-ipk.htm' target='_blank'>使用说明</a>");
 
 return m
