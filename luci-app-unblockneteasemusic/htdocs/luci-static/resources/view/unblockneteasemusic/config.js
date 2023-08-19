@@ -119,19 +119,12 @@ return view.extend({
 		o.value('youtube', _('Youtube 音乐'));
 		o.value('youtubedl', _('Youtube 音乐（youtube-dl）'));
 		o.value('ytdlp', _('Youtube 音乐（yt-dlp）'));
-		o.value('ytdownload', _('Youtube 音乐（ytdownload）'));
 
 		o = s.option(form.Value, 'joox_cookie', _('JOOX Cookie'),
 			_('在 joox.com 获取，需要 wmid 和 session_key 值。'));
 		o.placeholder = 'wmid=; session_key=';
 		o.rmempty = false;
 		o.depends({'music_source': 'joox', '!contains': true});
-
-		o = s.option(form.Value, 'kuwo_cookie', _('Kuwo Cookie'),
-			_('通过抓包 PC 网页搜索请求获取，需要 Hm 和 Secret 值。'));
-		o.placeholder = 'Hm_=; Secret=';
-		o.rmempty = false;
-		o.depends({'music_source': 'kuwo', '!contains': true});
 
 		o = s.option(form.Value, 'migu_cookie', _('Migu Cookie'),
 			_('通过抓包手机客户端请求获取，需要 aversionid 值。'));
