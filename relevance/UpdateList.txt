@@ -46,6 +46,7 @@ luci-app-bandwidthd
 luci-app-bypass
 luci-app-chatgpt
 luci-app-chinadns-ng
+luci-app-cifs-mount
 luci-app-clash
 luci-app-cloudflarespeedtest
 luci-app-control-timewol
