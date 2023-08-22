@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=v2ray-geodata
-PKG_RELEASE:=$(shell date "+%Y-%m-%d")
+PKG_RELEASE:=$(shell date "+%Y%m%d%H%M")-1
 
 PKG_LICENSE_FILES:=LICENSE
 PKG_MAINTAINER:=Tianling Shen <cnsztl@immortalwrt.org>
