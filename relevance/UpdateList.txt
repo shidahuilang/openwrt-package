@@ -129,7 +129,6 @@ luci-app-syncdial
 luci-app-syncthing
 luci-app-tcpdump
 luci-app-tencentddns
-luci-app-timecontrol
 luci-app-ttnode
 luci-app-udp2raw
 luci-app-unblockmusic
