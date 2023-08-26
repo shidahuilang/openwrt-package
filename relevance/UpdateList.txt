@@ -50,7 +50,6 @@ luci-app-supervisord
 luci-app-switch-lan-play
 luci-app-tcpdump
 luci-app-tencentddns
-luci-app-timecontrol
 luci-app-ttnode
 luci-app-vssr
 luci-app-webd
