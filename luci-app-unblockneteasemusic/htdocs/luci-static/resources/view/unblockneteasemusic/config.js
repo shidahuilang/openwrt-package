@@ -86,6 +86,23 @@ return view.extend({
 			_('原理：采用 [Bilibili/JOOX/酷狗/酷我/咪咕/pyncmd/QQ/Youtube] 等音源，替换网易云音乐 无版权/收费 歌曲链接<br/>' +
 			'具体使用方法参见：<a href="https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic" target="_blank">GitHub @UnblockNeteaseMusic/luci-app-unblockneteasemusic</a>'));
 
+		if (!L.hasSystemFeature('firewall4')) {
+			s = m.section(form.TypedSection);
+			s.anonymous = true;
+			s.render = () => {
+				this.handleSaveApply = null;
+				this.handleSave = null;
+				this.handleReset = null;
+
+				return E('div', { 'class': 'cbi-section warning' }, [
+					E('h3', {}, _('不支持的防火墙架构')),
+					E('p', {}, _('您可能从错误的来源安装了本插件。请前往本插件的 GitHub 发布页面下载最新版本。'))
+				]);
+			}
+
+			return m.render();
+		}
+
 		s = m.section(form.TypedSection);
 		s.anonymous = true;
 		s.render = function () {
