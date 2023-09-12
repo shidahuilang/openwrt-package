@@ -378,17 +378,17 @@ small {
 .cbi-value-helpicon,
 .showSide,
 .main > .loading > span {
-    font-family: 'icomoon' !important;
-    font-size:10px;
+    /* font-family: 'icomoon' !important; */
+    /* font-size:10px; */
     speak: none;
-    font-style: normal !important;
-    font-weight: normal !important;
-    font-variant: normal !important;
-    text-transform: none !important;
-    line-height: 1;
+    /* font-style: normal !important; */
+    /* font-weight: normal !important; */
+    /* font-variant: normal !important; */
+    /* text-transform: none !important; */
+    /* line-height: 1; */
 
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    /* -webkit-font-smoothing: antialiased; */
+    /* -moz-osx-font-smoothing: grayscale; */
 }
 
 .main {
@@ -1316,7 +1316,7 @@ form.inline + form.inline,
 
 .cbi-value-field .cbi-button-add {
 	font-weight: bold;
-	margin: 9px 0 4px 3px;
+	margin: 4px 3px;
 	padding: 1px 6px;
 }
 
@@ -2083,7 +2083,7 @@ td > .ifacebadge,
 .td > .ifacebadge {
 	font-size: .8rem;
 	background-color: var(--activeColor);
-	color: black;
+	color: white;
 	border-radius: 8px;
 }
 
