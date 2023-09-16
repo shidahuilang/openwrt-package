@@ -1203,7 +1203,7 @@ td > table > tbody > tr > td,
     width: auto !important;
     min-width: 80px;
     padding: 0px 8px 0px 8px;
-    max-width: 160px;
+    /* max-width: 160px; */
     height: 35px;
     line-height: 35px;
     border-radius: 8px;
@@ -3037,6 +3037,10 @@ input[name="nslookup"] {
     .showSide:before {
         content: "\e20e";
         font-size: 1.7rem;
+	font-family: 'icomoon';
+        line-height: 1;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
     }
 
     #maincontent > .container {
