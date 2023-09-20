@@ -8,7 +8,7 @@ else
 end
 m = Map("mosdns")
 m.title = translate("MosDNS") .. " " .. mosdns_version
-m.description = translate("MosDNS is a 'programmable' DNS forwarder.")
+m.description = translate("MosDNS is a plugin-based DNS forwarder/traffic splitter.")
 
 m:section(SimpleSection).template = "mosdns/mosdns_status"
 
@@ -40,8 +40,8 @@ o.default = "info"
 o:depends("configfile", "/etc/mosdns/config.yaml")
 
 o = s:taboption("basic", Value, "logfile", translate("Log File"))
-o.placeholder = "/tmp/mosdns.log"
-o.default = "/tmp/mosdns.log"
+o.placeholder = "/var/log/mosdns.log"
+o.default = "/var/log/mosdns.log"
 o:depends("configfile", "/etc/mosdns/config.yaml")
 
 o = s:taboption("basic", Flag, "redirect", translate("DNS Forward"), translate("Forward Dnsmasq Domain Name resolution requests to MosDNS"))
@@ -92,7 +92,7 @@ s:tab("advanced", translate("Advanced Options"))
 
 o = s:taboption("advanced", Value, "concurrent", translate("Concurrent"), translate("DNS query request concurrency, The number of upstream DNS servers that are allowed to initiate requests at the same time"))
 o.datatype = "and(uinteger,min(1),max(3))"
-o.default = "1"
+o.default = "2"
 o:depends("configfile", "/etc/mosdns/config.yaml")
 
 o = s:taboption("advanced", Value, "max_conns", translate("Maximum Connections"), translate("Set the Maximum connections for DoH and pipeline's TCP/DoT, Except for the HTTP/3 protocol"))
@@ -135,12 +135,12 @@ o.rmempty = false
 o.default = false
 o:depends("configfile", "/etc/mosdns/config.yaml")
 
-o = s:taboption("advanced", Value, "cache_size", translate("DNS Cache Size"))
+o = s:taboption("advanced", Value, "cache_size", translate("DNS Cache Size"), translate("DNS cache size (in piece). To disable caching, please set to 0."))
 o.datatype = "and(uinteger,min(0))"
 o.default = "8000"
 o:depends("configfile", "/etc/mosdns/config.yaml")
 
-o = s:taboption("advanced", Value, "cache_survival_time", translate("Cache Survival Time"))
+o = s:taboption("advanced", Value, "cache_survival_time", translate("Lazy Cache TTL"), translate("Lazy cache survival time (in second). To disable Lazy Cache, please set to 0."))
 o.datatype = "and(uinteger,min(0))"
 o.default = "86400"
 o:depends("configfile", "/etc/mosdns/config.yaml")
@@ -178,26 +178,26 @@ o:value("https://raw.githubusercontent.com/ookangzheng/dbl-oisd-nl/master/dbl_li
 o:value("https://raw.githubusercontent.com/ookangzheng/dbl-oisd-nl/master/dbl.txt", "oisd (big)")
 o:value("https://raw.githubusercontent.com/QiuSimons/openwrt-mos/master/dat/serverlist.txt", "QiuSimons/openwrt-mos")
 
-o = s:taboption("basic",  Button, "_reload", translate("Reload Service"), translate("Reload service to take effect of new configuration"))
+o = s:taboption("basic",  Button, "_reload", translate("Restart-Service"), translate("Restart the MosDNS process to take effect of new configuration"))
 o.write = function()
     sys.exec("/etc/init.d/mosdns reload")
 end
 o:depends("configfile", "/etc/mosdns/config_custom.yaml")
 
-o = s:taboption("basic", TextValue, "manual-config")
-o.description = translate("<font color=\"ff0000\"><strong>View the Custom YAML Configuration file used by this MosDNS. You can edit it as you own need.</strong></font>")
+o = s:taboption("basic", TextValue, "config_custom", translate("Configuration Editor"))
 o.template = "cbi/tvalue"
 o.rows = 25
 o:depends("configfile", "/etc/mosdns/config_custom.yaml")
-
 function o.cfgvalue(self, section)
     return fs.readfile("/etc/mosdns/config_custom.yaml")
 end
-
 function o.write(self, section, value)
     value = value:gsub("\r\n?", "\n")
     fs.writefile("/etc/mosdns/config_custom.yaml", value)
 end
+-- codemirror
+o = s:taboption("basic", DummyValue, "")
+o.template = "mosdns/mosdns_editor"
 
 s:tab("cloudflare", translate("Cloudflare Options"))
 o = s:taboption("cloudflare", Flag, "cloudflare", translate("Enabled"), translate("Match the parsing result with the Cloudflare IP ranges, and when there is a successful match, use the 'Custom IP' as the parsing result (experimental feature)"))
