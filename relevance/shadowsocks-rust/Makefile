@@ -6,7 +6,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=shadowsocks-rust
-PKG_VERSION:=1.16.1
+PKG_VERSION:=1.16.2
 PKG_RELEASE:=1
 
 PKG_SOURCE_HEADER:=shadowsocks-v$(PKG_VERSION)
@@ -16,7 +16,7 @@ PKG_SOURCE_URL:=https://github.com/shadowsocks/shadowsocks-rust/releases/downloa
 
 ifeq ($(ARCH),aarch64)
   PKG_SOURCE:=$(PKG_SOURCE_HEADER).aarch64-$(PKG_SOURCE_BODY).$(PKG_SOURCE_FOOTER)
-  PKG_HASH:=skip
+  PKG_HASH:=04fb797d8d04b8af9c4746ab9c1d659a3575a677892c2d5d9194a4b0e210e2ab
 else ifeq ($(ARCH),arm)
   # Referred to golang/golang-values.mk
   ARM_CPU_FEATURES:=$(word 2,$(subst +,$(space),$(call qstrip,$(CONFIG_CPU_TYPE))))
@@ -42,7 +42,7 @@ else ifeq ($(ARCH),x86_64)
 # Set the default value to make OpenWrt Package Checker happy
 else
   PKG_SOURCE:=dummy
-  PKG_HASH:=skip
+  PKG_HASH:=dummy
 endif
 
 PKG_MAINTAINER:=Tianling Shen <cnsztl@immortalwrt.org>
