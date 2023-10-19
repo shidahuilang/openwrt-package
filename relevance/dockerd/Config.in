@@ -1,20 +1,35 @@
+config DOCKER_CHECK_CONFIG
+	bool "Installs check-config.sh with dependencies"
+	default n
+	depends on PACKAGE_dockerd
+	select PACKAGE_bash
+	select PACKAGE_kmod-ikconfig
+
 # These options are mostly specified by https://github.com/moby/moby/blob/master/contrib/check-config.sh
 
 config DOCKER_CGROUP_OPTIONS
 	bool "Enable available kernel support for CGroupsV1"
 	default y
 	depends on PACKAGE_dockerd
+	select KERNEL_CGROUPS
+	select KERNEL_CGROUP_CPUACCT
 	select KERNEL_CGROUP_DEVICE
 	select KERNEL_CGROUP_FREEZER
+	select KERNEL_CGROUP_SCHED
+	select KERNEL_NAMESPACES
+	select KERNEL_CPUSETS
+	select KERNEL_MEMCG
+	select KERNEL_KEYS
 	select KERNEL_NET_CLS_CGROUP
 	select KERNEL_CGROUP_NET_PRIO
+	select KERNEL_POSIX_MQUEUE
 	select PACKAGE_cgroupfs-mount
 	help
 		Selects kernel options to enable CGroups V1.
 
 config DOCKER_OPTIONAL_FEATURES
 	bool "Enable optional kernel support for Docker"
-	default n
+	default y
 	depends on PACKAGE_dockerd
 	select KERNEL_MEMCG_SWAP_ENABLED
 	select KERNEL_CFQ_GROUP_IOSCHED
@@ -61,6 +76,11 @@ endmenu
 menu "Storage"
 	depends on PACKAGE_dockerd
 
+	config DOCKER_STO_DEVMAPPER
+	bool "Enables support for devmapper snapshotting"
+		default n
+		select PACKAGE_libdevmapper
+
 	config DOCKER_STO_EXT4
 		bool "Enables support for ext3 or ext4 as the backing filesystem"
 		default y
@@ -71,4 +91,5 @@ menu "Storage"
 		bool "Enables support for btrfs as the backing filesystem"
 		default n
 		select KERNEL_BTRFS_FS_POSIX_ACL
+		select PACKAGE_btrfs-progs
 endmenu
