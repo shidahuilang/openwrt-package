@@ -497,6 +497,12 @@ return view.extend({
 		o.default = o.disabled;
 		o.rempty = true;
 
+		o = s.taboption('files', form.ListValue, 'auto_update_day_time', _("Update time (every day)"));
+		for (var i = 0; i < 24; i++)
+			o.value(i, i + ':00');
+		o.default = '5';
+		o.depends('enable_auto_update', '1');
+
 		o = s.taboption("files", form.FileUpload, "upload_conf_file", _("Upload Config File"),
 			_("Upload smartdns config file to /etc/smartdns/conf.d"));
 		o.rmempty = true
