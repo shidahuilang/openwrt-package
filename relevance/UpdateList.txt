@@ -108,7 +108,6 @@ luci-app-udp2raw
 luci-app-unblockmusic
 luci-app-unblockneteasemusic
 luci-app-vlmcsd
-luci-app-vssr
 luci-app-webd
 luci-app-wifidog
 luci-app-wolplus
