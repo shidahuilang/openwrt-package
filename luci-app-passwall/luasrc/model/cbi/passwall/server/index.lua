@@ -1,6 +1,7 @@
 local api = require "luci.passwall.api"
 
 m = Map("passwall_server", translate("Server-Side"))
+api.set_apply_on_parse(m)
 
 t = m:section(NamedSection, "global", "global")
 t.anonymous = true
@@ -45,15 +46,8 @@ e = t:option(DummyValue, "type", translate("Type"))
 e.cfgvalue = function(t, n)
 	local v = Value.cfgvalue(t, n)
 	if v then
-		if v == "V2ray" or v == "Xray" then
+		if v == "sing-box" or v == "Xray" then
 			local protocol = m:get(n, "protocol")
-			if protocol == "vmess" then
-				protocol = "VMess"
-			elseif protocol == "vless" then
-				protocol = "VLESS"
-			else
-				protocol = protocol:gsub("^%l",string.upper)
-			end
 			return v .. " -> " .. protocol
 		end
 		return v

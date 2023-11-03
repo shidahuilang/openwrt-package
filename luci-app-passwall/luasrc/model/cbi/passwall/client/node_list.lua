@@ -4,6 +4,7 @@ local sys = api.sys
 local datatypes = api.datatypes
 
 m = Map(appname)
+api.set_apply_on_parse(m)
 
 -- [[ Other Settings ]]--
 s = m:section(TypedSection, "global_other")
@@ -37,6 +38,11 @@ function s.remove(e, t)
 		if s["node"] == t then
 			m:del(s[".name"])
 		end
+		for k, v in ipairs(m:get(s[".name"], "autoswitch_backup_node") or {}) do
+			if v and v == t then
+				sys.call(string.format("uci -q del_list %s.%s.autoswitch_backup_node='%s'", appname, s[".name"], v))
+			end
+		end
 	end)
 	m.uci:foreach(appname, "haproxy_config", function(s)
 		if s["lbss"] and s["lbss"] == t then
@@ -51,11 +57,6 @@ function s.remove(e, t)
 			m:set(s[".name"], "udp_node", "default")
 		end
 	end)
-	for k, v in ipairs(m:get("@auto_switch[0]", "tcp_node") or {}) do
-		if v and v == t then
-			sys.call(string.format("uci -q del_list %s.@auto_switch[0].tcp_node='%s'", appname, v))
-		end
-	end
 	TypedSection.remove(e, t)
 	local new_node = "nil"
 	local node0 = m:get("@nodes[0]") or nil
@@ -94,7 +95,7 @@ o.cfgvalue = function(t, n)
 	local remarks = m:get(n, "remarks") or ""
 	local type = m:get(n, "type") or ""
 	str = str .. string.format("<input type='hidden' id='cbid.%s.%s.type' value='%s'/>", appname, n, type)
-	if type == "V2ray" or type == "Xray" then
+	if type == "sing-box" or type == "Xray" then
 		local protocol = m:get(n, "protocol")
 		if protocol == "_balancing" then
 			protocol = translate("Balancing")

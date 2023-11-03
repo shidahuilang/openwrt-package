@@ -47,8 +47,8 @@ function gen_outbound(flag, node, tag, proxy_table)
 			proxy_tag = proxy_table.tag or "nil"
 		end
 
-		if node.type == "V2ray" or node.type == "Xray" then
-			if node.type == "Xray" and node.tlsflow == "xtls-rprx-vision" then
+		if node.type == "Xray" then
+			if node.flow == "xtls-rprx-vision" then
 			else
 				proxy = 0
 				if proxy_tag ~= "nil" then
@@ -60,7 +60,7 @@ function gen_outbound(flag, node, tag, proxy_table)
 			end
 		end
 
-		if node.type ~= "V2ray" and node.type ~= "Xray" then
+		if node.type ~= "Xray" then
 			if node.type == "Socks" then
 				node.protocol = "socks"
 				node.transport = "tcp"
@@ -91,7 +91,7 @@ function gen_outbound(flag, node, tag, proxy_table)
 			node.stream_security = "none"
 		end
 
-		if node.type == "V2ray" or node.type == "Xray" then
+		if node.type == "Xray" then
 			if node.tls and node.tls == "1" then
 				node.stream_security = "tls"
 				if node.type == "Xray" and node.reality and node.reality == "1" then
@@ -137,7 +137,7 @@ function gen_outbound(flag, node, tag, proxy_table)
 				tlsSettings = (node.stream_security == "tls") and {
 					serverName = node.tls_serverName,
 					allowInsecure = (node.tls_allowInsecure == "1") and true or false,
-					fingerprint = (node.type == "Xray" and node.fingerprint and node.fingerprint ~= "") and node.fingerprint or nil
+					fingerprint = (node.type == "Xray" and node.utls == "1" and node.fingerprint and node.fingerprint ~= "") and node.fingerprint or nil
 				} or nil,
 				realitySettings = (node.stream_security == "reality") and {
 					serverName = node.tls_serverName,
@@ -208,7 +208,7 @@ function gen_outbound(flag, node, tag, proxy_table)
 								level = 0,
 								security = (node.protocol == "vmess") and node.security or nil,
 								encryption = node.encryption or "none",
-								flow = (node.protocol == "vless" and node.tls == '1' and node.tlsflow) and node.tlsflow or nil
+								flow = (node.protocol == "vless" and node.tls == "1" and node.transport == "tcp" and node.flow and node.flow ~= "") and node.flow or nil
 							}
 						}
 					}
@@ -271,7 +271,7 @@ function gen_config_server(node)
 			for i = 1, #node.uuid do
 				clients[i] = {
 					id = node.uuid[i],
-					flow = ("vless" == node.protocol and "1" == node.tls and node.tlsflow) and node.tlsflow or nil
+					flow = ("vless" == node.protocol and "1" == node.tls and "tcp" == node.transport and node.flow and node.flow ~= "") and node.flow or nil
 				}
 			end
 			settings = {
@@ -321,14 +321,6 @@ function gen_config_server(node)
 				clients = clients
 			}
 		end
-	elseif node.protocol == "mtproto" then
-		settings = {
-			users = {
-				{
-					secret = (node.password == nil) and "" or node.password
-				}
-			}
-		}
 	elseif node.protocol == "dokodemo-door" then
 		settings = {
 			network = node.d_protocol,
@@ -381,10 +373,12 @@ function gen_config_server(node)
 				tag = "outbound",
 				streamSettings = {
 					sockopt = {
+						mark = 255,
 						interface = node.outbound_node_iface
 					}
 				}
 			}
+			sys.call("mkdir -p /tmp/etc/passwall/iface && touch /tmp/etc/passwall/iface/" .. node.outbound_node_iface)
 		else
 			local outbound_node_t = uci:get_all("passwall", node.outbound_node)
 			if node.outbound_node == "_socks" or node.outbound_node == "_http" then
@@ -493,6 +487,21 @@ function gen_config_server(node)
 
 	if "1" == node.tls then
 		config.inbounds[1].streamSettings.security = "tls"
+		if "1" == node.reality then
+			config.inbounds[1].streamSettings.tlsSettings = nil
+			config.inbounds[1].streamSettings.security = "reality"
+			config.inbounds[1].streamSettings.realitySettings = {
+				show = false,
+				dest = node.reality_dest,
+				serverNames = {
+					node.reality_serverNames
+				},
+				privateKey = node.reality_private_key,
+				shortIds = {
+					node.reality_shortId
+				}
+			} or nil
+		end
 	end
 
 	return config
@@ -504,9 +513,6 @@ function gen_config(var)
 	local tcp_proxy_way = var["-tcp_proxy_way"] or "redirect"
 	local tcp_redir_port = var["-tcp_redir_port"]
 	local udp_redir_port = var["-udp_redir_port"]
-	local sniffing = var["-sniffing"]
-	local route_only = var["-route_only"]
-	local buffer_size = var["-buffer_size"]
 	local local_socks_address = var["-local_socks_address"] or "0.0.0.0"
 	local local_socks_port = var["-local_socks_port"]
 	local local_socks_username = var["-local_socks_username"]
@@ -517,12 +523,12 @@ function gen_config(var)
 	local local_http_password = var["-local_http_password"]
 	local dns_listen_port = var["-dns_listen_port"]
 	local dns_query_strategy = var["-dns_query_strategy"]
-	local remote_dns_server = var["-remote_dns_server"]
-	local remote_dns_port = var["-remote_dns_port"]
 	local remote_dns_tcp_server = var["-remote_dns_tcp_server"]
+	local remote_dns_tcp_port = var["-remote_dns_tcp_port"]
 	local remote_dns_doh_url = var["-remote_dns_doh_url"]
 	local remote_dns_doh_host = var["-remote_dns_doh_host"]
-	local remote_dns_fake = var["-remote_dns_fake"]
+	local remote_dns_doh_ip = var["-remote_dns_doh_ip"]
+	local remote_dns_doh_port = var["-remote_dns_doh_port"]
 	local dns_cache = var["-dns_cache"]
 	local dns_client_ip = var["-dns_client_ip"]
 	local dns_socks_address = var["-dns_socks_address"]
@@ -530,11 +536,12 @@ function gen_config(var)
 	local loglevel = var["-loglevel"] or "warning"
 
 	local dns = nil
-	local fakedns = nil
 	local routing = nil
 	local observatory = nil
 	local inbounds = {}
 	local outbounds = {}
+
+	local xray_settings = uci:get_all(appname, "@global_xray[0]") or {}
 
 	if node_id then
 		local node = uci:get_all(appname, node_id)
@@ -544,7 +551,7 @@ function gen_config(var)
 				port = tonumber(local_socks_port),
 				protocol = "socks",
 				settings = {auth = "noauth", udp = true},
-				sniffing = {enabled = true, destOverride = {"http", "tls"}}
+				sniffing = {enabled = true, destOverride = {"http", "tls", "quic"}}
 			}
 			if local_socks_username and local_socks_password and local_socks_username ~= "" and local_socks_password ~= "" then
 				inbound.settings.auth = "password"
@@ -580,7 +587,13 @@ function gen_config(var)
 				protocol = "dokodemo-door",
 				settings = {network = "tcp,udp", followRedirect = true},
 				streamSettings = {sockopt = {tproxy = "tproxy"}},
-				sniffing = {enabled = sniffing and true or false, destOverride = {"http", "tls", (remote_dns_fake) and "fakedns"}, metadataOnly = false, routeOnly = route_only and true or nil, domainsExcluded = (sniffing and not route_only) and get_domain_excluded() or nil}
+				sniffing = {
+					enabled = xray_settings.sniffing == "1" and true or false,
+					destOverride = {"http", "tls", "quic"},
+					metadataOnly = false,
+					routeOnly = (xray_settings.sniffing == "1" and xray_settings.route_only == "1") and true or nil,
+					domainsExcluded = (xray_settings.sniffing == "1" and xray_settings.route_only == "0") and get_domain_excluded() or nil
+				}
 			}
 
 			if tcp_redir_port then
@@ -768,10 +781,10 @@ function gen_config(var)
 						else
 							if proxy then
 								local pre_proxy = nil
-								if _node.type ~= "V2ray" and _node.type ~= "Xray" then
+								if _node.type ~= "Xray" then
 									pre_proxy = true
 								end
-								if _node.type == "Xray" and _node.tlsflow == "xtls-rprx-vision" then
+								if _node.type == "Xray" and _node.flow == "xtls-rprx-vision" then
 									pre_proxy = true
 								end
 								if pre_proxy then
@@ -818,6 +831,22 @@ function gen_config(var)
 								table.insert(balancers, balancer)
 								rule_balancerTag = balancer.tag
 							end
+						end
+					elseif _node.protocol == "_iface" then
+						if _node.iface then
+							local _outbound = {
+								protocol = "freedom",
+								tag = rule_name,
+								streamSettings = {
+									sockopt = {
+										mark = 255,
+										interface = _node.iface
+									}
+								}
+							}
+							table.insert(outbounds, _outbound)
+							rule_outboundTag = rule_name
+							sys.call("touch /tmp/etc/passwall/iface/" .. _node.iface)
 						end
 					end
 				end
@@ -912,10 +941,12 @@ function gen_config(var)
 						tag = "outbound",
 						streamSettings = {
 							sockopt = {
+								mark = 255,
 								interface = node.iface
 							}
 						}
 					}
+					sys.call("touch /tmp/etc/passwall/iface/" .. node.iface)
 				end
 			else
 				outbound = gen_outbound(flag, node)
@@ -929,10 +960,8 @@ function gen_config(var)
 		end
 	end
 
-	if remote_dns_server or remote_dns_doh_url or remote_dns_fake then
+	if remote_dns_tcp_server and remote_dns_tcp_port then
 		local rules = {}
-		local _remote_dns_proto = "tcp"
-		local _remote_dns_host
 
 		if not routing then
 			routing = {
@@ -953,73 +982,22 @@ function gen_config(var)
 		}
 
 		local _remote_dns = {
-			--_flag = "remote"
+			--_flag = "remote",
+			address = "tcp://" .. remote_dns_tcp_server,
+			port = tonumber(remote_dns_tcp_port)
 		}
 
-		if remote_dns_tcp_server then
-			_remote_dns.address = remote_dns_tcp_server
-			_remote_dns.port = tonumber(remote_dns_port)
-		end
-
+		local _remote_dns_host
 		if remote_dns_doh_url and remote_dns_doh_host then
-			if remote_dns_server and remote_dns_doh_host ~= remote_dns_server and not api.is_ip(remote_dns_doh_host) then
-				dns.hosts[remote_dns_doh_host] = remote_dns_server
+			if remote_dns_doh_ip and remote_dns_doh_host ~= remote_dns_doh_ip and not api.is_ip(remote_dns_doh_host) then
+				dns.hosts[remote_dns_doh_host] = remote_dns_doh_ip
 				_remote_dns_host = remote_dns_doh_host
 			end
 			_remote_dns.address = remote_dns_doh_url
-			_remote_dns.port = tonumber(remote_dns_port)
-			_remote_dns_proto = "doh"
-		end
-
-		if remote_dns_fake then
-			remote_dns_server = "1.1.1.1"
-			fakedns = {}
-			fakedns[#fakedns + 1] = {
-				ipPool = "198.18.0.0/16",
-				poolSize = 65535
-			}
-			if dns_query_strategy == "UseIP" then
-				fakedns[#fakedns + 1] = {
-					ipPool = "fc00::/18",
-					poolSize = 65535
-				}
-			end
-			_remote_dns.address = "fakedns"
+			_remote_dns.port = tonumber(remote_dns_doh_port)
 		end
 
 		table.insert(dns.servers, _remote_dns)
-
-		if dns_listen_port then
-			table.insert(inbounds, {
-				listen = "127.0.0.1",
-				port = tonumber(dns_listen_port),
-				protocol = "dokodemo-door",
-				tag = "dns-in",
-				settings = {
-					address = remote_dns_server,
-					port = (_remote_dns_proto ~= "doh" and tonumber(remote_dns_port)) and tonumber(remote_dns_port) or 53,
-					network = "tcp,udp"
-				}
-			})
-
-			table.insert(outbounds, {
-				tag = "dns-out",
-				protocol = "dns",
-				settings = {
-					address = remote_dns_server,
-					port = (_remote_dns_proto ~= "doh" and tonumber(remote_dns_port)) and tonumber(remote_dns_port) or 53,
-					network = "tcp",
-				}
-			})
-
-			table.insert(routing.rules, 1, {
-				type = "field",
-				inboundTag = {
-					"dns-in"
-				},
-				outboundTag = "dns-out"
-			})
-		end
 
 	--[[
 		local default_dns_flag = "remote"
@@ -1049,62 +1027,109 @@ function gen_config(var)
 			end
 		end
 	]]--
-		if true then
-			local dns_outboundTag = "direct"
-			if dns_socks_address and dns_socks_port then
-				dns_outboundTag = "out"
-				table.insert(outbounds, 1, {
-					tag = dns_outboundTag,
-					protocol = "socks",
-					streamSettings = {
-						network = "tcp",
-						security = "none",
-						sockopt = {
-							mark = 255
-						}
-					},
-					settings = {
-						servers = {
-							{
-								address = dns_socks_address,
-								port = tonumber(dns_socks_port)
-							}
+		local dns_outboundTag = "direct"
+		if dns_socks_address and dns_socks_port then
+			dns_outboundTag = "out"
+			table.insert(outbounds, 1, {
+				tag = dns_outboundTag,
+				protocol = "socks",
+				streamSettings = {
+					network = "tcp",
+					security = "none",
+					sockopt = {
+						mark = 255
+					}
+				},
+				settings = {
+					servers = {
+						{
+							address = dns_socks_address,
+							port = tonumber(dns_socks_port)
 						}
 					}
-				})
-			else
-				if node_id and tcp_redir_port and not remote_dns_fake then
-					dns_outboundTag = node_id
-					local node = uci:get_all(appname, node_id)
-					if node.protocol == "_shunt" then
-						dns_outboundTag = "default"
-					end
+				}
+			})
+		else
+			if node_id and tcp_redir_port then
+				dns_outboundTag = node_id
+				local node = uci:get_all(appname, node_id)
+				if node.protocol == "_shunt" then
+					dns_outboundTag = "default"
 				end
 			end
+		end
+
+		if dns_listen_port then
+			table.insert(inbounds, {
+				listen = "127.0.0.1",
+				port = tonumber(dns_listen_port),
+				protocol = "dokodemo-door",
+				tag = "dns-in",
+				settings = {
+					address = remote_dns_tcp_server,
+					port = tonumber(remote_dns_tcp_port),
+					network = "tcp,udp"
+				}
+			})
+
+			table.insert(outbounds, {
+				tag = "dns-out",
+				protocol = "dns",
+				proxySettings = {
+					tag = dns_outboundTag
+				},
+				settings = {
+					address = remote_dns_tcp_server,
+					port = tonumber(remote_dns_tcp_port),
+					network = "tcp",
+					nonIPQuery = "skip"
+				}
+			})
+
+			table.insert(routing.rules, 1, {
+				type = "field",
+				inboundTag = {
+					"dns-in"
+				},
+				outboundTag = "dns-out"
+			})
+		end
+		table.insert(rules, {
+			type = "field",
+			inboundTag = {
+				"dns-in1"
+			},
+			ip = {
+				remote_dns_tcp_server
+			},
+			port = tonumber(remote_dns_tcp_port),
+			outboundTag = dns_outboundTag
+		})
+		if _remote_dns_host then
+			table.insert(rules, {
+				type = "field",
+				inboundTag = {
+					"dns-in1"
+				},
+				domain = {
+					_remote_dns_host
+				},
+				port = tonumber(remote_dns_doh_port),
+				outboundTag = dns_outboundTag
+			})
+		end
+		if remote_dns_doh_ip then
 			table.insert(rules, {
 				type = "field",
 				inboundTag = {
 					"dns-in1"
 				},
 				ip = {
-					remote_dns_server
+					remote_dns_doh_ip
 				},
-				port = tonumber(remote_dns_port),
+				port = tonumber(remote_dns_doh_port),
 				outboundTag = dns_outboundTag
 			})
-			if _remote_dns_host then
-				table.insert(rules, {
-					type = "field",
-					inboundTag = {
-						"dns-in1"
-					},
-					domain = {
-						_remote_dns_host
-					},
-					port = tonumber(remote_dns_port),
-					outboundTag = dns_outboundTag
-				})
-			end
 		end
 
 		local default_rule_index = #routing.rules > 0 and #routing.rules or 1
@@ -1137,7 +1162,6 @@ function gen_config(var)
 			},
 			-- DNS
 			dns = dns,
-			fakedns = fakedns,
 			-- 传入连接
 			inbounds = inbounds,
 			-- 传出连接
@@ -1154,7 +1178,7 @@ function gen_config(var)
 						-- connIdle = 300,
 						-- uplinkOnly = 2,
 						-- downlinkOnly = 5,
-						bufferSize = buffer_size and tonumber(buffer_size) or nil,
+						bufferSize = xray_settings.buffer_size and tonumber(xray_settings.buffer_size) or nil,
 						statsUserUplink = false,
 						statsUserDownlink = false
 					}

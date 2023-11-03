@@ -13,6 +13,7 @@ TMP_ID_PATH=$TMP_PATH/id
 TMP_PORT_PATH=$TMP_PATH/port
 TMP_ROUTE_PATH=$TMP_PATH/route
 TMP_ACL_PATH=$TMP_PATH/acl
+TMP_IFACE_PATH=$TMP_PATH/iface
 TMP_PATH2=/tmp/etc/${CONFIG}_tmp
 DNSMASQ_PATH=/etc/dnsmasq.d
 TMP_DNSMASQ_PATH=/tmp/dnsmasq.d/passwall
@@ -24,7 +25,6 @@ DNS_PORT=15353
 TUN_DNS="127.0.0.1#${DNS_PORT}"
 LOCAL_DNS=119.29.29.29,223.5.5.5
 DEFAULT_DNS=
-IFACES=
 ENABLED_DEFAULT_ACL=0
 PROXY_IPV6=0
 PROXY_IPV6_UDP=0
@@ -32,11 +32,12 @@ resolve_dns=0
 use_tcp_node_resolve_dns=0
 use_udp_node_resolve_dns=0
 LUA_UTIL_PATH=/usr/lib/lua/luci/passwall
+UTIL_SINGBOX=$LUA_UTIL_PATH/util_sing-box.lua
 UTIL_SS=$LUA_UTIL_PATH/util_shadowsocks.lua
 UTIL_XRAY=$LUA_UTIL_PATH/util_xray.lua
 UTIL_TROJAN=$LUA_UTIL_PATH/util_trojan.lua
 UTIL_NAIVE=$LUA_UTIL_PATH/util_naiveproxy.lua
-UTIL_HYSTERIA=$LUA_UTIL_PATH/util_hysteria.lua
+UTIL_HYSTERIA2=$LUA_UTIL_PATH/util_hysteria2.lua
 UTIL_TUIC=$LUA_UTIL_PATH/util_tuic.lua
 
 echolog() {
@@ -324,27 +325,33 @@ run_ipt2socks() {
 	ln_run "$(first_type ipt2socks)" "ipt2socks_${flag}" $log_file -l $local_port -b 0.0.0.0 -s $socks_address -p $socks_port ${_extra_param}
 }
 
-run_v2ray() {
+run_singbox() {
 	local flag type node tcp_redir_port udp_redir_port socks_address socks_port socks_username socks_password http_address http_port http_username http_password
-	local dns_listen_port remote_dns_protocol remote_dns_udp_server remote_dns_tcp_server remote_dns_doh dns_client_ip dns_query_strategy dns_cache dns_socks_address dns_socks_port
+	local dns_listen_port direct_dns_port direct_dns_udp_server remote_dns_protocol remote_dns_udp_server remote_dns_tcp_server remote_dns_doh remote_fakedns remote_dns_query_strategy dns_cache dns_socks_address dns_socks_port
 	local loglevel log_file config_file
 	local _extra_param=""
 	eval_set_val $@
 	[ -z "$type" ] && {
 		local type=$(echo $(config_n_get $node type) | tr 'A-Z' 'a-z')
-		if [ "$type" != "v2ray" ] && [ "$type" != "xray" ]; then
-			local bin=$(first_type $(config_t_get global_app v2ray_file) v2ray)
-			if [ -n "$bin" ]; then
-				type="v2ray"
-			else
-				bin=$(first_type $(config_t_get global_app xray_file) xray)
-				[ -n "$bin" ] && type="xray"
-			fi
+		if [ "$type" != "sing-box" ]; then
+			bin=$(first_type $(config_t_get global_app singbox_file) sing-box)
+			[ -n "$bin" ] && type="sing-box"
 		fi
 	}
 	[ -z "$type" ] && return 1
 	[ -n "$log_file" ] || local log_file="/dev/null"
-	[ -z "$loglevel" ] && local loglevel=$(config_t_get global loglevel "warning")
+	_extra_param="${_extra_param} -log 1 -logfile ${log_file}"
+	if [ "$log_file" = "/dev/null" ]; then
+		_extra_param="${_extra_param} -log 0"
+	else
+		_extra_param="${_extra_param} -log 1 -logfile ${log_file}"
+	fi
+	[ -z "$loglevel" ] && local loglevel=$(config_t_get global loglevel "warn")
+	[ "$loglevel" = "warning" ] && loglevel="warn"
+	_extra_param="${_extra_param} -loglevel $loglevel"
+
+	_extra_param="${_extra_param} -tags $($(first_type $(config_t_get global_app singbox_file) sing-box) version | grep 'Tags:' | awk '{print $2}')"
+
 	[ -n "$flag" ] && _extra_param="${_extra_param} -flag $flag"
 	[ -n "$node" ] && _extra_param="${_extra_param} -node $node"
 	[ -n "$tcp_redir_port" ] && _extra_param="${_extra_param} -tcp_redir_port $tcp_redir_port"
@@ -357,17 +364,17 @@ run_v2ray() {
 	[ -n "$http_username" ] && [ -n "$http_password" ] && _extra_param="${_extra_param} -local_http_username $http_username -local_http_password $http_password"
 	[ -n "$dns_socks_address" ] && [ -n "$dns_socks_port" ] && _extra_param="${_extra_param} -dns_socks_address ${dns_socks_address} -dns_socks_port ${dns_socks_port}"
 	[ -n "$dns_listen_port" ] && _extra_param="${_extra_param} -dns_listen_port ${dns_listen_port}"
-	[ -n "$dns_query_strategy" ] && _extra_param="${_extra_param} -dns_query_strategy ${dns_query_strategy}"
-	[ -n "$dns_client_ip" ] && _extra_param="${_extra_param} -dns_client_ip ${dns_client_ip}"
 	[ -n "$dns_cache" ] && _extra_param="${_extra_param} -dns_cache ${dns_cache}"
-	local sniffing=$(config_t_get global_forwarding sniffing 1)
-	[ "${sniffing}" = "1" ] && {
-		_extra_param="${_extra_param} -sniffing 1"
-		local route_only=$(config_t_get global_forwarding route_only 0)
-		[ "${route_only}" = "1" ] && _extra_param="${_extra_param} -route_only 1"
-	}
-	local buffer_size=$(config_t_get global_forwarding buffer_size)
-	[ -n "${buffer_size}" ] && _extra_param="${_extra_param} -buffer_size ${buffer_size}"
+	
+	local local_dns=$(echo -n $(echo "${LOCAL_DNS}" | sed "s/,/\n/g" | head -n1) | tr " " ",")
+	[ -z "$direct_dns_udp_server" ] && direct_dns_udp_server=$(echo ${local_dns} | awk -F '#' '{print $1}')
+	[ -z "$direct_dns_port" ] && direct_dns_port=$(echo ${local_dns} | awk -F '#' '{print $2}')
+	[ -z "$direct_dns_port" ] && direct_dns_port=53
+	[ -n "$direct_dns_udp_server" ] && _extra_param="${_extra_param} -direct_dns_udp_server ${direct_dns_udp_server}"
+	[ -n "$direct_dns_port" ] && _extra_param="${_extra_param} -direct_dns_port ${direct_dns_port}"
+	_extra_param="${_extra_param} -direct_dns_query_strategy UseIP"
+
+	[ -n "$remote_dns_query_strategy" ] && _extra_param="${_extra_param} -remote_dns_query_strategy ${remote_dns_query_strategy}"
 	case "$remote_dns_protocol" in
 		tcp)
 			local _dns=$(get_first_dns remote_dns_tcp_server 53 | sed 's/#/:/g')
@@ -388,18 +395,67 @@ run_v2ray() {
 			[ -n "$_doh_bootstrap" ] && _extra_param="${_extra_param} -remote_dns_server ${_doh_bootstrap}"
 			_extra_param="${_extra_param} -remote_dns_port ${_doh_port} -remote_dns_doh_url ${_doh_url} -remote_dns_doh_host ${_doh_host}"
 		;;
-		fakedns)
-			_extra_param="${_extra_param} -remote_dns_fake 1"
-		;;
 	esac
+	[ "$remote_fakedns" = "1" ] && _extra_param="${_extra_param} -remote_dns_fake 1"
+	_extra_param="${_extra_param} -tcp_proxy_way $tcp_proxy_way"
+	lua $UTIL_SINGBOX gen_config ${_extra_param} > $config_file
+	ln_run "$(first_type $(config_t_get global_app singbox_file) sing-box)" "sing-box" $log_file run -c "$config_file"
+}
+
+run_xray() {
+	local flag type node tcp_redir_port udp_redir_port socks_address socks_port socks_username socks_password http_address http_port http_username http_password
+	local dns_listen_port remote_dns_udp_server remote_dns_tcp_server remote_dns_doh dns_client_ip dns_query_strategy dns_cache dns_socks_address dns_socks_port
+	local loglevel log_file config_file
+	local _extra_param=""
+	eval_set_val $@
+	[ -z "$type" ] && {
+		local type=$(echo $(config_n_get $node type) | tr 'A-Z' 'a-z')
+		if [ "$type" != "xray" ]; then
+			bin=$(first_type $(config_t_get global_app xray_file) xray)
+			[ -n "$bin" ] && type="xray"
+		fi
+	}
+	[ -z "$type" ] && return 1
+	[ -n "$log_file" ] || local log_file="/dev/null"
+	[ -z "$loglevel" ] && local loglevel=$(config_t_get global loglevel "warning")
+	[ -n "$flag" ] && _extra_param="${_extra_param} -flag $flag"
+	[ -n "$node" ] && _extra_param="${_extra_param} -node $node"
+	[ -n "$tcp_redir_port" ] && _extra_param="${_extra_param} -tcp_redir_port $tcp_redir_port"
+	[ -n "$udp_redir_port" ] && _extra_param="${_extra_param} -udp_redir_port $udp_redir_port"
+	[ -n "$socks_address" ] && _extra_param="${_extra_param} -local_socks_address $socks_address"
+	[ -n "$socks_port" ] && _extra_param="${_extra_param} -local_socks_port $socks_port"
+	[ -n "$socks_username" ] && [ -n "$socks_password" ] && _extra_param="${_extra_param} -local_socks_username $socks_username -local_socks_password $socks_password"
+	[ -n "$http_address" ] && _extra_param="${_extra_param} -local_http_address $http_address"
+	[ -n "$http_port" ] && _extra_param="${_extra_param} -local_http_port $http_port"
+	[ -n "$http_username" ] && [ -n "$http_password" ] && _extra_param="${_extra_param} -local_http_username $http_username -local_http_password $http_password"
+	[ -n "$dns_socks_address" ] && [ -n "$dns_socks_port" ] && _extra_param="${_extra_param} -dns_socks_address ${dns_socks_address} -dns_socks_port ${dns_socks_port}"
+	[ -n "$dns_listen_port" ] && _extra_param="${_extra_param} -dns_listen_port ${dns_listen_port}"
+	[ -n "$dns_query_strategy" ] && _extra_param="${_extra_param} -dns_query_strategy ${dns_query_strategy}"
+	[ -n "$dns_client_ip" ] && _extra_param="${_extra_param} -dns_client_ip ${dns_client_ip}"
+	[ -n "$dns_cache" ] && _extra_param="${_extra_param} -dns_cache ${dns_cache}"
+	[ -n "${remote_dns_tcp_server}" ] && {
+		local _dns=$(get_first_dns remote_dns_tcp_server 53 | sed 's/#/:/g')
+		local _dns_address=$(echo ${_dns} | awk -F ':' '{print $1}')
+		local _dns_port=$(echo ${_dns} | awk -F ':' '{print $2}')
+		_extra_param="${_extra_param} -remote_dns_tcp_server ${_dns_address} -remote_dns_tcp_port ${_dns_port}"
+	}
+	[ -n "${remote_dns_doh}" ] && {
+		local _doh_url=$(echo $remote_dns_doh | awk -F ',' '{print $1}')
+		local _doh_host_port=$(lua_api "get_domain_from_url(\"${_doh_url}\")")
+		#local _doh_host_port=$(echo $_doh_url | sed "s/https:\/\///g" | awk -F '/' '{print $1}')
+		local _doh_host=$(echo $_doh_host_port | awk -F ':' '{print $1}')
+		local is_ip=$(lua_api "is_ip(\"${_doh_host}\")")
+		local _doh_port=$(echo $_doh_host_port | awk -F ':' '{print $2}')
+		[ -z "${_doh_port}" ] && _doh_port=443
+		local _doh_bootstrap=$(echo $remote_dns_doh | cut -d ',' -sf 2-)
+		[ "${is_ip}" = "true" ] && _doh_bootstrap=${_doh_host}
+		[ -n "$_doh_bootstrap" ] && _extra_param="${_extra_param} -remote_dns_doh_ip ${_doh_bootstrap}"
+		_extra_param="${_extra_param} -remote_dns_doh_port ${_doh_port} -remote_dns_doh_url ${_doh_url} -remote_dns_doh_host ${_doh_host}"
+	}
 	_extra_param="${_extra_param} -tcp_proxy_way $tcp_proxy_way"
 	_extra_param="${_extra_param} -loglevel $loglevel"
 	lua $UTIL_XRAY gen_config ${_extra_param} > $config_file
 	ln_run "$(first_type $(config_t_get global_app ${type}_file) ${type})" ${type} $log_file run -c "$config_file"
-	local protocol=$(config_n_get $node protocol)
-	[ "$protocol" == "_iface" ] && {
-		IFACES="$IFACES $(config_n_get $node iface)"
-	}
 }
 
 run_dns2socks() {
@@ -429,7 +485,7 @@ run_chinadns_ng() {
 
 	echolog "  | - (chinadns-ng) 最高支持4级域名过滤..."
 
-	local _default_tag
+	local _default_tag=$(config_t_get global chinadns_ng_default_tag smart)
 	local _extra_param=""
 	[ -n "$_chnlist" ] && {
 		[ -s "${RULES_PATH}/chnlist" ] && {
@@ -454,7 +510,7 @@ run_chinadns_ng() {
 		#当只有使用gfwlist模式时设置默认DNS为本地直连
 		[ -n "$_gfwlist" ] && [ -z "$_chnlist" ] && _default_tag="chn"
 	}
-	[ -n "$_default_tag" ] && _extra_param="${_extra_param} -d ${_default_tag}"
+	[ -n "$_default_tag" ] && [ "$_default_tag" != "smart" ] && _extra_param="${_extra_param} -d ${_default_tag}"
 
 	_log_path="/dev/null"
 	ln_run "$(first_type chinadns-ng)" chinadns-ng "$_log_path" -v -b 127.0.0.1 -l "${_listen_port}" ${_dns_china:+-c "${_dns_china}"} ${_dns_trust:+-t "${_dns_trust}"} ${_extra_param} -f ${_no_ipv6_rules:+-N=${_no_ipv6_rules}}
@@ -494,7 +550,7 @@ run_socks() {
 		error_msg="某种原因，此 Socks 服务的相关配置已失联，启动中止！"
 	fi
 
-	if [ "$type" == "v2ray" ] || [ "$type" == "xray" ]; then
+	if [ "$type" == "sing-box" ] || [ "$type" == "xray" ]; then
 		local protocol=$(config_n_get $node protocol)
 		if [ "$protocol" == "_balancing" ] || [ "$protocol" == "_shunt" ] || [ "$protocol" == "_iface" ]; then
 			unset error_msg
@@ -509,14 +565,6 @@ run_socks() {
 
 	case "$type" in
 	socks)
-		local bin=$(first_type $(config_t_get global_app v2ray_file) v2ray)
-		if [ -n "$bin" ]; then
-			type="v2ray"
-		else
-			bin=$(first_type $(config_t_get global_app xray_file) xray)
-			[ -n "$bin" ] && type="xray"
-		fi
-		[ -z "$type" ] && return 1
 		local _socks_address=$(config_n_get $node address)
 		local _socks_port=$(config_n_get $node port)
 		local _socks_username=$(config_n_get $node username)
@@ -526,17 +574,35 @@ run_socks() {
 			config_file=$(echo $config_file | sed "s/SOCKS/HTTP_SOCKS/g")
 			local _extra_param="-local_http_port $http_port"
 		}
-		lua $UTIL_XRAY gen_proto_config -local_socks_port $socks_port ${_extra_param} -server_proto socks -server_address ${_socks_address} -server_port ${_socks_port} -server_username ${_socks_username} -server_password ${_socks_password} > $config_file
-		ln_run "$bin" $type $log_file run -c "$config_file"
+		local bin=$(first_type $(config_t_get global_app singbox_file) sing-box)
+		if [ -n "$bin" ]; then
+			type="sing-box"
+			lua $UTIL_SINGBOX gen_proto_config -local_socks_port $socks_port ${_extra_param} -server_proto socks -server_address ${_socks_address} -server_port ${_socks_port} -server_username ${_socks_username} -server_password ${_socks_password} > $config_file
+			ln_run "$bin" ${type} $log_file run -c "$config_file"
+		else
+			bin=$(first_type $(config_t_get global_app xray_file) xray)
+			[ -n "$bin" ] && {
+				type="xray"
+				lua $UTIL_XRAY gen_proto_config -local_socks_port $socks_port ${_extra_param} -server_proto socks -server_address ${_socks_address} -server_port ${_socks_port} -server_username ${_socks_username} -server_password ${_socks_password} > $config_file
+				ln_run "$bin" ${type} $log_file run -c "$config_file"
+			}
+		fi
 	;;
-	v2ray|\
+	sing-box)
+		[ "$http_port" != "0" ] && {
+			http_flag=1
+			config_file=$(echo $config_file | sed "s/SOCKS/HTTP_SOCKS/g")
+			local _args="http_port=$http_port"
+		}
+		run_singbox flag=$flag node=$node socks_port=$socks_port config_file=$config_file log_file=$log_file ${_args}
+	;;
 	xray)
 		[ "$http_port" != "0" ] && {
 			http_flag=1
 			config_file=$(echo $config_file | sed "s/SOCKS/HTTP_SOCKS/g")
-			local _v2ray_args="http_port=$http_port"
+			local _args="http_port=$http_port"
 		}
-		run_v2ray flag=$flag node=$node socks_port=$socks_port config_file=$config_file log_file=$log_file ${_v2ray_args}
+		run_xray flag=$flag node=$node socks_port=$socks_port config_file=$config_file log_file=$log_file ${_args}
 	;;
 	trojan-go)
 		lua $UTIL_TROJAN gen_config -node $node -run_type client -local_addr $bind -local_port $socks_port -server_host $server_host -server_port $port > $config_file
@@ -582,13 +648,13 @@ run_socks() {
 		lua $UTIL_SS gen_config -node $node -local_socks_port $socks_port -server_host $server_host -server_port $port ${_extra_param} > $config_file
 		ln_run "$(first_type sslocal)" "sslocal" $log_file -c "$config_file" -v
 	;;
-	hysteria)
+	hysteria2)
 		[ "$http_port" != "0" ] && {
 			http_flag=1
 			config_file=$(echo $config_file | sed "s/SOCKS/HTTP_SOCKS/g")
 			local _extra_param="-local_http_port $http_port"
 		}
-		lua $UTIL_HYSTERIA gen_config -node $node -local_socks_port $socks_port -server_host $server_host -server_port $port ${_extra_param} > $config_file
+		lua $UTIL_HYSTERIA2 gen_config -node $node -local_socks_port $socks_port -server_host $server_host -server_port $port ${_extra_param} > $config_file
 		ln_run "$(first_type $(config_t_get global_app hysteria_file))" "hysteria" $log_file -c "$config_file" client
 	;;
 	tuic)
@@ -598,17 +664,19 @@ run_socks() {
 	esac
 
 	# http to socks
-	[ -z "$http_flag" ] && [ "$http_port" != "0" ] && [ -n "$http_config_file" ] && [ "$type" != "v2ray" ] && [ "$type" != "xray" ] && [ "$type" != "socks" ] && {
-		local bin=$(first_type $(config_t_get global_app v2ray_file) v2ray)
+	[ -z "$http_flag" ] && [ "$http_port" != "0" ] && [ -n "$http_config_file" ] && [ "$type" != "sing-box" ] && [ "$type" != "xray" ] && [ "$type" != "socks" ] && {
+		local bin=$(first_type $(config_t_get global_app singbox_file) sing-box)
 		if [ -n "$bin" ]; then
-			type="v2ray"
+			type="sing-box"
+			lua $UTIL_SINGBOX gen_proto_config -local_http_port $http_port -server_proto socks -server_address "127.0.0.1" -server_port $socks_port -server_username $_username -server_password $_password > $http_config_file
+			ln_run "$bin" ${type} /dev/null run -c "$http_config_file"
 		else
 			bin=$(first_type $(config_t_get global_app xray_file) xray)
 			[ -n "$bin" ] && type="xray"
+			[ -z "$type" ] && return 1
+			lua $UTIL_XRAY gen_proto_config -local_http_port $http_port -server_proto socks -server_address "127.0.0.1" -server_port $socks_port -server_username $_username -server_password $_password > $http_config_file
+			ln_run "$bin" ${type} /dev/null run -c "$http_config_file"
 		fi
-		[ -z "$type" ] && return 1
-		lua $UTIL_XRAY gen_proto_config -local_http_port $http_port -server_proto socks -server_address "127.0.0.1" -server_port $socks_port -server_username $_username -server_password $_password > $http_config_file
-		ln_run "$bin" ${type} /dev/null run -c "$http_config_file"
 	}
 	unset http_flag
 }
@@ -653,9 +721,11 @@ run_redir() {
 			[ -n "${_socks_username}" ] && [ -n "${_socks_password}" ] && local _extra_param="-a ${_socks_username} -k ${_socks_password}"
 			ln_run "$(first_type ipt2socks)" "ipt2socks_UDP" $log_file -l $local_port -b 0.0.0.0 -s ${_socks_address} -p ${_socks_port} ${_extra_param} -U -v
 		;;
-		v2ray|\
+		sing-box)
+			run_singbox flag=UDP node=$node udp_redir_port=$local_port config_file=$config_file log_file=$log_file
+		;;
 		xray)
-			run_v2ray flag=UDP node=$node udp_redir_port=$local_port config_file=$config_file log_file=$log_file
+			run_xray flag=UDP node=$node udp_redir_port=$local_port config_file=$config_file log_file=$log_file
 		;;
 		trojan-go)
 			local loglevel=$(config_t_get global trojan_loglevel "2")
@@ -690,8 +760,8 @@ run_redir() {
 			lua $UTIL_SS gen_config -node $node -local_udp_redir_port $local_port > $config_file
 			ln_run "$(first_type sslocal)" "sslocal" $log_file -c "$config_file" -v
 		;;
-		hysteria)
-			lua $UTIL_HYSTERIA gen_config -node $node -local_udp_redir_port $local_port > $config_file
+		hysteria2)
+			lua $UTIL_HYSTERIA2 gen_config -node $node -local_udp_redir_port $local_port > $config_file
 			ln_run "$(first_type $(config_t_get global_app hysteria_file))" "hysteria" $log_file -c "$config_file" client
 		;;
 		tuic)
@@ -706,11 +776,7 @@ run_redir() {
 		[ "$tcp_node_http_port" != "0" ] && tcp_node_http=1
 		if [ $PROXY_IPV6 == "1" ]; then
 			echolog "开启实验性IPv6透明代理(TProxy)，请确认您的节点及类型支持IPv6！"
-			if [ $type != "v2ray" ]; then
-				PROXY_IPV6_UDP=1
-			else
-				echolog "节点类型：$type暂未支持IPv6 UDP代理！"
-			fi
+			PROXY_IPV6_UDP=1
 		fi
 
 		if [ "$tcp_proxy_way" = "redirect" ]; then
@@ -739,54 +805,92 @@ run_redir() {
 				unset _socks_password
 			}
 		;;
-		v2ray|\
-		xray)
+		sing-box)
 			local _flag="TCP"
-			local _v2ray_args=""
+			local _args=""
 			[ "$tcp_node_socks" = "1" ] && {
 				tcp_node_socks_flag=1
-				_v2ray_args="${_v2ray_args} socks_port=${tcp_node_socks_port}"
+				_args="${_args} socks_port=${tcp_node_socks_port}"
 				config_file=$(echo $config_file | sed "s/TCP/TCP_SOCKS/g")
 			}
 			[ "$tcp_node_http" = "1" ] && {
 				tcp_node_http_flag=1
-				_v2ray_args="${_v2ray_args} http_port=${tcp_node_http_port}"
+				_args="${_args} http_port=${tcp_node_http_port}"
 				config_file=$(echo $config_file | sed "s/TCP/TCP_HTTP/g")
 			}
 			[ "$TCP_UDP" = "1" ] && {
 				UDP_REDIR_PORT=$local_port
 				UDP_NODE="nil"
 				_flag="TCP_UDP"
-				_v2ray_args="${_v2ray_args} udp_redir_port=${UDP_REDIR_PORT}"
+				_args="${_args} udp_redir_port=${UDP_REDIR_PORT}"
 				config_file=$(echo $config_file | sed "s/TCP/TCP_UDP/g")
 			}
-			[ "${DNS_MODE}" = "v2ray" -o "${DNS_MODE}" = "xray" ] && {
+			[ "${DNS_MODE}" = "sing-box" ] && {
 				resolve_dns=1
 				config_file=$(echo $config_file | sed "s/.json/_DNS.json/g")
-				_v2ray_args="${_v2ray_args} dns_query_strategy=${DNS_QUERY_STRATEGY}"
-				local _dns_client_ip=$(config_t_get global dns_client_ip)
-				[ -n "${_dns_client_ip}" ] && _v2ray_args="${_v2ray_args} dns_client_ip=${_dns_client_ip}"
-				[ "${DNS_CACHE}" == "0" ] && _v2ray_args="${_v2ray_args} dns_cache=0"
+				_args="${_args} remote_dns_query_strategy=${DNS_QUERY_STRATEGY}"
+				[ "${DNS_CACHE}" == "0" ] && _args="${_args} dns_cache=0"
 				local v2ray_dns_mode=$(config_t_get global v2ray_dns_mode tcp)
-				_v2ray_args="${_v2ray_args} remote_dns_protocol=${v2ray_dns_mode}"
-				_v2ray_args="${_v2ray_args} dns_listen_port=${dns_listen_port}"
+				_args="${_args} remote_dns_protocol=${v2ray_dns_mode}"
+				_args="${_args} dns_listen_port=${dns_listen_port}"
+				local logout=""
 				case "$v2ray_dns_mode" in
 					tcp)
-						_v2ray_args="${_v2ray_args} remote_dns_tcp_server=${REMOTE_DNS}"
-						echolog "  - 域名解析 DNS Over TCP..."
+						_args="${_args} remote_dns_tcp_server=${REMOTE_DNS}"
+						logout="  - 域名解析 DNS Over TCP"
 					;;
 					doh)
 						remote_dns_doh=$(config_t_get global remote_dns_doh "https://1.1.1.1/dns-query")
-						_v2ray_args="${_v2ray_args} remote_dns_doh=${remote_dns_doh}"
-						echolog "  - 域名解析 DNS Over HTTPS..."
-					;;
-					fakedns)
-						fakedns=1
-						echolog "  - 域名解析 Fake DNS..."
+						_args="${_args} remote_dns_doh=${remote_dns_doh}"
+						logout="  - 域名解析 DNS Over HTTPS"
 					;;
 				esac
+				local remote_fakedns=$(config_t_get global remote_fakedns 0)
+				[ "${remote_fakedns}" = "1" ] && {
+					fakedns=1
+					_args="${_args} remote_fakedns=1"
+					logout="${logout} + FakeDNS"
+				}
+				echolog ${logout}
 			}
-			run_v2ray flag=$_flag node=$node tcp_redir_port=$local_port config_file=$config_file log_file=$log_file ${_v2ray_args}
+			run_singbox flag=$_flag node=$node tcp_redir_port=$local_port config_file=$config_file log_file=$log_file ${_args}
+		;;
+		xray)
+			local _flag="TCP"
+			local _args=""
+			[ "$tcp_node_socks" = "1" ] && {
+				tcp_node_socks_flag=1
+				_args="${_args} socks_port=${tcp_node_socks_port}"
+				config_file=$(echo $config_file | sed "s/TCP/TCP_SOCKS/g")
+			}
+			[ "$tcp_node_http" = "1" ] && {
+				tcp_node_http_flag=1
+				_args="${_args} http_port=${tcp_node_http_port}"
+				config_file=$(echo $config_file | sed "s/TCP/TCP_HTTP/g")
+			}
+			[ "$TCP_UDP" = "1" ] && {
+				UDP_REDIR_PORT=$local_port
+				UDP_NODE="nil"
+				_flag="TCP_UDP"
+				_args="${_args} udp_redir_port=${UDP_REDIR_PORT}"
+				config_file=$(echo $config_file | sed "s/TCP/TCP_UDP/g")
+			}
+			[ "${DNS_MODE}" = "xray" ] && {
+				resolve_dns=1
+				config_file=$(echo $config_file | sed "s/.json/_DNS.json/g")
+				_args="${_args} dns_query_strategy=${DNS_QUERY_STRATEGY}"
+				local _dns_client_ip=$(config_t_get global dns_client_ip)
+				[ -n "${_dns_client_ip}" ] && _args="${_args} dns_client_ip=${_dns_client_ip}"
+				[ "${DNS_CACHE}" == "0" ] && _args="${_args} dns_cache=0"
+				_args="${_args} dns_listen_port=${dns_listen_port}"
+				_args="${_args} remote_dns_tcp_server=${REMOTE_DNS}"
+				local v2ray_dns_mode=$(config_t_get global v2ray_dns_mode tcp)
+				[ "$v2ray_dns_mode" = "tcp+doh" ] && {
+					remote_dns_doh=$(config_t_get global remote_dns_doh "https://1.1.1.1/dns-query")
+					_args="${_args} remote_dns_doh=${remote_dns_doh}"
+				}
+			}
+			run_xray flag=$_flag node=$node tcp_redir_port=$local_port config_file=$config_file log_file=$log_file ${_args}
 		;;
 		trojan-go)
 			[ "$TCP_UDP" = "1" ] && {
@@ -871,7 +975,7 @@ run_redir() {
 			lua $UTIL_SS gen_config -node $node ${_extra_param} > $config_file
 			ln_run "$(first_type sslocal)" "sslocal" $log_file -c "$config_file" -v
 		;;
-		hysteria)
+		hysteria2)
 			local _extra_param="-local_tcp_redir_port $local_port"
 			[ "$tcp_node_socks" = "1" ] && {
 				tcp_node_socks_flag=1
@@ -890,7 +994,7 @@ run_redir() {
 				_extra_param="${_extra_param} -local_udp_redir_port $local_port"
 			}
 			_extra_param="${_extra_param} -tcp_proxy_way $tcp_proxy_way"
-			lua $UTIL_HYSTERIA gen_config -node $node ${_extra_param} > $config_file
+			lua $UTIL_HYSTERIA2 gen_config -node $node ${_extra_param} > $config_file
 			ln_run "$(first_type $(config_t_get global_app hysteria_file))" "hysteria" $log_file -c "$config_file" client
 		;;
 		esac
@@ -931,56 +1035,6 @@ run_redir() {
 	esac
 	unset tcp_node_socks_flag tcp_node_http_flag
 	return 0
-}
-
-node_switch() {
-	local flag new_node shunt_logic log_output
-	eval_set_val $@
-	[ -n "$flag" ] && [ -n "$new_node" ] && {
-		flag=$(echo $flag | tr 'A-Z' 'a-z')
-		FLAG=$(echo $flag | tr 'a-z' 'A-Z')
-		[ -n "$log_output" ] || LOG_FILE="/dev/null"
-		local node=$2
-		pgrep -af "${TMP_PATH}" | awk -v P1="${FLAG}" 'BEGIN{IGNORECASE=1}$0~P1 && !/acl\/|acl_/{print $1}' | xargs kill -9 >/dev/null 2>&1
-		rm -rf $TMP_PATH/${FLAG}*
-		local config_file="${FLAG}.json"
-		local log_file="${FLAG}.log"
-		local port=$(cat $TMP_PORT_PATH/${FLAG})
-
-		[ "$shunt_logic" != "0" ] && {
-			local node=$(config_t_get global ${flag}_node nil)
-			[ "$(config_n_get $node protocol nil)" = "_shunt" ] && {
-				if [ "$shunt_logic" = "1" ]; then
-					uci set $CONFIG.$node.default_node="$new_node"
-				elif [ "$shunt_logic" = "2" ]; then
-					uci set $CONFIG.$node.main_node="$new_node"
-				fi
-				uci commit $CONFIG
-			}
-			new_node=$node
-		}
-
-		run_redir node=$new_node proto=$FLAG bind=0.0.0.0 local_port=$port config_file=$config_file log_file=$log_file
-		echo $new_node > $TMP_ID_PATH/${FLAG}
-
-		[ "$shunt_logic" != "0" ] && [ "$(config_n_get $new_node protocol nil)" = "_shunt" ] && {
-			echo $(config_n_get $new_node default_node nil) > $TMP_ID_PATH/${FLAG}_default
-			echo $(config_n_get $new_node main_node nil) > $TMP_ID_PATH/${FLAG}_main
-			uci commit $CONFIG
-		}
-
-		[ "$flag" = "tcp" ] && {
-			[ "$(config_t_get global udp_node nil)" = "tcp" ] && [ "$UDP_REDIR_PORT" != "$TCP_REDIR_PORT" ] && {
-				pgrep -af "$TMP_PATH" | awk 'BEGIN{IGNORECASE=1}/UDP/ && !/acl\/|acl_/{print $1}' | xargs kill -9 >/dev/null 2>&1
-				UDP_NODE=$new_node
-				start_redir UDP
-			}
-		}
-
-		#uci set $CONFIG.@global[0].${flag}_node=$new_node
-		#uci commit $CONFIG
-		source $APP_PATH/helper_${DNS_N}.sh logic_restart no_log=1
-	}
 }
 
 start_redir() {
@@ -1025,9 +1079,36 @@ start_socks() {
 				local http_port=$(config_n_get $id http_port 0)
 				local http_config_file="HTTP2SOCKS_${id}.json"
 				run_socks flag=$id node=$node bind=0.0.0.0 socks_port=$port config_file=$config_file http_port=$http_port http_config_file=$http_config_file
-				echo $node > $TMP_ID_PATH/SOCKS_${id}
+				echo $node > $TMP_ID_PATH/socks_${id}
+
+				#自动切换逻辑
+				local enable_autoswitch=$(config_n_get $id enable_autoswitch 0)
+				[ "$enable_autoswitch" = "1" ] && $APP_PATH/socks_auto_switch.sh ${id} > /dev/null 2>&1 &
 			done
 		}
+	}
+}
+
+socks_node_switch() {
+	local flag new_node
+	eval_set_val $@
+	[ -n "$flag" ] && [ -n "$new_node" ] && {
+		pgrep -af "$TMP_BIN_PATH" | awk -v P1="${flag}" 'BEGIN{IGNORECASE=1}$0~P1 && !/acl\/|acl_/{print $1}' | xargs kill -9 >/dev/null 2>&1
+		rm -rf $TMP_PATH/SOCKS_${flag}*
+		rm -rf $TMP_PATH/HTTP2SOCKS_${flag}*
+
+		for filename in $(ls ${TMP_SCRIPT_FUNC_PATH}); do
+			cmd=$(cat ${TMP_SCRIPT_FUNC_PATH}/${filename})
+			[ -n "$(echo $cmd | grep "${flag}")" ] && rm -f ${TMP_SCRIPT_FUNC_PATH}/${filename}
+		done
+		local port=$(config_n_get $flag port)
+		local config_file="SOCKS_${flag}.json"
+		local log_file="SOCKS_${flag}.log"
+		local http_port=$(config_n_get $flag http_port 0)
+		local http_config_file="HTTP2SOCKS_${flag}.json"
+		LOG_FILE="/dev/null"
+		run_socks flag=$flag node=$new_node bind=0.0.0.0 socks_port=$port config_file=$config_file http_port=$http_port http_config_file=$http_config_file
+		echo $new_node > $TMP_ID_PATH/socks_${flag}
 	}
 }
 
@@ -1110,9 +1191,6 @@ start_crontab() {
 	if [ "$ENABLED_DEFAULT_ACL" == 1 ] || [ "$ENABLED_ACLS" == 1 ]; then
 		start_daemon=$(config_t_get global_delay start_daemon 0)
 		[ "$start_daemon" = "1" ] && $APP_PATH/monitor.sh > /dev/null 2>&1 &
-
-		AUTO_SWITCH_ENABLE=$(config_t_get auto_switch enable 0)
-		[ "$AUTO_SWITCH_ENABLE" = "1" ] && $APP_PATH/test.sh > /dev/null 2>&1 &
 	else
 		echolog "运行于非代理模式，仅允许服务启停的定时任务。"
 	fi
@@ -1128,7 +1206,6 @@ stop_crontab() {
 
 start_dns() {
 	TUN_DNS="127.0.0.1#${dns_listen_port}"
-	DNSMASQ_FILTER_IPV6=$FILTER_PROXY_IPV6
 
 	echolog "过滤服务配置：准备接管域名解析..."
 	[ "$ENABLED_ACLS" == 1 ] && {
@@ -1165,29 +1242,26 @@ start_dns() {
 		run_dns2socks socks=$dns2socks_socks_server listen_address=127.0.0.1 listen_port=${dns_listen_port} dns=$dns2socks_forward cache=$DNS_CACHE
 		echolog "  - 域名解析：dns2socks(127.0.0.1:${dns_listen_port})，${dns2socks_socks_server} -> ${dns2socks_forward}"
 	;;
-	v2ray|\
-	xray)
+	sing-box)
 		[ "${resolve_dns}" == "0" ] && {
 			local config_file=$TMP_PATH/DNS.json
 			local log_file=$TMP_PATH/DNS.log
 			local log_file=/dev/null
-			local _v2ray_args="type=$DNS_MODE config_file=$config_file log_file=$log_file"
-			[ "${DNS_CACHE}" == "0" ] && _v2ray_args="${_v2ray_args} dns_cache=0"
-			_v2ray_args="${_v2ray_args} dns_query_strategy=${DNS_QUERY_STRATEGY}"
-			local _dns_client_ip=$(config_t_get global dns_client_ip)
-			[ -n "${_dns_client_ip}" ] && _v2ray_args="${_v2ray_args} dns_client_ip=${_dns_client_ip}"
+			local _args="type=$DNS_MODE config_file=$config_file log_file=$log_file"
+			[ "${DNS_CACHE}" == "0" ] && _args="${_args} dns_cache=0"
+			_args="${_args} remote_dns_query_strategy=${DNS_QUERY_STRATEGY}"
 			use_tcp_node_resolve_dns=1
 			local v2ray_dns_mode=$(config_t_get global v2ray_dns_mode tcp)
-			_v2ray_args="${_v2ray_args} dns_listen_port=${dns_listen_port}"
-			_v2ray_args="${_v2ray_args} remote_dns_protocol=${v2ray_dns_mode}"
+			_args="${_args} dns_listen_port=${dns_listen_port}"
+			_args="${_args} remote_dns_protocol=${v2ray_dns_mode}"
 			case "$v2ray_dns_mode" in
 				tcp)
-					_v2ray_args="${_v2ray_args} remote_dns_tcp_server=${REMOTE_DNS}"
+					_args="${_args} remote_dns_tcp_server=${REMOTE_DNS}"
 					echolog "  - 域名解析 DNS Over TCP..."
 				;;
 				doh)
 					remote_dns_doh=$(config_t_get global remote_dns_doh "https://1.1.1.1/dns-query")
-					_v2ray_args="${_v2ray_args} remote_dns_doh=${remote_dns_doh}"
+					_args="${_args} remote_dns_doh=${remote_dns_doh}"
 
 					local _doh_url=$(echo $remote_dns_doh | awk -F ',' '{print $1}')
 					local _doh_host_port=$(lua_api "get_domain_from_url(\"${_doh_url}\")")
@@ -1202,7 +1276,30 @@ start_dns() {
 					echolog "  - 域名解析 DNS Over HTTPS..."
 				;;
 			esac
-			run_v2ray ${_v2ray_args}
+			_args="${_args} dns_socks_address=127.0.0.1 dns_socks_port=${tcp_node_socks_port}"
+			run_singbox ${_args}
+		}
+	;;
+	xray)
+		[ "${resolve_dns}" == "0" ] && {
+			local config_file=$TMP_PATH/DNS.json
+			local log_file=$TMP_PATH/DNS.log
+			local log_file=/dev/null
+			local _args="type=$DNS_MODE config_file=$config_file log_file=$log_file"
+			[ "${DNS_CACHE}" == "0" ] && _args="${_args} dns_cache=0"
+			_args="${_args} dns_query_strategy=${DNS_QUERY_STRATEGY}"
+			local _dns_client_ip=$(config_t_get global dns_client_ip)
+			[ -n "${_dns_client_ip}" ] && _args="${_args} dns_client_ip=${_dns_client_ip}"
+			use_tcp_node_resolve_dns=1
+			_args="${_args} dns_listen_port=${dns_listen_port}"
+			_args="${_args} remote_dns_tcp_server=${REMOTE_DNS}"
+			local v2ray_dns_mode=$(config_t_get global v2ray_dns_mode tcp)
+			[ "$v2ray_dns_mode" = "tcp+doh" ] && {
+				remote_dns_doh=$(config_t_get global remote_dns_doh "https://1.1.1.1/dns-query")
+				_args="${_args} remote_dns_doh=${remote_dns_doh}"
+			}
+			_args="${_args} dns_socks_address=127.0.0.1 dns_socks_port=${tcp_node_socks_port}"
+			run_xray ${_args}
 		}
 	;;
 	dns2tcp)
@@ -1223,7 +1320,6 @@ start_dns() {
 	[ "$CHINADNS_NG" = "1" ] && [ -n "$(first_type chinadns-ng)" ] && ([ -n "$chnlist" ] || [ -n "$gfwlist" ]) && {
 		[ "$FILTER_PROXY_IPV6" = "1" ] && {
 			local _no_ipv6_rules="gt"
-			DNSMASQ_FILTER_IPV6=0
 		}
 		local china_ng_listen_port=$(expr $dns_listen_port + 1)
 		local china_ng_listen="127.0.0.1#${china_ng_listen_port}"
@@ -1248,7 +1344,7 @@ start_dns() {
 		lua $APP_PATH/helper_dnsmasq_add.lua -FLAG "default" -TMP_DNSMASQ_PATH ${TMP_DNSMASQ_PATH} \
 			-DNSMASQ_CONF_FILE "/tmp/dnsmasq.d/dnsmasq-passwall.conf" -DEFAULT_DNS ${DEFAULT_DNS} -LOCAL_DNS ${LOCAL_DNS} \
 			-TUN_DNS ${TUN_DNS} -REMOTE_FAKEDNS ${fakedns:-0} -CHNROUTE_MODE_DEFAULT_DNS "${WHEN_CHNROUTE_DEFAULT_DNS:-direct}" -CHINADNS_DNS ${china_ng_listen:-0} \
-			-TCP_NODE ${TCP_NODE} -PROXY_MODE "${TCP_PROXY_MODE}${LOCALHOST_TCP_PROXY_MODE}${ACL_TCP_PROXY_MODE}" -NO_PROXY_IPV6 ${DNSMASQ_FILTER_IPV6:-0} -NFTFLAG ${nftflag:-0} \
+			-TCP_NODE ${TCP_NODE} -PROXY_MODE "${TCP_PROXY_MODE}${LOCALHOST_TCP_PROXY_MODE}${ACL_TCP_PROXY_MODE}" -NO_PROXY_IPV6 ${FILTER_PROXY_IPV6:-0} -NFTFLAG ${nftflag:-0} \
 			-NO_LOGIC_LOG ${NO_LOGIC_LOG:-0}
 	}
 }
@@ -1346,7 +1442,7 @@ acl_app() {
 			remote_dns=${remote_dns:-1.1.1.1}
 			chinadns_ng=${chinadns_ng:-0}
 			when_chnroute_default_dns=${when_chnroute_default_dns:-direct}
-			[ "$dns_mode" = "v2ray" -o "$dns_mode" = "xray" ] && {
+			[ "$dns_mode" = "sing-box" ] && {
 				[ "$v2ray_dns_mode" = "doh" ] && remote_dns=${remote_dns_doh:-https://1.1.1.1/dns-query}
 			}
 			[ "$tcp_proxy_mode" = "default" ] && tcp_proxy_mode=$TCP_PROXY_MODE
@@ -1366,18 +1462,19 @@ acl_app() {
 								_dns_port=$dns_port
 								if [ "$dns_mode" = "dns2socks" ]; then
 									run_dns2socks flag=acl_${sid} socks_address=127.0.0.1 socks_port=$socks_port listen_address=0.0.0.0 listen_port=${_dns_port} dns=$remote_dns cache=1
-								elif [ "$dns_mode" = "v2ray" -o "$dns_mode" = "xray" ]; then
+								elif [ "$dns_mode" = "sing-box" -o "$dns_mode" = "xray" ]; then
 									config_file=$TMP_ACL_PATH/${tcp_node}_SOCKS_${socks_port}_DNS.json
-									run_v2ray flag=acl_${sid} type=$dns_mode dns_socks_address=127.0.0.1 dns_socks_port=$socks_port dns_listen_port=${_dns_port} remote_dns_protocol=${v2ray_dns_mode} remote_dns_tcp_server=${remote_dns} remote_dns_doh="${remote_dns}" dns_client_ip=${dns_client_ip} dns_query_strategy=${DNS_QUERY_STRATEGY} config_file=$config_file
+									[ "$dns_mode" = "xray" ] && [ "$v2ray_dns_mode" = "tcp+doh" ] && remote_dns_doh=${remote_dns_doh:-https://1.1.1.1/dns-query}
+									local type=${dns_mode}
+									[ "${dns_mode}" = "sing-box" ] && type="singbox"
+									run_${type} flag=acl_${sid} type=$dns_mode dns_socks_address=127.0.0.1 dns_socks_port=$socks_port dns_listen_port=${_dns_port} remote_dns_protocol=${v2ray_dns_mode} remote_dns_tcp_server=${remote_dns} remote_dns_doh="${remote_dns_doh}" remote_dns_query_strategy=${DNS_QUERY_STRATEGY} dns_client_ip=${dns_client_ip} dns_query_strategy=${DNS_QUERY_STRATEGY} config_file=$config_file
 								fi
 								eval node_${tcp_node}_$(echo -n "${remote_dns}" | md5sum | cut -d " " -f1)=${_dns_port}
 							}
 
-							local _dnsmasq_filter_ipv6=$filter_proxy_ipv6
 							[ "$chinadns_ng" = "1" ] && [ -n "$(first_type chinadns-ng)" ] && ([ "$tcp_proxy_mode" = "chnroute" ] || [ "$tcp_proxy_mode" = "gfwlist" ]) && {
 								[ "$filter_proxy_ipv6" = "1" ] && {
 									local _no_ipv6_rules="gt"
-									_dnsmasq_filter_ipv6=0
 								}
 								chinadns_port=$(expr $chinadns_port + 1)
 								_china_ng_listen="127.0.0.1#${chinadns_port}"
@@ -1423,7 +1520,7 @@ acl_app() {
 							lua $APP_PATH/helper_dnsmasq_add.lua -FLAG ${sid} -TMP_DNSMASQ_PATH $TMP_ACL_PATH/$sid/dnsmasq.d \
 								-DNSMASQ_CONF_FILE $TMP_ACL_PATH/$sid/dnsmasq.conf -DEFAULT_DNS $DEFAULT_DNS -LOCAL_DNS $LOCAL_DNS \
 								-TUN_DNS "127.0.0.1#${_dns_port}" -REMOTE_FAKEDNS 0 -CHNROUTE_MODE_DEFAULT_DNS "${when_chnroute_default_dns:-direct}" -CHINADNS_DNS ${_china_ng_listen:-0} \
-								-TCP_NODE $tcp_node -PROXY_MODE ${tcp_proxy_mode} -NO_PROXY_IPV6 ${_dnsmasq_filter_ipv6:-0} -NFTFLAG ${nftflag:-0} \
+								-TCP_NODE $tcp_node -PROXY_MODE ${tcp_proxy_mode} -NO_PROXY_IPV6 ${filter_proxy_ipv6:-0} -NFTFLAG ${nftflag:-0} \
 								-NO_LOGIC_LOG 1
 							ln_run "$(first_type dnsmasq)" "dnsmasq_${sid}" "/dev/null" -C $TMP_ACL_PATH/$sid/dnsmasq.conf -x $TMP_ACL_PATH/$sid/dnsmasq.pid
 							eval node_${tcp_node}_$(echo -n "${tcp_proxy_mode}${remote_dns}" | md5sum | cut -d " " -f1)=${dnsmasq_port}
@@ -1451,21 +1548,24 @@ acl_app() {
 								tcp_port=$redir_port
 
 								local type=$(echo $(config_n_get $tcp_node type) | tr 'A-Z' 'a-z')
-								if [ -n "${type}" ] && ([ "${type}" = "v2ray" ] || [ "${type}" = "xray" ]); then
+								if [ -n "${type}" ] && ([ "${type}" = "sing-box" ] || [ "${type}" = "xray" ]); then
 									config_file="acl/${tcp_node}_TCP_${redir_port}.json"
 									_extra_param="socks_address=127.0.0.1 socks_port=$socks_port"
-									if [ "$dns_mode" = "v2ray" -o "$dns_mode" = "xray" ]; then
+									if [ "$dns_mode" = "sing-box" ] || [ "$dns_mode" = "xray" ]; then
 										dns_port=$(get_new_port $(expr $dns_port + 1))
 										_dns_port=$dns_port
 										config_file=$(echo $config_file | sed "s/TCP_/DNS_${_dns_port}_TCP_/g")
-										_extra_param="dns_listen_port=${_dns_port} remote_dns_protocol=${v2ray_dns_mode} remote_dns_tcp_server=${remote_dns} remote_dns_doh=${remote_dns} dns_client_ip=${dns_client_ip} dns_query_strategy=${DNS_QUERY_STRATEGY}"
+										remote_dns_doh=${remote_dns}
+										[ "$dns_mode" = "xray" ] && [ "$v2ray_dns_mode" = "tcp+doh" ] && remote_dns_doh=${remote_dns_doh:-https://1.1.1.1/dns-query}
+										_extra_param="dns_listen_port=${_dns_port} remote_dns_protocol=${v2ray_dns_mode} remote_dns_tcp_server=${remote_dns} remote_dns_doh=${remote_dns_doh} remote_dns_query_strategy=${DNS_QUERY_STRATEGY} dns_client_ip=${dns_client_ip} dns_query_strategy=${DNS_QUERY_STRATEGY}"
 									fi
 									[ "$udp_node" != "nil" ] && ([ "$udp_node" = "tcp" ] || [ "$udp_node" = "$tcp_node" ]) && {
 										config_file=$(echo $config_file | sed "s/TCP_/TCP_UDP_/g")
 										_extra_param="${_extra_param} udp_redir_port=$redir_port"
 									}
 									config_file="$TMP_PATH/$config_file"
-									run_v2ray flag=$tcp_node node=$tcp_node tcp_redir_port=$redir_port ${_extra_param} config_file=$config_file
+									[ "${type}" = "sing-box" ] && type="singbox"
+									run_${type} flag=$tcp_node node=$tcp_node tcp_redir_port=$redir_port ${_extra_param} config_file=$config_file
 								else
 									config_file="acl/${tcp_node}_SOCKS_${socks_port}.json"
 									run_socks flag=$tcp_node node=$tcp_node bind=127.0.0.1 socks_port=$socks_port config_file=$config_file
@@ -1515,10 +1615,11 @@ acl_app() {
 								udp_port=$redir_port
 
 								local type=$(echo $(config_n_get $udp_node type) | tr 'A-Z' 'a-z')
-								if [ -n "${type}" ] && ([ "${type}" = "v2ray" ] || [ "${type}" = "xray" ]); then
+								if [ -n "${type}" ] && ([ "${type}" = "sing-box" ] || [ "${type}" = "xray" ]); then
 									config_file="acl/${udp_node}_UDP_${redir_port}.json"
 									config_file="$TMP_PATH/$config_file"
-									run_v2ray flag=$udp_node node=$udp_node udp_redir_port=$redir_port config_file=$config_file
+									[ "${type}" = "sing-box" ] && type="singbox"
+									run_${type} flag=$udp_node node=$udp_node udp_redir_port=$redir_port config_file=$config_file
 								else
 									config_file="acl/${udp_node}_SOCKS_${socks_port}.json"
 									run_socks flag=$udp_node node=$udp_node bind=127.0.0.1 socks_port=$socks_port config_file=$config_file
@@ -1537,7 +1638,7 @@ acl_app() {
 			[ -n "$redirect_dns_port" ] && echo "${redirect_dns_port}" > $TMP_ACL_PATH/$sid/var_redirect_dns_port
 			unset enabled sid remarks sources tcp_proxy_mode udp_proxy_mode tcp_node udp_node filter_proxy_ipv6 dns_mode remote_dns v2ray_dns_mode remote_dns_doh dns_client_ip
 			unset _ip _mac _iprange _ipset _ip_or_mac rule_list tcp_port udp_port config_file _extra_param
-			unset _china_ng_listen _china_ng_chn _china_ng_gfw _gfwlist_file _chnlist_file _china_ng_log_file _no_ipv6_rules _china_ng_extra_param _dnsmasq_filter_ipv6
+			unset _china_ng_listen _china_ng_chn _china_ng_gfw _gfwlist_file _chnlist_file _china_ng_log_file _no_ipv6_rules _china_ng_extra_param
 			unset redirect_dns_port
 		done
 		unset socks_port redir_port dns_port dnsmasq_port chinadns_port
@@ -1552,25 +1653,25 @@ start() {
 	local use_nft=$(config_t_get global_forwarding use_nft 0)
 	local USE_TABLES
 	if [ "$use_nft" == 0 ]; then
-		if [ -z "$(command -v iptables-legacy || command -v iptables)" ] || [ -z "$(command -v ipset)" ] || [ -z "$(dnsmasq --version | grep 'Compile time options:.* ipset')" ]; then
-			if [ -n "$(command -v nft)" ] && [ -n "$(dnsmasq --version | grep 'Compile time options:.* nftset')" ]; then
+		if [ -n "$(command -v iptables-legacy || command -v iptables)" ] && [ -n "$(command -v ipset)" ] && [ -n "$(dnsmasq --version | grep 'Compile time options:.* ipset')" ]; then
+			USE_TABLES="iptables"
+		else
+			if [ -n "$(command -v fw4)" ] && [ -n "$(command -v nft)" ] && [ -n "$(dnsmasq --version | grep 'Compile time options:.* nftset')" ]; then
 				echolog "检测到fw4，使用nftables进行透明代理。"
 				USE_TABLES="nftables"
 				nftflag=1
 				config_t_set global_forwarding use_nft 1
-				uci commit
+				uci commit ${CONFIG}
 			else
 				echolog "系统未安装iptables或ipset或Dnsmasq没有开启ipset支持，无法透明代理！"
 			fi
-		else
-			USE_TABLES="iptables"
 		fi
 	else
-		if [ -z "$(dnsmasq --version | grep 'Compile time options:.* nftset')" ]; then
-			echolog "Dnsmasq软件包不满足nftables透明代理要求，如需使用请确保dnsmasq版本在2.87以上并开启nftset支持。"
-		elif [ -n "$(dnsmasq --version | grep 'Compile time options:.* nftset')" ]; then
+		if [ -n "$(dnsmasq --version | grep 'Compile time options:.* nftset')" ]; then
 			USE_TABLES="nftables"
 			nftflag=1
+		else
+			echolog "Dnsmasq软件包不满足nftables透明代理要求，如需使用请确保dnsmasq版本在2.87以上并开启nftset支持。"
 		fi
 	fi
 
@@ -1603,7 +1704,7 @@ stop() {
 	[ -s "$TMP_PATH/bridge_nf_ipt" ] && sysctl -w net.bridge.bridge-nf-call-iptables=$(cat $TMP_PATH/bridge_nf_ipt) >/dev/null 2>&1
 	[ -s "$TMP_PATH/bridge_nf_ip6t" ] && sysctl -w net.bridge.bridge-nf-call-ip6tables=$(cat $TMP_PATH/bridge_nf_ip6t) >/dev/null 2>&1
 	rm -rf ${TMP_PATH}
-	rm -rf /tmp/lock/${CONFIG}_script.lock
+	rm -rf /tmp/lock/${CONFIG}_socks_auto_switch*
 	echolog "清空并关闭相关程序和缓存完成。"
 	exit 0
 }
@@ -1654,8 +1755,8 @@ WHEN_CHNROUTE_DEFAULT_DNS=$(config_t_get global when_chnroute_default_dns direct
 FILTER_PROXY_IPV6=$(config_t_get global filter_proxy_ipv6 0)
 dns_listen_port=${DNS_PORT}
 
-REDIRECT_LIST="socks ss ss-rust ssr v2ray xray trojan-go trojan-plus naiveproxy hysteria"
-TPROXY_LIST="brook socks ss ss-rust ssr v2ray xray trojan-go trojan-plus hysteria"
+REDIRECT_LIST="socks ss ss-rust ssr sing-box xray trojan-go trojan-plus naiveproxy hysteria2"
+TPROXY_LIST="brook socks ss ss-rust ssr sing-box xray trojan-go trojan-plus hysteria2"
 RESOLVFILE=/tmp/resolv.conf.d/resolv.conf.auto
 [ -f "${RESOLVFILE}" ] && [ -s "${RESOLVFILE}" ] || RESOLVFILE=/tmp/resolv.conf.auto
 
@@ -1672,7 +1773,7 @@ DNS_QUERY_STRATEGY="UseIPv4"
 
 export V2RAY_LOCATION_ASSET=$(config_t_get global_rules v2ray_location_asset "/usr/share/v2ray/")
 export XRAY_LOCATION_ASSET=$V2RAY_LOCATION_ASSET
-mkdir -p /tmp/etc $TMP_PATH $TMP_BIN_PATH $TMP_SCRIPT_FUNC_PATH $TMP_ID_PATH $TMP_PORT_PATH $TMP_ROUTE_PATH $TMP_ACL_PATH $TMP_PATH2
+mkdir -p /tmp/etc $TMP_PATH $TMP_BIN_PATH $TMP_SCRIPT_FUNC_PATH $TMP_ID_PATH $TMP_PORT_PATH $TMP_ROUTE_PATH $TMP_ACL_PATH $TMP_IFACE_PATH $TMP_PATH2
 
 arg1=$1
 shift
@@ -1689,8 +1790,8 @@ run_socks)
 run_redir)
 	run_redir $@
 	;;
-node_switch)
-	node_switch $@
+socks_node_switch)
+	socks_node_switch $@
 	;;
 echolog)
 	echolog $@

@@ -1061,7 +1061,7 @@ add_firewall_rule() {
 	#  加载ACLS
 	load_acl
 		
-	for iface in $IFACES; do
+	for iface in $(ls ${TMP_IFACE_PATH}); do
 		$ipt_n -I PSW_OUTPUT -o $iface -j RETURN
 		$ipt_m -I PSW_OUTPUT -o $iface -j RETURN
 	done
@@ -1125,6 +1125,7 @@ flush_ipset() {
 	for _name in $(ipset list | grep "Name: " | grep "passwall_" | awk '{print $2}'); do
 		destroy_ipset ${_name}
 	done
+	rm -rf /tmp/singbox_passwall*
 	rm -rf /tmp/etc/passwall_tmp/dnsmasq*
 	/etc/init.d/passwall reload
 }

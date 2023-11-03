@@ -2,8 +2,8 @@ local api = require "luci.passwall2.api"
 local appname = api.appname
 local has_ss = api.is_finded("ss-redir")
 local has_ss_rust = api.is_finded("sslocal")
-local has_v2ray = api.is_finded("v2ray")
-local has_xray = api.is_finded("xray")
+local has_singbox = api.finded_com("singbox")
+local has_xray = api.finded_com("xray")
 local ss_aead_type = {}
 if has_ss then
 	ss_aead_type[#ss_aead_type + 1] = "shadowsocks-libev"
@@ -11,14 +11,15 @@ end
 if has_ss_rust then
 	ss_aead_type[#ss_aead_type + 1] = "shadowsocks-rust"
 end
-if has_v2ray then
-	ss_aead_type[#ss_aead_type + 1] = "v2ray"
+if has_singbox then
+	ss_aead_type[#ss_aead_type + 1] = "sing-box"
 end
 if has_xray then
 	ss_aead_type[#ss_aead_type + 1] = "xray"
 end
 
 m = Map(appname)
+api.set_apply_on_parse(m)
 
 -- [[ Subscribe Settings ]]--
 s = m:section(TypedSection, "global_subscribe", "")
