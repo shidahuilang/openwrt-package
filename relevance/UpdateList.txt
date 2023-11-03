@@ -5,6 +5,8 @@ UnblockNeteaseMusic-Go
 UnblockNeteaseMusic
 Wiwiz-PinPinWiFi
 adguardhome
+alist
+alist2
 aliyundrive-fuse
 app-lucky
 ardhome
