@@ -80,7 +80,6 @@ luci-app-tencentddns
 luci-app-ttnode
 luci-app-udp2raw
 luci-app-unblockneteasemusic
-luci-app-vssr
 luci-app-webd
 luci-app-wifidog
 luci-app-wolplus
