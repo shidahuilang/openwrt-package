@@ -20,6 +20,7 @@ set acl_neteasemusic_https {
 	{% endif %}
 }
 
+{% if (hijack_ways === 'use_ipset'): %}
 set neteasemusic {
 	type ipv4_addr;
 	flags interval;
@@ -60,3 +61,4 @@ chain netease_cloud_music_redir {
 	tcp dport 80 counter redirect to :{{ http_port }};
 	tcp dport 443 counter redirect to :{{ https_port }};
 }
+{% endif %}

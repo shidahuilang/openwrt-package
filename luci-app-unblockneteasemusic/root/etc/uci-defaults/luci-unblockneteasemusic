@@ -10,25 +10,14 @@ uci -q batch <<-EOF >"/dev/null"
 	commit ucitrack
 EOF
 
-if [ -e "$(command -v fw4)" ]; then
-	uci -q batch <<-EOF >"/dev/null"
-		delete firewall.unblockneteasemusic
-		set firewall.unblockneteasemusic=include
-		set firewall.unblockneteasemusic.type=nftables
-		set firewall.unblockneteasemusic.path=/var/run/unblockneteasemusic/fw4.nft
-		set firewall.unblockneteasemusic.position=table-post
-		commit firewall
-	EOF
-else
-	uci -q batch <<-EOF >"/dev/null"
-		delete firewall.unblockneteasemusic
-		set firewall.unblockneteasemusic=include
-		set firewall.unblockneteasemusic.type=script
-		set firewall.unblockneteasemusic.path=/var/run/unblockneteasemusic/fw3.include
-		set firewall.unblockneteasemusic.reload=1
-		commit firewall
-	EOF
-fi
+uci -q batch <<-EOF >"/dev/null"
+	delete firewall.unblockneteasemusic
+	set firewall.unblockneteasemusic=include
+	set firewall.unblockneteasemusic.type=nftables
+	set firewall.unblockneteasemusic.path=/var/run/unblockneteasemusic/fw4.nft
+	set firewall.unblockneteasemusic.position=table-post
+	commit firewall
+EOF
 
 rm -f /tmp/luci-indexcache
 exit 0
