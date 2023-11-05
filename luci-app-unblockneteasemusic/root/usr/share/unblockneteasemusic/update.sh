@@ -70,6 +70,7 @@ update_core() {
 		}
 	done
 
+	[ -z "$update_core_from_luci" ] || touch "$UNM_DIR/update_core_successfully"
 	echo -e "$core_latest_ver" > "$UNM_DIR/core_local_ver"
 	[ -n "$non_restart" ] || /etc/init.d/"$NAME" restart
 
@@ -79,17 +80,6 @@ update_core() {
 }
 
 case "$1" in
-	"check_version")
-		if [ ! -e "$UNM_DIR/core_local_ver" ] || [ ! -e "$UNM_DIR/core/app.js" ]; then
-			echo -e "Not installed."
-			exit 2
-		else
-			version="$(node "$UNM_DIR/core/app.js" -v)"
-			commit="$(cat "$UNM_DIR/core_local_ver" | head -c7)"
-			echo "$version ($commit)"
-			exit 0
-		fi
-		;;
 	"update_core")
 		check_core_if_already_running
 		check_core_latest_version
@@ -99,11 +89,16 @@ case "$1" in
 		check_core_if_already_running
 		check_core_latest_version
 		;;
+	"update_core_from_luci")
+		update_core_from_luci=1
+		check_core_if_already_running
+		check_core_latest_version
+		;;
 	"remove_core")
 		"/etc/init.d/$NAME" stop
 		rm -rf "$UNM_DIR/core" "$UNM_DIR/core_local_ver" "$LOCK"
 		;;
 	*)
-		echo -e "Usage: $0/update.sh check_version | update_core | remove_core"
+		echo -e "Usage: $0 update_core | remove_core"
 		;;
 esac
