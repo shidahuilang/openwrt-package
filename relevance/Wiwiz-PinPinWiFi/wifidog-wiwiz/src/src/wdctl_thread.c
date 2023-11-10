@@ -60,6 +60,8 @@ extern	pthread_mutex_t	config_mutex;
 /* Defined in util.c */
 extern long served_this_session;	/* added by Wiwiz */
 
+int wdctl_socket_server;	/* added by Wiwiz */
+
 /* From commandline.c: */
 extern char ** restartargv;
 static void *thread_wdctl_handler(void *);
