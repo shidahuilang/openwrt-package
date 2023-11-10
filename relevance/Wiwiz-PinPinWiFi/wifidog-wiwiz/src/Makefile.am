@@ -7,7 +7,6 @@ docdir = ${prefix}/share/doc/wifidog-@VERSION@
 doc_DATA = \
   AUTHORS \
   COPYING \
-  INSTALL \
   NEWS \
   README \
   ChangeLog
