@@ -73,7 +73,7 @@ httpd * webserver = NULL;
 /* from commandline.c */
 extern char ** restartargv;
 extern pid_t restart_orig_pid;
-t_client *firstclient;
+t_client *_firstclient;	/* changed by wiwiz */
 
 /* from client_list.c */
 extern pthread_mutex_t client_list_mutex;
@@ -219,9 +219,9 @@ void get_clients_from_parent(void) {
 			/* End of parsing this command */
 			if (client) {
 				/* Add this client to the client list */
-				if (!firstclient) {
-					firstclient = client;
-					lastclient = firstclient;
+				if (!_firstclient) {	/* changed by wiwiz */
+					_firstclient = client;	/* changed by wiwiz */
+					lastclient = _firstclient;	/* changed by wiwiz */
 				}
 				else {
 					lastclient->next = client;

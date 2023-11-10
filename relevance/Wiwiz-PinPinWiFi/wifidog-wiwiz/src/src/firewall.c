@@ -78,7 +78,7 @@ extern pthread_mutex_t client_list_mutex;
 /* from commandline.c */
 extern pid_t restart_orig_pid;
 
-
+int icmp_fd;	/* added by wiwiz */
 
 /**
  * Allow a client access through the firewall by adding a rule in the firewall to MARK the user's packets with the proper
