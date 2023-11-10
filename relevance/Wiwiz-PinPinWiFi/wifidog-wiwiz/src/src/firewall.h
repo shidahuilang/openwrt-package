@@ -27,7 +27,8 @@
 #ifndef _FIREWALL_H_
 #define _FIREWALL_H_
 
-int icmp_fd;
+/* int icmp_fd; */
+extern int icmp_fd; /* changed by wiwiz */
 
 /** Used by fw_iptables.c */
 typedef enum _t_fw_marks {

@@ -29,7 +29,8 @@
 
 #define DEFAULT_WDCTL_SOCK	"/tmp/wdctl.sock"
 
-int wdctl_socket_server;
+/* int wdctl_socket_server; */
+extern int wdctl_socket_server; /* added by wiwiz */
 
 /** @brief Listen for WiFiDog control messages on a unix domain socket */
 void thread_wdctl(void *arg);
