@@ -43,7 +43,6 @@ luci-app-amlogic
 luci-app-autoipsetadder
 luci-app-autotimeset
 luci-app-bandwidthd
-luci-app-bypass
 luci-app-chatgpt
 luci-app-chinadns-ng
 luci-app-cifs-mount
