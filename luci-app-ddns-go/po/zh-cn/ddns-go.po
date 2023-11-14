@@ -37,4 +37,15 @@ msgstr "收集数据..."
 msgid "update interval"
 msgstr "更新间隔"
 
+msgid "Skip verifying certificates"
+msgstr "跳过验证证书"
+
+msgid "Compare with service provider N times intervals"
+msgstr "间隔N次与服务商比对"
+
+msgid "Specify DNS resolution server"
+msgstr "指定DNS解析服务器"
+
+msgid "Do not start web services"
+msgstr "不启动web服务"
 
