@@ -84,11 +84,8 @@ luci-app-nodogsplash
 luci-app-oaf
 luci-app-oled
 luci-app-onliner
-luci-app-openclash
 luci-app-oscam
 luci-app-partexp
-luci-app-passwall
-luci-app-passwall2
 luci-app-poweroff
 luci-app-pppoe-server
 luci-app-pushbot
@@ -99,7 +96,6 @@ luci-app-smartdns
 luci-app-smartinfo
 luci-app-socat
 luci-app-ssr-mudb-server
-luci-app-ssr-plus
 luci-app-store
 luci-app-supervisord
 luci-app-switch-lan-play
