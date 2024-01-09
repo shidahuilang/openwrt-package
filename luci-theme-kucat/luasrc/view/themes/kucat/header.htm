@@ -1,5 +1,5 @@
  <%#
-    Copyright 2019-2023 sirpdboy <sirpdboy@qq.com>
+    Copyright 2019-2023 sirpdboy <herboy2008@gmail.com>
 	luci-theme-material: 
 	Copyright 2015 Lutty Yang <lutty@wcan.in>
 	luci-theme-bootstrap:
@@ -195,66 +195,80 @@
 		end
 	end
 	
+	
 	local theme_dir = resource .. "/background/"
 	if not fs.access("/www" .. resource .. "/background/") then
 	   local theme_dir = media .. "/background/"
 	end
-  	local remote_bg_url="http://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=3&mkt=en-US"
 	local bingUrl = "http://www.bing.com/"
 	local dark_css = fs.readfile('/www/luci-static/kucat/css/dark.css')
 	local bg_url = media.."/img/bg1.jpg"
+	local bg_lock = bg_url
 	local bar="/cgi-bin/luci/admin/"
 	local mode = 'light'
-	local primary = '#3cba92'
-	local primary_body = '#f8f8f8'
-	local primary_rgb = '217,217,217'
-	local primary_rgbs = '179, 179, 179'
-	local primary_rgb_ts = '0.3'
     local home = "overview" 
     local user = "admin" 
-    local ssr = "shadowsocksr" 
-	local advanced = "netwizard"
+    local setbar = "1"
+	local bgqs = '1'
+    local showword = sys.exec("cat /www/luci-static/kucat/img/logoword")
+    local showurl = sys.exec("cat /www/luci-static/kucat/img/logourl")
+    local ssr = "" 
     local gohome = bar .. "status/"  ..home
     local gouser = bar .. "system/"  ..user
     local gossr = bar .. "services/"  ..ssr
-    local goadvanced = bar .. "system/"  ..advanced
 	local background = '0' 
 	local fontd = '1.2rem' 
 	local fontz = '0.92rem' 
-	local fontx = '0.875rem' 
+	local fontx = '0.875rem'
+	local primary_rgbbody = '248,248,248'
+	local primary_rgbm = '45,102,147'
+	local primary_rgbm_ts = '0.8'
+	local primary_rgbs = '132,188,218'
+	local primary_rgbs_ts = '0.1'
+	local primary_opacity = '0'
+	local bkuse = '0'
+	local bk_use='none'
+	local bklock = '1'
+	local dayword = '0'
 	if fs.access('/etc/config/advancedplus') then
-		primary = uci:get_first('advancedplus', 'basic', 'primary')
-		primary_body = uci:get_first('advancedplus', 'basic', 'primary_body')
-		primary_rgb = uci:get_first('advancedplus', 'basic', 'primary_rgb')
+		primary_rgbbody = uci:get_first('advancedplus', 'basic', 'primary_rgbbody')
+		primary_rgbm = uci:get_first('advancedplus', 'basic', 'primary_rgbm')
+		primary_rgbm_ts = uci:get_first('advancedplus', 'basic', 'primary_rgbm_ts')
+		primary_opacity = uci:get_first('advancedplus', 'basic', 'primary_opacity')
 		primary_rgbs = uci:get_first('advancedplus', 'basic', 'primary_rgbs')
-		primary_rgb_ts = uci:get_first('advancedplus', 'basic', 'primary_rgb_ts')
+		primary_rgbs_ts = uci:get_first('advancedplus', 'basic', 'primary_rgbs_ts')
 		mode = uci:get_first('advancedplus', 'basic', 'mode')
-		advanced = "advancedplus"
+		setbar = uci:get_first('advancedplus', 'basic', 'setbar')
 		home =  uci:get_first('advancedplus', 'basic', 'gohome')
 		user = uci:get_first('advancedplus', 'basic', 'gouser')
 		ssr =  uci:get_first('advancedplus', 'basic', 'gossr')
-        goadvanced = bar .. "system/"  ..advanced
 		gohome = bar .. "status/" .. home
 		gouser = bar .. "system/" .. user
 		gossr = bar .. "services/" .. ssr
 		background = uci:get_first('advancedplus', 'basic', 'background')
+		bkuse = uci:get_first('advancedplus', 'basic', 'bkuse')
+		bklock = uci:get_first('advancedplus', 'basic', 'bklock')
 		fontd = uci:get_first('advancedplus', 'basic', 'font_d')
 		fontz = uci:get_first('advancedplus', 'basic', 'font_z')
 		fontx = uci:get_first('advancedplus', 'basic', 'font_x')
-		mode_color = primary
+		bgqs = uci:get_first('advancedplus', 'basic', 'bgqs')
+		dayword = uci:get_first('advancedplus', 'basic', 'dayword')
 	end
-	
-function getBing()
-    local bing = sys.exec("wget --timeout=0.5 -qO- '%s'" %remote_bg_url)
-    if (bing and bing ~= '') then
-        bg_url = bingUrl .. json.parse(bing).images[1].url
-    end
-end
+	local primary_ufilter =  "saturate(150%) contrast(50%) blur(" .. primary_opacity .. "px)"
+	if primary_opacity == '0' then
+	    primary_ufilter = 'none'
+	end
+	local bgqs_image = '-webkit-linear-gradient(45deg, rgba(255, 255, 255, 0.2) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.2) 75%, transparent 75%, transparent)'
+	local bgqs_color = 'rgba(var(--primary-rgbm),var(--primary-rgbm-ts))'
+	if bgqs == '1' then
+	    bgqs_image = 'none'	
+	end
+
 function downunsplashUrl()
     local check = 1
     if fs.access('/tmp/kucatunsplash.tmp') then
         local localtime = sys.exec("a=$(date +%Y%m%d) && cat /tmp/kucatunsplash.tmp | grep $a")
-        if localtime then 
+        if localtime ~= '' then 
                 check = 0 
         end
     end
@@ -271,16 +285,16 @@ function downbingUrl()
     local check = 1
     if fs.access('/tmp/kucatbing.tmp') then
         local localtime = sys.exec("cat /tmp/kucatbing.tmp | grep `date +%Y%m%d`")
-        if localtime then 
-						check = 0 
-				end
+        if localtime ~= '' then 
+			 check = 0 
+		end
     end
     if check == 1 or not fs.access('/www/luci-static/kucat/img/down3.jpg') then
             local dbing = sys.exec("curl -s 'http://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=3&mkt=en-US'" )
             if (dbing and dbing ~= '') then
-               bingUrl = bingUrl .. json.parse(dbing).images[1].url
+               bUrl = bingUrl .. json.parse(dbing).images[1].url
             end
-        sys.exec("curl -kLfsm 5 -o /www/luci-static/kucat/img/down3.jpg  '%s'" %bingUrl)
+        sys.exec("curl -kLfsm 5 -o /www/luci-static/kucat/img/down3.jpg  '%s'" %bUrl)
         sys.exec("date +%Y%m%d > /tmp/kucatbing.tmp")
     end
     if fs.access('/www/luci-static/kucat/img/down3.jpg') then
@@ -288,20 +302,28 @@ function downbingUrl()
     end
 end
 
-function downIcibaUrl()
+function downIcibaword()
     local check = 1
-    if fs.access('/tmp/kucaticiba.tmp') then
-        local localtime = sys.exec("cat /tmp/kucaticiba.tmp | grep `date +%Y%m%d`")
-        if localtime then
-           check = 0
+    if fs.access('/tmp/kucaticibaword.tmp') then
+        local localtime = sys.exec("cat /tmp/kucaticibaword.tmp | grep `date +%Y%m%d`")
+        if localtime ~= '' then 
+			 check = 0 
         end
     end
-    if check == 1 or not fs.access('/www/luci-static/kucat/img/down4.jpg') then
-io.popen("curl -kLfsm 3 -o /www/luci-static/kucat/img/down4.jpg  $(curl -s 'https://zhouxiaoben.info/iciba/dsapi' | awk -F 'picture4\":\"' '{print $2}' | awk -F '\"' '{print $1}') ")
-        sys.exec("date +%Y%m%d  > /tmp/kucaticiba.tmp")
+    if check == 1 or not fs.access('/tmp/showword.tmp') then
+	
+	   local localword = sys.exec("a=`curl -kLfsm 5 https://v1.hitokoto.cn | awk -F 'hitokoto\":\"' '{print $2}'| awk -F '\"' '{print $1}' ` && printf $a ")
+	  if localword  ~= '' then
+	      sys.exec("a=`curl -kLfsm 5 https://v1.hitokoto.cn | awk -F 'hitokoto\":\"' '{print $2}'| awk -F '\"' '{print $1}' ` && echo -e $a >/tmp/showword.tmp")
+          sys.exec("date +%Y%m%d  > /tmp/kucaticibaword.tmp")
+	  end
     end
-    if fs.access('/www/luci-static/kucat/img/down4.jpg') then
-        bg_url = media .. "/img/down4.jpg"
+
+    if fs.access('/tmp/showword.tmp') then
+        localword = sys.exec("a=`cat /tmp/showword.tmp` && printf $a ")
+        if localword ~= '' then 
+			 showword = localword
+        end
     end
 end
 
@@ -309,7 +331,7 @@ function downbirdUrl()
     local check = 1
     if fs.access('/tmp/kucatbird.tmp') then
         local localtime = sys.exec("cat /tmp/kucatbird.tmp | grep `date +%Y%m%d` ")
-        if localtime then 
+        if localtime ~= '' then 
             check = 0
         end
     end
@@ -352,16 +374,45 @@ if ( background == "0" ) then
 		    currentBg = bgs[math.random(1,bgcount)]
 		    bg_url = currentBg.url
 		end
-elseif  ( background == "1" )  then
-		    pcall(getBing)
 elseif  ( background == "2" )  then
 		    pcall(downunsplashUrl)
 elseif background == "3" then
 		    pcall(downbingUrl)
 elseif background == "4" then
-		    pcall(downIcibaUrl)
-elseif background == "5" then
 		    pcall(downbirdUrl)
+end
+
+if bklock == '1' then
+	bg_lock = bg_url
+else
+		math.randomseed(os.time())
+		local bk_dir = media .. "/bg/"
+		local bkcount = 0
+		local currentbk = {}
+		local bgs,attr = {}
+		for i, f in ipairs(glob("/www" .. bk_dir .. "*")) do
+					attr = fs.stat(f)
+					if attr then
+						local ext = getExtension(fs.basename(f))
+						if ext == "jpg" or ext == "png" or ext == "gif"  then
+								local bg = {}
+								bg.type = ext
+								bg.url = bk_dir .. fs.basename(f)
+								table.insert(bgs,bg)
+								bkcount = bkcount + 1
+						end
+					end
+		end
+		if bkcount > 0 then
+		    currentbk = bgs[math.random(1,bkcount)]
+		    bg_lock = currentbk.url
+		end
+end
+if dayword == '1' then
+   pcall(downIcibaword)
+end
+if bkuse == '1'  then
+   bk_use='url('..bg_lock..')'
 end
 %>
 
@@ -369,13 +420,10 @@ end
 <html lang="<%=luci.i18n.context.lang%>">
 <head>
 	<meta charset="utf-8">
-	<title>
-		<%=striptags( (boardinfo.hostname or "?") .. ( (node and node.title) and ' - ' .. translate(node.title) or '')) %>
-		- LuCI</title>
 	<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
+    <link rel="manifest" href="<%=media%>/manifest.json">
+	<title>	<%=striptags( (boardinfo.hostname or "?") .. ( (node and node.title) and ' - ' .. translate(node.title) or '')) %>	- LuCI</title>
 	<meta name="format-detection" content="telephone=no, email=no" />
-	<meta name="apple-mobile-web-app-capable" content="yes">
-	<meta name="mobile-web-app-capable" content="yes">
     <meta name="x5-fullscreen" content="true">
     <meta name="full-screen" content="yes">
     <meta name="x5-page-mode" content="app">
@@ -388,25 +436,40 @@ end
 	<meta name="msapplication-TileImage" content="<%=media%>/logo.png"/>
 	<meta name="msapplication-TileColor" content="<%=bar_color%>">
 	<meta name="theme-color" content="<%=bar_color%>">
-	<link rel="icon" href="<%=media%>/logo.png" sizes="144x144">
-	<link rel="apple-touch-icon-precomposed" href="<%=media%>/logo.png" sizes="144x144">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+	<link rel="shortcut icon" href="<%=media%>/favicon.ico" type="image/x-icon">
+	<link rel="icon" href="<%=media%>/logo.png" type="image/png">
+    <link rel="apple-touch-icon" sizes="180x180" href="<%=media%>/img/apple-touch-icon.png">
+	<link rel="apple-touch-icon-precomposed" href="<%=media%>/img/applelogo144.png" sizes="144x144">
+	<link rel="icon" type="image/png" sizes="16x16" href="<%=media%>/img/logo16.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="<%=media%>/img/logo32.png">
+	<link rel="icon" type="image/png" sizes="48x48" href="<%=media%>/img/logo48.png">
+	<link rel="icon" type="image/png" sizes="64x64" href="<%=media%>/img/logo64.png">
+	<link rel="icon" type="image/png" sizes="96x96" href="<%=media%>/img/logo96.png">
+	<link rel="icon" type="image/png" sizes="192x192" href="<%=media%>/logo.png">
+	<script src="<%=resource%>/cbi.js<%# ?v=PKG_VERSION %>"></script>
+	<script src="<%=resource%>/xhr.js<%# ?v=PKG_VERSION %>"></script>
+	<script src="<%=media%>/js/jquery.min.js<%# ?v=PKG_VERSION %>"></script>
 	<link rel="stylesheet" href="<%=media%>/css/style.css?v=<%=math.random(1,100000)%>">
 	<style title="text/css">
 	<% if mode == 'dark' then %>
 		<%=dark_css%>
 	<% end -%>
-	<% if fs.access('/etc/config/advancedplus') then %>
 	:root {
-		--primary: <%=primary%>;
-		--primary-body:<%=primary_body%>;
-		--primary-rgb: <%=primary_rgb%>;
+		--primary-rgbbody:<%=primary_rgbbody%>;
+		--primary-rgbm: <%=primary_rgbm%>;
+		--primary-rgbm-ts: <%=primary_rgbm_ts%>;
 		--primary-rgbs: <%=primary_rgbs%>;
-		--primary-rgb-ts: <%=primary_rgb_ts%>;
+		--primary-rgbs-ts: <%=primary_rgbs_ts%>;
+		--primary-ufilter: <%=primary_ufilter%>;
 		--font-d: <%=fontd%>;
 		--font-z: <%=fontz%>;
 		--font-x: <%=fontx%>;
+		--theme-background: <%=bk_use%>;
+		--bgqs-image: <%=bgqs_image%>;
+		--bgqs-color: <%=bgqs_color%>;
 	}
-	
 	img[src*="/luci-static/resources/cbi/add.gif"] {
     background-image: url(<%=media%>/img/add.png);
 	}
@@ -418,29 +481,42 @@ end
 	img[src*="/luci-static/resources/cbi/reload.gif"] {
     background-image: url(<%=media%>/img/reload.png);
 	}
+	<% if setbar == "1" then %>
+	header.bar-primary .container-bar-left {
+ 	   width: 300px;
+ 	   display: block;
+	}
+	header.bar-primary .container-bar-right {
+	    width: 0;
+ 	   display: none;
+	}
+	<% else %>
+	header.bar-primary .container-bar-left {
+ 	   width: 0;
+ 	   display: none;
+	}
+	header.bar-primary .container-bar-right {
+    	width: 50px;
+	    display: block;
+	}
 	<% end -%>
 	<% if css then %>
 	    <%=css %>
 	<% end -%>
 	 </style>
-	<link rel="shortcut icon" href="<%=media%>/favicon.ico"> 
 	<% if node and node.css then %>
 	<link rel="stylesheet" href="<%=resource%>/<%=node.css%>">
 	<% end -%>
-	<script src="<%=resource%>/cbi.js<%# ?v=PKG_VERSION %>"></script>
-	<script src="<%=resource%>/xhr.js<%# ?v=PKG_VERSION %>"></script>
-	<script src="<%=media%>/js/jquery.min.js<%# ?v=PKG_VERSION %>"></script>
+
 </head>
 <body class="lang_<%=luci.i18n.context.lang%> <%- if node then %> <%= striptags( node.title ) %><%- end %> <% if luci.dispatcher.context.authsession then %>logged-in<% end %> <%=mode %> ">
 <header class="bar-primary">
 		<div id="header-bar-left" class="container-bar-left">
 			<a class="labelbar pdboy-closebar" href="javascript:void(0)" onclick="pdclosebar()" title="Close" ></a>
   			<a class="labelbar pdboy-gohome" href="<%=gohome%>" title="<%=home%>"></a>
-  		    <a class="labelbar pdboy-goadvanced" href="<%=goadvanced%>" title="<%=advanced%>"></a>
-  		    <a class="labelbar pdboy-gocontrol" href="<%=url("admin/control/parentcontrol")%>" title="<%:Parent Control%>"></a>
+  		    <a class="labelbar pdboy-goadvanced" href="<%=gouser%>" title="<%=user%>"></a>
   			<a class="labelbar pdboy-gossr" href="<%=gossr%>" title="<%=ssr%>"></a>
   		    <a class="labelbar pdboy-gonet" href="<%=url("admin/network/network")%>" title="<%:Network%>"></a>
-  		    <a class="labelbar pdboy-gouser" href="<%=gouser%>" title="<%=user%>"></a>
   		    <a class="labelbar pdboy-gopoweroff" href="<%=url("admin/system/reboot")%>" title="<%:Reboot%>"></a>
 		</div>
 		<div id="header-bar-right" class="container-bar-right">
@@ -448,6 +524,8 @@ end
 		</div>
 </header>
 <div class="main">
+    <div style="" class="loading">
+    </div>
     <div class="main-left">
         <div class="sidenav-header d-flex align-items-center">
             <a class="brand" href="#"><%=boardinfo.hostname or "?"%></a> 
@@ -455,21 +533,25 @@ end
         <% render_topmenu() %>
     </div>
 	<div class="main-right">
-            <header class="bg-primary">
-                <div class="fill">
-                    <div class="container">
-                        <a class="showSide"></a>
-                        <a class="brand" href="#"><%=boardinfo.hostname or "?"%></a>
-                        <div class="pull-right">
+	            <header class="pd-primary">
+    	        <div class="fill">
+	        	    <div class="container">
+						<div class="flex1">
+							<a class="showSide"  title="<%:Menu%>" ></a>
+							<a class="brand" href="#"><%=striptags(boardinfo.hostname or "OpenWrt")%></a>
+						</div>
+						<% if dayword == '1' then %>
+						<a class="showWord" href="<%=showurl%>"><%=showword%></a>
+						<% end -%>
                             <% render_changes() %>
                             <span id="xhr_poll_status" style="display:none" onclick="XHR.running() ? XHR.halt() : XHR.run()">
                                 <a  class="pdboy-status_on" id="xhr_poll_status_on"  title="Disable Refresh"></a>
                                 <a  class="pdboy-status_off" id="xhr_poll_status_off" style="display:none"  title="Enable Refresh"></a>
                             </span>
-                           <span  title="Logout"> <a class="pdboy-qlogout" href="<%=url("admin/logout")%>"></a></span>
-                        </div>
-                    </div>
-                </div>
+
+                        <span > <a class="pdboy-qlogout" href="<%=url("admin/logout")%>" title="<%:Logout%>" > </a></span>
+                	</div>
+               </div>
             </header>
 		<div class="darkMask"></div>
 		<div class="login-bg" style="background-image:url(<%=bg_url%>)"></div>
