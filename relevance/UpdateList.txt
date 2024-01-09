@@ -5,12 +5,7 @@ luci-app-netkeeper-interception
 luci-app-smartdns
 luci-proto-netkeeper
 luci-theme-argon
-luci-theme-bootstrap-mod
 luci-theme-design
-luci-theme-neobird
-luci-theme-neobird2
-luci-theme-opentomato
-luci-theme-opentomcat
 netkeeper-interception
 netkeeper
 smartdns

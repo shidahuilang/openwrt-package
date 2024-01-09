@@ -671,9 +671,9 @@ span[data-indicator="uci-changes"] {
 	margin: .5rem 0;
 }
 
-.alert-message .btn {
+/*.alert-message .btn {
 	padding: .3rem .6rem;
-}
+}*/
 
 .container .alert,
 .container .alert-message {
