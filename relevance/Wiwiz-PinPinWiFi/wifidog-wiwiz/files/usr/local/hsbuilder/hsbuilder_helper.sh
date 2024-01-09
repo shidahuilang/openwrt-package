@@ -164,6 +164,14 @@ else
 	fi
 fi
 
+_p=$(iptables -L -n | grep -i 'wifidog' 2>/dev/null)
+if [ "$_p" = "" ]; then
+	killall -9 wifidog 2>/dev/null
+	sleep 3
+	$WIFIDOG_START
+	echo "Helper: $(date) Firewall not ok, wifidog restarted." >>$LOGFILE
+	exit 0	
+fi
 
 #wdctl status
 #CODE="$?"
