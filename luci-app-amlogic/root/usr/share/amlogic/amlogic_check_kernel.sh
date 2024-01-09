@@ -142,7 +142,7 @@ check_kernel() {
 
     # Check the version on the server
     latest_version="$(
-        curl -fsSL \
+        curl -fsSL -m 10 \
             ${kernel_api}/releases/expanded_assets/kernel_${kernel_tag} |
             grep -oE "${main_line_version}.[0-9]+.tar.gz" | sed 's/.tar.gz//' |
             sort -urV | head -n 1
@@ -178,7 +178,8 @@ download_kernel() {
     rm -rf ${KERNEL_DOWNLOAD_PATH}/${download_version}*
 
     kernel_down_from="https://github.com/${kernel_repo}/releases/download/kernel_${kernel_tag}/${download_version}.tar.gz"
-    wget "${kernel_down_from}" -q -P "${KERNEL_DOWNLOAD_PATH}"
+
+    curl -fsSL "${kernel_down_from}" -o ${KERNEL_DOWNLOAD_PATH}/${download_version}.tar.gz
     [[ "${?}" -ne "0" ]] && tolog "03.03 The kernel download failed." "1"
 
     tar -xf ${KERNEL_DOWNLOAD_PATH}/${download_version}.tar.gz -C ${KERNEL_DOWNLOAD_PATH}

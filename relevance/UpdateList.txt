@@ -37,7 +37,6 @@ filebrowser
 frp
 gost
 gowebdav
-iptvhelper
 ipv6-helper
 k3-brcmfmac4366c-firmware
 k3screenctrl
@@ -82,7 +81,6 @@ luci-app-gowebdav
 luci-app-guest-wifi
 luci-app-ikoolproxy
 luci-app-ipsec-server
-luci-app-iptvhelper
 luci-app-istorex
 luci-app-linkease
 luci-app-lucky
