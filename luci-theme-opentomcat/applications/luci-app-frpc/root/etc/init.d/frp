@@ -1,0 +1,209 @@
+#!/bin/sh /etc/rc.common
+#Author: monokoo <realstones2012@gmail.com>
+#Thanks to FW867's help
+
+USE_PROCD=1
+START=99
+
+LOGFILE="/var/etc/frp/frpc.log"
+
+echo_date(){
+	local log=$1
+	echo $(date +%Y/%m/%d\ %X): "$log" >> $LOGFILE
+}
+
+Reduce_Log(){
+	local log=$1
+	[ ! -f "$log" ] && return
+	local sc=200
+	[ -n "$2" ] && sc=$2
+	local count=$(grep -c "" $log)
+	if [ $count -gt $sc ];then
+		let count=count-$sc
+		sed -i "1,$count d" $log
+	fi
+}
+
+conf_proxy_add() {
+
+	local cfg="$1"
+	local tmpconf="$2"
+	local enable type domain_type custom_domains remote_port local_ip local_port enable_http_auth enable_host_header_rewrite host_header_rewrite
+	local subdomain proxy_protocol_version use_encryption use_compression http_user http_pwd remark locations
+	local enable_plugin plugin plugin_http_user plugin_http_passwd plugin_unix_path stcp_role stcp_secretkey stcp_servername
+        local enable_https_plugin https_plugin plugin_local_addr plugin_crt_path plugin_key_path plugin_host_header_rewrite plugin_header_X_From_Where
+	
+	config_get_bool enable "$cfg" enable 1
+	[ "$enable" -gt 0 ] || return 1
+	
+	config_get type "$cfg" type
+	config_get custom_domains "$cfg" custom_domains
+	config_get subdomain "$cfg" subdomain
+	config_get remote_port "$cfg" remote_port
+	config_get local_ip "$cfg" local_ip
+	config_get local_port "$cfg" local_port
+	config_get locations "$cfg" locations
+	config_get host_header_rewrite "$cfg" host_header_rewrite
+	config_get http_user "$cfg" http_user
+	config_get http_pwd "$cfg" http_pwd
+	config_get remark "$cfg" remark
+	config_get plugin "$cfg" plugin
+	config_get plugin_http_user "$cfg" plugin_http_user
+	config_get plugin_http_passwd "$cfg" plugin_http_passwd
+	config_get plugin_unix_path "$cfg" plugin_unix_path
+	config_get stcp_role "$cfg" stcp_role
+	config_get stcp_secretkey "$cfg" stcp_secretkey
+	config_get stcp_servername "$cfg" stcp_servername
+	config_get proxy_protocol_version "$cfg" proxy_protocol_version
+	config_get https_plugin "$cfg" https_plugin
+	config_get plugin_local_addr "$cfg" plugin_local_addr
+	config_get plugin_crt_path "$cfg" plugin_crt_path
+	config_get plugin_key_path "$cfg" plugin_key_path
+	config_get plugin_host_header_rewrite "$cfg" plugin_host_header_rewrite
+	config_get plugin_header_X_From_Where "$cfg" plugin_header_X_From_Where
+
+
+	[ -n "$remark" ] && [ -n "$type" ] || return 1
+	
+	echo "" >>$tmpconf
+	echo "[$remark]" >>$tmpconf
+	echo "type=$type" >>$tmpconf
+	[ -n "$custom_domains" ] && echo "custom_domains=$custom_domains" >>$tmpconf
+	[ -n "$subdomain" ] && echo "subdomain=$subdomain" >>$tmpconf
+	[ -n "$remote_port" ] && echo "remote_port=$remote_port" >>$tmpconf
+	[ -z "$stcp_role" ] && [ -n "$local_ip" ] && echo "local_ip=$local_ip" >>$tmpconf
+	[ -z "$stcp_role" ] && [ -n "$local_port" ] && echo "local_port=$local_port" >>$tmpconf
+	[ -n "$locations" ] && echo "locations=$locations" >>$tmpconf
+	[ -n "$http_user" -a -n "$http_pwd" ] && {
+		echo "http_user=$http_user" >>$tmpconf
+		echo "http_pwd=$http_pwd" >>$tmpconf
+	}
+	[ -n "$host_header_rewrite" ] && echo "host_header_rewrite=$host_header_rewrite" >>$tmpconf
+	[ -n "$plugin" ] && echo "plugin=$plugin" >>$tmpconf
+	[ -n "$plugin_http_user" -a -n "$plugin_http_passwd" ] && {
+		echo "plugin_http_user=$plugin_http_user" >>$tmpconf
+		echo "plugin_http_passwd=$plugin_http_passwd" >>$tmpconf
+	}
+	[ -n "$plugin_unix_path" ] && echo "plugin_unix_path=$plugin_unix_path" >>$tmpconf
+	
+	[ -n "$stcp_role" ] && {
+		if [ "$stcp_role" == "visitor" ]; then
+			echo "role=$stcp_role" >>$tmpconf
+			[ -n "$local_ip" ] && echo "bind_addr=$local_ip" >>$tmpconf
+			[ -n "$local_port" ] && echo "bind_port=$local_port" >>$tmpconf
+			[ -n "$stcp_servername" ] && echo "server_name=$stcp_servername" >>$tmpconf || return 1
+		else
+			[ -n "$local_ip" ] && echo "local_ip=$local_ip" >>$tmpconf
+			[ -n "$local_port" ] && echo "local_port=$local_port" >>$tmpconf
+		fi
+		[ -n "$stcp_secretkey" ] && echo "sk=$stcp_secretkey" >>$tmpconf || return 1
+	}
+	
+	[ -n "$proxy_protocol_version" ] && {
+		if [ "$proxy_protocol_version" != "disable" ]; then
+			echo "proxy_protocol_version=$proxy_protocol_version" >>$tmpconf
+		fi
+	}
+
+	[ -n "$https_plugin" ] && echo "plugin=$https_plugin" >>$tmpconf
+	[ -n "$plugin_local_addr" ] && echo "plugin_local_addr=$plugin_local_addr" >>$tmpconf
+	[ -n "$plugin_crt_path" -a -n "$plugin_key_path" ] && {
+		echo "plugin_crt_path=$plugin_crt_path" >>$tmpconf
+		echo "plugin_key_path=$plugin_key_path" >>$tmpconf
+	}
+	[ -n "$plugin_host_header_rewrite" ] && echo "plugin_host_header_rewrite=$plugin_host_header_rewrite" >>$tmpconf
+	[ -n "$plugin_header_X_From_Where" ] && echo "plugin_header_X_From_Where=$plugin_header_X_From_Where" >>$tmpconf	
+
+	frp_write_bool use_encryption $cfg 1
+	frp_write_bool use_compression $cfg 1
+
+}
+
+frp_write_bool() {
+	local opt="$1"
+	local config="$2"
+	local def="$3"
+	local val
+
+	config_get_bool val $config "$opt" "$def"
+	if [ "$val" -eq 0 ]; then
+		echo "${opt}=false" >> $tmpconf
+	else
+		echo "${opt}=true" >> $tmpconf
+	fi
+}
+
+start_service() {
+	config_load "frp"
+	local enabled server_addr server_port privilege_token user tcp_mux enable_cpool tls_enable
+	local pool_count log_level log_max_days login_fail_exit http_proxy protocol admin_port admin_user admin_pwd
+
+	config_get_bool enabled common enabled 1
+
+	[ "$enabled" -gt 0 ] || return 1
+
+	config_get server_addr common server_addr
+	config_get server_port common server_port
+	config_get token common token
+	config_get user common user
+	config_get enable_cpool common enable_cpool
+	config_get pool_count common pool_count
+	config_get log_level common log_level
+	config_get log_max_days common log_max_days
+	config_get http_proxy common http_proxy
+	config_get protocol common protocol
+	config_get admin_port common admin_port
+	config_get admin_user common admin_user
+	config_get admin_pwd common admin_pwd
+
+
+	mkdir -p /var/etc/frp
+	[ -f "$LOGFILE" ] || touch $LOGFILE
+	
+	[ -e "/usr/bin/frpc" ] || ( logger -t Frp 'frpc not found.'; exit 1; )
+
+	local tmpconf="/var/etc/frp/frpc.conf"
+
+	echo "[common]" >$tmpconf
+	echo "server_addr=${server_addr}" >>$tmpconf
+	echo "server_port=${server_port}" >>$tmpconf
+	echo "token=${token}" >>$tmpconf
+	[ -n "$user" ] && echo "user=$user" >>$tmpconf
+	echo "log_level=${log_level}" >>$tmpconf
+	echo "log_max_days=${log_max_days}" >>$tmpconf
+	echo "protocol=${protocol}" >>$tmpconf
+	echo "log_file=$LOGFILE" >>$tmpconf
+	[ -n "$http_proxy" ] && echo "http_proxy=$http_proxy" >>$tmpconf
+	[ -n "$pool_count" ] && echo "pool_count=$pool_count" >>$tmpconf
+	[ -n "$admin_port" ] && echo "admin_addr=0.0.0.0" >>$tmpconf && echo "admin_port=$admin_port" >>$tmpconf
+	[ -n "$admin_user" ] && echo "admin_user=$admin_user" >>$tmpconf
+	[ -n "$admin_pwd" ] && echo "admin_pwd=$admin_pwd" >>$tmpconf
+
+	frp_write_bool tcp_mux common 1
+	frp_write_bool tls_enable common 0
+	frp_write_bool login_fail_exit common 1
+	config_foreach conf_proxy_add proxy "$tmpconf"
+
+	[ "$(cat "$tmpconf" | grep -c "type=")" -gt 0 ] || ( echo_date "frp服务启动失败，请首先添加服务列表！"; exit 0; )
+	logger -t FRPC 'Starting frp service'
+
+	procd_open_instance frp
+	procd_set_param command /usr/bin/frpc
+	procd_append_param command -c $tmpconf
+	procd_set_param respawn ${respawn_threshold:-3600} ${respawn_timeout:-5} ${respawn_retry:-10}
+	procd_close_instance
+}
+
+stop_service() {
+	logger -t FRPC 'Shutting down frp service'
+	Reduce_Log $LOGFILE
+}
+
+reload_service() {
+	stop
+	start
+}
+
+service_triggers() {
+	procd_add_reload_trigger "frp"
+}

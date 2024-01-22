@@ -1,0 +1,58 @@
+# Generated from applications/luci-wol/luasrc/model/cbi/wol.lua
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-04-19 00:29+0200\n"
+"PO-Revision-Date: 2021-05-18 05:32+0000\n"
+"Last-Translator: semih <semiht@gmail.com>\n"
+"Language-Team: Turkish <https://hosted.weblate.org/projects/openwrt/"
+"luciapplicationswol/tr/>\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 4.7-dev\n"
+
+msgid "Broadcast on all interfaces"
+msgstr ""
+
+msgid "Choose the host to wake up or enter a custom MAC address to use"
+msgstr "Uyandırmak için bir cihaz seçin ya da elle bir MAC adresi girin"
+
+msgid "Host to wake up"
+msgstr "Uyandırılacak cihaz"
+
+msgid "Network interface to use"
+msgstr "Kullanılacak ağ arayüzü"
+
+msgid "Send to broadcast address"
+msgstr "Yayın adresine gönder"
+
+msgid ""
+"Sometimes only one of the two tools works. If one fails, try the other one"
+msgstr ""
+"Bazen iki araçtan yalnızca biri çalışır. Biri başarısız olursa diğerini "
+"deneyin"
+
+msgid "Specifies the interface the WoL packet is sent on"
+msgstr "WoL paketinin gönderildiği arayüzü belirtir"
+
+msgid "Starting WoL utility:"
+msgstr ""
+
+msgid "Wake on LAN"
+msgstr "Wake on LAN"
+
+msgid ""
+"Wake on LAN is a mechanism to remotely boot computers in the local network."
+msgstr ""
+"Wake on LAN, yerel ağdaki bilgisayarları uzaktan uyandırma mekanizmasıdır."
+
+msgid "Wake up host"
+msgstr "Cihazı uyandır"
+
+msgid "WoL program"
+msgstr "WoL uygulaması"

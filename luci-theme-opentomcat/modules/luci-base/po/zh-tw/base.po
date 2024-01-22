@@ -1,0 +1,3901 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"PO-Revision-Date: 2021-05-02 20:06+0000\n"
+"Last-Translator: Trevor <wowpapa3232@gmail.com>\n"
+"Language-Team: Chinese (Traditional) <https://hosted.weblate.org/projects/"
+"openwrt/luci/zh_Hant/>\n"
+"Language: zh_Hant\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 4.7-dev\n"
+
+msgid "%s is untagged in multiple VLANs!"
+msgstr "%s 在多個 VLAN 中未選！"
+
+msgid "(%d minute window, %d second interval)"
+msgstr "(%d 分鐘視窗, %d 秒間隔)"
+
+msgid "(%s available)"
+msgstr "(%s 可用)"
+
+msgid "(empty)"
+msgstr "(空白)"
+
+msgid "(no interfaces attached)"
+msgstr "（未連接介面）"
+
+msgid "-- Additional Field --"
+msgstr "-- 額外欄位 --"
+
+msgid "-- Please choose --"
+msgstr "-- 請選擇 --"
+
+msgid "-- custom --"
+msgstr "-- 自訂 --"
+
+msgid "-- match by device --"
+msgstr ""
+
+msgid "-- match by label --"
+msgstr "-- 依標籤匹配 --"
+
+msgid "-- match by uuid --"
+msgstr "-- 依 uuid 匹配 --"
+
+msgid "1 Minute Load:"
+msgstr "1分鐘負載:"
+
+msgid "15 Minute Load:"
+msgstr "15分鐘負載:"
+
+msgid "4-character hexadecimal ID"
+msgstr "4 字元十六進位 ID"
+
+msgid "464XLAT (CLAT)"
+msgstr "464XLAT (CLAT)"
+
+msgid "5 Minute Load:"
+msgstr "5分鐘負載:"
+
+msgid "6-octet identifier as a hex string - no colons"
+msgstr "6個八位元組識別碼作為十六進位字串 - 無冒號"
+
+msgid "802.11r Fast Transition"
+msgstr "802.11r 快速切換"
+
+msgid "802.11w Association SA Query maximum timeout"
+msgstr "802.11w 關聯 SA 查詢最大逾時"
+
+msgid "802.11w Association SA Query retry timeout"
+msgstr "802.11w 關聯 SA 查詢重試逾時"
+
+msgid "802.11w Management Frame Protection"
+msgstr "802.11w 管理訊框保護"
+
+msgid "802.11w maximum timeout"
+msgstr "802.11w 最大逾時時間"
+
+msgid "802.11w retry timeout"
+msgstr "802.11w 重試逾時時間"
+
+msgid "<abbr title=\"Basic Service Set Identifier\">BSSID</abbr>"
+msgstr ""
+"<abbr title=\"Basic Service Set Identifier\">基本服務組識別碼 (BSSID)</abbr>"
+
+msgid "<abbr title=\"Domain Name System\">DNS</abbr> query port"
+msgstr "<abbr title=\"Domain Name System\">DNS</abbr> 查詢埠號"
+
+msgid "<abbr title=\"Domain Name System\">DNS</abbr> server port"
+msgstr "<abbr title=\"Domain Name System\">DNS</abbr> 伺服器埠號"
+
+msgid ""
+"<abbr title=\"Domain Name System\">DNS</abbr> servers will be queried in the "
+"order of the resolvfile"
+msgstr ""
+"將會按照解析文件的順序查詢<abbr title=\"Domain Name System\">DNS</abbr>伺服器"
+
+msgid "<abbr title=\"Extended Service Set Identifier\">ESSID</abbr>"
+msgstr ""
+"<abbr title=\"Extended Service Set Identifier\">擴充服務集定識別碼(ESSID)</"
+"abbr>"
+
+msgid "<abbr title=\"Internet Protocol Version 4\">IPv4</abbr>-Address"
+msgstr "<abbr title=\"Internet Protocol Version 4\">IPv4</abbr>-位址"
+
+msgid "<abbr title=\"Internet Protocol Version 4\">IPv4</abbr>-Gateway"
+msgstr "<abbr title=\"Internet Protocol Version 4\">IPv4</abbr>-閘道器"
+
+msgid "<abbr title=\"Internet Protocol Version 4\">IPv4</abbr>-Netmask"
+msgstr "<abbr title=\"Internet Protocol Version 4\">IPv4</abbr>-網路遮罩"
+
+msgid ""
+"<abbr title=\"Internet Protocol Version 6\">IPv6</abbr>-Address or Network "
+"(CIDR)"
+msgstr ""
+"<abbr title=\"Internet Protocol Version 6\">IPv6</abbr>-位址或網路(CIDR)"
+
+msgid "<abbr title=\"Internet Protocol Version 6\">IPv6</abbr>-Gateway"
+msgstr "<abbr title=\"Internet Protocol Version 6\">IPv6</abbr>-閘道"
+
+msgid "<abbr title=\"Internet Protocol Version 6\">IPv6</abbr>-Suffix (hex)"
+msgstr ""
+"<abbr title=\"Internet Protocol Version 6\">IPv6</abbr> 尾碼 (十六進位)"
+
+msgid "<abbr title=\"Light Emitting Diode\">LED</abbr> Configuration"
+msgstr "<abbr title=\"Light Emitting Diode\">LED</abbr> 組態"
+
+msgid "<abbr title=\"Light Emitting Diode\">LED</abbr> Name"
+msgstr "<abbr title=\"Light Emitting Diode\">LED</abbr> 名稱"
+
+msgid "<abbr title=\"Media Access Control\">MAC</abbr>-Address"
+msgstr "<abbr title=\"Media Access Control\">MAC</abbr>-硬體位址"
+
+msgid ""
+"<abbr title=\"maximal\">Max.</abbr> <abbr title=\"Dynamic Host Configuration "
+"Protocol\">DHCP</abbr> leases"
+msgstr ""
+"<abbr title=\"maximal\">最大</abbr> <abbr title=\"Dynamic Host Configuration "
+"Protocol\">DHCP</abbr> 租約"
+
+msgid ""
+"<abbr title=\"maximal\">Max.</abbr> <abbr title=\"Extension Mechanisms for "
+"Domain Name System\">EDNS0</abbr> packet size"
+msgstr ""
+"<abbr title=\"maximal\">最大</abbr> <abbr title=\"Extension Mechanisms for "
+"Domain Name System\">EDNS0</abbr> 封包大小"
+
+msgid "<abbr title=\"maximal\">Max.</abbr> concurrent queries"
+msgstr "<abbr title=\"maximal\">最大</abbr>同時查詢數量"
+
+msgid "<abbr title='Pairwise: %s / Group: %s'>%s - %s</abbr>"
+msgstr "<abbr title='Pairwise: %s / Group: %s'>%s - %s</abbr>"
+
+msgid ""
+"<br/>Note: you need to manually restart the cron service if the crontab file "
+"was empty before editing."
+msgstr ""
+"<br/>注意: 如果此'例行性工作排程'在編輯之前是空的, 您將需要重新啟動cron服務。"
+
+msgid "A43C + J43 + A43"
+msgstr "A43C + J43 + A43"
+
+msgid "A43C + J43 + A43 + V43"
+msgstr "A43C + J43 + A43 + V43"
+
+msgid "ADSL"
+msgstr "ADSL"
+
+msgid "AICCU (SIXXS)"
+msgstr ""
+
+msgid "ANSI T1.413"
+msgstr "ANSI T1.413"
+
+msgid "APN"
+msgstr "APN"
+
+msgid "ARP retry threshold"
+msgstr "ARP重試門檻"
+
+msgid "ATM (Asynchronous Transfer Mode)"
+msgstr "ATM (非同步傳輸模式)"
+
+msgid "ATM Bridges"
+msgstr "ATM橋接"
+
+msgid "ATM Virtual Channel Identifier (VCI)"
+msgstr "ATM虛擬通道識別(VCI)"
+
+msgid "ATM Virtual Path Identifier (VPI)"
+msgstr "ATM虛擬路徑識別(VPI)"
+
+msgid ""
+"ATM bridges expose encapsulated ethernet in AAL5 connections as virtual "
+"Linux network interfaces which can be used in conjunction with DHCP or PPP "
+"to dial into the provider network."
+msgstr ""
+"ATM橋接是以AAL5協定封裝乙太網路如同虛擬Linux網路界面卡，用於連接DHCP或PPP來撥"
+"號連接到網際網路。"
+
+msgid "ATM device number"
+msgstr "ATM裝置號碼"
+
+msgid "ATU-C System Vendor ID"
+msgstr "ATU-C 系統廠牌 ID"
+
+msgid "AYIYA"
+msgstr ""
+
+msgid "Access Concentrator"
+msgstr "存取集線器"
+
+msgid "Access Point"
+msgstr "存取點 (AP)"
+
+msgid "Action"
+msgstr "動作"
+
+msgid "Actions"
+msgstr "動作"
+
+msgid "Activate this network"
+msgstr "啟用此網路"
+
+msgid "Active <abbr title=\"Internet Protocol Version 4\">IPv4</abbr>-Routes"
+msgstr "啟用 <abbr title=\"Internet Protocol Version 4\">IPv4</abbr>-路由"
+
+msgid "Active <abbr title=\"Internet Protocol Version 6\">IPv6</abbr>-Routes"
+msgstr "啟用 <abbr title=\"Internet Protocol Version 6\">IPv6</abbr>-路由"
+
+msgid "Active Connections"
+msgstr "啟用連線"
+
+msgid "Active DHCP Leases"
+msgstr "已分配的 DHCP 租用"
+
+msgid "Active DHCPv6 Leases"
+msgstr "已分配的 DHCPv6 租用"
+
+msgid "Ad-Hoc"
+msgstr "無線漫遊(Ad-Hoc)"
+
+msgid "Add"
+msgstr "新增"
+
+msgid "Add local domain suffix to names served from hosts files"
+msgstr "新增本地網域尾碼到由 hosts 文件檔中送達的名稱"
+
+msgid "Add new interface..."
+msgstr "新增新界面…"
+
+msgid "Additional Hosts files"
+msgstr "額外的 hosts 檔案"
+
+msgid "Additional servers file"
+msgstr "額外的伺服器文件"
+
+msgid "Address"
+msgstr "位址"
+
+msgid "Address to access local relay bridge"
+msgstr "將存取的本地中繼橋接位址"
+
+msgid "Administration"
+msgstr "管理"
+
+msgid "Advanced Settings"
+msgstr "進階設定"
+
+msgid "Aggregate Transmit Power(ACTATP)"
+msgstr ""
+
+msgid "Alert"
+msgstr "警示"
+
+msgid ""
+"Allocate IP addresses sequentially, starting from the lowest available "
+"address"
+msgstr "按照順序分配 IP 位址，從最低的可用位址開始"
+
+msgid "Allocate IP sequentially"
+msgstr "依序分配 IP"
+
+msgid "Allow <abbr title=\"Secure Shell\">SSH</abbr> password authentication"
+msgstr "允許 <abbr title=\"Secure Shell\">SSH</abbr> 密碼驗證"
+
+msgid "Allow all except listed"
+msgstr "允許全部 除 已列表清單"
+
+msgid "Allow listed only"
+msgstr "僅允許列表內"
+
+msgid "Allow localhost"
+msgstr "允許本機"
+
+msgid "Allow remote hosts to connect to local SSH forwarded ports"
+msgstr "允許遠端主機連接到本機SSH轉送埠"
+
+msgid "Allow root logins with password"
+msgstr "允許 root 以密碼登入"
+
+msgid "Allow the <em>root</em> user to login with password"
+msgstr "允許 <em>root</em> 用戶以密碼登入"
+
+msgid ""
+"Allow upstream responses in the 127.0.0.0/8 range, e.g. for RBL services"
+msgstr "允許127.0.0.0/8範圍內的上游回應，例如：對於RBL服務"
+
+msgid "Allowed IPs"
+msgstr "允許的 IP群"
+
+msgid ""
+"Also see <a href=\"https://www.sixxs.net/faq/connectivity/?faq=comparison"
+"\">Tunneling Comparison</a> on SIXXS"
+msgstr ""
+
+msgid "Always announce default router"
+msgstr "永遠發布預設路由器"
+
+msgid "Annex"
+msgstr "附件"
+
+msgid "Annex A + L + M (all)"
+msgstr "附件 A + L + M (全部)"
+
+msgid "Annex A G.992.1"
+msgstr "附件A G.992.1"
+
+msgid "Annex A G.992.2"
+msgstr "附件A G.992.2"
+
+msgid "Annex A G.992.3"
+msgstr "附件A G.992.3"
+
+msgid "Annex A G.992.5"
+msgstr "附件A G.992.5"
+
+msgid "Annex B (all)"
+msgstr "附件B (全部)"
+
+msgid "Annex B G.992.1"
+msgstr "附件B G.992.1"
+
+msgid "Annex B G.992.3"
+msgstr "附件B G.992.3"
+
+msgid "Annex B G.992.5"
+msgstr "附件B G.992.5"
+
+msgid "Annex J (all)"
+msgstr "附件J (全部)"
+
+msgid "Annex L G.992.3 POTS 1"
+msgstr "附件L G.992.3 POTS 1"
+
+msgid "Annex M (all)"
+msgstr "附件M (全部)"
+
+msgid "Annex M G.992.3"
+msgstr "附件M G.992.3"
+
+msgid "Annex M G.992.5"
+msgstr "附件M G.992.5"
+
+msgid "Announce as default router even if no public prefix is available."
+msgstr "發布為預設路由器，即使沒有公用前綴可運用。"
+
+msgid "Announced DNS domains"
+msgstr "已發布的 DNS 網域群"
+
+msgid "Announced DNS servers"
+msgstr "發布的 DNS 伺服器"
+
+msgid "Anonymous Identity"
+msgstr "匿名身分"
+
+msgid "Anonymous Mount"
+msgstr "自動掛載檔案系統"
+
+msgid "Anonymous Swap"
+msgstr "自動掛載swap分區"
+
+msgid "Antenna 1"
+msgstr "天線 1"
+
+msgid "Antenna 2"
+msgstr "天線 2"
+
+msgid "Antenna Configuration"
+msgstr "天線設定"
+
+msgid "Any zone"
+msgstr "任意區域"
+
+msgid "Apply"
+msgstr "套用"
+
+msgid "Applying changes"
+msgstr "正在套用變更"
+
+msgid ""
+"Assign a part of given length of every public IPv6-prefix to this interface"
+msgstr "分配一部分給定長度的公共IPv6地址前綴於此介面"
+
+msgid "Assign interfaces..."
+msgstr "分配界面..."
+
+msgid ""
+"Assign prefix parts using this hexadecimal subprefix ID for this interface."
+msgstr "分配使用此十六進制子前綴ID的前綴部分於此介面."
+
+msgid "Associated Stations"
+msgstr "已連接裝置"
+
+msgid "Auth Group"
+msgstr "認證群組"
+
+msgid "Authentication"
+msgstr "認證"
+
+msgid "Authentication Type"
+msgstr "認證類型"
+
+msgid "Authoritative"
+msgstr "授權"
+
+msgid "Authorization Required"
+msgstr "需要授權"
+
+msgid "Auto Refresh"
+msgstr "自動更新"
+
+msgid "Automatic"
+msgstr "自動"
+
+msgid "Automatic Homenet (HNCP)"
+msgstr "智慧家庭自動控制網路 (HNCP)"
+
+msgid "Automatically check filesystem for errors before mounting"
+msgstr "在掛載前先檢查檔案系統中是否含有錯誤"
+
+msgid "Automatically mount filesystems on hotplug"
+msgstr "熱插拔後自動掛載檔案系統"
+
+msgid "Automatically mount swap on hotplug"
+msgstr "熱插拔後自動掛載swap分區"
+
+msgid "Automount Filesystem"
+msgstr "自動掛載檔案系統"
+
+msgid "Automount Swap"
+msgstr "自動掛載swap分區"
+
+msgid "Available"
+msgstr "可用的"
+
+msgid "Available packages"
+msgstr "可用軟體包"
+
+msgid "Average:"
+msgstr "平均:"
+
+msgid "B43 + B43C"
+msgstr "B43 + B43C"
+
+msgid "B43 + B43C + V43"
+msgstr "B43 + B43C + V43"
+
+msgid "BR / DMR / AFTR"
+msgstr "BR / DMR / AFTR"
+
+msgid "BSSID"
+msgstr "基本服務組識別碼 (BSSID)"
+
+msgid "Back"
+msgstr "返回"
+
+msgid "Back to Overview"
+msgstr "返回至總覽"
+
+msgid "Back to configuration"
+msgstr "返回至設定"
+
+msgid "Back to overview"
+msgstr "返回至總覽"
+
+msgid "Back to scan results"
+msgstr "返回至掃描結果"
+
+msgid "Backup / Flash Firmware"
+msgstr "備份/燒錄韌體"
+
+msgid "Backup / Restore"
+msgstr "備份/還原"
+
+msgid "Backup file list"
+msgstr "備份檔列表"
+
+msgid "Bad address specified!"
+msgstr "指定了錯誤的位置！"
+
+msgid "Band"
+msgstr "頻段"
+
+msgid "Behind NAT"
+msgstr ""
+
+msgid ""
+"Below is the determined list of files to backup. It consists of changed "
+"configuration files marked by opkg, essential base files and the user "
+"defined backup patterns."
+msgstr ""
+"下面是待備份的檔案清單。包含了更改的設定檔案、必要的基本檔案和使用者自訂的備"
+"份檔案。"
+
+msgid "Bind interface"
+msgstr "綁定介面"
+
+msgid "Bind only to specific interfaces rather than wildcard address."
+msgstr ""
+
+msgid "Bind the tunnel to this interface (optional)."
+msgstr "綁定通道到此介面 (可選的)。"
+
+msgid "Bitrate"
+msgstr "傳輸速率"
+
+msgid "Bogus NX Domain Override"
+msgstr "偽造的NX網域覆蓋"
+
+msgid "Bridge"
+msgstr "橋接"
+
+msgid "Bridge interfaces"
+msgstr "橋接介面"
+
+msgid "Bridge unit number"
+msgstr "橋接單位號碼"
+
+msgid "Bring up on boot"
+msgstr "開機自動執行"
+
+msgid "Broadcom 802.11%s Wireless Controller"
+msgstr "Broadcom 802.11%s 無線控制器"
+
+msgid "Broadcom BCM%04x 802.11 Wireless Controller"
+msgstr "Broadcom BCM%04x 802.11 無線控制器"
+
+msgid "Buffered"
+msgstr "已緩衝"
+
+msgid ""
+"Build/distribution specific feed definitions. This file will NOT be "
+"preserved in any sysupgrade."
+msgstr ""
+
+msgid "Buttons"
+msgstr "按鈕"
+
+msgid "CA certificate; if empty it will be saved after the first connection."
+msgstr "CA 憑證；如果留空會在第一次連線後儲存。"
+
+msgid "CPU usage (%)"
+msgstr "CPU 使用率 (%)"
+
+msgid "Cancel"
+msgstr "取消"
+
+msgid "Category"
+msgstr "類別"
+
+msgid "Chain"
+msgstr "鏈"
+
+msgid "Changes"
+msgstr "待修改"
+
+msgid "Changes applied."
+msgstr "修改已套用"
+
+msgid "Changes the administrator password for accessing the device"
+msgstr "修改可存取這設備的管理員密碼"
+
+msgid "Channel"
+msgstr "頻道"
+
+msgid "Check"
+msgstr "檢查"
+
+msgid "Check fileystems before mount"
+msgstr ""
+
+msgid "Check this option to delete the existing networks from this radio."
+msgstr "核取這個選項從此無線網路中刪除現有網路。"
+
+msgid "Checksum"
+msgstr "效驗碼"
+
+msgid ""
+"Choose the firewall zone you want to assign to this interface. Select "
+"<em>unspecified</em> to remove the interface from the associated zone or "
+"fill out the <em>create</em> field to define a new zone and attach the "
+"interface to it."
+msgstr ""
+"選擇你要指定給這介面的防火牆區. 撿選<em>unspecified</em>以便從指定區域除這個"
+"介面或者填寫<em>create</em>欄以便定義附加這個介面到一個新的區域上."
+
+msgid ""
+"Choose the network(s) you want to attach to this wireless interface or fill "
+"out the <em>create</em> field to define a new network."
+msgstr ""
+"選擇你要附加到無線網路介面的多個網路或者填寫<em>create</em> 以便定義一個新的"
+"網路."
+
+msgid "Cipher"
+msgstr "加密方式"
+
+msgid "Cisco UDP encapsulation"
+msgstr "Cisco UDP 對裝"
+
+msgid ""
+"Click \"Generate archive\" to download a tar archive of the current "
+"configuration files. To reset the firmware to its initial state, click "
+"\"Perform reset\" (only possible with squashfs images)."
+msgstr ""
+"按下\"壓縮檔製作\"就能下載目前設定檔的tar格式的壓縮. 要重置回復出廠值,按下"
+"\"執行還原\"(可能只對squashfs影像檔有效)"
+
+msgid "Client"
+msgstr "客户端"
+
+msgid "Client ID to send when requesting DHCP"
+msgstr "當要求DHCP時要傳送的用戶識別碼ID"
+
+msgid ""
+"Close inactive connection after the given amount of seconds, use 0 to "
+"persist connection"
+msgstr "幾秒後關閉閒置的連線, 打0代表永遠連線"
+
+msgid "Close list..."
+msgstr "關閉清單..."
+
+msgid "Collecting data..."
+msgstr "正在收集資料中…"
+
+msgid "Command"
+msgstr "命令"
+
+msgid "Common Configuration"
+msgstr "一般設定"
+
+msgid "Configuration"
+msgstr "組態"
+
+msgid "Configuration applied."
+msgstr "啟用設定"
+
+msgid "Configuration files will be kept."
+msgstr "設定檔將被存檔"
+
+msgid "Confirmation"
+msgstr "再確認"
+
+msgid "Connect"
+msgstr "連線"
+
+msgid "Connected"
+msgstr "已連線"
+
+msgid "Connection Limit"
+msgstr "連線限制"
+
+msgid "Connection to server fails when TLS cannot be used"
+msgstr ""
+
+msgid "Connections"
+msgstr "連線數"
+
+msgid "Country"
+msgstr "國家"
+
+msgid "Country Code"
+msgstr "國別碼"
+
+msgid "Cover the following interface"
+msgstr "覆蓋下列介面"
+
+msgid "Cover the following interfaces"
+msgstr "覆蓋下列這些介面"
+
+msgid "Create / Assign firewall-zone"
+msgstr "建立/指定防火牆作用區"
+
+msgid "Create Interface"
+msgstr "建立介面"
+
+msgid "Create a bridge over multiple interfaces"
+msgstr "在多個介面上建立橋接"
+
+msgid "Critical"
+msgstr "致命錯誤"
+
+msgid "Cron Log Level"
+msgstr "Cron 日誌等級"
+
+msgid "Custom Interface"
+msgstr "自訂介面"
+
+msgid "Custom delegated IPv6-prefix"
+msgstr "自定義委派 IPv6-prefix(IPv6-前綴)"
+
+msgid ""
+"Custom feed definitions, e.g. private feeds. This file can be preserved in a "
+"sysupgrade."
+msgstr ""
+
+msgid "Custom feeds"
+msgstr ""
+
+msgid ""
+"Customizes the behaviour of the device <abbr title=\"Light Emitting Diode"
+"\">LED</abbr>s if possible."
+msgstr ""
+"如果可以的話,自訂這個設備的 <abbr title=\"Light Emitting Diode\">LED</"
+"abbr>s ."
+
+msgid "DHCP Leases"
+msgstr "DHCP的釋放週期"
+
+msgid "DHCP Server"
+msgstr "DHCP伺服器"
+
+msgid "DHCP and DNS"
+msgstr "DHCP 與 DNS"
+
+msgid "DHCP client"
+msgstr "DHCP用戶端"
+
+msgid "DHCP-Options"
+msgstr "DHCP選項"
+
+msgid "DHCPv6 Leases"
+msgstr "DHCPv6版釋放時間週期"
+
+msgid "DHCPv6 client"
+msgstr "DHCPv6 客戶端"
+
+msgid "DHCPv6-Mode"
+msgstr "DHCPv6-模式"
+
+msgid "DHCPv6-Service"
+msgstr "DHCPv6-服務"
+
+msgid "DNS"
+msgstr "DNS"
+
+msgid "DNS forwardings"
+msgstr "DNS封包轉發"
+
+msgid "DNS-Label / FQDN"
+msgstr "DNS-標籤 / FQDN"
+
+msgid "DNSSEC"
+msgstr "DNSSEC"
+
+msgid "DNSSEC check unsigned"
+msgstr "DNSSEC 檢查未簽章"
+
+msgid "DPD Idle Timeout"
+msgstr "DPD 閒置逾時"
+
+msgid "DS-Lite AFTR address"
+msgstr "DS-Lite AFTR 位址"
+
+msgid "DSL"
+msgstr "DSL"
+
+msgid "DSL Status"
+msgstr "DSL 狀態"
+
+msgid "DSL line mode"
+msgstr "DSL 線路模式"
+
+msgid "DUID"
+msgstr "DHCP獨立式別碼DUID"
+
+msgid "Data Rate"
+msgstr "資料速率"
+
+msgid "Debug"
+msgstr "除錯"
+
+msgid "Default %d"
+msgstr "預設 %d"
+
+msgid "Default gateway"
+msgstr "預設閘道"
+
+msgid "Default is stateless + stateful"
+msgstr "預設為 stateless + stateful"
+
+msgid "Default route"
+msgstr ""
+
+msgid "Default state"
+msgstr "預設狀態"
+
+msgid "Define a name for this network."
+msgstr "自訂這個網路名稱"
+
+msgid ""
+"Define additional DHCP options, for example "
+"\"<code>6,192.168.2.1,192.168.2.2</code>\" which advertises different DNS "
+"servers to clients."
+msgstr ""
+"定義額外的DHCP選項,例如\"<code>6,192.168.2.1,192.168.2.2</code>\"將會通告不同"
+"的DNS伺服器到客戶端."
+
+msgid "Delete"
+msgstr "刪除"
+
+msgid "Delete this network"
+msgstr "刪除這個網路"
+
+msgid "Description"
+msgstr "描述"
+
+msgid "Design"
+msgstr "主題"
+
+msgid "Destination"
+msgstr "目的地"
+
+msgid "Device"
+msgstr "裝置"
+
+msgid "Device Configuration"
+msgstr "裝置組態"
+
+msgid "Device is rebooting..."
+msgstr "設備重新啟動中..."
+
+msgid "Device unreachable"
+msgstr ""
+
+msgid "Diagnostics"
+msgstr "診斷"
+
+msgid "Dial number"
+msgstr "撥號號碼"
+
+msgid "Directory"
+msgstr "目錄"
+
+msgid "Disable"
+msgstr "停用"
+
+msgid ""
+"Disable <abbr title=\"Dynamic Host Configuration Protocol\">DHCP</abbr> for "
+"this interface."
+msgstr ""
+"對這介面關閉 <abbr title=\"Dynamic Host Configuration Protocol\">DHCP</"
+"abbr>。"
+
+msgid "Disable DNS setup"
+msgstr "關閉DNS設置"
+
+msgid "Disable Encryption"
+msgstr "停用加密"
+
+msgid "Disabled"
+msgstr "已停用"
+
+msgid "Disabled (default)"
+msgstr ""
+
+msgid "Discard upstream RFC1918 responses"
+msgstr "丟棄上游RFC1918 虛擬IP網路的回應"
+
+msgid "Displaying only packages containing"
+msgstr "僅顯示內含的軟體"
+
+msgid "Distance Optimization"
+msgstr "最佳化距離"
+
+msgid "Distance to farthest network member in meters."
+msgstr "到最遠的網路距離以米表示."
+
+msgid "Distribution feeds"
+msgstr ""
+
+msgid "Diversity"
+msgstr "差異"
+
+msgid ""
+"Dnsmasq is a combined <abbr title=\"Dynamic Host Configuration Protocol"
+"\">DHCP</abbr>-Server and <abbr title=\"Domain Name System\">DNS</abbr>-"
+"Forwarder for <abbr title=\"Network Address Translation\">NAT</abbr> "
+"firewalls"
+msgstr ""
+"Dnsmasq 是組合<abbr title=\"Dynamic Host Configuration Protocol\">DHCP</"
+"abbr>-伺服器 和 <abbr title=\"Domain Name System\">DNS</abbr>-轉發給 <abbr "
+"title=\"Network Address Translation\">NAT</abbr> 防火牆用"
+
+msgid "Do not cache negative replies, e.g. for not existing domains"
+msgstr "不快取拒絕的回應,例如.不存在的網域"
+
+msgid "Do not forward requests that cannot be answered by public name servers"
+msgstr "不轉發公用名稱伺服器不能回答的請求"
+
+msgid "Do not forward reverse lookups for local networks"
+msgstr "對本地網路不轉發反向查詢"
+
+msgid "Domain required"
+msgstr "需要網域"
+
+msgid "Domain whitelist"
+msgstr "網域白名單"
+
+msgid "Don't Fragment"
+msgstr "不要分段"
+
+msgid ""
+"Don't forward <abbr title=\"Domain Name System\">DNS</abbr>-Requests without "
+"<abbr title=\"Domain Name System\">DNS</abbr>-Name"
+msgstr ""
+"不轉發沒有 <abbr title=\"Domain Name System\">DNS</abbr> 名稱的 <abbr title="
+"\"Domain Name System\">DNS</abbr> 請求"
+
+msgid "Download and install package"
+msgstr "下載並安裝軟體包"
+
+msgid "Download backup"
+msgstr "下載備份檔"
+
+msgid "Dropbear Instance"
+msgstr "Dropbear實例"
+
+msgid ""
+"Dropbear offers <abbr title=\"Secure Shell\">SSH</abbr> network shell access "
+"and an integrated <abbr title=\"Secure Copy\">SCP</abbr> server"
+msgstr ""
+"Dropbear 提供 <abbr title=\"Secure Shell\">SSH</abbr> 網路shell命令存取和一個"
+"整合的 <abbr title=\"Secure Copy\">SCP</abbr> 伺服器"
+
+msgid "Dual-Stack Lite (RFC6333)"
+msgstr "隧道IPv4v6雙堆疊協定DS Lite (RFC6333)"
+
+msgid "Dynamic <abbr title=\"Dynamic Host Configuration Protocol\">DHCP</abbr>"
+msgstr "動態 <abbr title=\"Dynamic Host Configuration Protocol\">DHCP</abbr>"
+
+msgid "Dynamic tunnel"
+msgstr "動態隧道"
+
+msgid ""
+"Dynamically allocate DHCP addresses for clients. If disabled, only clients "
+"having static leases will be served."
+msgstr "用戶端動態發配 DHCP 位址。若停用，僅有靜態位置的用戶端能使用。"
+
+msgid "EA-bits length"
+msgstr "EA-位元長度"
+
+msgid "EAP-Method"
+msgstr "可擴展身份驗證協定(EAP)-方式"
+
+msgid "Edit"
+msgstr "編輯"
+
+msgid ""
+"Edit the raw configuration data above to fix any error and hit \"Save\" to "
+"reload the page."
+msgstr "編輯上面的原始配置數據以修復任何錯誤,然後點擊\"儲存\"以重新載入頁面."
+
+msgid "Edit this interface"
+msgstr "修改這個介面"
+
+msgid "Edit this network"
+msgstr "編輯此網路"
+
+msgid "Emergency"
+msgstr "緊急"
+
+msgid "Enable"
+msgstr "啟用"
+
+msgid "Enable <abbr title=\"Spanning Tree Protocol\">STP</abbr>"
+msgstr "啟用 <abbr title=\"Spanning Tree Protocol\">生成樹協定(STP)</abbr>"
+
+msgid "Enable HE.net dynamic endpoint update"
+msgstr "啟用HE.net服務代管動態更新"
+
+msgid "Enable IPv6 negotiation"
+msgstr "啟用 IPv6 協商"
+
+msgid "Enable IPv6 negotiation on the PPP link"
+msgstr "啟用PPP連結上的IPv6交涉"
+
+msgid "Enable Jumbo Frame passthrough"
+msgstr "啟用超大訊框透穿"
+
+msgid "Enable NTP client"
+msgstr "啟用 NTP用戶端"
+
+msgid "Enable Single DES"
+msgstr "啟用單一 DES"
+
+msgid "Enable TFTP server"
+msgstr "啟用TFTP伺服器"
+
+msgid "Enable VLAN functionality"
+msgstr "啟用VLAN功能"
+
+msgid "Enable WPS pushbutton, requires WPA(2)-PSK"
+msgstr ""
+
+msgid "Enable learning and aging"
+msgstr "啟用智慧學習功能"
+
+msgid "Enable mirroring of incoming packets"
+msgstr "啟用連入封包鏡像"
+
+msgid "Enable mirroring of outgoing packets"
+msgstr "啟用連出封包鏡像"
+
+msgid "Enable the DF (Don't Fragment) flag of the encapsulating packets."
+msgstr "啟用封裝封包的 DF(不分段)標誌."
+
+msgid "Enable this mount"
+msgstr "啟用掛載點"
+
+msgid "Enable this swap"
+msgstr "啟用swap功能"
+
+msgid "Enable/Disable"
+msgstr "啟用/關閉"
+
+msgid "Enabled"
+msgstr "啟用"
+
+msgid ""
+"Enables fast roaming among access points that belong to the same Mobility "
+"Domain"
+msgstr "啟用屬於同一行動網域存取點之間的快速漫遊"
+
+msgid "Enables the Spanning Tree Protocol on this bridge"
+msgstr "在橋接器上啟用802.1d Spanning Tree協定"
+
+msgid "Encapsulation mode"
+msgstr "封裝模式"
+
+msgid "Encryption"
+msgstr "加密(Encryption)"
+
+msgid "Endpoint Host"
+msgstr "終端主機"
+
+msgid "Endpoint Port"
+msgstr "終端阜"
+
+msgid "Erasing..."
+msgstr "刪除中..."
+
+msgid "Error"
+msgstr "錯誤"
+
+msgid "Errored seconds (ES)"
+msgstr "錯誤秒數 (ES)"
+
+msgid "Ethernet Adapter"
+msgstr "乙太網路卡"
+
+msgid "Ethernet Switch"
+msgstr "乙太交換器"
+
+msgid "Exclude interfaces"
+msgstr "排除介面"
+
+msgid "Expand hosts"
+msgstr "延伸主機"
+
+msgid "Expires"
+msgstr "過期"
+
+msgid ""
+"Expiry time of leased addresses, minimum is 2 minutes (<code>2m</code>)."
+msgstr "釋放位置前閒置時間，最少兩分鐘 (<code>2m</code>)。"
+
+msgid "External"
+msgstr "外部"
+
+msgid "External R0 Key Holder List"
+msgstr "外部 R0 金鑰持有者清單"
+
+msgid "External R1 Key Holder List"
+msgstr "外部 R1 金鑰持有者清單"
+
+msgid "External system log server"
+msgstr "外部系統日誌伺服器"
+
+msgid "External system log server port"
+msgstr "外部系統日誌伺服器埠號"
+
+msgid "External system log server protocol"
+msgstr "外部系統日誌伺服器通訊協定"
+
+msgid "Extra SSH command options"
+msgstr "額外的 SSH 命令選項"
+
+msgid "File"
+msgstr "檔案"
+
+msgid "Filename of the boot image advertised to clients"
+msgstr "開機影像檔通知給用戶端"
+
+msgid "Filesystem"
+msgstr "檔案系統"
+
+msgid "Filter"
+msgstr "過濾器"
+
+msgid "Filter private"
+msgstr "私人過濾器"
+
+msgid "Filter useless"
+msgstr "無用過濾器"
+
+msgid ""
+"Find all currently attached filesystems and swap and replace configuration "
+"with defaults based on what was detected"
+msgstr "尋找所有目前已連接裝置中的檔案系統及swap分區,並覆蓋目前的設定"
+
+msgid "Find and join network"
+msgstr "搜尋並加入網路"
+
+msgid "Find package"
+msgstr "搜尋軟體包"
+
+msgid "Finish"
+msgstr "完成"
+
+msgid "Firewall"
+msgstr "防火牆"
+
+msgid "Firewall Mark"
+msgstr "防火牆遮罩"
+
+msgid "Firewall Settings"
+msgstr "防火牆設定"
+
+msgid "Firewall Status"
+msgstr "防火牆狀況"
+
+msgid "Firmware File"
+msgstr "韌體檔案"
+
+msgid "Firmware Version"
+msgstr "韌體版本"
+
+msgid "Fixed source port for outbound DNS queries"
+msgstr "外發DNS請求的固定來源埠號"
+
+msgid "Flash Firmware"
+msgstr "韌體更新"
+
+msgid "Flash image..."
+msgstr "更新韌體..."
+
+msgid "Flash new firmware image"
+msgstr "燒錄新版韌體映像檔"
+
+msgid "Flash operations"
+msgstr "韌體工具"
+
+msgid "Flashing..."
+msgstr "更新中..."
+
+msgid "Force"
+msgstr "強制"
+
+msgid "Force CCMP (AES)"
+msgstr "強制使用CCMP (AES)加密"
+
+msgid "Force DHCP on this network even if another server is detected."
+msgstr "強迫啟用 DHCP在此網路上, 即使已偵測到其它伺服器。"
+
+msgid "Force TKIP"
+msgstr "強制使用TKIP加密"
+
+msgid "Force TKIP and CCMP (AES)"
+msgstr "強制使用TKIP+CCMP (AES)加密"
+
+msgid "Force link"
+msgstr "強制連結"
+
+msgid "Force use of NAT-T"
+msgstr "強制使用 NAT-T"
+
+msgid "Form token mismatch"
+msgstr "表單權杖(token )不匹配"
+
+msgid "Forward DHCP traffic"
+msgstr "轉發DHCP流量"
+
+msgid "Forward Error Correction Seconds (FECS)"
+msgstr "前向糾錯校正秒數 (FECS)"
+
+msgid "Forward broadcast traffic"
+msgstr "轉發廣播流量"
+
+msgid "Forwarding mode"
+msgstr "轉發模式"
+
+msgid "Fragmentation Threshold"
+msgstr "分片閥值"
+
+msgid "Frame Bursting"
+msgstr "訊框爆速"
+
+msgid "Free"
+msgstr "空閒"
+
+msgid "Free space"
+msgstr "剩餘空間"
+
+msgid ""
+"Further information about WireGuard interfaces and peers at <a href=\"http://"
+"wireguard.com\">wireguard.com</a>."
+msgstr ""
+
+msgid "GHz"
+msgstr "GHz"
+
+msgid "GPRS only"
+msgstr "僅用GPRS"
+
+msgid "Gateway"
+msgstr "閘道器"
+
+msgid "Gateway ports"
+msgstr "匝道器埠號"
+
+msgid "General Settings"
+msgstr "一般設定"
+
+msgid "General Setup"
+msgstr "一般設定"
+
+msgid "General options for opkg"
+msgstr ""
+
+msgid "Generate Config"
+msgstr "產生設定檔"
+
+msgid "Generate archive"
+msgstr "製作壓縮檔"
+
+msgid "Generic 802.11%s Wireless Controller"
+msgstr "通用 802.11%s 無線控制器"
+
+msgid "Given password confirmation did not match, password not changed!"
+msgstr "輸入的密碼確認不匹配，密碼未更改！"
+
+msgid "Global Settings"
+msgstr "全域設定"
+
+msgid "Global network options"
+msgstr "全域網路選項"
+
+msgid "Go to password configuration..."
+msgstr "前往密碼設定..."
+
+msgid "Go to relevant configuration page"
+msgstr "前往相應設定頁"
+
+msgid "Group Password"
+msgstr "群組密碼"
+
+msgid "Guest"
+msgstr "訪客"
+
+msgid "HE.net password"
+msgstr "HE.net密碼"
+
+msgid "HE.net username"
+msgstr "HE.net使用者名稱"
+
+msgid "HT mode (802.11n)"
+msgstr ""
+
+msgid "Handler"
+msgstr "多執行緒"
+
+msgid "Hang Up"
+msgstr "掛斷"
+
+msgid "Header Error Code Errors (HEC)"
+msgstr "標頭錯誤原碼錯誤(HEC)"
+
+msgid "Heartbeat"
+msgstr ""
+
+msgid ""
+"Here you can configure the basic aspects of your device like its hostname or "
+"the timezone."
+msgstr "在這裡設定基本設定值，如主機名稱、時區...等。"
+
+msgid ""
+"Here you can paste public SSH-Keys (one per line) for SSH public-key "
+"authentication."
+msgstr "在這裡貼上公用SSH-Keys (每行一個)以便驗證"
+
+msgid "Hermes 802.11b Wireless Controller"
+msgstr "Hermes 802.11b 無線網路控制器"
+
+msgid "Hide <abbr title=\"Extended Service Set Identifier\">ESSID</abbr>"
+msgstr "隱藏 <abbr title=\"Extended Service Set Identifier\">ESSID</abbr>"
+
+msgid "Host"
+msgstr "主機"
+
+msgid "Host entries"
+msgstr "主機項目"
+
+msgid "Host expiry timeout"
+msgstr "過期主機"
+
+msgid "Host-<abbr title=\"Internet Protocol Address\">IP</abbr> or Network"
+msgstr "主機-<abbr title=\"Internet Protocol Address\">IP</abbr> 或網路"
+
+msgid "Hostname"
+msgstr "主機名稱"
+
+msgid "Hostname to send when requesting DHCP"
+msgstr "當請求DHCP服務時傳送的主機名稱"
+
+msgid "Hostnames"
+msgstr "主機名稱"
+
+msgid "Hybrid"
+msgstr "複合式"
+
+msgid "IKE DH Group"
+msgstr "IKE DH 群組"
+
+msgid "IP Addresses"
+msgstr "IP 位址"
+
+msgid "IP address"
+msgstr "IP位址"
+
+msgid "IPv4"
+msgstr "IPv4"
+
+msgid "IPv4 Firewall"
+msgstr "IPv4防火牆"
+
+msgid "IPv4 WAN Status"
+msgstr "IPv4寬頻連線狀態"
+
+msgid "IPv4 address"
+msgstr "IPv4位址"
+
+msgid "IPv4 and IPv6"
+msgstr "IPv4和IPv6"
+
+msgid "IPv4 assignment length"
+msgstr "分配 IPv4 長度"
+
+msgid "IPv4 broadcast"
+msgstr "IPv4 廣播"
+
+msgid "IPv4 gateway"
+msgstr "IPv4閘道"
+
+msgid "IPv4 netmask"
+msgstr "IPv4網路遮罩"
+
+msgid "IPv4 only"
+msgstr "僅 IPv4"
+
+msgid "IPv4 prefix"
+msgstr "IPv4 首碼"
+
+msgid "IPv4 prefix length"
+msgstr "IPv4前綴長度"
+
+msgid "IPv4-Address"
+msgstr "IPv4 位址"
+
+msgid "IPv4-in-IPv4 (RFC2003)"
+msgstr "IPv4-包裹-IPv4 (RFC2003)"
+
+msgid "IPv6"
+msgstr "IPv6"
+
+msgid "IPv6 Firewall"
+msgstr "IPv6防火牆"
+
+msgid "IPv6 Neighbours"
+msgstr "IPv6網路芳鄰"
+
+msgid "IPv6 Settings"
+msgstr "IPv6 設定"
+
+msgid "IPv6 ULA-Prefix"
+msgstr "IPv6 ULA前綴"
+
+msgid "IPv6 WAN Status"
+msgstr "IPv6寬頻連線狀態"
+
+msgid "IPv6 address"
+msgstr "IPv6位址"
+
+msgid "IPv6 address delegated to the local tunnel endpoint (optional)"
+msgstr ""
+
+msgid "IPv6 assignment hint"
+msgstr "IPv6 分配提示"
+
+msgid "IPv6 assignment length"
+msgstr "IPv6 分配長度"
+
+msgid "IPv6 gateway"
+msgstr "IPv6閘道器"
+
+msgid "IPv6 only"
+msgstr "僅 IPv6"
+
+msgid "IPv6 prefix"
+msgstr "IPv6字首"
+
+msgid "IPv6 prefix length"
+msgstr "IPv6字首長度"
+
+msgid "IPv6 routed prefix"
+msgstr "IPv6路由前綴"
+
+msgid "IPv6 suffix"
+msgstr "IPv6 尾碼"
+
+msgid "IPv6-Address"
+msgstr "IPv6 位址"
+
+msgid "IPv6-PD"
+msgstr "IPv6-前綴代理"
+
+msgid "IPv6-in-IPv4 (RFC4213)"
+msgstr "IPv6包覆在IPv4內(RFC4213)"
+
+msgid "IPv6-over-IPv4 (6rd)"
+msgstr "IPv6凌駕IPv4外(第6版)"
+
+msgid "IPv6-over-IPv4 (6to4)"
+msgstr "IPv6凌駕IPv4外(6轉4)"
+
+msgid "Identity"
+msgstr "身分識別"
+
+msgid "If checked, 1DES is enaled"
+msgstr ""
+
+msgid "If checked, encryption is disabled"
+msgstr "如果勾選，加密會停用"
+
+msgid ""
+"If specified, mount the device by its UUID instead of a fixed device node"
+msgstr "假若指定的話, 掛載設備的'獨立設備識別碼(UUID)'取代固定的設備節點"
+
+msgid ""
+"If specified, mount the device by the partition label instead of a fixed "
+"device node"
+msgstr "假若指定的話, 掛載設備的分割標籤取代固定的設備節點"
+
+msgid "If unchecked, no default route is configured"
+msgstr "如果沒勾選, 將不會設置預設路由"
+
+msgid "If unchecked, the advertised DNS server addresses are ignored"
+msgstr "如果沒勾選, 公告的DNS伺服器位址將被忽視"
+
+msgid ""
+"If your physical memory is insufficient unused data can be temporarily "
+"swapped to a swap-device resulting in a higher amount of usable <abbr title="
+"\"Random Access Memory\">RAM</abbr>. Be aware that swapping data is a very "
+"slow process as the swap-device cannot be accessed with the high datarates "
+"of the <abbr title=\"Random Access Memory\">RAM</abbr>."
+msgstr ""
+"如果您的實體記憶體不足，可以將未使用的數據臨時調換到交換-設備，從而導致較高量"
+"而未使用的<abbr title=\"Random Access Memory\">RAM</abbr>。請意識到，當無法使"
+"用高資料傳輸速率的<abbr title=\"Random Access Memory\">RAM</abbr>來存取交換設"
+"備，交換資料將是一個非常緩慢的過程。"
+
+msgid "Ignore <code>/etc/hosts</code>"
+msgstr "忽視 <code>/etc/hosts</code>"
+
+msgid "Ignore interface"
+msgstr "忽視介面"
+
+msgid "Ignore resolve file"
+msgstr "忽視解析文件"
+
+msgid "Image"
+msgstr "映像檔"
+
+msgid "In"
+msgstr "輸入"
+
+msgid ""
+"In order to prevent unauthorized access to the system, your request has been "
+"blocked. Click \"Continue »\" below to return to the previous page."
+msgstr ""
+"為防止未經授權的存取系統，您的請求已被擋下。按下面的「繼續 »」回到上一頁。"
+
+msgid "Inactivity timeout"
+msgstr "閒置過期"
+
+msgid "Inbound:"
+msgstr "輸入："
+
+msgid "Info"
+msgstr "資訊"
+
+msgid "Initscript"
+msgstr "初始化腳本"
+
+msgid "Initscripts"
+msgstr "初始化腳本組"
+
+msgid "Install"
+msgstr "安裝"
+
+msgid "Install iputils-traceroute6 for IPv6 traceroute"
+msgstr ""
+
+msgid "Install package %q"
+msgstr "安裝軟體包 %q"
+
+msgid "Install protocol extensions..."
+msgstr "安裝延伸協定中..."
+
+msgid "Installed packages"
+msgstr "安裝軟體包"
+
+msgid "Interface"
+msgstr "介面"
+
+msgid "Interface %q device auto-migrated from %q to %q."
+msgstr "從 %q 到 %q 自動遷移到介面%q 設備 ."
+
+msgid "Interface Configuration"
+msgstr "介面組態"
+
+msgid "Interface Overview"
+msgstr "介面預覽"
+
+msgid "Interface is reconnecting..."
+msgstr "介面重新連線中..."
+
+msgid "Interface is shutting down..."
+msgstr "介面正在關閉中..."
+
+msgid "Interface name"
+msgstr "介面名稱"
+
+msgid "Interface not present or not connected yet."
+msgstr "介面不存在或尚未連接。"
+
+msgid "Interface reconnected"
+msgstr "介面已重新連線"
+
+msgid "Interface shut down"
+msgstr "介面關閉"
+
+msgid "Interfaces"
+msgstr "介面"
+
+msgid "Internal"
+msgstr "內部"
+
+msgid "Internal Server Error"
+msgstr "內部伺服器發生錯誤"
+
+msgid "Invalid"
+msgstr "無效"
+
+msgid "Invalid VLAN ID given! Only IDs between %d and %d are allowed."
+msgstr "輸入的 VLAN ID 無效！僅有介於 %d 和 %d 的被允許。"
+
+msgid "Invalid VLAN ID given! Only unique IDs are allowed"
+msgstr "輸入的是不正確的VLAN ID!僅允許獨一無二的IDs"
+
+msgid "Invalid username and/or password! Please try again."
+msgstr "不正確的使用者名稱和/或者密碼！請再試一次。"
+
+msgid "Isolate Clients"
+msgstr "隔離用戶端"
+
+msgid ""
+"It appears that you are trying to flash an image that does not fit into the "
+"flash memory, please verify the image file!"
+msgstr "您正使用不適用於此 Flash 的映像檔，請檢查映像檔！"
+
+msgid "JavaScript required!"
+msgstr "需要Java腳本！"
+
+msgid "Join Network"
+msgstr "加入網路"
+
+msgid "Join Network: Wireless Scan"
+msgstr "加入網路:無線掃描"
+
+msgid "Joining Network: %q"
+msgstr "加入網路：%q"
+
+msgid "Keep settings"
+msgstr "保留設定值"
+
+msgid "Kernel Log"
+msgstr "核心日誌"
+
+msgid "Kernel Version"
+msgstr "核心版本"
+
+msgid "Key"
+msgstr "金鑰"
+
+msgid "Key #%d"
+msgstr "金鑰 #%d"
+
+msgid "Kill"
+msgstr "殺除"
+
+msgid "L2TP"
+msgstr "L2TP"
+
+msgid "L2TP Server"
+msgstr "L2TP伺服器"
+
+msgid "LCP echo failure threshold"
+msgstr "LCP協定呼叫失敗次數門檻"
+
+msgid "LCP echo interval"
+msgstr "LCP協定呼叫間隔"
+
+msgid "LLC"
+msgstr "LLC邏輯鏈結控制層"
+
+msgid "Label"
+msgstr "標籤"
+
+msgid "Language"
+msgstr "語言"
+
+msgid "Language and Style"
+msgstr "語言與主題"
+
+msgid "Latency"
+msgstr "延遲"
+
+msgid "Leaf"
+msgstr "頁"
+
+msgid "Lease time"
+msgstr "租賃時間長度"
+
+msgid "Lease validity time"
+msgstr "租賃有效時間"
+
+msgid "Leasefile"
+msgstr "租賃檔案"
+
+msgid "Leasetime remaining"
+msgstr "租賃保留時間"
+
+msgid "Leave empty to autodetect"
+msgstr "保持空白以便自動偵測"
+
+msgid "Leave empty to use the current WAN address"
+msgstr "保持空白以便採用現今的寬頻位址"
+
+msgid "Legend:"
+msgstr "圖例:"
+
+msgid "Limit"
+msgstr "限制"
+
+msgid "Limit DNS service to subnets interfaces on which we are serving DNS."
+msgstr "僅在網卡所屬的子網路中提供 DNS 服務。"
+
+msgid "Limit listening to these interfaces, and loopback."
+msgstr "僅監聽這些介面和回送 (loopback)。"
+
+msgid "Line Attenuation (LATN)"
+msgstr "線路衰減(LATN)"
+
+msgid "Line Mode"
+msgstr "線路模式"
+
+msgid "Line State"
+msgstr "線路狀態"
+
+msgid "Line Uptime"
+msgstr "線路已連線時間"
+
+msgid "Link On"
+msgstr "鏈接"
+
+msgid ""
+"List of <abbr title=\"Domain Name System\">DNS</abbr> servers to forward "
+"requests to"
+msgstr "列出 <abbr title=\"Domain Name System\">DNS</abbr> 伺服器以便轉發請求"
+
+msgid ""
+"List of R0KHs in the same Mobility Domain. <br />Format: MAC-address,NAS-"
+"Identifier,128-bit key as hex string. <br />This list is used to map R0KH-ID "
+"(NAS Identifier) to a destination MAC address when requesting PMK-R1 key "
+"from the R0KH that the STA used during the Initial Mobility Domain "
+"Association."
+msgstr ""
+"同一行動網域中的R0KH列表。 <br />格式：MAC位址，NAS識別，128位元金鑰(十六進制"
+"字串). <br />當從STA在初始行動網域關聯期間從R0KH請求PMK-R1金鑰時, 此列表用於"
+"將R0KH-ID（NAS標識符）映射到目標MAC位址."
+
+msgid ""
+"List of R1KHs in the same Mobility Domain. <br />Format: MAC-address,R1KH-ID "
+"as 6 octets with colons,128-bit key as hex string. <br />This list is used "
+"to map R1KH-ID to a destination MAC address when sending PMK-R1 key from the "
+"R0KH. This is also the list of authorized R1KHs in the MD that can request "
+"PMK-R1 keys."
+msgstr ""
+"同一行動網域中的R1KH列表. <br />格式: MAC位址, R1KH-ID為帶冒號的6個八位字組, "
+"128位元金鑰為十六進制字串. <br />從R0KH發送PMK-R1金鑰時, 此列表用於將R1KH-ID"
+"映射到目標MAC位址. 這也是MD中可以請求PMK-R1金鑰的授權R1KH的列表."
+
+msgid "List of SSH key files for auth"
+msgstr "列出SSH金鑰以便驗證"
+
+msgid "List of domains to allow RFC1918 responses for"
+msgstr "列出允許RFC1918文件虛擬IP回應的網域"
+
+msgid "List of hosts that supply bogus NX domain results"
+msgstr "列出供應偽裝NX網域成果的主機群"
+
+msgid "Listen Interfaces"
+msgstr "監聽介面"
+
+msgid "Listen Port"
+msgstr "監聽連接埠"
+
+msgid "Listen only on the given interface or, if unspecified, on all"
+msgstr "僅監聽給定的介面，如果未指定則監聽所有介面"
+
+msgid "Listening port for inbound DNS queries"
+msgstr "進入的DNS請求聆聽埠"
+
+msgid "Load"
+msgstr "負載"
+
+msgid "Load Average"
+msgstr "平均負載"
+
+msgid "Loading"
+msgstr "讀取中"
+
+msgid "Local IP address to assign"
+msgstr "指定本地 IP 位址"
+
+msgid "Local IPv4 address"
+msgstr "本地端IPv4位址"
+
+msgid "Local IPv6 address"
+msgstr "本地端IPv6位址"
+
+msgid "Local Service Only"
+msgstr "僅限本機服務"
+
+msgid "Local Startup"
+msgstr "本地啟動"
+
+msgid "Local Time"
+msgstr "本地時間"
+
+msgid "Local domain"
+msgstr "本地網域"
+
+msgid ""
+"Local domain specification. Names matching this domain are never forwarded "
+"and are resolved from DHCP or hosts files only"
+msgstr "區網規範。不轉發與此網域符合的名稱，且僅從 DHCP 或 host 文件中解析"
+
+msgid "Local domain suffix appended to DHCP names and hosts file entries"
+msgstr "附加到 DHCP 名稱和 hosts 檔案項目的本地域字尾"
+
+msgid "Local server"
+msgstr "本地伺服器"
+
+msgid ""
+"Localise hostname depending on the requesting subnet if multiple IPs are "
+"available"
+msgstr "若有多個IP可用, 本地化主機名稱端看請求的子網路而言"
+
+msgid "Localise queries"
+msgstr "本地化網路請求"
+
+msgid "Locked to channel %s used by: %s"
+msgstr ""
+
+msgid "Log output level"
+msgstr "日誌輸出等級"
+
+msgid "Log queries"
+msgstr "日誌查詢"
+
+msgid "Logging"
+msgstr "日誌"
+
+msgid "Login"
+msgstr "登入"
+
+msgid "Logout"
+msgstr "登出"
+
+msgid "Loss of Signal Seconds (LOSS)"
+msgstr "信號秒漏失（LOSS）"
+
+msgid "Lowest leased address as offset from the network address."
+msgstr "DHCP 起始位置。"
+
+msgid "MAC-Address"
+msgstr "MAC 位址"
+
+msgid "MAC-Address Filter"
+msgstr "MAC 位址過濾"
+
+msgid "MAC-Filter"
+msgstr "MAC 過濾"
+
+msgid "MAC-List"
+msgstr "MAC 清單"
+
+msgid "MAP / LW4over6"
+msgstr "MAP / LW4over6 (IPv6群播技術)"
+
+msgid "MB/s"
+msgstr "MB/s"
+
+msgid "MD5"
+msgstr "MD5"
+
+msgid "MHz"
+msgstr "MHz"
+
+msgid "MTU"
+msgstr "MTU最大傳輸單元"
+
+msgid ""
+"Make sure to clone the root filesystem using something like the commands "
+"below:"
+msgstr "確保使用以下命令複製根檔案系統:"
+
+msgid "Manual"
+msgstr "手動"
+
+msgid "Max. Attainable Data Rate (ATTNDR)"
+msgstr "最高可達到的數據速率 (ATTNDR)"
+
+msgid "Maximum allowed number of active DHCP leases"
+msgstr "允許啟用DHCP釋放的最大數量"
+
+msgid "Maximum allowed number of concurrent DNS queries"
+msgstr "允許同時齊發的DNS請求的最大數量"
+
+msgid "Maximum allowed size of EDNS.0 UDP packets"
+msgstr "允許EDNS.0 協定的UDP封包最大數量"
+
+msgid "Maximum amount of seconds to wait for the modem to become ready"
+msgstr "等待數據機待命的最大秒數"
+
+msgid "Maximum hold time"
+msgstr "可持有最長時間"
+
+msgid ""
+"Maximum length of the name is 15 characters including the automatic protocol/"
+"bridge prefix (br-, 6in4-, pppoe- etc.)"
+msgstr ""
+
+msgid "Maximum number of leased addresses."
+msgstr "租約位址群的最大數量。"
+
+msgid "Mbit/s"
+msgstr "百萬位元/每秒"
+
+msgid "Memory"
+msgstr "記憶體"
+
+msgid "Memory usage (%)"
+msgstr "記憶體使用率 (%)"
+
+msgid "Metric"
+msgstr "公測數"
+
+msgid "Minimum hold time"
+msgstr "可持有的最低時間"
+
+msgid "Mirror monitor port"
+msgstr "映射監測埠號"
+
+msgid "Mirror source port"
+msgstr "映射來源埠號"
+
+msgid "Missing protocol extension for proto %q"
+msgstr "協定  %q 漏失的延伸協定"
+
+msgid "Mobility Domain"
+msgstr "行動網域"
+
+msgid "Mode"
+msgstr "模式"
+
+msgid "Model"
+msgstr "裝置型號"
+
+msgid "Modem device"
+msgstr "數據機設備"
+
+msgid "Modem init timeout"
+msgstr "數據機初始化逾時值"
+
+msgid "Monitor"
+msgstr "監視"
+
+msgid "Mount Entry"
+msgstr "掛載項目"
+
+msgid "Mount Point"
+msgstr "掛載點"
+
+msgid "Mount Points"
+msgstr "掛載各點"
+
+msgid "Mount Points - Mount Entry"
+msgstr "掛載各點 - 掛載項目"
+
+msgid "Mount Points - Swap Entry"
+msgstr "掛載各點 - 交換項目"
+
+msgid ""
+"Mount Points define at which point a memory device will be attached to the "
+"filesystem"
+msgstr "掛載各點定義所指定到記憶體設備將會被附載到檔案系統上"
+
+msgid "Mount filesystems not specifically configured"
+msgstr "自動掛載沒有預先設定的檔案系統"
+
+msgid "Mount options"
+msgstr "掛載選項"
+
+msgid "Mount point"
+msgstr "掛載點"
+
+msgid "Mount swap not specifically configured"
+msgstr "掛載未專門配置的swap分區"
+
+msgid "Mounted file systems"
+msgstr "已掛載檔案系統"
+
+msgid "Move down"
+msgstr "往下移"
+
+msgid "Move up"
+msgstr "往上移"
+
+msgid "Multicast address"
+msgstr "多點群播位址"
+
+msgid "NAS ID"
+msgstr "網路儲存設備(NAS)ID"
+
+msgid "NAT-T Mode"
+msgstr "NAT-T 模式"
+
+msgid "NAT64 Prefix"
+msgstr "NAT64前綴字首"
+
+msgid "NCM"
+msgstr "NCM"
+
+msgid "NDP-Proxy"
+msgstr "NDP-代理伺服器"
+
+msgid "NT Domain"
+msgstr "微軟NT網域"
+
+msgid "NTP server candidates"
+msgstr "候選 NTP 伺服器"
+
+msgid "NTP sync time-out"
+msgstr ""
+
+msgid "Name"
+msgstr "名稱"
+
+msgid "Name of the new interface"
+msgstr "新介面的名稱"
+
+msgid "Name of the new network"
+msgstr "新網路的名稱"
+
+msgid "Navigation"
+msgstr "導覽"
+
+msgid "Netmask"
+msgstr "網路遮罩"
+
+msgid "Network"
+msgstr "網路"
+
+msgid "Network Utilities"
+msgstr "網路工具"
+
+msgid "Network boot image"
+msgstr "網路開機映像檔"
+
+msgid "Network without interfaces."
+msgstr "尚無任何介面的網路."
+
+msgid "Next »"
+msgstr "下一個 »"
+
+msgid "No DHCP Server configured for this interface"
+msgstr "在這個介面尚無DHCP伺服器"
+
+msgid "No NAT-T"
+msgstr "無 NAT-T"
+
+msgid "No chains in this table"
+msgstr "尚未綁在這個表格中"
+
+msgid "No files found"
+msgstr "未找到檔案"
+
+msgid "No information available"
+msgstr "無可用資訊"
+
+msgid "No negative cache"
+msgstr "無負向快取"
+
+msgid "No network configured on this device"
+msgstr "尚無網路設定在這個介面上"
+
+msgid "No network name specified"
+msgstr "尚未指定網路名稱"
+
+msgid "No package lists available"
+msgstr "尚無軟體包列表可使用"
+
+msgid "No password set!"
+msgstr "没有設定密碼！"
+
+msgid "No rules in this chain"
+msgstr "尚無規則在這個鏈接上"
+
+msgid "No zone assigned"
+msgstr "未分配區域"
+
+msgid "Noise"
+msgstr "雜訊比"
+
+msgid "Noise Margin (SNR)"
+msgstr "訊號雜訊比 (SNR)"
+
+msgid "Noise:"
+msgstr "雜訊比:"
+
+msgid "Non Pre-emtive CRC errors (CRC_P)"
+msgstr ""
+
+msgid "Non-wildcard"
+msgstr "非-萬用字元"
+
+msgid "None"
+msgstr "無"
+
+msgid "Normal"
+msgstr "正常"
+
+msgid "Not Found"
+msgstr "尚未發現"
+
+msgid "Not associated"
+msgstr "尚未關聯"
+
+msgid "Not connected"
+msgstr "尚未連線"
+
+msgid "Note: Configuration files will be erased."
+msgstr "注意:設定檔將被刪除."
+
+msgid "Note: interface name length"
+msgstr ""
+
+msgid "Notice"
+msgstr "注意"
+
+msgid "Nslookup"
+msgstr "名稱伺服器查詢"
+
+msgid "OK"
+msgstr "行"
+
+msgid "OPKG-Configuration"
+msgstr "OPKG-設定值"
+
+msgid "Obfuscated Group Password"
+msgstr "混淆的群組密碼"
+
+msgid "Obfuscated Password"
+msgstr "混淆密碼"
+
+msgid "Off-State Delay"
+msgstr "熄滅狀態間隔"
+
+msgid ""
+"On this page you can configure the network interfaces. You can bridge "
+"several interfaces by ticking the \"bridge interfaces\" field and enter the "
+"names of several network interfaces separated by spaces. You can also use "
+"<abbr title=\"Virtual Local Area Network\">VLAN</abbr> notation "
+"<samp>INTERFACE.VLANNR</samp> (<abbr title=\"for example\">e.g.</abbr>: "
+"<samp>eth0.1</samp>)."
+msgstr ""
+"在這個頁面您可以設定網路介面. 只要點下這個\"介面群橋接\"而且打入數個以空格分"
+"開網路介面的名稱就可以橋接數個介面群. 您也可以使用<abbr title=\"Virtual "
+"Local Area Network\">VLAN</abbr> 符號<samp>INTERFACE.VLANNR</samp> (<abbr "
+"title=\"for example\">例.如</abbr>: <samp>eth0.1</samp>)."
+
+msgid "On-State Delay"
+msgstr "狀態延遲"
+
+msgid "One of hostname or mac address must be specified!"
+msgstr "主機名稱或 mac 位址至少要有一個被指定！"
+
+msgid "One or more fields contain invalid values!"
+msgstr "有一個以上的欄位包含無效數值!"
+
+msgid "One or more invalid/required values on tab"
+msgstr "在標籤上的一個或多個無效/必需值"
+
+msgid "One or more required fields have no value!"
+msgstr "有一個以上的欄位缺乏任何數值!"
+
+msgid "Open list..."
+msgstr "開啟清單..."
+
+msgid "OpenConnect (CISCO AnyConnect)"
+msgstr "OpenConnect (思科 AnyConnect)"
+
+msgid "Operating frequency"
+msgstr "操作頻率"
+
+msgid "Option changed"
+msgstr "選項已變更"
+
+msgid "Option removed"
+msgstr "選項已移除"
+
+msgid "Optional"
+msgstr "選擇性"
+
+msgid "Optional, specify to override default server (tic.sixxs.net)"
+msgstr ""
+
+msgid "Optional, use when the SIXXS account has more than one tunnel"
+msgstr ""
+
+msgid ""
+"Optional. 32-bit mark for outgoing encrypted packets. Enter value in hex, "
+"starting with <code>0x</code>."
+msgstr "可選性. 傳出的加密封包的32位元標記. 以十六進制<code>0x</code>為輸入值."
+
+msgid ""
+"Optional. Allowed values: 'eui64', 'random', fixed value like '::1' or "
+"'::1:2'. When IPv6 prefix (like 'a:b:c:d::') is received from a delegating "
+"server, use the suffix (like '::1') to form the IPv6 address ('a:b:c:d::1') "
+"for the interface."
+msgstr ""
+"可選性. 容許值: \" eui64\"，\"隨機”，固定值像 \" :: 1”或“::1:2”. 從委派伺服器"
+"收到IPv6前綴(如'a :b :c :d ::')時, 請使用後綴(如':: 1')形成IPv6地址('a :b :"
+"c :d : :1')."
+
+msgid ""
+"Optional. Base64-encoded preshared key. Adds in an additional layer of "
+"symmetric-key cryptography for post-quantum resistance."
+msgstr ""
+"可選性. Base64編碼的預先共享金鑰. 新增了額外一層對稱金鑰密碼學, 以便針對後量"
+"子攻擊的抵抗力."
+
+msgid "Optional. Create routes for Allowed IPs for this peer."
+msgstr "可選性. 對已允許的IP對等節點創建路由表."
+
+msgid ""
+"Optional. Host of peer. Names are resolved prior to bringing up the "
+"interface."
+msgstr "可選性. 對等節點主機. 名稱在啟動界面之前已解析."
+
+msgid "Optional. Maximum Transmission Unit of tunnel interface."
+msgstr "可選性. 隧道界面的MTU."
+
+msgid "Optional. Port of peer."
+msgstr "可選性. 節點的埠號."
+
+msgid ""
+"Optional. Seconds between keep alive messages. Default is 0 (disabled). "
+"Recommended value if this device is behind a NAT is 25."
+msgstr ""
+"可選性. 保持活動消息之間的秒數. 預設值為0(禁用). 如果此設備位於NAT之後, 則建"
+"議值為25."
+
+msgid "Optional. UDP port used for outgoing and incoming packets."
+msgstr "可選性. 用於進出封包的UDP埠號."
+
+msgid "Options"
+msgstr "選項"
+
+msgid "Other:"
+msgstr "其它:"
+
+msgid "Out"
+msgstr "出"
+
+msgid "Outbound:"
+msgstr "外連:"
+
+msgid "Output Interface"
+msgstr "輸出界面"
+
+msgid "Override MAC address"
+msgstr "覆蓋MAC位址"
+
+msgid "Override MTU"
+msgstr "覆蓋MTU數值"
+
+msgid "Override TOS"
+msgstr "覆蓋TOS"
+
+msgid "Override TTL"
+msgstr "覆寫TTL"
+
+msgid "Override default interface name"
+msgstr "覆寫預設介面名稱"
+
+msgid "Override the gateway in DHCP responses"
+msgstr "在DHCP回應中覆蓋閘道"
+
+msgid ""
+"Override the netmask sent to clients. Normally it is calculated from the "
+"subnet that is served."
+msgstr "覆蓋傳送到客戶端的子網路遮罩. 正常來說它會計算來自於已存在的子網路."
+
+msgid "Override the table used for internal routes"
+msgstr "覆蓋之前內部使用的路由表"
+
+msgid "Overview"
+msgstr "概覽"
+
+msgid "Owner"
+msgstr "持有者"
+
+msgid "PAP/CHAP password"
+msgstr "PAP/CHAP驗證密碼"
+
+msgid "PAP/CHAP username"
+msgstr "PAP/CHAP驗證用戶名稱"
+
+msgid "PID"
+msgstr "PID碼"
+
+msgid "PIN"
+msgstr "PIN碼"
+
+msgid "PMK R1 Push"
+msgstr "PMK R1推送"
+
+msgid "PPP"
+msgstr "點對點對等協定"
+
+msgid "PPPoA Encapsulation"
+msgstr "PPPoA封裝"
+
+msgid "PPPoATM"
+msgstr "PPPoATM協定"
+
+msgid "PPPoE"
+msgstr "撥號連線 (PPPoE)"
+
+msgid "PPPoSSH"
+msgstr "PPPoSSH透過SSH撥號"
+
+msgid "PPtP"
+msgstr "PPtP點對點VPN虛擬私人隧道協定"
+
+msgid "PSID offset"
+msgstr "PSID偏移"
+
+msgid "PSID-bits length"
+msgstr "PSID-位元 長度"
+
+msgid "PTM/EFM (Packet Transfer Mode)"
+msgstr "PTM/EFM (封包傳輸模式)"
+
+msgid "Package libiwinfo required!"
+msgstr "軟體包必需有libiwinfo!"
+
+msgid "Package lists are older than 24 hours"
+msgstr "軟體包列表過期已超過24小時"
+
+msgid "Package name"
+msgstr "軟體包名稱"
+
+msgid "Packets"
+msgstr "封包"
+
+msgid "Part of zone %q"
+msgstr "區域 %q 的部分"
+
+msgid "Password"
+msgstr "密碼"
+
+msgid "Password authentication"
+msgstr "密碼驗證"
+
+msgid "Password of Private Key"
+msgstr "私鑰密碼"
+
+msgid "Password of inner Private Key"
+msgstr "內部私鑰密碼"
+
+msgid "Password successfully changed!"
+msgstr "密碼已變更成功!"
+
+msgid "Password2"
+msgstr "密碼2"
+
+msgid "Path to CA-Certificate"
+msgstr "CA 憑證路徑"
+
+msgid "Path to Client-Certificate"
+msgstr "用戶憑證的路徑"
+
+msgid "Path to Private Key"
+msgstr "私鑰的路徑"
+
+msgid "Path to executable which handles the button event"
+msgstr "處理按鍵效果可執行檔路徑"
+
+msgid "Path to inner CA-Certificate"
+msgstr "內部CA憑證路徑"
+
+msgid "Path to inner Client-Certificate"
+msgstr "內部用戶憑證的路徑"
+
+msgid "Path to inner Private Key"
+msgstr "內部私鑰的路徑"
+
+msgid "Peak:"
+msgstr "峰值:"
+
+msgid "Peer IP address to assign"
+msgstr "指定對等節點IP位址"
+
+msgid "Peers"
+msgstr "對等節點群"
+
+msgid "Perfect Forward Secrecy"
+msgstr "完善的前向保密"
+
+msgid "Perform reboot"
+msgstr "執行重開機"
+
+msgid "Perform reset"
+msgstr "執行重置"
+
+msgid "Persistent Keep Alive"
+msgstr "持久保持活力"
+
+msgid "Phy Rate:"
+msgstr "物理傳輸速率:"
+
+msgid "Physical Settings"
+msgstr "硬體設定"
+
+msgid "Ping"
+msgstr "Ping"
+
+msgid "Pkts."
+msgstr "Pkts(流量單位)."
+
+msgid "Please enter your username and password."
+msgstr "請輸入您的用戶名稱和密碼。"
+
+msgid "Policy"
+msgstr "政策"
+
+msgid "Port"
+msgstr "通訊埠"
+
+msgid "Port status:"
+msgstr "埠狀態："
+
+msgid "Power Management Mode"
+msgstr "電源管理模式"
+
+msgid "Pre-emtive CRC errors (CRCP_P)"
+msgstr ""
+
+msgid "Prefer LTE"
+msgstr "偏好 LTE"
+
+msgid "Prefer UMTS"
+msgstr "偏好 UMTS"
+
+msgid "Prefix Delegated"
+msgstr "前綴委派"
+
+msgid "Preshared Key"
+msgstr "預先共享金鑰"
+
+msgid ""
+"Presume peer to be dead after given amount of LCP echo failures, use 0 to "
+"ignore failures"
+msgstr "在給定數量的LCP迴聲失敗後, 假定對等節點已死, 使用0忽略失敗"
+
+msgid "Prevent listening on these interfaces."
+msgstr "不監聽這些介面。"
+
+msgid "Prevents client-to-client communication"
+msgstr "防止用戶端對用戶端的通訊"
+
+msgid "Prism2/2.5/3 802.11b Wireless Controller"
+msgstr "Prism2/2.5/3 802.11b 無線控制器"
+
+msgid "Private Key"
+msgstr "私鑰"
+
+msgid "Proceed"
+msgstr "前進"
+
+msgid "Processes"
+msgstr "處理程序"
+
+msgid "Profile"
+msgstr "個人資料"
+
+msgid "Prot."
+msgstr "協定."
+
+msgid "Protocol"
+msgstr "協定"
+
+msgid "Protocol family"
+msgstr "協定家族"
+
+msgid "Protocol of the new interface"
+msgstr "新介面的協定家族"
+
+msgid "Protocol support is not installed"
+msgstr "支援的協定尚未安裝"
+
+msgid "Provide NTP server"
+msgstr "提供 NTP 伺服器"
+
+msgid "Provide new network"
+msgstr "提供新網路"
+
+msgid "Pseudo Ad-Hoc (ahdemo)"
+msgstr "偽裝 Ad-Hoc (ahdemo模式)"
+
+msgid "Public Key"
+msgstr "公鑰"
+
+msgid "Public prefix routed to this device for distribution to clients."
+msgstr "公開前綴字首路由到此設備以分發給客戶端."
+
+msgid "QMI Cellular"
+msgstr "QMI手機"
+
+msgid "Quality"
+msgstr "品質"
+
+msgid "R0 Key Lifetime"
+msgstr "R0 金鑰存留期"
+
+msgid "R1 Key Holder"
+msgstr "R1金鑰持有者"
+
+msgid "RFC3947 NAT-T mode"
+msgstr "RFC3947 NAT-T 模式"
+
+msgid "RTS/CTS Threshold"
+msgstr "RTS/CTS 門檻"
+
+msgid "RX"
+msgstr "接收"
+
+msgid "RX Rate"
+msgstr "接收速率"
+
+msgid "RaLink 802.11%s Wireless Controller"
+msgstr "RaLink 802.11%s 無線控制器"
+
+msgid "Radius-Accounting-Port"
+msgstr "Radius-驗証帳號-埠"
+
+msgid "Radius-Accounting-Secret"
+msgstr "Radius-合法帳號-密碼"
+
+msgid "Radius-Accounting-Server"
+msgstr "Radius-合法帳號-伺服器"
+
+msgid "Radius-Authentication-Port"
+msgstr "Radius-驗証-埠"
+
+msgid "Radius-Authentication-Secret"
+msgstr "Radius-驗証-密碼"
+
+msgid "Radius-Authentication-Server"
+msgstr "Radius-驗証-伺服器"
+
+msgid ""
+"Read <code>/etc/ethers</code> to configure the <abbr title=\"Dynamic Host "
+"Configuration Protocol\">DHCP</abbr>-Server"
+msgstr ""
+"讀取<code>/etc/ethers</code> 以便設定<abbr title=\"Dynamic Host "
+"Configuration Protocol\">DHCP</abbr> 伺服器"
+
+msgid ""
+"Really delete this interface? The deletion cannot be undone!\\nYou might "
+"lose access to this device if you are connected via this interface."
+msgstr ""
+"真的要刪除這介面?無法復元刪除!\n"
+"假如你要透過這個介面連線你可能會無法存取這個設備."
+
+msgid ""
+"Really delete this wireless network? The deletion cannot be undone!\\nYou "
+"might lose access to this device if you are connected via this network."
+msgstr ""
+"真的要刪除這個無線網路?無法復元的刪除!\n"
+"假如你是透過這個網路連線你可能會無法存取這個設備."
+
+msgid "Really reset all changes?"
+msgstr "確定要回復原廠設定?"
+
+#, fuzzy
+msgid ""
+"Really shut down network?\\nYou might lose access to this device if you are "
+"connected via this interface."
+msgstr ""
+"真的要刪除這個網路 ?\n"
+"假如你是透過這個介面連線你可能會無法存取這個設備."
+
+msgid ""
+"Really shutdown interface \"%s\" ?\\nYou might lose access to this device if "
+"you are connected via this interface."
+msgstr ""
+"真的要關閉這個介面 \"%s\" ?!\n"
+"假如你要透過這個介面連線你可能會無法存取這個設備."
+
+msgid "Really switch protocol?"
+msgstr "確定要更換協定?"
+
+msgid "Realtime Connections"
+msgstr "即時連線"
+
+msgid "Realtime Graphs"
+msgstr "即時圖表"
+
+msgid "Realtime Load"
+msgstr "即時負載"
+
+msgid "Realtime Traffic"
+msgstr "即時流量"
+
+msgid "Realtime Wireless"
+msgstr "即時無線網路"
+
+msgid "Reassociation Deadline"
+msgstr "重新關聯期限"
+
+msgid "Rebind protection"
+msgstr "重新綁護"
+
+msgid "Reboot"
+msgstr "重新啟動"
+
+msgid "Rebooting..."
+msgstr "重新啟動中..."
+
+msgid "Reboots the operating system of your device"
+msgstr "重啟您設備的作業系統"
+
+msgid "Receive"
+msgstr "接收"
+
+msgid "Receiver Antenna"
+msgstr "接收天線"
+
+msgid "Recommended. IP addresses of the WireGuard interface."
+msgstr "推薦的. WireGuard界面的IP地址."
+
+msgid "Reconnect this interface"
+msgstr "重新連接這個介面"
+
+msgid "Reconnecting interface"
+msgstr "重連這個介面中"
+
+msgid "References"
+msgstr "引用"
+
+msgid "Relay"
+msgstr "延遲"
+
+msgid "Relay Bridge"
+msgstr "橋接延遲"
+
+msgid "Relay between networks"
+msgstr "網路間的延遲"
+
+msgid "Relay bridge"
+msgstr "橋接延遲"
+
+msgid "Remote IPv4 address"
+msgstr "遠端IPv4位址"
+
+msgid "Remote IPv4 address or FQDN"
+msgstr "遠端IPv4位址或FQDN"
+
+msgid "Remove"
+msgstr "移除"
+
+msgid "Repeat scan"
+msgstr "再次掃描"
+
+msgid "Replace entry"
+msgstr "替代項目"
+
+msgid "Replace wireless configuration"
+msgstr "替代性無線設定"
+
+msgid "Request IPv6-address"
+msgstr "要求IPv6位址"
+
+msgid "Request IPv6-prefix of length"
+msgstr "要求IPv6為前綴的長度"
+
+msgid "Require TLS"
+msgstr ""
+
+msgid "Required"
+msgstr "要求"
+
+msgid "Required for certain ISPs, e.g. Charter with DOCSIS 3"
+msgstr "對特定的ISP需要,例如.DOCSIS 3 加速有線電視寬頻網路"
+
+msgid "Required. Base64-encoded private key for this interface."
+msgstr "必需的. 對此界面的以Base64編碼的私鑰."
+
+msgid "Required. Base64-encoded public key of peer."
+msgstr "必需的. 對此節點的以Base64編碼的公鑰."
+
+msgid ""
+"Required. IP addresses and prefixes that this peer is allowed to use inside "
+"the tunnel. Usually the peer's tunnel IP addresses and the networks the peer "
+"routes through the tunnel."
+msgstr ""
+"必需的. 在隧道內該節點使用的IP地址群和前綴允許使用. 通常, 這些節點群的隧道IP"
+"位址和網絡由該節點通過隧道路由取得."
+
+msgid ""
+"Requires the 'full' version of wpad/hostapd and support from the wifi driver "
+"<br />(as of Feb 2017: ath9k and ath10k, in LEDE also mwlwifi and mt76)"
+msgstr ""
+
+msgid ""
+"Requires upstream supports DNSSEC; verify unsigned domain responses really "
+"come from unsigned domains"
+msgstr "需要上級支援 DNSSEC，驗證未簽章的回應確實是來自未簽章的網域"
+
+msgid "Reset"
+msgstr "重置"
+
+msgid "Reset Counters"
+msgstr "重置計數器"
+
+msgid "Reset to defaults"
+msgstr "回復預設值"
+
+msgid "Resolv and Hosts Files"
+msgstr "解析和Hosts檔案"
+
+msgid "Resolve file"
+msgstr "解析檔"
+
+msgid "Restart"
+msgstr "重新啟動"
+
+msgid "Restart Firewall"
+msgstr "重啟防火牆"
+
+msgid "Restore backup"
+msgstr "還原之前備份設定"
+
+msgid "Reveal/hide password"
+msgstr "顯示/隱藏 密碼"
+
+msgid "Revert"
+msgstr "還原"
+
+msgid "Root"
+msgstr "根"
+
+msgid "Root directory for files served via TFTP"
+msgstr "透過TFTP送達文件到根目錄"
+
+msgid "Root preparation"
+msgstr "預備根系統"
+
+msgid "Route Allowed IPs"
+msgstr "路由允許的IP群"
+
+msgid "Route type"
+msgstr "路由型態"
+
+msgid "Routed IPv6 prefix for downstream interfaces"
+msgstr ""
+
+msgid "Router Advertisement-Service"
+msgstr "路由器通告-服務"
+
+msgid "Router Password"
+msgstr "路由器密碼"
+
+msgid "Routes"
+msgstr "路由"
+
+msgid ""
+"Routes specify over which interface and gateway a certain host or network "
+"can be reached."
+msgstr "路由器指定介面導出到特定主機或者能夠到達的網路."
+
+msgid "Run a filesystem check before mounting the device"
+msgstr "掛載這個設備前先跑系統檢查"
+
+msgid "Run filesystem check"
+msgstr "執行系統檢查"
+
+msgid "SHA256"
+msgstr "SHA256"
+
+msgid ""
+"SIXXS supports TIC only, for static tunnels using IP protocol 41 (RFC4213) "
+"use 6in4 instead"
+msgstr ""
+
+msgid "SIXXS-handle[/Tunnel-ID]"
+msgstr ""
+
+msgid "SNR"
+msgstr "信躁比 (SNR)"
+
+msgid "SSH Access"
+msgstr "SSH存取"
+
+msgid "SSH server address"
+msgstr "SSH伺服器位址"
+
+msgid "SSH server port"
+msgstr "SSH伺服器埠號"
+
+msgid "SSH username"
+msgstr "SSH用戶名稱"
+
+msgid "SSH-Keys"
+msgstr "SSH 金鑰"
+
+msgid "SSID"
+msgstr "SSID"
+
+msgid "Save"
+msgstr "儲存"
+
+msgid "Save & Apply"
+msgstr "儲存並套用"
+
+msgid "Save &#38; Apply"
+msgstr "保存 &#38; 啟用"
+
+msgid "Scan"
+msgstr "掃描"
+
+msgid "Scheduled Tasks"
+msgstr "排程任務"
+
+msgid "Section added"
+msgstr "已新增的區段"
+
+msgid "Section removed"
+msgstr "區段移除"
+
+msgid "See \"mount\" manpage for details"
+msgstr "查看\"mount\"主頁取得細節"
+
+msgid ""
+"Send LCP echo requests at the given interval in seconds, only effective in "
+"conjunction with failure threshold"
+msgstr "傳送LCP呼叫請求在這個給予的秒數間隔內, 僅影響關聯到失敗門檻"
+
+msgid "Separate Clients"
+msgstr "分隔用戶端"
+
+msgid "Server Settings"
+msgstr "伺服器設定值"
+
+msgid "Server password"
+msgstr ""
+
+msgid ""
+"Server password, enter the specific password of the tunnel when the username "
+"contains the tunnel ID"
+msgstr ""
+
+msgid "Server username"
+msgstr ""
+
+msgid "Service Name"
+msgstr "服務名稱"
+
+msgid "Service Type"
+msgstr "服務型態"
+
+msgid "Services"
+msgstr "服務"
+
+msgid ""
+"Set interface properties regardless of the link carrier (If set, carrier "
+"sense events do not invoke hotplug handlers)."
+msgstr ""
+"無論鏈接載體是什麼, 都設置界面屬性(如果設定, 則載體偵測事件不會調用熱插拔處理"
+"程序)."
+
+#, fuzzy
+msgid "Set up Time Synchronization"
+msgstr "安裝校時同步"
+
+msgid "Setup DHCP Server"
+msgstr "安裝DHCP伺服器"
+
+msgid "Severely Errored Seconds (SES)"
+msgstr "嚴重錯誤秒數(SES)"
+
+msgid "Short GI"
+msgstr "短GI"
+
+msgid "Show current backup file list"
+msgstr "顯示現今的備份檔清單"
+
+msgid "Shutdown this interface"
+msgstr "關閉這個介面"
+
+msgid "Shutdown this network"
+msgstr "關閉這個網路"
+
+msgid "Signal"
+msgstr "訊號"
+
+msgid "Signal Attenuation (SATN)"
+msgstr "信號衰減(交互式SATN)"
+
+msgid "Signal:"
+msgstr "信號:"
+
+msgid "Size"
+msgstr "容量"
+
+msgid "Size (.ipk)"
+msgstr ""
+
+msgid "Skip"
+msgstr "跳過"
+
+msgid "Skip to content"
+msgstr "跳到內容"
+
+msgid "Skip to navigation"
+msgstr "跳到導覽"
+
+msgid "Slot time"
+msgstr "插槽時間"
+
+msgid "Software"
+msgstr "軟體"
+
+msgid "Software VLAN"
+msgstr "軟體式VLAN"
+
+msgid "Some fields are invalid, cannot save values!"
+msgstr "有些欄位失效, 無法儲存數值!"
+
+msgid "Sorry, the object you requested was not found."
+msgstr "抱歉, 您請求的這物件尚無發現."
+
+msgid "Sorry, the server encountered an unexpected error."
+msgstr "抱歉, 伺服器遭遇非預期的錯誤."
+
+msgid ""
+"Sorry, there is no sysupgrade support present; a new firmware image must be "
+"flashed manually. Please refer to the wiki for device specific install "
+"instructions."
+msgstr ""
+"抱歉，沒有 sysupgrade 支援出現; 新版韌體映像檔必須手動更新，請至 Wiki 尋找特"
+"定設備安裝指南。"
+
+msgid "Sort"
+msgstr "分類"
+
+msgid "Source"
+msgstr "來源位址"
+
+msgid "Source routing"
+msgstr ""
+
+msgid "Specifies the button state to handle"
+msgstr "指定這個按鈕狀態以便操作"
+
+msgid "Specifies the directory the device is attached to"
+msgstr "指定這個設備將被附掛到的目錄"
+
+msgid "Specifies the listening port of this <em>Dropbear</em> instance"
+msgstr "指定這個 <em>Dropbear</em>的監聽埠"
+
+msgid ""
+"Specifies the maximum amount of failed ARP requests until hosts are presumed "
+"to be dead"
+msgstr "指定失敗ARP可請求的最大數量直到駭客主機死亡為止"
+
+msgid ""
+"Specifies the maximum amount of seconds after which hosts are presumed to be "
+"dead"
+msgstr "指定可請求的最大秒數直到駭客主機死亡為止"
+
+msgid "Specify a TOS (Type of Service)."
+msgstr "指定一個TOS (服務類型)."
+
+msgid ""
+"Specify a TTL (Time to Live) for the encapsulating packet other than the "
+"default (64)."
+msgstr "為封裝封包指定TTL(存活時間), 而不是預設值(64)."
+
+msgid ""
+"Specify an MTU (Maximum Transmission Unit) other than the default (1280 "
+"bytes)."
+msgstr "指定預設值(1280位元)除外的MTU(最大傳輸單位)."
+
+msgid "Specify the secret encryption key here."
+msgstr "指定加密金鑰在此."
+
+msgid "Start"
+msgstr "啟動"
+
+msgid "Start priority"
+msgstr "啟動優先權"
+
+msgid "Startup"
+msgstr "開機自動執行"
+
+msgid "Static IPv4 Routes"
+msgstr "靜態IPv4路由"
+
+msgid "Static IPv6 Routes"
+msgstr "靜態IPv6路由"
+
+msgid "Static Leases"
+msgstr "靜態租約"
+
+msgid "Static Routes"
+msgstr "靜態路由"
+
+msgid "Static address"
+msgstr "靜態位址"
+
+msgid ""
+"Static leases are used to assign fixed IP addresses and symbolic hostnames "
+"to DHCP clients. They are also required for non-dynamic interface "
+"configurations where only hosts with a corresponding lease are served."
+msgstr ""
+"靜態租約是用來指定固定的IP位址和表示的主機名稱給予DHCP用戶端. 它們也需要非動"
+"態介面設定值以便獲取相應租約的主機服務."
+
+msgid "Status"
+msgstr "狀態"
+
+msgid "Stop"
+msgstr "停止"
+
+msgid "Strict order"
+msgstr "嚴謹順序"
+
+msgid "Submit"
+msgstr "提交"
+
+msgid "Suppress logging"
+msgstr "禁止記錄"
+
+msgid "Suppress logging of the routine operation of these protocols"
+msgstr "禁止記錄這些協定的例行操作"
+
+msgid "Swap"
+msgstr ""
+
+msgid "Swap Entry"
+msgstr "Swap交換頁項目"
+
+msgid "Switch"
+msgstr "交換器"
+
+msgid "Switch %q"
+msgstr "交換器 %q"
+
+msgid "Switch %q (%s)"
+msgstr "交換器 %q (%s)"
+
+msgid ""
+"Switch %q has an unknown topology - the VLAN settings might not be accurate."
+msgstr "交換器％q具有未知的拓撲-VLAN設定可能不準確."
+
+msgid "Switch VLAN"
+msgstr "交換器 VLAN"
+
+msgid "Switch protocol"
+msgstr "切換協定"
+
+msgid "Sync with NTP-Server"
+msgstr "與 NTP 伺服器同步"
+
+msgid "Sync with browser"
+msgstr "與瀏覽器同步時間"
+
+msgid "Synchronizing..."
+msgstr "同步中..."
+
+msgid "System"
+msgstr "系統"
+
+msgid "System Log"
+msgstr "系統日誌"
+
+msgid "System Properties"
+msgstr "系統屬性"
+
+msgid "System log buffer size"
+msgstr "系統日誌緩衝區大小"
+
+msgid "TCP:"
+msgstr "TCP:"
+
+msgid "TFTP Settings"
+msgstr "TFTP設定"
+
+msgid "TFTP server root"
+msgstr "TFTP 伺服器根"
+
+msgid "TX"
+msgstr "傳送"
+
+msgid "TX Rate"
+msgstr "傳送速度"
+
+msgid "Table"
+msgstr "表格"
+
+msgid "Target"
+msgstr "目標"
+
+msgid "Target network"
+msgstr "目標網路"
+
+msgid "Terminate"
+msgstr "終結"
+
+#, fuzzy
+msgid ""
+"The <em>Device Configuration</em> section covers physical settings of the "
+"radio hardware such as channel, transmit power or antenna selection which "
+"are shared among all defined wireless networks (if the radio hardware is "
+"multi-SSID capable). Per network settings like encryption or operation mode "
+"are grouped in the <em>Interface Configuration</em>."
+msgstr ""
+"這個<em>Device Configuration</em>欄位會覆蓋無線射頻硬體的物理設定值,如通道、"
+"傳送功率或者天線分享道所有定義的無線網路(假如這個無線射頻硬體是多工-SSID能力"
+"的). 每個網路設定像加密或操作模式是被分群在<em>Interface Configuration</em>"
+"中."
+
+msgid ""
+"The <em>libiwinfo-lua</em> package is not installed. You must install this "
+"component for working wireless configuration!"
+msgstr ""
+"這 <em>libiwinfo-lua</em> 軟體包尚未安裝. 您必須安裝這個元件以便無線網路設定"
+"有作用."
+
+msgid ""
+"The HE.net endpoint update configuration changed, you must now use the plain "
+"username instead of the user ID!"
+msgstr "HE.net端點更新組態已更改, 您現在必須使用普通用戶名而不是用戶ID!"
+
+msgid ""
+"The IPv4 address or the fully-qualified domain name of the remote tunnel end."
+msgstr "遠程隧道端的IPv4地址或完全符合標準的網域名稱."
+
+msgid ""
+"The IPv6 prefix assigned to the provider, usually ends with <code>::</code>"
+msgstr "指定到這供應商的IPv6字首, 通常用 <code>::</code>結尾"
+
+msgid ""
+"The allowed characters are: <code>A-Z</code>, <code>a-z</code>, <code>0-9</"
+"code> and <code>_</code>"
+msgstr ""
+"所允許的字元是: <code>A-Z</code>, <code>a-z</code>, <code>0-9</code> and "
+"<code>_</code>"
+
+msgid "The configuration file could not be loaded due to the following error:"
+msgstr "因下列問題導致組態檔無法讀取："
+
+msgid ""
+"The device file of the memory or partition (<abbr title=\"for example\">e.g."
+"</abbr> <code>/dev/sda1</code>)"
+msgstr ""
+"記憶體的設備檔或者分割區 (<abbr title=\"for example\">e.g.</abbr> <code>/dev/"
+"sda1</code>)"
+
+msgid ""
+"The filesystem that was used to format the memory (<abbr title=\"for example"
+"\">e.g.</abbr> <samp><abbr title=\"Third Extended Filesystem\">ext3</abbr></"
+"samp>)"
+msgstr ""
+"這檔案系統適用來格式化記憶體(<abbr title=\"for example\">例.如.</abbr> "
+"<samp><abbr title=\"Third Extended Filesystem\">ext3</abbr></samp>)"
+
+msgid ""
+"The flash image was uploaded. Below is the checksum and file size listed, "
+"compare them with the original file to ensure data integrity.<br /> Click "
+"\"Proceed\" below to start the flash procedure."
+msgstr ""
+"即將刷入的映像檔已上傳.下面是這個校驗碼和檔案大小詳細資訊, 用原始檔比對他們以"
+"確保資料完整性.<br />按下面的\"繼續\"便可以開始更新程序."
+
+msgid "The following changes have been committed"
+msgstr "下列的修改已經被提交"
+
+msgid "The following changes have been reverted"
+msgstr "接下來的修改已經被回復"
+
+msgid "The following rules are currently active on this system."
+msgstr "以下的規則現正作用在系統中."
+
+msgid "The given network name is not unique"
+msgstr "輸入的網路名稱非唯一"
+
+#, fuzzy
+msgid ""
+"The hardware is not multi-SSID capable and the existing configuration will "
+"be replaced if you proceed."
+msgstr "如果您繼續的話.這硬體並非多SSID工能並且已存的設定將會被覆蓋."
+
+msgid ""
+"The length of the IPv4 prefix in bits, the remainder is used in the IPv6 "
+"addresses."
+msgstr "這IPv4開頭以位元計的長度, 剩餘部分將會延用在IPv6位址中."
+
+msgid "The length of the IPv6 prefix in bits"
+msgstr "這IPv6開頭以位元計的長度"
+
+msgid "The local IPv4 address over which the tunnel is created (optional)."
+msgstr "從已建立的隧道產生的本地端IPv4位址(選項)."
+
+msgid ""
+"The network ports on this device can be combined to several <abbr title="
+"\"Virtual Local Area Network\">VLAN</abbr>s in which computers can "
+"communicate directly with each other. <abbr title=\"Virtual Local Area "
+"Network\">VLAN</abbr>s are often used to separate different network "
+"segments. Often there is by default one Uplink port for a connection to the "
+"next greater network like the internet and other ports for a local network."
+msgstr ""
+"此設備的網路埠可以被組合到數個 <abbr title=\"Virtual Local Area Network"
+"\">VLAN</abbr>，以便在內的電腦可互通。 <abbr title=\"Virtual Local Area "
+"Network\">VLAN</abbr> 常用來分割網路區段。預設會有一個上傳埠來連接到下一個網"
+"路，像是 Internet ，而其它埠則供區網使用。"
+
+msgid "The selected protocol needs a device assigned"
+msgstr "選到的協定需要指定到設備上"
+
+msgid "The submitted security token is invalid or already expired!"
+msgstr "提交的安全權杖無效或已過期！"
+
+msgid ""
+"The system is erasing the configuration partition now and will reboot itself "
+"when finished."
+msgstr "系統正在刪除設定分割並且當完成時將自行重開."
+
+msgid ""
+"The system is flashing now.<br /> DO NOT POWER OFF THE DEVICE!<br /> Wait a "
+"few minutes before you try to reconnect. It might be necessary to renew the "
+"address of your computer to reach the device again, depending on your "
+"settings."
+msgstr ""
+"系統升級中。<br /> 請勿關閉設備！<br /> 請稍待幾分鐘後系統將自動重新連線。根"
+"據不同設定，您可能需要更新IP網址以連上設備。"
+
+msgid ""
+"The tunnel end-point is behind NAT, defaults to disabled and only applies to "
+"AYIYA"
+msgstr ""
+
+msgid ""
+"The uploaded image file does not contain a supported format. Make sure that "
+"you choose the generic image format for your platform."
+msgstr ""
+"以上傳的映像檔不包含支援格式，請確認您選擇的是針對您的平台採用的通用映像檔。"
+
+msgid "There are no active leases."
+msgstr "租賃尚未啟動."
+
+msgid "There are no pending changes to apply!"
+msgstr "尚無暫存的修改等待套用"
+
+msgid "There are no pending changes to revert!"
+msgstr "尚無暫存的修改等待復原!"
+
+msgid "There are no pending changes!"
+msgstr "無暫存的修改!"
+
+msgid ""
+"There is no device assigned yet, please attach a network device in the "
+"\"Physical Settings\" tab"
+msgstr "尚未指定設備, 請接上一個網路設備在這\"實體設置\"標籤內"
+
+msgid ""
+"There is no password set on this router. Please configure a root password to "
+"protect the web interface and enable SSH."
+msgstr "路由器尚未設密碼. 請設定root密碼以便保護web介面及啟用SSH."
+
+msgid "This IPv4 address of the relay"
+msgstr "IPv4位址的中繼"
+
+msgid ""
+"This file may contain lines like 'server=/domain/1.2.3.4' or "
+"'server=1.2.3.4' fordomain-specific or full upstream <abbr title=\"Domain "
+"Name System\">DNS</abbr> servers."
+msgstr ""
+
+msgid ""
+"This is a list of shell glob patterns for matching files and directories to "
+"include during sysupgrade. Modified files in /etc/config/ and certain other "
+"configurations are automatically preserved."
+msgstr ""
+"這是shell通用模式清單用來在系統更新時匹配包括的檔案和目錄. 在/etc/config/ 修"
+"改檔案和特定其它設定檔將會被自動保留."
+
+msgid ""
+"This is either the \"Update Key\" configured for the tunnel or the account "
+"password if no update key has been configured"
+msgstr "這是為隧道配置的\"更新金鑰\", 或者是如果未設置更新金鑰的帳戶密碼"
+
+msgid ""
+"This is the content of /etc/rc.local. Insert your own commands here (in "
+"front of 'exit 0') to execute them at the end of the boot process."
+msgstr ""
+"這是 /etc/rc.local 內容. 在這插入自己的指令 (在 'exit 0' 前面)以便在開機流程"
+"結尾執行它們."
+
+msgid ""
+"This is the local endpoint address assigned by the tunnel broker, it usually "
+"ends with <code>:2</code>"
+msgstr "這是由通道代理人指定的本地終端位址, 通常用 <code>:2</code>結尾."
+
+msgid ""
+"This is the only <abbr title=\"Dynamic Host Configuration Protocol\">DHCP</"
+"abbr> in the local network"
+msgstr ""
+"在本地網路中 這是唯一的 <abbr title=\"Dynamic Host Configuration Protocol"
+"\">DHCP</abbr>"
+
+msgid "This is the plain username for logging into the account"
+msgstr "這是登錄帳戶的普通用戶名稱"
+
+msgid ""
+"This is the prefix routed to you by the tunnel broker for use by clients"
+msgstr "這是隧道代理路由給您的前綴路由,以供客戶端使用"
+
+msgid "This is the system crontab in which scheduled tasks can be defined."
+msgstr "這是系統預設的例行性工作排程."
+
+msgid ""
+"This is usually the address of the nearest PoP operated by the tunnel broker"
+msgstr "這是由隧道代理人操作的近端PoP通用位址"
+
+msgid ""
+"This list gives an overview over currently running system processes and "
+"their status."
+msgstr "這清單提供目前正在執行的系統的執行緒和狀態的總覽."
+
+msgid "This page allows the configuration of custom button actions"
+msgstr "這一頁允許客製化按鍵動作的設定"
+
+msgid "This page gives an overview over currently active network connections."
+msgstr "這一頁提供目前正在活動中網路連線的預覽."
+
+msgid "This section contains no values yet"
+msgstr "這部分尚無數值"
+
+msgid "Time Synchronization"
+msgstr "校時同步"
+
+msgid "Time Synchronization is not configured yet."
+msgstr "校時同步尚未設定."
+
+msgid "Timezone"
+msgstr "時區"
+
+msgid ""
+"To restore configuration files, you can upload a previously generated backup "
+"archive here."
+msgstr "要復元設定檔, 可以上傳之前製作的備份壓縮檔放這."
+
+msgid "Tone"
+msgstr "音節"
+
+msgid "Total Available"
+msgstr "全部可用"
+
+msgid "Traceroute"
+msgstr "路由追蹤"
+
+msgid "Traffic"
+msgstr "流量"
+
+msgid "Transfer"
+msgstr "傳輸"
+
+msgid "Transmission Rate"
+msgstr "傳輸速率"
+
+msgid "Transmit"
+msgstr "射頻"
+
+msgid "Transmit Power"
+msgstr "射頻功率"
+
+msgid "Transmitter Antenna"
+msgstr "射頻天線"
+
+msgid "Trigger"
+msgstr "觸發"
+
+msgid "Trigger Mode"
+msgstr "觸發模式"
+
+msgid "Tunnel ID"
+msgstr "通道ID"
+
+msgid "Tunnel Interface"
+msgstr "通道介面"
+
+msgid "Tunnel Link"
+msgstr "連線通道"
+
+msgid "Tunnel broker protocol"
+msgstr ""
+
+msgid "Tunnel setup server"
+msgstr ""
+
+msgid "Tunnel type"
+msgstr ""
+
+msgid "Tx-Power"
+msgstr "傳送-功率"
+
+msgid "Type"
+msgstr "類型"
+
+msgid "UDP:"
+msgstr "UDP:"
+
+msgid "UMTS only"
+msgstr "只用3G UMTS"
+
+msgid "UMTS/GPRS/EV-DO"
+msgstr "UMTS/GPRS/EV-DO"
+
+msgid "USB Device"
+msgstr "USB設備"
+
+msgid "USB Ports"
+msgstr ""
+
+msgid "UUID"
+msgstr "設備通用唯一識別碼UUID"
+
+msgid "Unable to dispatch"
+msgstr "無法發送"
+
+msgid "Unavailable Seconds (UAS)"
+msgstr "不可用秒數 (UAS)"
+
+msgid "Unknown"
+msgstr "未知"
+
+msgid "Unknown Error, password not changed!"
+msgstr "未知錯誤, 密碼尚未改變!"
+
+msgid "Unmanaged"
+msgstr "未託管"
+
+msgid "Unmount"
+msgstr "卸載"
+
+msgid "Unsaved Changes"
+msgstr "尚未存檔的修改"
+
+msgid "Unsupported protocol type."
+msgstr "不支援的協定型態。"
+
+msgid "Update lists"
+msgstr "上傳清單"
+
+msgid ""
+"Upload a sysupgrade-compatible image here to replace the running firmware. "
+"Check \"Keep settings\" to retain the current configuration (requires a "
+"compatible firmware image)."
+msgstr ""
+"上傳一個sysupgrade-相容的映像檔在這以便替代正執行中的韌體. 勾選\"保持設定\"以"
+"保留目前設定值(必須要是OpenWrt相容性韌體映像檔)."
+
+msgid "Upload archive..."
+msgstr "上傳壓縮檔..."
+
+msgid "Uploaded File"
+msgstr "檔案已上傳"
+
+msgid "Uptime"
+msgstr "上線時間"
+
+msgid "Use <code>/etc/ethers</code>"
+msgstr "採用 <code>/etc/ethers</code>"
+
+msgid "Use DHCP gateway"
+msgstr "使用DHCP的閘道"
+
+msgid "Use DNS servers advertised by peer"
+msgstr "使用終端發布的DNS伺服器"
+
+msgid "Use ISO/IEC 3166 alpha2 country codes."
+msgstr "使用Use ISO/IEC 3166 alpha2 國別碼."
+
+msgid "Use MTU on tunnel interface"
+msgstr "在通道介面上使用的MTU數值"
+
+msgid "Use TTL on tunnel interface"
+msgstr "在通道介面上使用的TTL存活時間"
+
+msgid "Use as external overlay (/overlay)"
+msgstr "使用當作外部 overlay (/overlay)"
+
+msgid "Use as root filesystem (/)"
+msgstr "當作根 檔案系統(/)"
+
+msgid "Use broadcast flag"
+msgstr "當作廣播旗標"
+
+msgid "Use builtin IPv6-management"
+msgstr "使用內建的IPv6管理功能"
+
+msgid "Use custom DNS servers"
+msgstr "使用自訂的 DNS 伺服器"
+
+msgid "Use default gateway"
+msgstr "使用預設閘道"
+
+msgid "Use gateway metric"
+msgstr "使用閘道公測數"
+
+msgid "Use routing table"
+msgstr "使用路由表"
+
+msgid ""
+"Use the <em>Add</em> Button to add a new lease entry. The <em>MAC-Address</"
+"em> indentifies the host, the <em>IPv4-Address</em> specifies to the fixed "
+"address to use and the <em>Hostname</em> is assigned as symbolic name to the "
+"requesting host. The optional <em>Lease time</em> can be used to set non-"
+"standard host-specific lease time, e.g. 12h, 3d or infinite."
+msgstr ""
+"使用 <em>Add</em> 鍵以便新增一個租賃的項目. 這個 <em>MAC-Address</em> 標誌這"
+"個主機, the <em>IPv4-Address</em> 指定固定位址以便使用,<em>Hostname</em> 備指"
+"定當作象徵名稱到請求的主機上."
+
+msgid "Used"
+msgstr "已使用"
+
+msgid "Used Key Slot"
+msgstr "已使用的關鍵插槽"
+
+msgid ""
+"Used for two different purposes: RADIUS NAS ID and 802.11r R0KH-ID. Not "
+"needed with normal WPA(2)-PSK."
+msgstr "採用不同目的: RADIUS NAS ID與802.11r R0KH-ID. 不需要正常的WPA(2)-PSK."
+
+msgid "User certificate (PEM encoded)"
+msgstr "使用者數位簽證(PEM編碼格式)"
+
+msgid "User key (PEM encoded)"
+msgstr "使用者金鑰(PEM編碼格式)"
+
+msgid "Username"
+msgstr "用戶名稱"
+
+msgid "VC-Mux"
+msgstr "虛擬電路多工器VC-Mux"
+
+msgid "VDSL"
+msgstr "超高速數位用戶迴路 (VDSL)"
+
+msgid "VLANs on %q"
+msgstr "VLAN 在 %q"
+
+msgid "VLANs on %q (%s)"
+msgstr "VLAN 在 %q (%s)"
+
+msgid "VPN Local address"
+msgstr "本地 VPN 位址"
+
+msgid "VPN Local port"
+msgstr "本地 VPN 阜"
+
+msgid "VPN Server"
+msgstr "VPN伺服器"
+
+msgid "VPN Server port"
+msgstr "VPN 伺服器阜"
+
+msgid "VPN Server's certificate SHA1 hash"
+msgstr "VPN伺服器的SHA1雜湊表式數位簽證"
+
+msgid "VPNC (CISCO 3000 (and others) VPN)"
+msgstr "VPNC (CISCO 3000 (和其它) VPN)"
+
+msgid "Vendor"
+msgstr "製造商"
+
+msgid "Vendor Class to send when requesting DHCP"
+msgstr "當請求DHCP封包時要傳送的製造商類別碼"
+
+msgid "Verbose"
+msgstr ""
+
+msgid "Verbose logging by aiccu daemon"
+msgstr ""
+
+msgid "Verify"
+msgstr "確認"
+
+msgid "Version"
+msgstr "版本"
+
+msgid "WDS"
+msgstr "無線分散系統 WDS"
+
+msgid "WEP Open System"
+msgstr "WEP 開放系統"
+
+msgid "WEP Shared Key"
+msgstr "WEP 共享金鑰"
+
+msgid "WEP passphrase"
+msgstr "WEP通關密碼"
+
+msgid "WMM Mode"
+msgstr "無線多媒體機制"
+
+msgid "WPA passphrase"
+msgstr "WPA 密碼"
+
+msgid ""
+"WPA-Encryption requires wpa_supplicant (for client mode) or hostapd (for AP "
+"and ad-hoc mode) to be installed."
+msgstr ""
+"WPA-加密需要 wpa_supplican(終端模式)或者hostapd熱點(對AP或者是 ad-hoc模式)已"
+"被安裝."
+
+msgid ""
+"Wait for NTP sync that many seconds, seting to 0 disables waiting (optional)"
+msgstr ""
+
+msgid "Waiting for changes to be applied..."
+msgstr "等待修改被啟用..."
+
+msgid "Waiting for command to complete..."
+msgstr "等待完整性指令..."
+
+msgid "Waiting for device..."
+msgstr "正在等待裝置中…"
+
+msgid "Warning"
+msgstr "警告"
+
+msgid "Warning: There are unsaved changes that will get lost on reboot!"
+msgstr "警告：未儲存的變更會在重新啟動時遺失！"
+
+msgid "Whether to create an IPv6 default route over the tunnel"
+msgstr ""
+
+msgid "Whether to route only packets from delegated prefixes"
+msgstr ""
+
+msgid "Width"
+msgstr "寬度"
+
+msgid "WireGuard VPN"
+msgstr "WireGuard虛擬私人網路(VPN)"
+
+msgid "Wireless"
+msgstr "無線"
+
+msgid "Wireless Adapter"
+msgstr "無線網卡"
+
+msgid "Wireless Network"
+msgstr "無線網路"
+
+msgid "Wireless Overview"
+msgstr "無線網路總覽"
+
+msgid "Wireless Security"
+msgstr "無線安全"
+
+msgid "Wireless is disabled or not associated"
+msgstr "無線被關閉或者尚未關聯"
+
+msgid "Wireless is restarting..."
+msgstr "無線網路重啟中..."
+
+msgid "Wireless network is disabled"
+msgstr "無線網路已停用"
+
+msgid "Wireless network is enabled"
+msgstr "無線網路已啟用"
+
+msgid "Wireless restarted"
+msgstr "無線網路已重啟"
+
+msgid "Wireless shut down"
+msgstr "無線網路關閉"
+
+msgid "Write received DNS requests to syslog"
+msgstr "寫入已接收的DNS請求到系統日誌中"
+
+msgid "Write system log to file"
+msgstr "將系統日誌寫入檔案"
+
+msgid ""
+"You can enable or disable installed init scripts here. Changes will applied "
+"after a device reboot.<br /><strong>Warning: If you disable essential init "
+"scripts like \"network\", your device might become inaccessible!</strong>"
+msgstr ""
+"您可以開啟或關閉初始化指令在這. 修改將會在設備重開後被啟用. <br /><strong>警"
+"告: 假如您關閉必要的初始化腳本像\"網路\", 您的設備將可能無法存取!</strong>"
+
+msgid ""
+"You must enable JavaScript in your browser or LuCI will not work properly."
+msgstr "在瀏覽器您必須啟用JavaScript否則LuCI無法正常運作."
+
+msgid ""
+"Your Internet Explorer is too old to display this page correctly. Please "
+"upgrade it to at least version 7 or use another browser like Firefox, Opera "
+"or Safari."
+msgstr ""
+
+msgid "any"
+msgstr "任意"
+
+msgid "auto"
+msgstr "自動"
+
+msgid "baseT"
+msgstr "baseT標準"
+
+msgid "bridged"
+msgstr "已橋接"
+
+msgid "create:"
+msgstr "建立:"
+
+msgid "creates a bridge over specified interface(s)"
+msgstr "在指定的介面群上建立橋接"
+
+msgid "dB"
+msgstr "dB"
+
+msgid "dBm"
+msgstr "dBm"
+
+msgid "disable"
+msgstr "關閉"
+
+msgid "disabled"
+msgstr "已停用"
+
+msgid "expired"
+msgstr "已過期"
+
+msgid ""
+"file where given <abbr title=\"Dynamic Host Configuration Protocol\">DHCP</"
+"abbr>-leases will be stored"
+msgstr ""
+"當給予<abbr title=\"Dynamic Host Configuration Protocol\">DHCP</abbr>-租賃將"
+"會被存檔"
+
+msgid "forward"
+msgstr "轉發"
+
+msgid "full-duplex"
+msgstr "全雙工"
+
+msgid "half-duplex"
+msgstr "半雙工"
+
+msgid "help"
+msgstr "幫助"
+
+msgid "hidden"
+msgstr "隱藏"
+
+msgid "hybrid mode"
+msgstr "複合模式"
+
+msgid "if target is a network"
+msgstr "假如目標是某個網路"
+
+msgid "input"
+msgstr "輸入"
+
+msgid "kB"
+msgstr "kB"
+
+msgid "kB/s"
+msgstr "kB/s"
+
+msgid "kbit/s"
+msgstr "kbit/s"
+
+msgid "local <abbr title=\"Domain Name System\">DNS</abbr> file"
+msgstr "本地<abbr title=\"Domain Name System\">DNS</abbr> 檔案"
+
+msgid "minimum 1280, maximum 1480"
+msgstr ""
+
+msgid "minutes"
+msgstr "分鐘"
+
+msgid "no"
+msgstr "不"
+
+msgid "no link"
+msgstr "未連線"
+
+msgid "none"
+msgstr "無"
+
+msgid "not present"
+msgstr "未連接"
+
+msgid "off"
+msgstr "關閉"
+
+msgid "on"
+msgstr "開啟"
+
+msgid "open"
+msgstr "打開"
+
+msgid "overlay"
+msgstr ""
+
+msgid "relay mode"
+msgstr "中繼模式"
+
+msgid "routed"
+msgstr "路由"
+
+msgid "server mode"
+msgstr "伺服器模式"
+
+msgid "stateful-only"
+msgstr "只限有狀態"
+
+msgid "stateless"
+msgstr "無狀態"
+
+msgid "stateless + stateful"
+msgstr "有狀態 + 無狀態"
+
+msgid "tagged"
+msgstr "已選"
+
+msgid "time units (TUs / 1.024 ms) [1000-65535]"
+msgstr "時間單位 (TUs / 1.024 ms) [1000-65535]"
+
+msgid "unknown"
+msgstr "未知"
+
+msgid "unlimited"
+msgstr "無限"
+
+msgid "unspecified"
+msgstr "未規定"
+
+msgid "unspecified -or- create:"
+msgstr "尚未指定 - 或 -建立:"
+
+msgid "untagged"
+msgstr "未選"
+
+msgid "yes"
+msgstr "是"
+
+msgid "« Back"
+msgstr "« 倒退"
+
+msgid "Leasetime"
+msgstr "租賃時間"
+
+msgid "AR Support"
+msgstr "AR支援"
+
+msgid "Atheros 802.11%s Wireless Controller"
+msgstr "Atheros 802.11%s 無線控制器"
+
+msgid "Background Scan"
+msgstr "背景搜尋"
+
+msgid "Compression"
+msgstr "壓縮"
+
+msgid "Disable HW-Beacon timer"
+msgstr "關閉硬體燈號計時器"
+
+msgid "Do not send probe responses"
+msgstr "不傳送探測回應"
+
+msgid "Fast Frames"
+msgstr "快速迅框群"
+
+msgid "Maximum Rate"
+msgstr "最快速度"
+
+msgid "Minimum Rate"
+msgstr "最低速度"
+
+msgid "Multicast Rate"
+msgstr "多點群播速度"
+
+msgid "Outdoor Channels"
+msgstr "室外通道"
+
+msgid "Regulatory Domain"
+msgstr "監管網域"
+
+msgid "Separate WDS"
+msgstr "分隔WDS中繼"
+
+msgid "Static WDS"
+msgstr "靜態WDS"
+
+msgid "Turbo Mode"
+msgstr "渦輪爆衝模式"
+
+msgid "XR Support"
+msgstr "支援XR無線陣列"
+
+msgid "An additional network will be created if you leave this unchecked."
+msgstr "取消選取將會另外建立一個新網路，而不會覆蓋目前的網路設定"
+
+msgid "Join Network: Settings"
+msgstr "加入網路的設定"
+
+msgid "Port %d"
+msgstr "埠 %d"
+
+msgid "Port %d is untagged in multiple VLANs!"
+msgstr "埠 %d 尚未標記在多個VLANs中!"
+
+msgid "VLAN Interface"
+msgstr "VLAN介面"

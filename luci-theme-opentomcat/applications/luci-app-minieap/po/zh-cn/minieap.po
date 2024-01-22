@@ -1,0 +1,233 @@
+msgid "minieap Settings"
+msgstr "minieap "
+
+msgid "minieap LOG"
+msgstr "minieap "
+
+msgid "Log file:/var/log/minieap.log"
+msgstr ": /var/log/minieap.log"
+
+msgid "RUNNING"
+msgstr ""
+
+msgid "NOT RUNNING"
+msgstr ""
+
+msgid "Pinghost not set"
+msgstr "Ping"
+
+msgid "ONLINE"
+msgstr ""
+
+msgid "NOT ONLINE"
+msgstr ""
+
+msgid "Configure minieap 802.11x."
+msgstr "minieap 802.11x"
+
+msgid "Network Status"
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "Normal Settings"
+msgstr ""
+
+msgid "Plugins List"
+msgstr ""
+
+msgid "Ruijie EAP Settings"
+msgstr ""
+
+msgid "The username given to you by your network administrator"
+msgstr "()"
+
+msgid "The password you set or given to you by your network administrator"
+msgstr "()"
+
+msgid "Physical interface of WAN"
+msgstr "WAN"
+
+msgid "PingHost"
+msgstr "Ping"
+
+msgid "Ping host for drop detection, 0.0.0.0 to turn off this feature."
+msgstr "Ping0.0.0.0"
+
+msgid ""
+"Packets flow through these plug-ins in sequence. Pay attention to the order "
+"in the environment where the package plug-in is modified"
+msgstr ""
+
+msgid "printer: Print length of packets"
+msgstr "printer"
+
+msgid "rjv3: Ruijie 802.11X. Support V3 verification algorithm"
+msgstr "rjv3V3"
+
+msgid "Heartbeat interval"
+msgstr ""
+
+msgid "Interval for sending Heartbeat packets (seconds) [Default: 60]"
+msgstr "[60]"
+
+msgid "Broadcast address"
+msgstr ""
+
+msgid "Broadcast address type when searching for servers [Default: Standard]"
+msgstr " []"
+
+msgid "Standard"
+msgstr ""
+
+msgid "Ruijie private"
+msgstr ""
+
+msgid "DhcpMode"
+msgstr "DHCP"
+
+msgid "DHCP method [Default: After certification]"
+msgstr "DHCP []"
+
+msgid "None"
+msgstr ""
+
+msgid "Secondary authentication"
+msgstr ""
+
+msgid "Before certification"
+msgstr ""
+
+msgid "After certification"
+msgstr ""
+
+msgid "DhcpScript"
+msgstr "DHCP"
+
+msgid "DHCP script [Default: None]"
+msgstr "DHCP []"
+
+msgid "Service"
+msgstr ""
+
+msgid "Service From Ruijie Server [Default: internet]"
+msgstr ""
+
+msgid "Version String"
+msgstr ""
+
+msgid "Custom version [Default: RG-SU For Linux V1.0]"
+msgstr " [RG-SU For Linux V1.0]"
+
+msgid "Main DNS server"
+msgstr "DNS"
+
+msgid "Custom main DNS server [Default: FromSystem]"
+msgstr "DNS []"
+
+msgid "Second DNS server"
+msgstr "DNS"
+
+msgid "Custom second DNS server [Default: FromSystem]"
+msgstr "DNS []"
+
+msgid "Disk serial"
+msgstr ""
+
+msgid "Custom disk serial [Default: From /etc/mtab]"
+msgstr " []"
+
+msgid "DHCP try times"
+msgstr "DHCP"
+
+msgid "DHCP try times [Default: 3]"
+msgstr "DHCP [3]"
+
+msgid "Custom EAP Options"
+msgstr "EAP"
+
+msgid ""
+"Format &lt;type&gt;:&lt;value&gt;[:r]. Add a option type: &lt;type&gt;, "
+"value: &lt;value&gt;. :r for replace"
+msgstr " &lt;type&gt;:&lt;value&gt;[:r] rr"
+
+msgid "Configfile encoding"
+msgstr ""
+
+msgid "Auth Timeout"
+msgstr ""
+
+msgid "802.11X auth timeout (in second). [default: 5]"
+msgstr " [5]"
+
+msgid "Wait after failed"
+msgstr ""
+
+msgid "Wait time between failed and next time (in second). [default: 30]"
+msgstr "[30]"
+
+msgid "Max fail"
+msgstr ""
+
+msgid "Maximum allowed number of failures. [default: 3]"
+msgstr " [3]"
+
+msgid "Disable auto reauth"
+msgstr ""
+
+msgid "Disable auto reauth after offline. [default: True]"
+msgstr " []"
+
+msgid "False"
+msgstr ""
+
+msgid "True"
+msgstr ""
+
+msgid "Daemon mode"
+msgstr ""
+
+msgid "Proxy LAN's name"
+msgstr "LAN"
+
+msgid "Name of LAN interface when use proxy auth. [default: None]"
+msgstr " LAN  []"
+
+msgid "Auth times"
+msgstr ""
+
+msgid "Number of times required for auth. [default: 1]"
+msgstr " [1]"
+
+msgid "Max timeout"
+msgstr ""
+
+msgid "Maximum retry time after timeout. [default: 3]"
+msgstr " [3]"
+
+msgid "PID file"
+msgstr "PID"
+
+msgid ""
+"Path of PID file. (Set 'None' to disable) [default: /var/run/minieap.pid]"
+msgstr "PID none [/var/run/minieap.pid]"
+
+msgid "Network Module"
+msgstr ""
+
+msgid ""
+"Network module for send and recv packages (openwrt support sockraw only)"
+msgstr "openwrtsockraw"
+
+msgid "Ping intval"
+msgstr "Ping"
+
+msgid "Interval of each ping. (in second) [default: 30]"
+msgstr "Ping Ping [30]"
+
+msgid "Offline command"
+msgstr ""
+
+msgid "Run Command when ping failed. [default: minieap -k 1]"
+msgstr "Ping  [ minieap -k 1]"
