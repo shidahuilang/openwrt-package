@@ -19,6 +19,7 @@ ddns-go
 filebrowser
 gost
 gowebdav
+haproxy
 kcptun
 lua-maxminddb
 luci-app-3ginfo
@@ -64,7 +65,6 @@ luci-app-oled
 luci-app-onliner
 luci-app-oscam
 luci-app-partexp
-luci-app-passwall
 luci-app-poweroff
 luci-app-pppoe-server
 luci-app-pushbot
@@ -103,7 +103,6 @@ netdata
 network
 oaf
 open-app-filter
-openwrt-passwall
 openwrt-subconverter
 openwrt-tmate
 oscam
@@ -116,6 +115,7 @@ rclone-ng
 rclone-webui-react
 rclone
 shadowsocks-libev
+small-package
 smartmontools
 socat
 switch-lan-play
