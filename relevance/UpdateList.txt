@@ -103,6 +103,7 @@ netdata
 network
 oaf
 open-app-filter
+openwrt-passwall
 openwrt-subconverter
 openwrt-tmate
 oscam
