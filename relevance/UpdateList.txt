@@ -1,8 +1,10 @@
 feed-netkeeper
+luci-app-argon-config
 luci-app-design-config
 luci-app-netkeeper-interception
 luci-app-smartdns
 luci-proto-netkeeper
+luci-theme-argon
 luci-theme-darkmatter
 luci-theme-design
 luci-theme-kucat
