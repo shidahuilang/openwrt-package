@@ -1,4 +1,0 @@
-
-rm -rf /etc/seccomp/transmission-daemon.json
-
-exit 0

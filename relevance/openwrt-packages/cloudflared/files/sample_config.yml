@@ -1,3 +1,0 @@
-url: http://localhost:8000
-tunnel: <Tunnel-UUID>
-credentials-file: /etc/cloudflared/<Tunnel-UUID>.json
