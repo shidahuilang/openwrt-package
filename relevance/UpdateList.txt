@@ -19,7 +19,6 @@ ddns-go
 filebrowser
 gost
 gowebdav
-haproxy
 kcptun
 lua-maxminddb
 luci-app-3ginfo
@@ -115,7 +114,6 @@ rclone-ng
 rclone-webui-react
 rclone
 shadowsocks-libev
-small-package
 smartmontools
 socat
 switch-lan-play
