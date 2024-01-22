@@ -129,6 +129,8 @@ if [ -f "/tmp/openclash.bak" ]; then
 	rm -rf "/tmp/openclash.bak" >/dev/null 2>&1
 fi
 
+uci -q set openclash.config.enable=0
+uci -q commit openclash
 
 if [ -f "/usr/lib/lua/luci/model/network.lua" ]; then
    sed -i '/OpenClash Append/,/OpenClash Append End/d' "/usr/lib/lua/luci/model/network.lua" >/dev/null 2>&1
