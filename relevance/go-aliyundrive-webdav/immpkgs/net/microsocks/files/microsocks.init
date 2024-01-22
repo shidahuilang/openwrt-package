@@ -1,0 +1,71 @@
+#!/bin/sh /etc/rc.common
+
+USE_PROCD=1
+START=95
+
+CONF="microsocks"
+
+start_service() {
+	config_load "$CONF"
+
+	local _enabled
+	config_get_bool _enabled "config" "enabled" "0"
+	[ "$_enabled" -eq "1" ] || return 1
+
+	local _port _listenip _bindaddr
+	local _user _password
+	local _auth_once _internet_access
+
+	config_get _port "config" "port"
+	config_get _listenip "config" "listenip"
+	config_get _bindaddr "config" "bindaddr"
+	config_get _user "config" "user"
+	config_get _password "config" "password"
+	config_get_bool _auth_once "config" "auth_once" 0
+	config_get_bool _internet_access "config" "internet_access" 0
+
+	procd_open_instance "$CONF"
+	procd_set_param command /usr/bin/microsocks
+	[ -z "$_port" ] || procd_append_param command -p "${_port}"
+	[ -z "$_listenip" ] || procd_append_param command -i "${_listenip}"
+	[ -z "$_bindaddr" ] || procd_append_param command -b "${_bindaddr}"
+	[ -z "$_user" ] || procd_append_param command -u "${_user}"
+	[ -z "$_password" ] || procd_append_param command -P "${_password}"
+	[ "$_auth_once" -eq "0" ] || procd_append_param command -1
+
+	procd_set_param limits core="unlimited"
+	procd_set_param limits nofile="1000000 1000000"
+	procd_set_param respawn
+	procd_set_param stderr 1
+	# TODO: Make it dependable on some verbose/debug config setting?
+	# procd_set_param stdout 1
+
+	[ "$_internet_access" -eq "0" ] || {
+		procd_open_data
+		json_add_array firewall
+			json_add_object ""
+			json_add_string type rule
+			json_add_string name "Allow-access-microsocks-at-$_port"
+			json_add_string src "*"
+			json_add_string dest_port "$_port"
+			json_add_string proto tcp
+			json_add_string target ACCEPT
+			json_close_object
+		json_close_array
+		procd_close_data
+	}
+
+	procd_close_instance
+}
+
+service_started() {
+	procd_set_config_changed firewall
+}
+
+service_stopped() {
+	procd_set_config_changed firewall
+}
+
+service_triggers() {
+	procd_add_reload_trigger "$CONF"
+}

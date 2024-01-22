@@ -1,0 +1,11 @@
+{
+	"luci-app-mmconfig": {
+		"description": "Grant UCI access for luci-app-mmconfig",
+		"read": {
+			"uci": [ "modemconfig" ]
+		},
+		"write": {
+			"uci": [ "modemconfig" ]
+		}
+	}
+}

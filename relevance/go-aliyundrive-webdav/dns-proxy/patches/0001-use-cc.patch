@@ -1,0 +1,12 @@
+diff --git a/Makefile b/Makefile
+index 6452bd1..cc915d8 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,6 +1,6 @@
+ FLAGS=-Wall -Wextra
+ all:
+-	gcc $(FLAGS) -o dns_proxy dns_proxy.c
++	$(CC) $(FLAGS) -o dns_proxy dns_proxy.c
+ .PHONY : clean
+ clean :
+ 	-rm dns_proxy

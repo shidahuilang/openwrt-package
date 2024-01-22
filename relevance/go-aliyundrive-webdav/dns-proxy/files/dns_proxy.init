@@ -1,0 +1,29 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2007 OpenWrt.org
+
+START=90
+
+# check if configuration exists
+[ -e "/etc/dns_proxy.conf" ] || exit 0
+
+start() {
+	if [ `pgrep dns_proxy` ]; then
+		echo "dns_proxy is already running"
+		exit 0
+	fi
+
+	/usr/sbin/dns_proxy /etc/dns_proxy.conf	
+}
+
+stop() {
+	if [ -z `pgrep dns_proxy` ]; then
+		echo "dns_proxy is not running"
+		exit 0
+	fi
+
+	/bin/echo -n "stopping dns_proxy ..."
+	
+	# kill the process
+	/bin/kill -9 `pgrep dns_proxy` 
+	echo " done"
+}

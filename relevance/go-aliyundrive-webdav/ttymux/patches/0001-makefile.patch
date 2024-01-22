@@ -1,0 +1,12 @@
+--- /dev/null
++++ ttymux-1/linux/Makefile
+@@ -0,0 +1,9 @@
++build:
++	$(CXX) -o ttymux ttymux.cpp -lpthread
++
++clean:
++	rm -f ttymux
++		
++install:
++	mkdir -p $(DESTDIR)$(PREFIX)/bin
++	cp ttymux $(DESTDIR)$(PREFIX)/bin
