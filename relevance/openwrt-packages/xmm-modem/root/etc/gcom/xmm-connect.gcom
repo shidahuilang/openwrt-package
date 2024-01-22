@@ -1,0 +1,23 @@
+opengt
+ set com 115200n81
+ set comecho off
+ set senddelay 0.02
+ waitquiet 0.2 0.2
+
+ send "AT+CMEE=2^m"
+ send "AT+COPS=0^m"
+ send "AT+CGPIAF=1,0,0,0^m"
+ send "AT+XDNS=1,1^m"
+ send "AT+CGDCONT=1^m"
+ send "AT+CGDCONT=1,\""
+ send $env("PDP")
+ send "\",\""
+ send $env("APN")
+ send "\"^m"
+ send "AT+CGACT=1,1^m"
+ send "AT+CGPADDR=1^m"
+
+ send "AT+XDATACHANNEL=1,1,\"/USBCDC/0\",\"/USBHS/NCM/0\",2,1^m"
+ send "AT+CGDATA=\"M-RAW_IP\",1^m"
+ get 1 "" $s
+ print $s

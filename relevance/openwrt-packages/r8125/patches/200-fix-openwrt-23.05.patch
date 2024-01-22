@@ -1,0 +1,11 @@
+--- a/Makefile
++++ b/Makefile
+@@ -53,6 +53,8 @@ ENABLE_DOUBLE_VLAN = n
+ ENABLE_PAGE_REUSE = n
+ ENABLE_RX_PACKET_FRAGMENT = n
+ 
++ccflags-y += -Wno-implicit-fallthrough
++
+ ifneq ($(KERNELRELEASE),)
+ 	obj-m := r8125.o
+ 	r8125-objs := r8125_n.o rtl_eeprom.o rtltool.o

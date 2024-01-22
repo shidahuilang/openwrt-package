@@ -1,0 +1,7 @@
+#!/bin/sh -x
+
+if [ "$PKG_UPGRADE" != "1" ]; then
+	touch /etc/config/modemconfig
+	uci set modemconfig.@modem[0]=modem
+fi
+
