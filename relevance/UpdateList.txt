@@ -72,7 +72,6 @@ luci-app-oled
 luci-app-onliner
 luci-app-oscam
 luci-app-partexp
-luci-app-passwall
 luci-app-poweroff
 luci-app-pppoe-server
 luci-app-pushbot
