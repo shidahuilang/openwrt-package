@@ -22,6 +22,8 @@ PKG_MAINTAINER:=sbwml <admin@cooluc.com>
 
 PKG_BUILD_DEPENDS:=golang/host
 PKG_BUILD_PARALLEL:=1
+PKG_USE_MIPS16:=0
+PKG_BUILD_FLAGS:=no-mips16
 
 GO_PKG:=github.com/urlesistiana/v2dat
 
@@ -36,7 +38,7 @@ define Package/v2dat
   DEPENDS:=$(GO_ARCH_DEPENDS)
 endef
 
-GO_PKG_TARGET_VARS:=$(filter-out CGO_ENABLED=%,$(GO_PKG_TARGET_VARS)) CGO_ENABLED=0
+GO_PKG_TARGET_VARS:=$(filter-out CGO_ENABLED=%,$(GO_PKG_TARGET_VARS)) CGO_ENABLED=1
 
 define Package/v2dat/install
 	$(call GoPackage/Package/Install/Bin,$(1))
