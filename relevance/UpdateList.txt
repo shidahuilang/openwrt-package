@@ -32,7 +32,6 @@ lua-neturl
 luci-app-3ginfo
 luci-app-adguardhome
 luci-app-advanced
-luci-app-aliddns
 luci-app-alist
 luci-app-amlogic
 luci-app-autoipsetadder
