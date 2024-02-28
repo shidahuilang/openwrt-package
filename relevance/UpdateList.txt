@@ -45,10 +45,8 @@ libcryptopp
 lua-maxminddb
 luci-app-3ginfo
 luci-app-accesscontrol
-luci-app-adbyby-plus
 luci-app-adguardhome
 luci-app-advanced
-luci-app-aliddns
 luci-app-alist
 luci-app-aliyundrive-webdav
 luci-app-amlogic
@@ -113,8 +111,6 @@ luci-app-serverchan
 luci-app-shutdown
 luci-app-smartinfo
 luci-app-socat
-luci-app-softethervpn
-luci-app-softethervpn5
 luci-app-ssr-mudb-server
 luci-app-store
 luci-app-supervisord
