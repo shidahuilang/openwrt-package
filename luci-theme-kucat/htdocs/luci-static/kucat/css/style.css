@@ -1,75 +1,99 @@
-﻿/*
- *  KuCat is a clean HTML5 theme for LuCI. It is based on luci-theme-kucat
+/*
+ *  luci-theme-kucat
+ *  Copyright (C) 2019-2024 The Sirpdboy Team <herboy2008@gmail.com> 
  *
- *  kucat
- *  Copyright 2019-2023 sirpdboy-kucat <sirpdboy@qq.com>
- *      Copyright 2015 Lutty Yang <lutty@wcan.in>
+ *  Have a bug? Please create an issue here on GitHub!
+ *      https://github.com/sirpdboy/luci-theme-kucat/issues
+ *
+ *  luci-theme-bootstrap:
+ *      Copyright 2008 Steven Barth <steven@midlink.org>
+ *      Copyright 2008 Jo-Philipp Wich <jow@openwrt.org>
+ *      Copyright 2012 David Menting <david@nut-bolt.nl>
+ *
+ *  luci-theme-material:
+ *      https://github.com/LuttyYang/luci-theme-material/
+ *  luci-theme-argon:
+ *      https://github.com/jerrykuku/luci-theme-argon
+ *  luci-theme-opentopd:
+ *      https://github.com/sirpdboy/luci-theme-opentopd
  *
  *  Licensed to the public under the Apache License 2.0
  */
+
 @import url("fonts.css?v=3");
-:root {
+ :root {
+    --radius0: 8px;
+    --radius1: 0.375rem;
+    --radius2: 0.25rem;
+ }
+[data-theme='light'] {
     --primary-solid: #fd8c73;
-    --primarytextcolor: #6c757d;
-    --primary-title-color: #555583;
+    --primarytextcolor: #677087;
+    --primary-title-color: #67678f;
     --menu-color: #f5f5f5f5;
     --menu-hover-color: #fff;
-    --menu-item-color: #6c757d;
-    --menu-item-titlebg-color: #e4eaec;
-    --menu-item-hover-bgcolor: rgba(255,255,255,0.2);
-    --menu-item-active-color: #d0d7de;
+    --menu-item-color: #5a636b;
+    --menu-item-titlebg-color: rgba(var(--primary-rgbm),0.22);
+    --menu-item-hover-bgcolor: rgba(248,248,248, 0.2);
     --body-text-color: #3c4655;
-    --body-color: #6c757d;
-    --inputbg-color: rgba(255,255,255,0.1);
+    --body-color: #65656b;
+    --inputbg-color: rgba(248,248,248,0.15);
     --inputtext-color: #4d5256;
-    --inputborder-color: rgba(0,0,0,0.15);
+    --inputborder-color: rgba(0,0,0,0.2);
     --input-hover-color: #fff;
-    --input-hover-bgcolor: rgba(255,255,255,0.2);
- --font-apple: -apple-system,"Google Sans","Microsoft Yahei","WenQuanYi Micro Hei","sans-serif";
- --font-sans: "Microsoft Yahei",-apple-system,  "Google Sans","WenQuanYi Micro Hei", "sans-serif", "Helvetica Neue", "Helvetica", "Hiragino Sans GB";
+    --input-hover-bgcolor: rgba(248,248,248,0.5);
+    --input-bgcolor: rgba(255,255,255,0.6);
+    --input-boxcolor: rgba(0, 0, 0, 0.12);
+    --input-boxhovercolor: rgba(0, 0, 0, 0.22);
+    --input-checkcolor: rgba(var(--primary-rgbm),1);
+    --font-apple: -apple-system,"Google Sans","Microsoft Yahei","WenQuanYi Micro Hei","sans-serif";
+    --font-sans: "Microsoft Yahei","Google Sans","WenQuanYi Micro Hei", "sans-serif", "Helvetica Neue", "Helvetica", "Hiragino Sans GB";
 }
-
 [data-theme="dark"] {
-
     --primary-solid: #fd8c73;
-    --primarytextcolor: #8391a2;
+    --primarytextcolor: #bbb;
     --primary-title-color: #bbb;
-    --primary-ufilter: none;
     --menu-color: #bbb;
     --menu-hover-color: #e9eff3;
     --menu-item-color: #b4c9e3;
-    --menu-item-titlebg-color: #343a40;
-    --menu-item-hover-bgcolor: rgba(255,255,255,0.2);
-    --menu-item-active-color: #d0d7de;
+    --menu-item-titlebg-color: rgba(var(--primary-rgbm),0.4);
+    --menu-item-hover-bgcolor: rgba(255, 255, 255, 0.2);
     --body-text-color: #8391a2;
-    --body-color: #8391a2;
-    --inputbg-color: rgba(255,255,255,0.1);
+    --body-color: #8b8e91;
+    --inputbg-color: rgba(255,255,255,0.11);
     --inputtext-color: #bbb;
-    --inputborder-color: rgba(255,255,255,0.3);
+    --inputborder-color: rgba(255,255,255,0.2);
     --input-hover-color: #ccc;
-    --input-hover-bgcolor: rgba(255,255,255,0.2);
-    --font-apple: -apple-system,"Microsoft Yahei","WenQuanYi Micro Hei","sans-serif";
- --font-sans: "Microsoft Yahei", -apple-system,"Google Sans", "WenQuanYi Micro Hei", "sans-serif", "Helvetica Neue", "Helvetica", "Hiragino Sans GB";
+    --input-hover-bgcolor: rgba(255,255,255,0.22);
+    --input-bgcolor: rgba(0,0,0,0.2);
+    --input-boxcolor: rgba(255,255,255,0.15);
+    --input-boxhovercolor: rgba(255, 255, 255, 0.22);
+    --input-checkcolor: rgba(255, 255, 255, 0.7);
+    --font-apple: -apple-system,"Google Sans","Microsoft Yahei","WenQuanYi Micro Hei","sans-serif";
+    --font-sans: "Microsoft Yahei", "Google Sans","WenQuanYi Micro Hei", "sans-serif", "Helvetica Neue", "Helvetica", "Hiragino Sans GB";
 }
 
 html {
     margin: 0px;
     padding: 0px;
     height: 100%;
-    background-color: rgba(var(--primary-rgbbody),1);
-    background: var(--theme-background) no-repeat center center fixed;
+    background: var(--theme-background) ;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
     background-size: cover;
-    background-repeat: no-repeat
-}
-
-html {
+    background-repeat: no-repeat;
     -webkit-text-size-adjust: 100%;
+    overflow-y: hidden;
     -ms-text-size-adjust: 100%
 }
+html, body {
+    font-family: var(--font-sans);
 
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
 body {
     letter-spacing: 0.050em;
     font-size: var(--font-x);
@@ -96,9 +120,9 @@ body div {
 
 ::-webkit-scrollbar-thumb {
     height: 16px;
-    -webkit-border-radius: 8px;
-    -moz-border-radius: 8px;
-    border-radius: 8px;
+    -webkit-border-radius: var(--radius0);
+    -moz-border-radius: var(--radius0);
+    border-radius: var(--radius0);
     border: 4px solid transparent;
     background-clip: content-box;
     background: #ccc
@@ -117,7 +141,13 @@ a {
     color: #c65621;
     text-decoration: none
 }
-
+a:-webkit-any-link:not(li a, .main-left a, .brand, .pull-right a, .alert-message a, .cbi-button) {
+    /* color: -webkit-link; */
+    cursor: pointer;
+    text-decoration: underline
+    /* color: var(--primarytextcolor); */
+    text-shadow: 1px 1px 2px #ccc;
+}
 a:hover {
     text-decoration: underline
 }
@@ -143,7 +173,7 @@ header.bar-primary .container-bar-right,header.bar-primary .container-bar-left {
     right: 0;
     margin: 0;
     padding: 0;
-    border-radius: 0.25rem;
+    border-radius: var(--radius2);
     background-color: #51c291;
     background-color: rgba(var(--primary-rgbm),0.9);
     box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
@@ -168,7 +198,7 @@ header.bar-primary .container-bar-right a {
 
 header.bar-primary .container-bar-left .labelbar:hover,header.bar-primary .container-bar-right .labelbar:hover {
     background-color: rgba(255,255,255,0.3);
-    border-radius: 0.25rem;
+    border-radius: var(--radius2);
     text-decoration:none
 }
 
@@ -304,7 +334,7 @@ header.pd-primary {
 
     white-space: nowrap;
     font-size: 0.875rem;
-    border-radius: 0.25rem;
+    border-radius: var(--radius2);
     text-decoration: none;
     color: rgba(var(--primary-rgbm),1);
 }
@@ -332,7 +362,7 @@ header.pd-primary {
 
 .pdboy-status_off::before {
     font-size: 1.5rem !important;
-    content: "\e937";
+    content: "\e932";
     color: #aaa !important;
     text-decoration: none
 }
@@ -340,7 +370,7 @@ header.pd-primary {
 .pdboy-qlogout:hover,
 .showSide:hover {
 	background-color: var(--menu-item-hover-bgcolor);
-	border-radius: 0.25rem;
+	border-radius: var(--radius2);
 	text-decoration: none
 }
 
@@ -393,7 +423,7 @@ text-decoration: none!important;
 .showWord::before,
 .showWord::after,
 [class^="pdboy-"]:before, [class*=" pdboy-"]:before, [class^="pdboy-"]:after, [class*=" pdboy-"]:after {
-	font-family: 'sirpdboy-kucat' !important;
+	font-family: 'kucat' !important;
 	font-style: normal !important;
 	font-weight: normal !important;
 	font-variant: normal !important;
@@ -431,13 +461,15 @@ footer a {
     float: left;
     width: calc(0% + 17rem);
     height: 100%;
-    -webkit-backdrop-filter: var(--primary-ufilter);
-    backdrop-filter: var(--primary-ufilter);
-    background-color:  var(--bgqs-color);
+
+	backdrop-filter: var(--primary-ufilter);
+background-color:  rgba(var(--primary-rgbm),var(--primary-rgbm-ts));
     background-image: var(--bgqs-image);
     box-shadow: 0 0 2px 2px rgba(0,0,0,0.14),0 -2px 3px 1px rgba(0,0,0,0.32),0 0px 5px 2px rgba(0,0,0,0.2);
     overflow-x: auto;
     position: fixed;
+  transition: width 0.2s ease-in-out;
+  overflow-y: scroll;
     z-index: 100
 }
 
@@ -455,9 +487,9 @@ footer a {
 
 .main .main-left::-webkit-scrollbar-thumb {
     height: 16px;
-    -webkit-border-radius: 8px;
-    -moz-border-radius: 8px;
-    border-radius: 8px;
+    -webkit-border-radius: var(--radius0);
+    -moz-border-radius: var(--radius0);
+    border-radius: var(--radius0);
     border: 4px solid transparent;
     background-clip: content-box;
     background: #bbb
@@ -513,7 +545,7 @@ footer a {
 }
 
 .main .main-left .nav li.slide .menu::before {
-    font-family: 'sirpdboy-kucat' !important;
+    font-family: 'kucat' !important;
     font-style: normal;
     font-weight: normal;
     font-variant: normal;
@@ -531,7 +563,7 @@ footer a {
     position: absolute;
     right: .6rem;
     top: 1rem;
-    font-family: 'sirpdboy-kucat' !important;
+    font-family: 'kucat' !important;
     font-style: normal;
     font-weight: normal;
     font-variant: normal;
@@ -562,7 +594,6 @@ footer a {
     -webkit-transform: rotate(180deg);
     transform: rotate(180deg)
 }
-
 .main .main-left .nav li.slide .menu:hover,.main .main-left .nav li.slide .menu.active {
     cursor: pointer;
     background-color: var(--menu-item-hover-bgcolor);
@@ -794,12 +825,9 @@ input[type="checkbox"] {
     width: 25px !important;
     height: 25px !important;
     padding: 5px!important;
-
-    background: rgba(var(--primary-rgbbody),0.7);
-
     -webkit-appearance: none;
     outline: none;
-    border-radius: 0.25rem;
+    border-radius: var(--radius2);
     transition: 0.1s
 }
 
@@ -819,7 +847,7 @@ input:checked[type="checkbox"]:before {
     transform: rotate(45deg);
     width: 12px;
     margin-left: 5px;
-    border-color: rgba(var(--primary-rgbm),1);
+    border-color: var(--input-checkcolor);
     border-width: 3px;
     border-top-color: transparent;
     border-left-color: transparent;
@@ -855,30 +883,27 @@ input[type='radio'] {
 
 select:not([multiple="multiple"]):focus, input:not(.cbi-button):focus {
     background-color: var(--input-hover-bgcolor);
-    box-shadow: 0 0 6px rgba(0,0,0,0.22);
-    -webkit-box-shadow: 0 0 6px rgba(0,0,0,0.22);
-    -moz-box-shadow: 0 0 6px rgba(0,0,0,0.22)
+    box-shadow: 0 0 6px var(--input-boxhovercolor);
+    -webkit-box-shadow: 0 0 6px var(--input-boxhovercolor);
+    -moz-box-shadow: 0 0 6px var(--input-boxhovercolor)
 }
 .btn, button, select, input, .cbi-dropdown {
+    font-size: var(--font-z);
 	outline: 0;
 	cursor: pointer;
 	height: 2.4rem;
 	color: var(--inputtext-color);
-	border-radius: 0.25rem;
+	border-radius: var(--radius2);
         border: 1px solid var(--inputborder-color);
 	background-color: var(--inputbg-color);
-	transition: box-shadow .15s ease;
+	transition: box-shadow .25s ease;
+box-shadow: 0 0.3rem 0.8rem var(--input-boxcolor);
 }
 select,input {
-    color: var(--inputtext-color);
-    font-size: var(--font-z);
     padding: 0 20px 0 10px;
-    font-family: var(--font-sans);
-    vertical-align: middle;
     margin: 3px 3px 3px 0;
     line-height: 2.4rem;
     max-width: 550px;
-
 }
 
 .btn, button, .cbi-button, .item::after {
@@ -890,7 +915,7 @@ select,input {
     text-transform: uppercase;
     height: auto;
     display: inline-block;
-    padding: 0.6rem 1rem!important;
+    padding: 0.7rem 1rem!important;
     margin-left: 0.2rem;
     cursor: pointer;
     -ms-touch-action: manipulation;
@@ -901,13 +926,14 @@ select,input {
     font-size: var(--font-z);
     width: auto;
     font-weight: 500;
-    color: #f8f8f8;
+    color: var(--menu-hover-color);
     background-color: #008b89;
     background-image: var(--bgqs-image);
-    box-shadow: 0 0.3rem 0.8rem rgba(0,0,0,0.22);
+
+box-shadow: 0 0.3rem 0.8rem var(--input-boxhovercolor);
     transform: translate(1) translate(0,0);
     transition: transform 225ms,box-shadow 225ms;
-    border-radius: 0.25rem;
+    border-radius: var(--radius2);
     line-height: 1;
 }
 
@@ -977,7 +1003,7 @@ select,input {
     vertical-align: baseline;
     border: none;
     outline: none;
-    border-radius: 0.25rem;
+    border-radius: var(--radius2);
     color: var(--body-text-color);
     background-color: rgba(255,255,255,0.2);
     border: 1px solid var(--inputborder-color);
@@ -1068,7 +1094,7 @@ select,input {
 
 .cbi-section-create {
     margin: 0;
-    padding-left: 1rem;
+    padding-left: 0.5rem;
     align-items: center
 }
 
@@ -1083,6 +1109,8 @@ select,input {
 div.cbi-value var,td.cbi-value-field var,.td.cbi-value-field var {
     font-style: italic;
     color: #0069D6
+  color: var(--primarytextcolor);
+  text-shadow: 1px 1px 2px #ccc;
 }
 
 small {
@@ -1132,7 +1160,42 @@ small {
     color: #fb6340;
     font-weight: 600
 }
-
+/* Define the error text border breathe display animation */
+@keyframes error-border-breathe {
+  0%{
+    border-color: #fb6340;
+  }
+  50%{
+    border-color: transparent;
+  }
+  100%{
+    border-color: #fb6340;
+  }
+}
+/* Center display error text box */
+.cbi-section-error > ul{
+  text-align: center;
+}
+/* Add border for error text box, and border breathe display animation to make it more noticeable */
+.cbi-section-error > ul > li {
+  font-weight: 600;
+  max-width: 60%;
+  color: #fb6340;
+  line-height: 1rem;
+  display: inline-block;
+  border: 2px solid #fb6340;
+  border-radius: 0.3rem;
+  animation: error-border-breathe 1.5s ease-in-out infinite;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+.cbi-input-invalid, 
+.cbi-value-error input {
+  color: #fb6340;
+  border: 1px dashed #fb6340;
+}
 fieldset>fieldset {
     margin: 0;
     padding: 0;
@@ -1187,13 +1250,14 @@ fieldset>fieldset {
     width: 100% !important;
     height: 1.5rem !important;
     line-height: 1.5rem !important;
-    border-radius:  0.25rem !important;
+    border-radius:  var(--radius2) !important;
     border-color: rgba(0,0,0,0.22) !important;
     background-color: rgba(0,0,0,0.18) !important
 }
 
 #swaptotal>div>div>div>small,#swapfree>div>div>div>small,#memfree>div>div>div>small,#membuff>div>div>div>small,#conns>div>div>div>small,#memtotal>div>div>div>small {
-    color: #eee !important;
+   color: var(--menu-color)!important;
+    
 }
 
 #swaptotal>div>div,#swapfree>div>div,#swapcache>div>div,#memfree>div>div,#membuff>div>div,#conns>div>div,#memcache>div>div,#memtotal>div>div {
@@ -1201,7 +1265,7 @@ fieldset>fieldset {
     line-height: 1.5rem !important;
     background-color: rgba(var(--primary-rgbm),0.8)!important;
     background-image: var(--bgqs-image);
-    border-radius: 0.25rem;
+    border-radius: var(--radius2);
 }
 #swaptotal>div>div>div,#swapfree>div>div>div,#memfree>div>div>div,#membuff>div>div>div,#conns>div>div>div,#memtotal>div>div>div {
     text-shadow: 0 0 4px #222;
@@ -1346,7 +1410,15 @@ td>table>tbody>tr>td,.td>.table>.tbody>.tr>.td {
 #cbi-network-switch_vlan .th,#cbi-network-switch_vlan .td {
     flex-basis: 12%
 }
-
+/* Fix background color of table-titles */
+.cbi-section-node > .cbi-section-table > tbody > .cbi-section-table-titles th {
+  background-color: var(--lighter);
+  border: none;
+}
+/* Fix background color of table-descr */
+.cbi-section-node > .cbi-section-table > tbody > .cbi-section-table-descr th {
+  border: none;
+}
 body.lang_pl.node-main-login .cbi-value-title {
     width: 12rem
 }
@@ -1388,12 +1460,12 @@ body.lang_pl.node-main-login .cbi-value-title {
     top: 0px;
     background-size: cover;
     background-position: top center;
-    transition: all 0.2s;
+	transition: all 0.1s;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
     background-size: cover;
-    background-repeat: no-repeat
+	background-repeat: no-repeat;
 }
 
 .node-main-login>.main>.main-right>.login-bg.blur {
@@ -1413,7 +1485,6 @@ body.lang_pl.node-main-login .cbi-value-title {
     padding: 0rem;
     background-image: none !important;
 }
-
 .node-main-login>.main .container .cbi-section-node .cbi-value:hover {
     background-image: none !important
 }
@@ -1450,7 +1521,7 @@ body.lang_pl.node-main-login .cbi-value-title {
     position: relative;
     text-align: center;
     margin: 0;
-    border-radius: 10px;
+    border-radius: var(--radius0);
     -webkit-backdrop-filter: blur(6px)!important;
     backdrop-filter: blur(6px)!important;
     background-color: rgba(var(--primary-rgbbody),0.5)!important;
@@ -1468,7 +1539,6 @@ body.lang_pl.node-main-login .cbi-value-title {
     overflow-x: hidden;
     overflow-y: hidden;
 }
-
 
 .node-main-login>.main .container:active {
     -webkit-transform: scale(0.95) rotateZ(1.2deg);
@@ -1512,7 +1582,7 @@ body.lang_pl.node-main-login .cbi-value-title {
     letter-spacing: .2em;
     text-transform: none;
     will-change: transform;
-    border-radius: 0.25rem;
+    border-radius: var(--radius2);
     min-width: 14rem
 }
 
@@ -1547,7 +1617,7 @@ body.lang_pl.node-main-login .cbi-value-title {
 .node-main-login>.main .cbi-value.cbi-value .cbi-value-field .cbi-input-text, .node-main-login>.main .cbi-value.cbi-value .cbi-input-user, .node-main-login>.main .cbi-value.cbi-value-last .cbi-input-password, .node-main-login>.main .cbi-value.cbi-value-last .cbi-input-text[type="password"] {
 
 	box-shadow: none;
-	border-radius: .375rem;
+	border-radius: var(--radius1);
 	padding: 0;
 	color: #fff;
 	text-shadow: 0px 2px 4px #222;
@@ -1574,7 +1644,7 @@ body.lang_pl.node-main-login .cbi-value-title {
 }
 
 .node-main-login>.main .cbi-value.cbi-value .cbi-value-field:before {
-    font-family: 'sirpdboy-kucat' !important;
+    font-family: 'kucat' !important;
     speak: none;
     font-style: normal;
     font-weight: normal;
@@ -1594,7 +1664,7 @@ body.lang_pl.node-main-login .cbi-value-title {
 }
 
 .node-main-login>.main .cbi-value.cbi-value-last .cbi-value-field:before {
-    font-family: 'sirpdboy-kucat' !important;
+    font-family: 'kucat' !important;
     speak: none;
     font-style: normal;
     font-weight: normal;
@@ -1643,7 +1713,7 @@ body.lang_pl.node-main-login .cbi-value-title {
     position: absolute;
     color: #fff !important;
     margin-top: 6rem;
-    border-radius: 0.25rem;
+    border-radius: var(--radius2);
     text-align: center;
     background-color: #e39f4d !important
 }
@@ -1808,7 +1878,7 @@ body.lang_pl.node-main-login .cbi-value-title {
 }
 
 .cbi-button-up,.cbi-button-down,.cbi-value-helpicon,.showSide,.main>.loading>span {
-    font-family: 'sirpdboy-kucat' !important;
+    font-family: 'kucat' !important;
     font-style: normal !important;
     font-weight: normal !important;
     font-variant: normal !important;
@@ -1824,16 +1894,13 @@ body.lang_pl.node-main-login .cbi-value-title {
 
 button:hover,.btn:hover,.cbi-button:hover,.item:hover::after {
     transform: scale(1.05) translate(0,-0.15rem);
-    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.35);
-    -webkit-box-shadow: 0 0 6px rgba(0,0,0,0.35);
-    -moz-box-shadow: 0 0 6px rgba(0,0,0,0.35)
+    box-shadow: 0 0.5rem 1rem var(--input-boxhovercolor);
+  box-shadow: 0 0px 2px var(--input-boxhovercolor), 0 4px 4px var(--input-boxcolor);
 }
 
 .btn:active,.cbi-button:active,button:active,.item:hover::after {
     transform: scale(1) translate(0,0.15rem);
-    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
-    -webkit-box-shadow: 0 0 6px rgba(0,0,0,0.15);
-    -moz-box-shadow: 0 0 6px rgba(0,0,0,0.15)
+  box-shadow: 0 4px 8px var(--input-boxcolor), 0 6px 6px var(--input-boxhovercolor);
 }
 
 .cbi-button-up {
@@ -1845,7 +1912,7 @@ code {
 }
 
 abbr {
-    color: #005470;
+    color: #146db3;
     text-decoration: none;
     cursor: help
 }
@@ -1871,7 +1938,7 @@ fieldset[id^="cbi-apply-"] {
     padding: 1rem;
     font-size: var(--font-z);
     text-align: center;
-    border-radius: 0.25rem;
+    border-radius: var(--radius2);
     background-color: rgba(var(--primary-rgbbody),1);
     box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -2007,10 +2074,10 @@ table>tbody>tr,div>.table>.tr,.cbi-map>.cbi-section .cbi-value {
     line-height: 1em;
 }
 
-.cbi-rowstyle-2 .cbi-button-up, .cbi-rowstyle-2 .cbi-button-down, body:not(.Interfaces) .cbi-rowstyle-2:first-child {
+.cbi-rowstyle-2 .cbi-button-up, .cbi-rowstyle-2 .cbi-button-down{
 	background-color: rgba(var(--primary-rgbm), 0.5) !important;
 }
-.cbi-rowstyle-1 .cbi-button-up, .cbi-rowstyle-1 .cbi-button-down, body:not(.Interfaces) .cbi-rowstyle-1:first-child {
+.cbi-rowstyle-1 .cbi-button-up, .cbi-rowstyle-1 .cbi-button-down{
 	background-color: rgba(var(--primary-rgbs), 0.5) !important;
 }
 
@@ -2046,7 +2113,7 @@ table>tbody>tr,div>.table>.tr,.cbi-map>.cbi-section .cbi-value {
     font-family: inherit;
     min-width: inherit;
     overflow: unset;
-    border-radius: 0.25rem;
+    border-radius: var(--radius2);
     box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16),0 0 2px 0 rgba(0,0,0,0.12)
 }
 .alert-message > * {
@@ -2204,98 +2271,87 @@ td>table>tbody>tr>td {
 .cbi-value-field>table>tbody>tr>td {
     border: none
 }
-
-.tabs {
-    font-size: var(--font-z);
-    letter-spacing: 1px;
-    border-right: 0.18751rem solid rgba(255,255,255,0);
-    padding: 0.3rem 1rem;
-    color: var(--menu-item-color);
-    overflow-x: auto;
-
+.btn, .cbi-button, .item::after {
+   color: var(--menu-hover-color);
 }
 
 .tabs li[class~="active"] {
-    border-right: 0.18751rem solid var(--primary-solid)!important;
-    border-left: 0.18751rem solid var(--primary-solid)!important;
-    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.4);
-    background-color: rgba(var(--primary-rgbm),0.3)
+	border-right: 0.18751rem solid var(--primary-solid)!important;
+	border-left: 0.18751rem solid var(--primary-solid)!important;
+	transform: scale(1.05) translate(0, -0.1rem);
+	box-shadow: 0 0.5rem 1rem  var(--input-boxhovercolor);
+	background-color: rgba(var(--primary-rgbm), 0.7);
 }
-
-.tabs li:hover {
-    background: rgba(var(--primary-rgbm),0.3);
-    transform: scale(1.05) translate(0,-0.15rem);
-    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.35)
+.tabs > li:hover {
+	background: rgba(var(--primary-rgbm), 0.7);
+	transform: scale(1.05) translate(0, -0.15rem);
+	box-shadow: 0 0.5rem 1rem  var(--input-boxhovercolor);
 }
 
 .tabs li[class~="active"] a {
-    color: var(--primary-title-color)
+	color: var(--menu-hover-color)
 }
 
 .tabs li:hover a {
-    color: var(--primary-title-color)
+	color: var(--menu-hover-color)
 }
-
 .tabs li a {
-    padding: 0.7rem 1rem;
-    text-decoration: none;
-    color: var(--primarytextcolor)
+	padding: 0.5rem 1rem;
+	text-decoration: none;
+	color: var(--primarytextcolor)
 }
-
-.cbi-tabmenu {
-    color: var(--primarytextcolor);
-    border-right: 0.18751rem solid rgba(255,255,255,0);
-    letter-spacing: 1px;
-    padding: 0.3rem 1rem;
+.tabs, .cbi-tabmenu {
+	border: none;
+	color: var(--menu-hover-color);
+	border-right: 0.18751rem solid rgba(255, 255, 255, 0)!important;
+	letter-spacing: 1px;
+	padding: 0.3rem 1rem;
     overflow-y: hidden;
-    margin-bottom: 0.5rem;
-    overflow-x: auto;
-
+	margin-bottom: 0.5rem;
+	overflow-x: auto;
 }
-
 .tabs > li, .cbi-tabmenu li {
 	display: inline-block;
 	font-size: var(--font-z);
-	border-left: 0.18751rem solid rgba(255, 255, 255, 0)!important;
-	border-right: 0.18751rem solid rgba(255, 255, 255, 0)!important;
-	border-radius: 0.25rem;
+	border-left: 0.18751rem solid var(--menu-item-titlebg-color)!important;
+	border-right: 0.18751rem solid var(--menu-item-titlebg-color)!important;
+	border-radius:  var(--radius2);
 	padding: 0.5rem 0rem;
-	box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-	transform: translate(1) translate(0, 0);
+	transform: scale(1) translate(0, 0);
+	box-shadow: 0 0.5rem 1rem  var(--input-boxcolor);
 	transition: transform 225ms, box-shadow 225ms;
 	background: var(--menu-item-titlebg-color);
 	margin: 0.2rem 0rem 0.2rem 0.4rem !important;
 }
 
-
 .cbi-tabmenu li a {
-    text-decoration: none;
-    padding: 0.6rem 1rem;
-    color: var(--primarytextcolor)
+	text-decoration: none;
+	padding: 0.7rem 1rem;
+	color: var(--primarytextcolor);
 }
-
 .cbi-tabmenu li:hover {
-    color: var(--primary-title-color);
-    background: rgba(var(--primary-rgbm),0.3);
-    transform: scale(1.05) translate(0,-0.15rem);
-    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.35);
-    margin-bottom: 0
+	color: var(--menu-hover-color);
+	background: rgba(var(--primary-rgbm), 0.7);
+	transform: scale(1.05) translate(0, -0.15rem);
+	box-shadow: 0 0.5rem 1rem  var(--input-boxhovercolor);
+	margin-bottom: 0
 }
-
 .cbi-tabmenu li:hover a {
-    color: var(--primary-title-color)
+	color: var(--menu-hover-color)
 }
 
 .cbi-tabmenu li[class~="cbi-tab"] {
-    border-right: 0.18751rem solid var(--primary-solid) !important;
-    border-left: 0.18751rem solid var(--primary-solid) !important;
-    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.4);
-    background-color: rgba(var(--primary-rgbm),0.3)
+	border-right: 0.18751rem solid var(--primary-solid) !important;
+	border-left: 0.18751rem solid var(--primary-solid) !important;
+	transform: scale(1.05) translate(0, -0.1rem);
+	box-shadow: 0 0.5rem 1rem  var(--input-boxcolor);
+	background-color: rgba(var(--primary-rgbm), 0.7);
 }
 
 .cbi-tabmenu li[class~="cbi-tab"] a {
-    color: var(--primary-title-color)
+   color: var(--menu-hover-color)
 }
+
 
 .cbi-tab-descr {
     margin: 1rem 1.5rem;
@@ -2477,7 +2533,7 @@ td>table>tbody>tr>td {
     padding: 0m;
     color: var(--primarytextcolor);
     border: 1px solid #dee2e6;
-    border-radius: .25rem;
+    border-radius: var(--radius2);
     background-color: #eee;
     background-clip: padding-box;
     box-shadow: 0 3px 2px rgba(233,236,239,0.05);
@@ -2580,7 +2636,31 @@ select[multiple="multiple"] {
     border: none;
     padding: 0 0.8rem;
 }
-
+/* file selector button */
+::file-selector-button {
+  color: #fff;
+  border-radius: .25rem;
+  border: 1px solid #2e6da4;
+  padding: .4rem .5rem;
+  background-color: #337ab7;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+::file-selector-button:hover,
+::file-selector-button:focus,
+::file-selector-button:active {
+  outline: 0;
+  text-decoration: none;
+}
+::file-selector-button:hover,
+::file-selector-button:focus {
+  box-shadow: 0 0px 2px rgba(0, 0, 0, 0.12), 0 2px 2px rgba(0, 0, 0, 0.2);
+}
+::file-selector-button:active {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.19), 0 5px 5px rgba(0, 0, 0, 0.23);
+}
+/* table */
 .cbi-section-table .cbi-section-table-titles .cbi-section-table-cell {
     width: auto !important
 }
@@ -2620,7 +2700,7 @@ td>.ifacebadge {
 td>.ifacebadge,.td>.ifacebadge {
     background-color: #e9ecef;
     font-size: var(--font-x);
-    border-radius: .2rem
+    border-radius: var(--radius2)
 }
 
 .ifacebadge>em,.ifacebadge>img {
@@ -2674,7 +2754,7 @@ td>.ifacebadge,.td>.ifacebadge {
 
 .ifacebox {
     border: 1px solid #ccc;
-    border-radius: .375rem;
+    border-radius: var(--radius1);
     background-color: #f9f9f9;
     
         border: 1px solid var(--inputborder-color);
@@ -2690,9 +2770,15 @@ td>.ifacebadge,.td>.ifacebadge {
 
 .ifacebox-head {
     padding: 1rem;
-    color: #333;
     min-width: 7rem;
-    color: var(--body-color)
+    background-color: rgba(var(--primary-rgbm), 0.2);
+    transform: translate(-50, -50%);
+    color: var(--body-color);
+    text-align: center!important;
+}
+.ifacebox-head.active {
+	background: #5bc0de;
+	background-color: rgba(var(--primary-rgbm), 0.1);
 }
 
 .ifacebox-body {
@@ -2705,7 +2791,7 @@ img.cbi-image-button {
 
 #iwsvg,#iwsvg2,#bwsvg {
     border: none !important;
-    border-radius: 0.25rem;
+    border-radius: var(--radius2);
     background-color: rgba(255,255,255,0.1)!important;
     box-shadow: 0 0 2rem 0 rgba(136,152,170,0.15);
     overflow: hidden
@@ -2722,17 +2808,18 @@ img.cbi-image-button {
 }
 
 .zonebadge>.ifacebadge {
+	margin: .1rem .2rem;
     background-color: #ccc;
     padding: .2rem 1rem;
-    margin: .3rem;
     border: 1px solid #bbb
 }
 
 .zonebadge>input[type="text"] {
-    background-color: rgba(var(--primary-rgbbody),1);
-    border: 1px solid #bbb;
-    width: 8rem;
-    margin-top: .3rem
+	background-color: rgba(var(--primary-rgbbody), 1);
+	border: 1px solid #6c6c6c;
+	min-width: 8rem;
+	margin-top: .3rem;
+	padding: .16rem 1rem;
 }
 
 .cbi-value-field .cbi-input-checkbox,.cbi-value-field .cbi-input-radio {
@@ -2752,6 +2839,8 @@ img.cbi-image-button {
 
 .cbi-value-field>ul>li .ifacebadge {
     font-size: var(--font-x);
+
+    color: var(--body-color);
     background-color: rgba(255,255,255,0.3);
     display: flex;
     align-items: center;
@@ -2775,9 +2864,16 @@ div.cbi-value var,td.cbi-value-field var {
 input[name="ping"],input[name="traceroute"],input[name="nslookup"] {
     width: 80%
 }
-
+/* fix status overview */
+.node-status-overview > .main fieldset:nth-child(4) td:nth-child(2) {
+  white-space: normal;
+}
+.node-status-overview > .main #wan4_i,
+.node-status-overview > .main #wan6_i {
+  min-width: 80px !important;
+}
 .Overview>.main #wan4_i,.Overview>.main #wan6_i,.node-status-overview >.main #wan4_i,.node-status-overview >.main #wan6_i {
-    width: 70px !important
+    min-width: 80px !important
 }
 
 .Overview >.main fieldset>table>tbody>tr>td,.cbi-map>.cbi-section .cbi-value:nth-of-type(4) td:nth-child(2),.Interfaces > .main table tr td:nth-child(3),.node-network-network > .main table tr td:nth-child(3),.Processes > .main table tr td:nth-child(3),.node-status-processes > .main table tr td:nth-child(3),.node-status-overview >.main fieldset>table>tbody>tr>td {
@@ -2808,12 +2904,12 @@ input[name="ping"],input[name="traceroute"],input[name="nslookup"] {
 .node-services-vssr .status-bar {
     color: var(--body-color);
     box-shadow: 0 0 .5rem 0 rgba(0,0,0,0.35);
-    background-color: rgba(255,255,255,0.1) !important
+	background-color: var(--input-bgcolor) !important;
 }
 
 .node-services-vssr .block,.node-services-shadowsocksr>.block,.node-services-ssrpro>.block,.block,.node-services-bypass>.main .block,.node-services-vssr>.main .block,.main .block {
     color: var(--body-color);
-    background-color: #f8f8f8 !important;
+	background-color: var(--input-bgcolor) !important;
     box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14),0 3px 1px -2px rgba(0,0,0,0.32),0 1px 5px 0 rgba(0,0,0,0.2)
 }
 
@@ -2868,6 +2964,86 @@ input[name="ping"],input[name="traceroute"],input[name="nslookup"] {
 #cbi-openclash .cm-s-idea span.cm-variable {
     color: #fd8c73!important;
 }
+
+
+/* luci-app-passwall */
+#cbi-passwall #add_link_div,
+#cbi-passwall #set_node_div {
+  background: #fffffff0;
+}
+#cbi-passwall .cbi-section-table tbody ._now_use {
+  background: #5e72e473 !important;
+}
+/* luci-app-commands */
+.commandbox h3 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.commandbox code {
+  word-break: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+div.commandbox {
+  height: 16em;
+}
+/* luci-app-ssr-plus */
+#cbi-shadowsocksr .cbi-map-descr h3 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* luci-app-mwan3 */
+.node-status-mwan .cbi-tabmenu {
+  padding: 3rem 0.5rem 0 0.5rem;
+}
+/* luci-app-openclash */
+.node-services-openclash .cbi-tabmenu {
+  font-size: 0;
+}
+.node-services-openclash .cbi-tabmenu > li {
+  margin-right: 4px;
+}
+.node-services-openclash .cbi-tabmenu > li:last-child {
+  margin-right: 0;
+}
+/* luci-app-ddnsto */
+.node-services-ddnsto .cbi-section-node .cbi-value div {
+  display: table-cell;
+  line-height: 1.6;
+  font-size: 0.875rem;
+}
+
+/* luci-app-dockerman */
+#cbi-dockerd > .cbi-section > br,
+#cbi-docker > .cbi-section > br {
+  display: none;
+}
+
+/* luci-app-diskman */
+#cbi-diskman > .cbi-section > br {
+  display: none;
+}
+
+/* luci-app-istorex (Quick Start) */
+#app #main #page .app-container_body .btn-f,
+#app #main #page .app-container_body .btn-r {
+  -webkit-user-select: none; /* Safari */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE10+/Edge */
+  user-select: none; /* Standard */
+  width: 30px;
+}
+/* luci-app-ttyd */
+.node-system-terminal iframe {
+	border-radius:  var(--radius2)!important;
+	min-height:600px!important;
+}
+
+
 /* tab border */
 #cbi-openclash #tab {
     box-shadow: 0 0 2px rgba(255,255,255,0.2)!important;
@@ -2918,14 +3094,14 @@ input[name="ping"],input[name="traceroute"],input[name="nslookup"] {
     border-color: rgba(0,0,0,0.3) !important;
     background-color: rgba(0,0,0,0.22) !important;
     height: 1.4rem !important;
-    border-radius: 0.25rem !important;
+    border-radius: var(--radius2) !important;
     margin: 0.5rem 0 !important;
     overflow: hidden
 }
 
 .Software >.main .cbi-section-node:first-child .cbi-value-last>div>div,.node-system-packages>.main .cbi-section-node:first-child .cbi-value-last>div>div {
     border-right: 0 !important;
-    border-radius: 0.25rem !important;
+    border-radius: var(--radius2)!important;
     background-color: rgba(var(--primary-rgbm),0.9)!important;
     background-image: var(--bgqs-image);
 }
@@ -2971,7 +3147,7 @@ input[name="ping"],input[name="traceroute"],input[name="nslookup"] {
     background-color: var(--inputbg-color);
     font-size: small;
     outline: none;
-    border-radius: 0.25rem;
+    border-radius: var(--radius2);
     overflow-x: hidden;
 }
 
@@ -3006,7 +3182,12 @@ padding: 0.5rem!important;
 .node-system-flashops br {
     display: none
 }
-
+.node-system-flashops fieldset > ul {
+  padding: 1rem;
+}
+.node-system-flashops fieldset + .cbi-page-actions {
+  margin-top: 1rem;
+}
 .node-status-iptables fieldset,.node-system-packages fieldset,.node-system-flashops fieldset {
     margin-top: 0
 }
@@ -3031,7 +3212,7 @@ background-color: rgba(255,255,255,0.12)!important;
 .node-system-flashops .cbi-section-descr {
     padding: 12px;
     line-height: 1.5;
-    border-radius: 6px
+    border-radius: var(--radius0)
 }
 
 .Changes .cbi-section {
@@ -3167,9 +3348,10 @@ img[src*="/luci-static/resources/cbi/reload.gif"] {
         padding:.3rem .6rem
     }
 
-    .cbi-button {
-        font-size: var(--font-z)
-    }
+  .cbi-button:not(.cbi-button-up, .cbi-button-down) {
+    font-size: var(--font-z)
+  }
+
 
     .main-left {
         width: calc(0% + 17rem)
@@ -3224,10 +3406,6 @@ img[src*="/luci-static/resources/cbi/reload.gif"] {
         display: block;
         position: absolute;
         margin-top: -34px
-    }
-
-    .node-network-network .cbi-section-table tr,.node-network-network .cbi-section-table td {
-        font-size: var(--font-x) !important
     }
 
     .node-network-network .cbi-section-node table td:nth-of-type(1) {
@@ -3323,7 +3501,7 @@ img[src*="/luci-static/resources/cbi/reload.gif"] {
 
     .showSide:hover {
         background-color: var(--menu-item-hover-bgcolor);
-	border-radius: 0.25rem;
+	border-radius: var(--radius2);
         text-decoration: none
     }
 
@@ -3401,7 +3579,6 @@ img[src*="/luci-static/resources/cbi/reload.gif"] {
 
     .node-network-network .cbi-section-table tr,.node-network-network .cbi-section-table td {
         font-size: var(--font-x);
-        color: #525f7f
     }
 
     .node-network-network .cbi-section-table .cbi-section-table-titles .cbi-section-table-cell {
@@ -3587,12 +3764,10 @@ img[src*="/luci-static/resources/cbi/reload.gif"] {
         margin-top: -34px
     }
 
-
     ::-webkit-scrollbar {
         width: 8px;
         height: 10px
     }
-
     ::-webkit-scrollbar-thumb {
         height: 15px;
         -webkit-border-radius: 8px;
@@ -3603,7 +3778,6 @@ img[src*="/luci-static/resources/cbi/reload.gif"] {
         background-clip: content-box;
         background: #ccc
     }
-
     ::-webkit-scrollbar-thumb:hover {
         background-color: #999
     }

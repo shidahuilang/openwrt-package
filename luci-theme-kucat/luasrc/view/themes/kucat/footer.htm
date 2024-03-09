@@ -1,6 +1,5 @@
  <%# 
-    Copyright 2019-2021 sirpdboy <sirpdboy@qq.com>
- 
+    Copyright (C) 2019-2024 The Sirpdboy Team <herboy2008@gmail.com>    
 	luci-theme-material: 
 	Copyright 2015 Lutty Yang <lutty@wcan.in>
 	Licensed to the public under the Apache License 2.0
@@ -17,14 +16,16 @@
 </div>
 <footer class="mobile-hide">
 
-		<a class="luci-link" href="/cgi-bin/luci/admin/status/overview">
+		<a class="luci-link" href="/cgi-bin/luci/admin/status/overview" target="_blank">
 			
 		
 		<%= ver.distversion %> </a>
-                    <% if #categories > 1 then %>
-                    <ul class="breadcrumb pull-right" id="modemenu">
-                        <% for i, r in ipairs(categories) do %>
-                        <li<% if request[1] == r then %> class="active"<%end%>><a href="<%=controller%>/<%=r%>/"><%=striptags(translate(tree.nodes[r].title))%></a> <span class="divider">|</span></li>
+		<% if #categories > 1 then %>
+		<ul class="breadcrumb pull-right" id="modemenu">
+			<% for i, r in ipairs(categories) do %>
+			<li<% if request[1] == r then %> class="active" <%end%>><a
+					href="<%=controller%>/<%=r%>/"><%=striptags(translate(tree.nodes[r].title))%></a> <span
+					class="divider">|</span></li>
                         <% end %>
                     </ul>
                     <% end %>
@@ -33,21 +34,9 @@
             </div>
         </div>
 
-    <script>
-        // thanks for Jo-Philipp Wich <jow@openwrt.org>
-        var luciLocation = <%= luci.http.write_json(luci.dispatcher.context.path) %>;
-	var winHeight = $(window).height();
-	$(window).resize(function () {
-		var winWidth = $(window).width()
-		if(winWidth < 600){
-			var newHeight = $(this).height();
-			var keyboradHeight = newHeight - winHeight;
-			$(".ftc").css("bottom", keyboradHeight + 30);
-		}
-	})
-    </script>
+
     
-    <script src="<%=media%>/js/script.js?v=<%=math.random(1,100000)%>"></script>
+    <script src="<%=media%>/js/styles-kucat.js<%# ?v=PKG_VERSION %>"></script>
 </body>
 </html>
 
