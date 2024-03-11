@@ -4,7 +4,7 @@ LOCK=/var/lock/netwizard-boot.lock
 START=99
 
 boot() {
-	XBOOT=1
+	XBOOT=1  start
 }
 
 setipv6() {
@@ -59,24 +59,10 @@ setipv6() {
 			uci -q set network.wan.delegate='0'
 			uci -q set network.lan.delegate='0'
 		;;
-		4)
-		    opkg update
-		    opkg remove --force-depends kmod-nf-reject6 kmod-nf-nat6 kmod-nf-ipt6 kmod-ip6tables odhcp6c luci-proto-ipv6 ip6tables kmod-ipt-nat6 ip6tables-mod-nat odhcpd-ipv6only ipv6helper
-		    uci -q delete dhcp.lan.dhcpv6
-		    uci -q delete dhcp.lan.ndp
-		    uci -q delete dhcp.lan.ra
-		    uci -q delete dhcp.lan.ra_management
-		    uci -q delete dhcp.lan.ra_default
-		    uci -q delete network.wan6
-		    # Enable IPV6 ula prefix
-		    sed -i 's/#.*\toption ula/\toption ula/g' /etc/config/network
-		    # Enable IPV6 dns resolution
-		    uci -q set dhcp.@dnsmasq[0].filter_aaaa=1
-		;;
+
 	esac
 }
 add_netwizard() {
-	[ "x$XBOOT" = "x1" ] && exit 0
 	local cfg="$1"
 	local wan_proto wan_ipaddr wan_netmask wan_gateway wan_dns wan_pppoe_user wan_pppoe_pass 
 	local ipv6 wifi_ssid wifi_key old_wifi_ssid old_wifi_key showhide
@@ -88,9 +74,9 @@ add_netwizard() {
 	config_get dnsset "$cfg" dnsset '223.5.5.5'
 	config_get wan_interface "$cfg" wan_interface 'eth1'
 	config_get lan_dhcp "$cfg" lan_dhcp '0'
-	config_get synflood "$cfg" synflood '1'
-	config_get redirectdns "$cfg" redirectdns '1'
-	config_get lan_ipaddr "$cfg" lan_ipaddr
+	config_get synflood "$cfg" synflood '0'
+	config_get redirectdns "$cfg" redirectdns '0'
+	config_get lan_ipaddr "$cfg" lan_ipaddr `uci -q get network.lan.ipaddr`
 	config_get lan_netmask "$cfg" lan_netmask '255.255.255.0'
 	config_get dns_tables "$cfg" dns_tables 'iptables -t nat -I POSTROUTING -o br-lan -j MASQUERADE'
  	if [ "x$showhide" = "x1" ] ; then
@@ -157,8 +143,8 @@ add_netwizard() {
 				#uci -q set network.wan.metric='40'
 				uci -q set network.wan.username="${wan_pppoe_user}"
 				uci -q set network.wan.password="${wan_pppoe_pass}"
-				uci -q set network.wan.keepalive='5 5'
-				uci -q set network.wan.mtu='1480'
+				uci -q set network.wan.keepalive='60 60'
+				uci -q set network.wan.mtu='1420'
 				config_get wan_dns "$cfg" wan_dns
 				test -n "${wan_dns}" && {
 					uci -q set network.wan.peerdns='0'
@@ -183,7 +169,6 @@ add_netwizard() {
 					     [ "x$ifname" = "xdevice" ] &&  uci -q set network.@$ifname[0].ports="${lannet} ${wan_interface}"  || uci -q set network.lan.$ifname="${lannet} ${wan_interface}"
 					fi
 				[ "x$masq" = "x1" ] && uci -q set firewall.@zone[0].masq='1' || uci -q delete firewall.@zone[0].masq
-
 				[ "x$lan_snat" = "x1" ] && echo "${snat_tables}" >> /etc/firewall.user 
 			}
 			setipv6 $ipv6
@@ -194,8 +179,6 @@ add_netwizard() {
 				uci -q set network.lan6.$ifname="@lan"
 				netzone=`uci -q get firewall.@zone[0].network`
 				[ $netzone = 'lan lan6' ] || uci -q set firewall.@zone[0].network='lan lan6'
-				# uci -q delete firewall.@zone[1]
-				# uci  -q set firewall.@zone[1]
 			}	
 		;;		
 	esac
@@ -203,14 +186,12 @@ add_netwizard() {
 		uci -q set network.lan.ipaddr="${lan_ipaddr}"
 		uci -q set network.lan.netmask="${lan_netmask}"
 	}
-	
-	sed -i '/--dport 53 -j REDIRECT --to-ports 53/d' /etc/firewall.user
 	[ "x$redirectdns" = "x1" ] && {
         	echo "iptables -t nat -A PREROUTING -p udp --dport 53 -j REDIRECT --to-ports 53" >> /etc/firewall.user
         	echo "iptables -t nat -A PREROUTING -p tcp --dport 53 -j REDIRECT --to-ports 53" >> /etc/firewall.user
         	echo "[ -n "$(command -v ip6tables)" ] && ip6tables -t nat -A PREROUTING -p udp --dport 53 -j REDIRECT --to-ports 53" >> /etc/firewall.user
         	echo "[ -n "$(command -v ip6tables)" ] && ip6tables -t nat -A PREROUTING -p tcp --dport 53 -j REDIRECT --to-ports 53" >> /etc/firewall.user
-	}
+	} || sed -i '/--dport 53 -j REDIRECT --to-ports 53/d' /etc/firewall.user
 	[ "x$synflood" = "x1" ] && uci -q set firewall.@defaults[0].syn_flood='1' || uci -q delete firewall.@defaults[0].syn_flood
 	sed -i "/dhcp_option '6/d" /etc/config/dhcp
 	sed -i "/list dns/d" /etc/config/dhcp
@@ -246,6 +227,16 @@ add_netwizard() {
 	config_get wifi_key "$cfg" wifi_key
 	config_get old_wifi_ssid "$cfg" old_wifi_ssid
 	config_get old_wifi_key "$cfg" old_wifi_key
+	test -n "${wifi_ssid}" && test -n "${wifi_key}" && {
+		for idx in `seq 0 64`; do
+			uci get wireless.@wifi-iface[$idx] 2>/dev/null || break
+			[ "$(uci get wireless.@wifi-iface[$idx].mode 2>/dev/null)" = "ap" ] && {
+				uci set wireless.@wifi-iface[$idx].ssid="${wifi_ssid}"
+				uci set wireless.@wifi-iface[$idx].key="${wifi_key}"
+				uci set wireless.@wifi-iface[$idx].encryption='psk2'
+			}
+		done
+	}
 	if [[ "${wifi_ssid}" != "${old_wifi_ssid}" || "${wifi_key}" != "${old_wifi_key}" ]]; then
  	 	test -n "${wifi_ssid}" && {
 		for radio in radio0 radio1 radio2 radio3; do
@@ -253,6 +244,7 @@ add_netwizard() {
 		done
 		uci commit wireless
 	 	}
+
  		uci -q set netwizard.default.old_wifi_ssid="${wifi_ssid}"
 	 	uci -q set netwizard.default.old_wifi_key="${wifi_ssid}"
 	fi
@@ -260,13 +252,14 @@ add_netwizard() {
 	uci commit dhcp
 	uci commit firewall
 	uci commit network
-	(sleep 3
+	(sleep 15
 	 /etc/init.d/network restart
 	 /etc/init.d/dnsmasq reload)&
 }
 
 start() { 
 	[ -f $LOCK ] && exit
+	[ "x$XBOOT" = "x1" ] && exit 0
 	config_load netwizard
 	config_foreach add_netwizard netwizard
 	rm -f $LOCK 2>/dev/null
