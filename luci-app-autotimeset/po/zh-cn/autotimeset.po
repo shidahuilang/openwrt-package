@@ -65,14 +65,29 @@ msgstr "检测断网重启"
 msgid "Scheduled Restartmwan3"
 msgstr "检测MWAN3失联重启服务"
 
+msgid "Scheduled Wifidown"
+msgstr "关闭无线网络"
+
+msgid "Scheduled Wifiup"
+msgstr "启用无线网络"
+
 msgid "Edit Custom Script"
-msgstr "编辑自定义脚本"
+msgstr "【自定义脚本】编辑"
+
+msgid "Edit Custom Script2"
+msgstr "【自定义脚本2】编辑"
 
 msgid "Scheduled Customscript"
 msgstr "自定义脚本"
 
-msgid "Only by editing the content of the custom script well and scheduling the custom script task can it be executed effectively."
-msgstr "编辑好自定义脚本内容，自定义脚本任务才能有效执行。"
+msgid "Scheduled Customscript2"
+msgstr "自定义脚本2"
+
+msgid "The execution content of the [Scheduled Customscript] in the task name"
+msgstr "任务名称中【自定义脚本】执行内容"
+
+msgid "The execution content of the [Scheduled Customscript2] in the task name"
+msgstr "任务名称中【自定义脚本2】执行内容"
 
 msgid "Month(0~11)"
 msgstr "月份(0~11)【定时用】"
