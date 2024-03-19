@@ -22,7 +22,6 @@ filebrowser
 gn
 go-aliyundrive-webdav
 gost
-gowebdav
 haproxy
 hysteria
 ipt2socks
@@ -52,7 +51,6 @@ luci-app-diskman
 luci-app-fileassistant
 luci-app-filebrowser
 luci-app-gost
-luci-app-gowebdav
 luci-app-ikoolproxy
 luci-app-istorex
 luci-app-linkease
