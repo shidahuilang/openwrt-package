@@ -35,7 +35,6 @@ dsmboot
 filebrowser
 frp
 gost
-gowebdav
 ipv6-helper
 k3-brcmfmac4366c-firmware
 k3screenctrl
@@ -74,7 +73,6 @@ luci-app-filetransfer
 luci-app-frpc
 luci-app-frps
 luci-app-gost
-luci-app-gowebdav
 luci-app-guest-wifi
 luci-app-ikoolproxy
 luci-app-ipsec-server
