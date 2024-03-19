@@ -22,7 +22,6 @@ cpulimit
 ddns-go
 filebrowser
 gost
-gowebdav
 kcptun
 kerman
 lua-maxminddb
@@ -44,7 +43,6 @@ luci-app-ddnsto
 luci-app-dockerman
 luci-app-filebrowser
 luci-app-gost
-luci-app-gowebdav
 luci-app-ikoolproxy
 luci-app-istorex
 luci-app-linkease
