@@ -55,6 +55,7 @@ luci-app-webd
 luci-app-wifidog
 luci-app-wolplus
 luci-lib-iform
+luci-nginxer
 lucky
 mosdns
 mosdnszz
