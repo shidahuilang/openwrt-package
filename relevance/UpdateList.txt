@@ -138,6 +138,7 @@ luci-lib-docker
 luci-lib-fs
 luci-lib-iform
 luci-lib-nixio
+luci-nginxer
 lucky
 mentohust
 mosdns
