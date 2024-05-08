@@ -4,7 +4,6 @@ Rclone-OpenWrt
 UnblockNeteaseMusic-Go
 UnblockNeteaseMusic
 Wiwiz-PinPinWiFi
-adbyby
 adguardhome
 alist
 alist2
