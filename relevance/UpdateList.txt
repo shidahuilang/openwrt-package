@@ -61,6 +61,7 @@ luci-app-msd_lite
 luci-app-natter
 luci-app-netdata
 luci-app-netwizard
+luci-app-nezha
 luci-app-nginx-manager
 luci-app-nginx-pingos
 luci-app-nodogsplash
@@ -109,6 +110,7 @@ netdata
 network
 oaf
 open-app-filter
+openwrt-nezha
 openwrt-subconverter
 openwrt-tmate
 openwrt_nezha
