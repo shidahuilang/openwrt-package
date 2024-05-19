@@ -30,7 +30,6 @@ jpcre2
 kcptun
 libcron
 libdouble-conversion
-libnftnl
 libtorrent-rasterbar
 linkease
 linkmount
@@ -107,7 +106,6 @@ lucky
 mentohust
 mhz
 microsocks
-miniupnpd-iptables
 mosdns
 mosdnszz
 msd_lite
@@ -126,7 +124,6 @@ netkeeper-interception
 netkeeper
 netmaker
 network
-nftables
 nginx
 ngrokc
 njitclient
@@ -140,12 +137,10 @@ openwrt-nezha
 openwrt-subconverter
 openwrt-tmate
 openwrt_nezha
-opkg
 oscam
 packr
 parted
 pdnsd-alt
-ppp
 qBittorrent-static
 qBittorrent
 qt6base
@@ -207,11 +202,9 @@ v2raya
 verysync
 vlmcsd
 vmease
-vsftpd
 watchcat
 webd
 webdav2
-wireless-regdb
 wrtbwmon
 wxbase
 xray-core
