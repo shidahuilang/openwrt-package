@@ -147,9 +147,6 @@ qt6base
 qt6tools
 quickjspp
 quickstart
-r8101
-r8125
-r8168
 rapidjson
 rblibtorrent
 rclone-ng
@@ -186,11 +183,9 @@ trojan-go
 trojan-plus
 trojan
 tuic-client
-ucl
 udp2raw
 unishare
 upx-static
-upx
 uugamebooster
 uwsgi
 v2dat
