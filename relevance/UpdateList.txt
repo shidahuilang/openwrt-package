@@ -89,7 +89,6 @@ luci-app-ssr-mudb-server
 luci-app-store
 luci-app-supervisord
 luci-app-switch-lan-play
-luci-app-syncthing
 luci-app-tcpdump
 luci-app-tencentddns
 luci-app-ttnode
@@ -174,7 +173,6 @@ sub-web
 subconverter
 sunpanel
 switch-lan-play
-syncthing
 sysuh3c
 tailscale
 taskd
