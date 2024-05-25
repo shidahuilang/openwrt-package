@@ -133,6 +133,7 @@ open-app-filter
 openvpn-easy-rsa-whisky
 openwrt-minieap
 openwrt-minisign
+openwrt-mwol
 openwrt-nezha
 openwrt-subconverter
 openwrt-tmate
