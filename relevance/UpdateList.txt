@@ -65,6 +65,7 @@ luci-app-lucky
 luci-app-mentohust
 luci-app-mosdns
 luci-app-msd_lite
+luci-app-mwol
 luci-app-natter
 luci-app-netdata
 luci-app-netwizard
@@ -112,6 +113,7 @@ msd_lite
 msmtp
 multimedia
 mwan3
+mwol
 naiveproxy
 nanohatoled
 nas-packages-luci
