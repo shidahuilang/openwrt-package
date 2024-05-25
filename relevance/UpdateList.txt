@@ -86,6 +86,7 @@ luci-app-rclone
 luci-app-shutdown
 luci-app-smartinfo
 luci-app-socat
+luci-app-softethervpn
 luci-app-ssr-mudb-server
 luci-app-store
 luci-app-supervisord
@@ -163,7 +164,6 @@ scutclient
 shadow-tls
 shadowsocks-libev
 simple-obfs
-sing-box
 smartdns
 smartmontools
 sms-tool
