@@ -1,0 +1,11 @@
+--- a/n2n.h	2015-10-22 04:42:10.470000096 +0000
++++ b/n2n.h	2015-10-22 04:57:14.706008258 +0000
+@@ -157,7 +157,7 @@
+  * same value if they are to understand each other. */
+ #define N2N_COMPRESSION_ENABLED 1
+ 
+-#define DEFAULT_MTU   1400
++#define DEFAULT_MTU   1440
+ 
+ /** Common type used to hold stringified IP addresses. */
+ typedef char ipstr_t[32];

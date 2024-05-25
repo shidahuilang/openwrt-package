@@ -1,0 +1,58 @@
+--- a/edge.c	2015-03-25 00:35:32.375981597 +0000
++++ b/edge.c	2015-04-06 08:47:03.391981597 +0000
+@@ -80,7 +80,7 @@
+ typedef char n2n_sn_name_t[N2N_EDGE_SN_HOST_SIZE];
+ 
+ #define N2N_EDGE_NUM_SUPERNODES 2
+-#define N2N_EDGE_SUP_ATTEMPTS   3       /* Number of failed attmpts before moving on to next supernode. */
++#define N2N_EDGE_SUP_ATTEMPTS   0       /* Number of failed attmpts before moving on to next supernode. */
+ 
+ 
+ /** Main structure type for edge. */
+@@ -1025,8 +1025,8 @@
+         return; /* Too early */
+     }
+ 
+-    if ( 0 == eee->sup_attempts )
+-    {
++    /* if ( 0 == eee->sup_attempts )
++    { */
+         /* Give up on that supernode and try the next one. */
+         ++(eee->sn_idx);
+ 
+@@ -1036,15 +1036,15 @@
+             eee->sn_idx=0;
+         }
+ 
+-        traceEvent(TRACE_WARNING, "Supernode not responding - moving to %u of %u", 
+-                   (unsigned int)eee->sn_idx, (unsigned int)eee->sn_num );
++        /* traceEvent(TRACE_WARNING, "Supernode not responding - moving to %u of %u", 
++                   (unsigned int)eee->sn_idx, (unsigned int)eee->sn_num ); */
+ 
+         eee->sup_attempts = N2N_EDGE_SUP_ATTEMPTS;
+-    }
++    /* }
+     else
+     {
+         --(eee->sup_attempts);
+-    }
++    } */
+ 
+     if(eee->re_resolve_supernode_ip || (eee->sn_num > 1) )
+     {
+@@ -1736,7 +1736,14 @@
+                     eee->sup_attempts = N2N_EDGE_SUP_ATTEMPTS; /* refresh because we got a response */
+ 
+                     /* REVISIT: store sn_back */
+-                    eee->register_lifetime = ra.lifetime;
++                    if ( eee->sn_num > 1 )
++                    {
++                        eee->register_lifetime = ra.lifetime/2;
++                    }
++                    else
++                    {
++                        eee->register_lifetime = ra.lifetime;
++                    }
+                     eee->register_lifetime = MAX( eee->register_lifetime, REGISTER_SUPER_INTERVAL_MIN );
+                     eee->register_lifetime = MIN( eee->register_lifetime, REGISTER_SUPER_INTERVAL_MAX );
+                 }

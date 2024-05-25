@@ -114,6 +114,7 @@ msmtp
 multimedia
 mwan3
 mwol
+n2n
 naiveproxy
 nanohatoled
 nas-packages-luci

@@ -1,0 +1,11 @@
+--- a/edge.c	2015-03-25 00:35:32.375981597 +0000
++++ b/edge.c	2015-03-25 00:36:56.383981596 +0000
+@@ -1717,7 +1717,7 @@
+                     orig_sender = &(ra.sock);
+                 }
+ 
+-                traceEvent(TRACE_NORMAL, "Rx REGISTER_SUPER_ACK myMAC=%s [%s] (external %s). Attempts %u",
++                traceEvent(TRACE_INFO, "Rx REGISTER_SUPER_ACK myMAC=%s [%s] (external %s). Attempts %u",
+                            macaddr_str( mac_buf1, ra.edgeMac ),
+                            sock_to_cstr(sockbuf1, &sender),
+                            sock_to_cstr(sockbuf2, orig_sender), 
