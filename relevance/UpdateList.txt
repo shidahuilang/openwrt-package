@@ -1,9 +1,5 @@
-feed-netkeeper
 luci-app-argon-config
 luci-app-design-config
-luci-app-netkeeper-interception
-luci-app-smartdns
-luci-proto-netkeeper
 luci-theme-Light
 luci-theme-argon
 luci-theme-atmaterial_new
@@ -14,6 +10,3 @@ luci-theme-neobird
 luci-theme-neobird2
 luci-theme-opentomcat
 luci-theme-opentopd
-netkeeper-interception
-netkeeper
-smartdns
