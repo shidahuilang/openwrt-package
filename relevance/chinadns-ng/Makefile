@@ -67,6 +67,7 @@ endef
 
 define Package/chinadns-ng/postrm
 #!/bin/sh
+exec 2>/dev/null
 rmdir --ignore-fail-on-non-empty /etc/chinadns-ng
 (crontab -l | grep -v "chinadns-ng") | crontab -
 exit 0
