@@ -9,10 +9,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=natflow
-PKG_VERSION:=20240518
+PKG_VERSION:=20240604
 
 PKG_SOURCE_URL:=https://codeload.github.com/ptpt52/natflow/tar.gz/$(PKG_VERSION)?
-PKG_HASH:=c488f5b2401a0067fe3c43cf8ea40c43a608cfe19d670a4caa2ed4af0e7d1f7a
+PKG_HASH:=b308425989d243576e0144064922050223dfa3ffa55917a2289c97de8b6e041c
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 
 PKG_MAINTAINER:=Chen Minqiang <ptpt52@gmail.com>
@@ -37,6 +37,8 @@ define KernelPackage/natflow/description
 endef
 
 include $(INCLUDE_DIR)/kernel-defaults.mk
+
+EXTRA_CFLAGS += -Wno-stringop-overread
 
 EXTRA_CFLAGS += -DCONFIG_NATFLOW_PATH -DCONFIG_NATFLOW_URLLOGGER -DNATFLOW_VERSION=\\\"$(PKG_VERSION)-$(shell echo $(PKG_HASH) | head -c7)\\\"
 ifneq ($(CONFIG_TARGET_mediatek_mt7622),)
