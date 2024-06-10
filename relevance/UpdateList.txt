@@ -48,7 +48,6 @@ luci-app-lucky
 luci-app-mentohust
 luci-app-mosdns
 luci-app-msd_lite
-luci-app-mwol
 luci-app-natter
 luci-app-netdata
 luci-app-netwizard
@@ -93,8 +92,6 @@ mosdns
 mosdnszz
 msd_lite
 multimedia
-mwol
-n2n
 nas-packages-luci
 nas-packages
 natter
@@ -102,7 +99,6 @@ netdata
 network
 oaf
 open-app-filter
-openwrt-mwol
 openwrt-nezha
 openwrt-subconverter
 openwrt-tmate
