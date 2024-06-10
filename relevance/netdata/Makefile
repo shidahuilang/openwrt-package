@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=netdata
 PKG_VERSION:=1.33.1
-PKG_RELEASE:=4
+PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_MAINTAINER:=Josef Schlehofer <pepe.schlehofer@gmail.com>, Daniel Engberg <daniel.engberg.lists@pyret.net>
 PKG_LICENSE:=GPL-3.0-or-later
@@ -24,14 +24,14 @@ PKG_BUILD_DIR=$(BUILD_DIR)/$(PKG_NAME)-v$(PKG_VERSION)
 PKG_INSTALL:=1
 PKG_BUILD_PARALLEL:=1
 PKG_FIXUP:=autoreconf
-PKG_BUILD_FLAGS:=no-mips16 gc-sections
+PKG_USE_MIPS16:=0
 
 include $(INCLUDE_DIR)/package.mk
 
 define Package/netdata
   SECTION:=admin
   CATEGORY:=Administration
-  DEPENDS:=+zlib +libuuid +libuv +libmnl +libjson-c
+  DEPENDS:=+zlib +libuuid +libuv +libmnl +libjson-c +coreutils-timeout
   TITLE:=Real-time performance monitoring tool
   URL:=https://www.netdata.cloud/
 endef
@@ -44,7 +44,9 @@ define Package/netdata/description
   python3-urllib3
 endef
 
-TARGET_CFLAGS := $(filter-out -O%,$(TARGET_CFLAGS)) -O3
+TARGET_CFLAGS := $(filter-out -O%,$(TARGET_CFLAGS))
+TARGET_CFLAGS += -ffunction-sections -fdata-sections -O3
+TARGET_LDFLAGS += -Wl,--gc-sections
 
 CONFIGURE_ARGS += \
 	--with-zlib \
@@ -98,6 +100,7 @@ define Package/netdata/install
 	rm -rf $(1)/usr/share/netdata/web/old
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/netdata.init $(1)/etc/init.d/netdata
+	$(INSTALL_DATA) ./files/charts.d.conf $(1)/etc/netdata/charts.d.conf
 endef
 
 $(eval $(call BuildPackage,netdata))
