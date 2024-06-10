@@ -1,0 +1,18 @@
+{
+    "luci-app-xray-status": {
+        "description": "Grant access to xray configurations",
+        "read": {
+            "uci": [
+                "xray_core"
+            ],
+            "file": {
+                "/usr/bin/wget": [
+                    "exec"
+                ],
+                "/usr/share/xray/version.txt": [
+                    "read"
+                ]
+            }
+        }
+    }
+}

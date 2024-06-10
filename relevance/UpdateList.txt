@@ -114,6 +114,7 @@ rclone-ng
 rclone-webui-react
 rclone
 shadowsocks-libev
+small-package
 smartmontools
 socat
 switch-lan-play
