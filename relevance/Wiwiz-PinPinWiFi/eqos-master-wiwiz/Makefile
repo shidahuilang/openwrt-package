@@ -1,17 +1,8 @@
-#
-# Copyright (C) 2006-2017 OpenWrt.org
-#
-# This is free software, licensed under the GNU General Public License v2.
-# See /LICENSE for more information.
-#
-
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=eqos
 PKG_RELEASE:=1
 LUCI_DIR:=/usr/lib/lua/luci
-
-PKG_MAINTAINER:=Jianhui Zhao <jianhuizhao329@gmail.com>
 
 include $(INCLUDE_DIR)/package.mk
 
