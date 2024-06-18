@@ -65,5 +65,5 @@ rm -rf $RPM_BUILD_ROOT
 * Sun Aug 29 2004 Guillaume Beaudoin <isf@soli.ca>
 - Littles fixes and libofx leftover.
 - Prefix changed to /usr to match init.d script (define removed).
-* Sat Mar 8 2004 Benoit Grégoire <bock@step.polymtl.ca>
+* Sat Mar 8 2004 Benoit Grï¿½goire <bock@step.polymtl.ca>
 - Created spec file

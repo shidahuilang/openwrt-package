@@ -57,6 +57,7 @@ define Package/wifidog-wiwiz/install
 	$(INSTALL_BIN) ./files/usr/local/hsbuilder/hsbuilder.sh $(1)/usr/local/hsbuilder/hsbuilder.sh
 	$(INSTALL_BIN) ./files/usr/local/hsbuilder/hsbuilder_helper.sh $(1)/usr/local/hsbuilder/hsbuilder_helper.sh
 	$(INSTALL_BIN) ./files/usr/local/hsbuilder/setspeed.sh $(1)/usr/local/hsbuilder/setspeed.sh
+	$(INSTALL_BIN) ./files/usr/local/hsbuilder/kickmac.sh $(1)/usr/local/hsbuilder/kickmac.sh
 	$(INSTALL_BIN) ./files/usr/local/hsbuilder/wiwizroaming.sh $(1)/usr/local/hsbuilder/wiwizroaming.sh
 	$(INSTALL_BIN) ./files/usr/local/hsbuilder/getmodel.sh $(1)/usr/local/hsbuilder/getmodel.sh
 	$(INSTALL_DATA) ./files/usr/local/hsbuilder/hsbuilder.conf $(1)/usr/local/hsbuilder/hsbuilder.conf
@@ -79,6 +80,7 @@ define Package/wifidog-wiwiz/install
 	$(INSTALL_BIN) ./files/www/cgi-bin/mymac $(1)/www/cgi-bin/mymac
 	$(INSTALL_BIN) ./files/www/cgi-bin/myip $(1)/www/cgi-bin/myip
 	$(INSTALL_BIN) ./files/www/cgi-bin/showdevinfo $(1)/www/cgi-bin/showdevinfo
+	$(INSTALL_BIN) ./files/www/cgi-bin/kickmac $(1)/www/cgi-bin/kickmac
 	$(INSTALL_DATA) ./files/www/index.html.wiwiz $(1)/www/index.html.wiwiz
 	$(INSTALL_DATA) ./files/www/error.html.wiwiz $(1)/www/error.html.wiwiz
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
