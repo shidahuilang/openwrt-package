@@ -170,6 +170,11 @@ if [ "$1" = "unset" ]; then
 		let I=$I+1
 	done
 	/etc/init.d/eqos stop; /etc/init.d/eqos start
+
+	if [ "$MAC" != "" ]; then
+		/usr/local/hsbuilder/kickmac.sh add $MAC
+	fi
+
 	echo "SetSpeed: $(date) unset $MAC" >>$LOGFILE
 fi
 
