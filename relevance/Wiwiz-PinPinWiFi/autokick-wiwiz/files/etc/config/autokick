@@ -1,0 +1,5 @@
+config autokick autokick
+        option enabled 0
+        option gw_ip '127.0.0.1'
+        option save_log '1'
+
