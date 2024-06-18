@@ -1,8 +1,0 @@
-#!/bin/sh
-uci batch <<-EOF
-	set luci.themes.Neobird2=/luci-static/neobird2
-	set luci.main.mediaurlbase=/luci-static/neobird2
-	commit luci
-EOF
-exit 0 
-# ↑↑↑ DO NOT EDIT THIS LINE
