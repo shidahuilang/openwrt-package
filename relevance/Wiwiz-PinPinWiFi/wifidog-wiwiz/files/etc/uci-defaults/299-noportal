@@ -44,4 +44,5 @@ config rule
         option dest_port '53'
         option name 'NoPortal DNS'
         option src 'noportal'
+
 EOF
