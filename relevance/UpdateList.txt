@@ -18,7 +18,6 @@ ddns-go
 filebrowser
 go-aliyundrive-webdav
 gost
-k8
 kcptun
 luci-app-3ginfo
 luci-app-adguardhome
