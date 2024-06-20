@@ -18,6 +18,7 @@ ddns-go
 filebrowser
 go-aliyundrive-webdav
 gost
+k8
 kcptun
 luci-app-3ginfo
 luci-app-adguardhome
@@ -110,7 +111,6 @@ rclone-ng
 rclone-webui-react
 rclone
 shadowsocks-libev
-small-package
 smartmontools
 socat
 switch-lan-play
