@@ -112,6 +112,7 @@ rclone
 shadowsocks-libev
 smartmontools
 socat
+softethervpn5
 switch-lan-play
 udp2raw
 upx-static
