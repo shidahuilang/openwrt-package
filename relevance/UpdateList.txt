@@ -114,11 +114,11 @@ rclone
 shadowsocks-libev
 smartmontools
 socat
+softethervpn5
 switch-lan-play
 udp2raw
 upx-static
 v2dat
 v2ray-geodata
 vlmcsd
-vvv
 webd
