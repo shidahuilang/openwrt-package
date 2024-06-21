@@ -16,7 +16,6 @@ cpulimit-ng
 cpulimit
 ddns-go
 filebrowser
-files
 go-aliyundrive-webdav
 gost
 kcptun
@@ -107,7 +106,6 @@ openwrt_nezha
 oscam
 packr
 parted
-patches
 rclone-ng
 rclone-webui-react
 rclone
