@@ -1,4 +1,5 @@
 local ipc = require "luci.ip"
+local ut = require "luci.util"
 
 local m = Map("eqos", translate("Quality of Service"))
 
@@ -22,7 +23,12 @@ s.sortable  = true
 
 local ip = s:option(Value, "ip", translate("IP address"))
 
-ipc.neighbors({family = 4, dev = "br-lan"}, function(n)
+local lan = ut.exec("uci get wiwiz.portal.lan 2>/dev/null")
+if lan == "" then
+	lan = "br-lan"
+end
+
+ipc.neighbors({family = 4, dev = lan}, function(n)
 	if n.mac and n.dest then
 		ip:value(n.dest:string(), "%s (%s)" %{ n.dest:string(), n.mac })
 	end

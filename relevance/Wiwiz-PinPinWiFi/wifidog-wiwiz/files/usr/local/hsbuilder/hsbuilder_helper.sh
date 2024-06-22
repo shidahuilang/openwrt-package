@@ -13,9 +13,15 @@ LOGFILE='/tmp/hsbuilder.log'
 TMPFILE='/tmp/hsbuilder_helper.tmp'
 #SRV_SAVE='/usr/local/hsbuilder/srv'
 
+LANDEV=$(uci get wiwiz.portal.lan 2>/dev/null)
+if [ "$LANDEV" == "" ]; then
+	LANDEV=br-lan
+fi
+
 getIP() {
 	_mac="$1"
-	s=$(cat /proc/net/arp | grep -F "$_mac" | grep -F '0x2' | grep -F 'br-lan'| awk '{print $1}')
+
+	s=$(cat /proc/net/arp | grep -F "$_mac" | grep -F '0x2' | grep -F "$LANDEV"| awk '{print $1}')
 	echo "$s"
 }
 
@@ -98,7 +104,7 @@ fi
 #RDM=$(getRandom)
 #if [ "$RDM" = "5" ]; then
 #	echo "Helper: $(date) RDM is 5 !!!" >>$LOGFILE
-LAN_IP=$(ifconfig br-lan | grep "inet addr" | awk '{ print $2}' | awk -F: '{print $2}')
+LAN_IP=$(ifconfig "$LANDEV" | grep "inet addr" | awk '{ print $2}' | awk -F: '{print $2}')
 #_s=$(wget -O - -T 5 "http://$LAN_IP:2060/wifidog" 2>/dev/null)
 _s=$(curl -m 5 "http://$LAN_IP:2060/wifidog" 2>/dev/null)
 if [ "$_s" == "" ]; then

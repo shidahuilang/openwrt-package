@@ -2,6 +2,6 @@
 require("luci.sys")
 require("luci.util")
 
-local lanip = luci.util.exec("echo \"_wiwiz_getlanip('$(ifconfig br-lan | grep 'inet addr' | awk '{ print $2}' | awk -F: '{print $2}')');\" 2>/dev/null")
+local lanip = luci.util.exec("echo \"_wiwiz_getlanip('$(ifconfig $(uci get wiwiz.portal.lan 2>/dev/null) | grep 'inet addr' | awk '{ print $2}' | awk -F: '{print $2}')');\" 2>/dev/null")
 print("Content-type: application/javascript\n")
 print(lanip)
