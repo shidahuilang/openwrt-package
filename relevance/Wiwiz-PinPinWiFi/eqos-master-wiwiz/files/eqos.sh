@@ -1,6 +1,9 @@
 #!/bin/sh
 
-dev=br-lan
+dev=$(uci get wiwiz.portal.lan 2>/dev/null)
+if [ "$dev" == "" ]; then
+	dev=br-lan
+fi
 
 stop_qos() {
 	tc qdisc del dev $dev root 2>/dev/null
