@@ -1,0 +1,24 @@
+#!/bin/sh
+
+sed -e "s,local_vip '1',local_vip 'cvip',g" \
+    -e "/local_vip '0'/d" \
+	-i "/etc/config/unblockneteasemusic"
+
+uci -q batch <<-EOF >"/dev/null"
+	delete ucitrack.@unblockneteasemusic[-1]
+	add ucitrack unblockneteasemusic
+	set ucitrack.@unblockneteasemusic[-1].init=unblockneteasemusic
+	commit ucitrack
+EOF
+
+uci -q batch <<-EOF >"/dev/null"
+	delete firewall.unblockneteasemusic
+	set firewall.unblockneteasemusic=include
+	set firewall.unblockneteasemusic.type=script
+	set firewall.unblockneteasemusic.path=/var/run/unblockneteasemusic/fw3.include
+	set firewall.unblockneteasemusic.reload=1
+	commit firewall
+EOF
+
+rm -f /tmp/luci-indexcache
+exit 0
