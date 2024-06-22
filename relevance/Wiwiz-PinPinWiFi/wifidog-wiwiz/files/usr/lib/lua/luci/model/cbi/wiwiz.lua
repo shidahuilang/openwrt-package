@@ -19,6 +19,12 @@ server.optional = false
 server.rmempty = false
 server.default = "cp.wiwiz.com:80"
 
+lan = portal:option(Value, "lan", "网络接口"); 
+lan.optional = false 
+lan.rmempty = false
+lan.addremove = false
+lan.default = "br-lan"
+
 ver = portal:option(DummyValue, "ver", "Wiwiz插件版本", "<a href='http://www.wiwiz.com/pinpinwifi/wiwiz-ipk.htm' target='_blank'>使用说明</a>");
 
 return m
