@@ -29,6 +29,7 @@ luci-app-autotimeset
 luci-app-chatgpt
 luci-app-cifs-mount
 luci-app-clash
+luci-app-cloudflared
 luci-app-cloudflarespeedtest
 luci-app-control-timewol
 luci-app-control-webrestriction
