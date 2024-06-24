@@ -1346,7 +1346,7 @@ p#shadowsocksr_status {
 
 .main > .main-left > .nav > .slide {
     padding: 0;
-    padding-top:8px;
+    padding-top:6px;
 }
 
 .main > .main-left > .nav > .slide > a:before {
@@ -1492,7 +1492,7 @@ p#shadowsocksr_status {
     overflow:hidden;
     }
 .main > .main-left > .nav > .slide > .slide-menu > li {
-    margin-top: 8px;
+    margin-top: 2px;
     border-radius: 6px;
 }
 
@@ -3253,7 +3253,7 @@ body.lang_pl.node-main-login .cbi-value-title {
 
     .cbi-value-title {
         width: 100%;
-        font-weight: 700;
+        font-weight: 500;
         float: left;
         padding: 0;
         margin: 0;
