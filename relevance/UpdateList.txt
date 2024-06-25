@@ -1,5 +1,6 @@
 luci-app-design-config
 luci-theme-alpha
+luci-theme-argon
 luci-theme-argone
 luci-theme-atmaterial_new
 luci-theme-bootstrap
