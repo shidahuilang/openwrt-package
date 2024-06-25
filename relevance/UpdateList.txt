@@ -1,5 +1,6 @@
 luci-app-design-config
 luci-theme-Light
+luci-theme-argon
 luci-theme-bootstrap
 luci-theme-darkmatter
 luci-theme-design
