@@ -6,7 +6,7 @@ uci -q batch <<-EOF >/dev/null
 	set firewall.wrtbwmon.type=script
 	set firewall.wrtbwmon.path='/etc/wrtbwmon.include'
 	set firewall.wrtbwmon.reload=1
-  commit firewall
+	commit firewall
 EOF
 
 /etc/init.d/wrtbwmon enable

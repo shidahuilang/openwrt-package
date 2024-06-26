@@ -248,4 +248,3 @@ msgstr "额外设置列表将会被添加到config文件中。 格式：option=v
 #: luasrc/view/frps/frps_status.htm:7
 msgid "Open Frps page"
 msgstr "打开 Frps 管理面板"
-

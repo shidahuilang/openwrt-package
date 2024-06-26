@@ -1,8 +1,6 @@
 3ginfo
 OpenAppFilter
 Rclone-OpenWrt
-UnblockNeteaseMusic-Go
-UnblockNeteaseMusic
 Wiwiz-PinPinWiFi
 adguardhome
 alist
@@ -17,6 +15,7 @@ assets
 autocore
 automount
 autosamba
+baidupcs-go
 baidupcs-web
 bcm27xx-eeprom
 cdnspeedtest
@@ -121,7 +120,6 @@ luci-app-tcpdump
 luci-app-tencentddns
 luci-app-ttnode
 luci-app-udp2raw
-luci-app-unblockmusic
 luci-app-unblockneteasemusic
 luci-app-usb-printer
 luci-app-uugamebooster
