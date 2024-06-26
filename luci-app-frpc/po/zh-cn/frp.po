@@ -67,6 +67,27 @@ msgstr "TLS 连接"
 msgid "if tls_enable is true, frpc will connect frps by tls."
 msgstr "使用 TLS 协议与服务器连接(若连接服务器异常可以尝试开启)"
 
+msgid "Custom TLS Protocol Encryption"
+msgstr "自定义TLS协议加密"
+
+msgid "Frp supports traffic encryption between frpc and frps through the TLS protocol, and supports client or server unidirectional and bidirectional authentication."
+msgstr "frp 支持 frpc 和 frps 之间的流量通过 TLS 协议加密，并且支持客户端或服务端单向验证，双向验证等功能。"
+
+msgid "Frps one-way verifies the identity of frpc."
+msgstr "frps 单向验证 frpc 身份。"
+
+msgid "Client Certificate File"
+msgstr "TLS 客户端证书文件路径"
+
+msgid "Client Key File"
+msgstr "TLS 客户端密钥文件路径"
+
+msgid "Frpc one-way verifies the identity of frps."
+msgstr "frpc 单向验证 frps 身份。"
+
+msgid "CA Certificate File"
+msgstr "TLS CA 证书路径"
+
 msgid "Protocol Type"
 msgstr "协议类型"
 
@@ -200,7 +221,10 @@ msgid "subdomain_host must be configured in server: frps in advance."
 msgstr "使用子域名时，必须预先在服务端配置主域名(subdomain_host)参数。"
 
 msgid "STCP Role"
-msgstr "SFTP 服务类型"
+msgstr "STCP 服务类型"
+
+msgid "XTCP Role"
+msgstr "XTCP 服务类型"
 
 msgid "Use Plugin"
 msgstr "使用插件"
@@ -209,10 +233,16 @@ msgid "If plugin is defined, local_ip and local_port is useless, plugin will han
 msgstr "使用插件使用插件模式时，本地 IP 地址和端口无需配置，插件将会处理来自服务端的链接请求。"
 
 msgid "STCP Screct Key"
-msgstr "SFTP 密钥"
+msgstr "STCP 密钥"
 
 msgid "STCP Server Name"
-msgstr "SFTP 服务名称"
+msgstr "STCP 服务名称"
+
+msgid "XTCP Screct Key"
+msgstr "XTCP 密钥"
+
+msgid "XTCP Server Name"
+msgstr "XTCP 服务名称"
 
 msgid "Enable URL routing"
 msgstr "启用 URL 路由"
@@ -256,8 +286,8 @@ msgstr "Frp可以用修改后的主机头重写http请求。"
 msgid "Proxy-Protocol Version"
 msgstr "Proxy-Protocol 版本"
 
-msgid "Encrypted the communication between frpc and frps, will effectively prevent the traffic intercepted."
-msgstr "将 frpc 与 frps 之间的通信内容加密传输，将会有效防止流量被拦截。"
+msgid "Encrypted the communication between frpc and frps, will effectively prevent the traffic intercepted (If Custom TLS Protocol Encryption is enabled, except that the protocol of xtcp is configured as kcp, you can no longer set Use Encryption to repeat encryption)."
+msgstr "将 frpc 与 frps 之间的通信内容加密传输，将会有效防止流量被拦截（启用自定义TLS协议加密后除 xtcp 的 protocol 配置为 kcp 外，可不再设置此项重复加密）。"
 
 msgid "The contents will be compressed to speed up the traffic forwarding speed, but this will consume some additional cpu resources."
 msgstr "对传输内容进行压缩，加快流量转发速度，但是会额外消耗一些 cpu 资源。"
@@ -270,6 +300,9 @@ msgstr "将用户的真实IP发送到本地服务的代理协议。"
 
 msgid "STCP Server Name is Service Remark Name of STCP Server"
 msgstr "STCP服务器别名"
+
+msgid "XTCP Server Name is Service Remark Name of XTCP Server"
+msgstr "XTCP服务器别名"
 
 msgid "<font color=\"red\">Please ensure the remark name is unique.</font>"
 msgstr "<font color=\"red\">确保备注名唯一</font>"

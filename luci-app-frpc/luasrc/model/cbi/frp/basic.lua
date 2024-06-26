@@ -1,18 +1,18 @@
-local o = require"luci.dispatcher"
-local e = require("luci.model.ipkg")
-local s = require"nixio.fs"
+local o = require "luci.dispatcher"
+local e = require ("luci.model.ipkg")
+local s = require "nixio.fs"
 local e = luci.model.uci.cursor()
 local i = "frp"
-local a,t,e
+local a, t, e
 local n = {}
 
 a = Map("frp")
 a.title = translate("Frp Setting")
 a.description = translate("Frp is a fast reverse proxy to help you expose a local server behind a NAT or firewall to the internet.")
 
-a:section(SimpleSection).template="frp/frp_status"
+a:section(SimpleSection).template  = "frp/frp_status"
 
-t = a:section(NamedSection, "common","frp")
+t = a:section(NamedSection, "common", "frp")
 t.anonymous = true
 t.addremove = false
 
@@ -73,6 +73,30 @@ e.description = translate("if tls_enable is true, frpc will connect frps by tls.
 e.default = "0"
 e.rmempty = false
 
+e = t:taboption("other", Flag, "enable_custom_certificate", translate("Custom TLS Protocol Encryption"))
+e.description = translate("Frp supports traffic encryption between frpc and frps through the TLS protocol, and supports client or server unidirectional and bidirectional authentication.")
+e.default = "0"
+e.rmempty = false
+e:depends("tls_enable", 1)
+
+e = t:taboption("other", Value, "tls_cert_file", translate("Client Certificate File"))
+e.description = translate("Frps one-way verifies the identity of frpc.")
+e.placeholder = "/var/etc/frp/client.crt"
+e.optional = false
+e:depends("enable_custom_certificate", 1)
+
+e = t:taboption("other", Value, "tls_key_file", translate("Client Key File"))
+e.description = translate("Frps one-way verifies the identity of frpc.")
+e.placeholder = "/var/etc/frp/client.key"
+e.optional = false
+e:depends("enable_custom_certificate", 1)
+
+e = t:taboption("other", Value, "tls_trusted_ca_file", translate("CA Certificate File"))
+e.description = translate("Frpc one-way verifies the identity of frps.")
+e.placeholder = "/var/etc/frp/ca.crt"
+e.optional = false
+e:depends("enable_custom_certificate", 1)
+
 e = t:taboption("other", ListValue, "protocol", translate("Protocol Type"))
 e.description = translate("Frp support kcp protocol since v0.12.0")
 e.default = "tcp"
@@ -83,11 +107,11 @@ e = t:taboption("other", Flag, "enable_http_proxy", translate("Connect frps by H
 e.description = translate("frpc can connect frps using HTTP PROXY")
 e.default = "0"
 e.rmempty = false
-e:depends("protocol","tcp")
+e:depends("protocol", "tcp")
 
 e = t:taboption("other", Value, "http_proxy", translate("HTTP PROXY"))
 e.placeholder = "http://user:pwd@192.168.1.128:8080"
-e:depends("enable_http_proxy",1)
+e:depends("enable_http_proxy", 1)
 e.optional = false
 
 e = t:taboption("other", Flag, "enable_cpool", translate("Enable Connection Pool"))
@@ -98,8 +122,8 @@ e = t:taboption("other", Value, "pool_count", translate("Connection Pool"))
 e.description = translate("Connections will be established in advance.")
 e.datatype = "uinteger"
 e.default = "1"
-e:depends("enable_cpool",1)
-e.optional=false
+e:depends("enable_cpool", 1)
+e.optional = false
 
 e = t:taboption("other", ListValue, "log_level", translate("Log Level"))
 e.default = "warn"
@@ -118,28 +142,25 @@ e.optional = false
 e = t:taboption("other", Flag, "admin_enable", translate("Enable Web API"))
 e.description = translate("set admin address for control frpc's action by http api such as reload.")
 e.default = "0"
-e.rmempty=false
+e.rmempty = false
 
 e = t:taboption("other", Value, "admin_port", translate("Admin Web Port"))
 e.datatype = "port"
 e.default = 7400
-e.rmempty = false
-e:depends("admin_enable",1)
+e:depends("admin_enable", 1)
 
 e = t:taboption("other", Value, "admin_user", translate("Admin Web UserName"))
 e.optional = false
 e.default = "admin"
-e.rmempty=false
-e:depends("admin_enable",1)
+e:depends("admin_enable", 1)
 
 e = t:taboption("other", Value, "admin_pwd", translate("Admin Web PassWord"))
 e.optional = false
 e.default = "admin"
 e.password = true
-e.rmempty = false
-e:depends("admin_enable",1)
+e:depends("admin_enable", 1)
 
-e = t:taboption("log", TextValue,"log")
+e = t:taboption("log", TextValue, "log")
 e.rows = 26
 e.wrap = "off"
 e.readonly = true
@@ -153,7 +174,7 @@ t = a:section(TypedSection, "proxy", translate("Services List"))
 t.anonymous = true
 t.addremove = true
 t.template = "cbi/tblsection"
-t.extedit = o.build_url("admin","services","frp","config","%s")
+t.extedit = o.build_url("admin", "services", "frp", "config", "%s")
 
 function t.create(e,t)
 new = TypedSection.create(e,t)
@@ -168,13 +189,13 @@ end
 
 local o = ""
 e = t:option(DummyValue, "remark", translate("Service Remark Name"))
-e.width="10%"
+e.width = "10%"
 
 e = t:option(DummyValue, "type", translate("Frp Protocol Type"))
-e.width="10%"
+e.width = "10%"
 
 e = t:option(DummyValue, "custom_domains", translate("Domain/Subdomain"))
-e.width="20%"
+e.width = "20%"
 
 e.cfgvalue = function(t,n)
 local t = a.uci:get(i,n,"domain_type")or""
@@ -188,10 +209,10 @@ local b = a.uci:get(i,n,"custom_domains")or""
 local c = a.uci:get(i,n,"subdomain")or""
 b="%s/%s"%{b,c} return b end
 if m=="tcp" or m=="udp" then
-local b=a.uci:get(i,"common","server_addr")or"" return b end
+local b = a.uci:get(i,"common","server_addr")or"" return b end
 end
 
-e = t:option(DummyValue,"remote_port",translate("Remote Port"))
+e = t:option(DummyValue, "remote_port", translate("Remote Port"))
 e.width = "10%"
 e.cfgvalue = function(t,b)
 local t = a.uci:get(i,b,"type")or""
@@ -214,7 +235,7 @@ e = t:option(DummyValue, "use_encryption", translate("Use Encryption"))
 e.width = "15%"
 
 e.cfgvalue = function(t,n)
-local t=a.uci:get(i,n,"use_encryption")or""
+local t = a.uci:get(i,n,"use_encryption")or""
 local b
 if t==""or b==""then return""end
 if t=="1" then b="ON"

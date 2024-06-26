@@ -28,16 +28,16 @@ name.size = 8
 
 pth = s:option(Value, "natpath", translate("Mount Path"))
 if nixio.fs.access("/etc/config/fstab") then
-        pth.titleref = luci.dispatcher.build_url("admin", "system", "mounts")
+        pth.titleref = luci.dispatcher.build_url("admin", "system", "fstab")
 end
 pth.rmempty = false
 pth.size = 10
 
 smbver = s:option(Value, "smbver", translate("SMB Version"))
 smbver.rmempty = false
-smbver:value("1.0","SMB v1")
-smbver:value("2.0","SMB v2")
-smbver:value("3.0","SMB v3")
+smbver:value("1.0", "SMB v1")
+smbver:value("2.0", "SMB v2")
+smbver:value("3.0", "SMB v3")
 smbver.default = "2.0"
 smbver.size = 3
 
