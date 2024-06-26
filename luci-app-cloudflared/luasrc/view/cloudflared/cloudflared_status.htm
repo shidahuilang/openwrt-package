@@ -1,0 +1,23 @@
+<script type="text/javascript">//<![CDATA[
+XHR.poll(3, '<%=url([[admin]], [[vpn]], [[cloudflared]], [[status]])%>', null,
+	function(x, data) {
+		var tb = document.getElementById('cloudflared_status');
+		if (data && tb) {
+			var clientStatus = data.running ? "<span style='color:green;'> 运行中</span>" : "<span style='color:red;'> 未运行</span>";
+                       var cfstaContent = data.running ? "已运行：" + "<span style='color:#DA70D6;'>" + data.cfsta + "</span>" : "";    
+                       var cfcpuContent = data.running ? "<br>" + "CPU占用：" + "<span style='color:#6A5ACD;'>" + data.cfcpu + "</span>" : "";  
+                       var cframContent = data.running ? "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + "&nbsp;&nbsp;&nbsp;&nbsp;内存占用：" + "<span style='color:#0000CD;'>" + data.cfram + "</span>" : ""; 
+                       var cftagContent = data.running ? "<br>" + "当前版本：" + "<span style='color:#CD853F;'>" + data.cftag + "</span>" : ""; 
+                       var cfnewtagContent = data.running ? "&nbsp;" + "最新版本：" + "<span style='color:#FFA500;'>" + data.cfnewtag + "</span>" : "";    
+                       tb.innerHTML = "<b><em>cloudflared " + clientStatus + cfstaContent + cfcpuContent + cframContent + cftagContent + cfnewtagContent + "</b></em>";          
+        }
+    }
+);
+//]]>
+</script>
+<style>.mar-10 {margin-left: 50px; margin-right: 10px;}</style>
+<fieldset class="cbi-section">
+	<p id="cloudflared_status">
+		<em><%:Collecting data...%></em>
+	</p>
+</fieldset>

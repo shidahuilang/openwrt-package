@@ -1,0 +1,5 @@
+config cloudflared 'config'
+	    option cmdenabled '0'
+	    option enabled '0'
+     	option loglevel 'info'
+	

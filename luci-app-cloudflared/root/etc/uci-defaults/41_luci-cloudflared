@@ -1,0 +1,12 @@
+#!/bin/sh
+
+uci -q batch <<-EOF >/dev/null
+	delete ucitrack.@cloudflared[-1]
+	add ucitrack cloudflared
+	set ucitrack.@cloudflared[-1].init=cloudflared
+	commit ucitrack
+EOF
+
+rm -f /tmp/luci-indexcache /tmp/luci-modulecache
+chmod 755 /etc/init.d/cloudflared
+exit 0
