@@ -94,6 +94,7 @@ luci-app-vlmcsd
 luci-app-webd
 luci-app-wifidog
 luci-app-wolplus
+luci-app-zerotier
 luci-lib-iform
 luci-nginxer
 lucky
