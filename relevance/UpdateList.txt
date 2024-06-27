@@ -15,10 +15,14 @@ clud
 cpulimit-ng
 cpulimit
 ddns-go
+ddnsto
 filebrowser
 go-aliyundrive-webdav
 gost
+istoreenhance
 kcptun
+linkease
+linkmount
 luci-app-3ginfo
 luci-app-adguardhome
 luci-app-advanced
@@ -71,7 +75,6 @@ luci-app-smartinfo
 luci-app-socat
 luci-app-softethervpn
 luci-app-ssr-mudb-server
-luci-app-store
 luci-app-supervisord
 luci-app-switch-lan-play
 luci-app-syncthing
@@ -81,6 +84,7 @@ luci-app-ttnode
 luci-app-udp2raw
 luci-app-unblockmusic
 luci-app-unblockneteasemusic
+luci-app-unishare
 luci-app-vlmcsd
 luci-app-webd
 luci-app-wifidog
@@ -92,12 +96,9 @@ mentohust
 mosdns
 mosdnszz
 msd_lite
-multimedia
 nas-packages-luci
-nas-packages
 natter
 netdata
-network
 oaf
 open-app-filter
 openwrt-nezha
@@ -107,6 +108,7 @@ openwrt_nezha
 oscam
 packr
 parted
+quickstart
 rclone-ng
 rclone-webui-react
 rclone
@@ -116,8 +118,10 @@ socat
 softethervpn5
 switch-lan-play
 udp2raw
+unishare
 upx-static
 v2dat
 v2ray-geodata
 vlmcsd
 webd
+webdav2
