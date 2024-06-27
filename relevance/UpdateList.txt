@@ -16,6 +16,7 @@ cpulimit-ng
 cpulimit
 ddns-go
 ddnsto
+ffmpeg-remux
 filebrowser
 go-aliyundrive-webdav
 gost
