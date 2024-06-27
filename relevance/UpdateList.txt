@@ -75,6 +75,7 @@ luci-app-pushbot
 luci-app-quickstart
 luci-app-rclone
 luci-app-shutdown
+luci-app-smartdns
 luci-app-smartinfo
 luci-app-socat
 luci-app-softethervpn
@@ -119,6 +120,7 @@ rclone-ng
 rclone-webui-react
 rclone
 shadowsocks-libev
+smartdns
 smartmontools
 socat
 softethervpn5
