@@ -16,9 +16,11 @@ cpulimit-ng
 cpulimit
 ddns-go
 ddnsto
+ffmpeg-remux
 filebrowser
 go-aliyundrive-webdav
 gost
+homebox
 istoreenhance
 kcptun
 linkease
@@ -33,6 +35,7 @@ luci-app-autotimeset
 luci-app-chatgpt
 luci-app-cifs-mount
 luci-app-clash
+luci-app-cloudflared
 luci-app-cloudflarespeedtest
 luci-app-control-timewol
 luci-app-control-webrestriction
@@ -55,6 +58,7 @@ luci-app-mosdns
 luci-app-msd_lite
 luci-app-natter
 luci-app-netdata
+luci-app-netspeedtest
 luci-app-netwizard
 luci-app-nezha-agent
 luci-app-nginx-manager
@@ -71,10 +75,12 @@ luci-app-pushbot
 luci-app-quickstart
 luci-app-rclone
 luci-app-shutdown
+luci-app-smartdns
 luci-app-smartinfo
 luci-app-socat
 luci-app-softethervpn
 luci-app-ssr-mudb-server
+luci-app-store
 luci-app-supervisord
 luci-app-switch-lan-play
 luci-app-syncthing
@@ -89,6 +95,7 @@ luci-app-vlmcsd
 luci-app-webd
 luci-app-wifidog
 luci-app-wolplus
+luci-app-zerotier
 luci-lib-iform
 luci-nginxer
 lucky
@@ -113,6 +120,7 @@ rclone-ng
 rclone-webui-react
 rclone
 shadowsocks-libev
+smartdns
 smartmontools
 socat
 softethervpn5
