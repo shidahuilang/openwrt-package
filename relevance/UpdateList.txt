@@ -21,6 +21,7 @@ bcm27xx-eeprom
 cdnspeedtest
 cgroupfs-mount
 chinadns-ng
+cloudflared
 clud
 containerd
 cpulimit-ng
