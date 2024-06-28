@@ -11,6 +11,7 @@ app-lucky
 ardhome
 assets
 cdnspeedtest
+cloudflared
 clud
 cpulimit-ng
 cpulimit
