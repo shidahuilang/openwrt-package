@@ -68,6 +68,7 @@ luci-app-oaf
 luci-app-oled
 luci-app-onliner
 luci-app-oscam
+luci-app-parentcontrol
 luci-app-partexp
 luci-app-poweroff
 luci-app-pppoe-server
