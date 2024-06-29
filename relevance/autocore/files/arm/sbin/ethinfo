@@ -12,7 +12,12 @@ for ifname, stat in pairs(util.ubus("network.device", "status")) do
 		if (ifname:match("^(br-.+)$")) == ifname then
 			break
 		else
-			local status, speed, duplex
+			if not stat["link-supported"] then
+				break
+			end
+			local status = 0
+			local speed = " - "
+			local duplex = 0
 
 			if(stat.speed ~= nil) then
 				status = stat.carrier and 1 or 0
@@ -28,10 +33,9 @@ for ifname, stat in pairs(util.ubus("network.device", "status")) do
 				else
 					duplex = 0
 				end
-
-				eth_info[#eth_info+1] = { name = ifname, status = status,
-							speed = speed, duplex = duplex }
 			end
+			eth_info[#eth_info+1] = { name = ifname, status = status,
+						speed = speed, duplex = duplex }
 			break
 		end
 	end

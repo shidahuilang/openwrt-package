@@ -24,10 +24,7 @@ function usage_database_path()
 end
 
 function check_dependency()
-	local ret = "0"
-	if require("luci.model.ipkg").installed('iptables') then
-		ret = "1"
-	end
+	local ret = "1"
 	luci.http.prepare_content("text/plain")
 	luci.http.write(ret)
 end
