@@ -12,8 +12,6 @@ antfs
 app-lucky
 ardhome
 assets
-automount
-autosamba
 cdnspeedtest
 chinadns-ng
 clud
@@ -86,7 +84,6 @@ mentohust
 mosdns
 mosdnszz
 msd_lite
-mt
 multimedia
 nas-packages-luci
 nas-packages
