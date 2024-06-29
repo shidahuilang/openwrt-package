@@ -1,8 +1,6 @@
 3ginfo
 OpenAppFilter
 Rclone-OpenWrt
-UnblockNeteaseMusic-Go
-UnblockNeteaseMusic
 Wiwiz-PinPinWiFi
 adguardhome
 alist
