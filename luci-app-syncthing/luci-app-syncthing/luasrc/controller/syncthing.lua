@@ -6,10 +6,8 @@ function index()
 		return
 	end
 	
-	local page = entry({"admin", "nas", "syncthing"}, cbi("syncthing"), _("Syncthing"))
-	page.order = 10
-	page.dependent = true
-	page.acl_depends = { "luci-app-syncthing" }
+	entry({"admin", "nas"}, firstchild(), "NAS", 44).dependent = false
+	entry({"admin", "nas", "syncthing"}, cbi("syncthing"), _("Syncthing"), 10).dependent = true
 	entry({"admin","nas","syncthing","status"},call("act_status")).leaf=true
 end
 

@@ -17,15 +17,15 @@ PKG_BUILD_PARALLEL:=1
 include $(INCLUDE_DIR)/package.mk
 
 define Package/vlmcsd
-	SECTION:=net
-	CATEGORY:=Network
-	TITLE:=vlmcsd for OpenWRT
-	URL:=http://forums.mydigitallife.info/threads/50234
-	DEPENDS:=+libpthread
+  SECTION:=net
+  CATEGORY:=Network
+  TITLE:=vlmcsd for OpenWRT
+  URL:=http://forums.mydigitallife.info/threads/50234
+  DEPENDS:=+libpthread
 endef
 
 define Package/vlmcsd/description
-	vlmcsd is a KMS Emulator in C.
+  vlmcsd is a KMS Emulator in C.
 endef
 
 MAKE_FLAGS += \
