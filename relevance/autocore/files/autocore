@@ -29,7 +29,7 @@ start() {
 			ethtool -K "$i" tx-checksum-ipv4 on
 			ethtool -K "$i" tx-checksum-ipv6 on
 		}
-		ubus call system board | grep -q "J1900" || ethtool -K "$i" tx-scatter-gather on
+		ethtool -K "$i" tx-scatter-gather on
 		ethtool -K "$i" gso on
 		ethtool -K "$i" tso on
 		ethtool -K "$i" ufo on
