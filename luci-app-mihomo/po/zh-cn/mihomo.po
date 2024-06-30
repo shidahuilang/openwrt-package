@@ -1,0 +1,317 @@
+msgid "Mihomo"
+msgstr "Mihomo"
+
+msgid "Mihomo is a rule based proxy in Go."
+msgstr "Mihomo 是一个Go语言编写的基于规则的代理工具。"
+
+msgid "Config"
+msgstr "配置"
+
+msgid "Basic Config"
+msgstr "基础配置"
+
+msgid "Status"
+msgstr "状态"
+
+msgid "Running"
+msgstr "运行中"
+
+msgid "Not Running"
+msgstr "未在运行"
+
+msgid "Enable"
+msgstr "启用"
+
+msgid "Scheduled Restart"
+msgstr "定时重启"
+
+msgid "Cron Expression"
+msgstr "Cron 表达式"
+
+msgid "Choose Profile"
+msgstr "选择配置文件"
+
+msgid "File:"
+msgstr "文件："
+
+msgid "Subscription:"
+msgstr "订阅："
+
+msgid "Upload Profile"
+msgstr "上传配置文件"
+
+msgid "Mixin"
+msgstr "混入"
+
+msgid "Even if this option is disabled, the neccesary config will still mixin to make sure it works properly!"
+msgstr "即使禁用此选项，必要的配置仍然会混入以确保正常工作！"
+
+msgid "Proxy Config"
+msgstr "代理配置"
+
+msgid "Transparent Proxy"
+msgstr "透明代理"
+
+msgid "Router Proxy"
+msgstr "路由器代理"
+
+msgid "Access Control Mode"
+msgstr "访问控制模式"
+
+msgid "Block Mode"
+msgstr "黑名单模式"
+
+msgid "Allow Mode"
+msgstr "白名单模式"
+
+msgid "Access Control IP"
+msgstr "访问控制 IP"
+
+msgid "Access Control MAC"
+msgstr "访问控制 MAC"
+
+msgid "DNS Hijack"
+msgstr "DNS 劫持"
+
+msgid "When disabled, DNS request will not redirect to core, you need handle this by yourself!"
+msgstr "当禁用此选项时，DNS请求将不再重定向到核心，你需要自行处理！"
+
+msgid "Subscription Config"
+msgstr "订阅配置"
+
+msgid "Subscription Name"
+msgstr "订阅名称"
+
+msgid "Subscription Url"
+msgstr "订阅链接"
+
+msgid "Mixin Config"
+msgstr "混入配置"
+
+msgid "Global Config"
+msgstr "全局配置"
+
+msgid "Proxy Mode"
+msgstr "代理模式"
+
+msgid "Global Mode"
+msgstr "全局模式"
+
+msgid "Rule Mode"
+msgstr "规则模式"
+
+msgid "Direct Mode"
+msgstr "直连模式"
+
+msgid "Match Process"
+msgstr "匹配进程"
+
+msgid "Unify Delay"
+msgstr "统一延迟"
+
+msgid "TCP Concurrent"
+msgstr "TCP并发"
+
+msgid "TCP Keep Alive Interval"
+msgstr "TCP Keep Alive 间隔"
+
+msgid "External Control Config"
+msgstr "外部控制配置"
+
+msgid "Open"
+msgstr "打开"
+
+msgid "Use Razord"
+msgstr "使用 Razord 面板"
+
+msgid "Open Razord"
+msgstr "打开 Razord 面板"
+
+msgid "Use YACD"
+msgstr "使用 YACD 面板"
+
+msgid "Open YACD"
+msgstr "打开 YACD 面板"
+
+msgid "Use MetaCubeXD"
+msgstr "使用 MetaCubeXD 面板"
+
+msgid "Open MetaCubeXD"
+msgstr "打开 MetaCubeXD 面板"
+
+msgid "Service is not running."
+msgstr "服务未在运行。"
+
+msgid "External Control is not configured."
+msgstr "未配置外部控制。"
+
+msgid "API Port"
+msgstr "API 端口"
+
+msgid "API Secret"
+msgstr "API 密钥"
+
+msgid "Save Proxy Selection"
+msgstr "保存节点/策略组选择"
+
+msgid "Inbound Config"
+msgstr "入站配置"
+
+msgid "Allow Lan"
+msgstr "允许局域网访问"
+
+msgid "HTTP Port"
+msgstr "HTTP 端口"
+
+msgid "SOCKS Port"
+msgstr "SOCKS 端口"
+
+msgid "Mixed Port"
+msgstr "混合端口"
+
+msgid "Redirect Port"
+msgstr "Redirect 端口"
+
+msgid "TPROXY Port"
+msgstr "TPROXY 端口"
+
+msgid "DNS Config"
+msgstr "DNS 配置"
+
+msgid "DNS Port"
+msgstr "DNS 端口"
+
+msgid "DNS Mode"
+msgstr "DNS 模式"
+
+msgid "Fake-IP"
+msgstr "Fake-IP"
+
+msgid "Redir-Host"
+msgstr "Redir-Host"
+
+msgid "Fake-IP Range"
+msgstr "Fake-IP 范围"
+
+msgid "Overwrite Fake-IP Filter"
+msgstr "覆盖 Fake-IP 过滤列表"
+
+msgid "Edit Fake-IP Filters"
+msgstr "编辑 Fake-IP 过滤列表"
+
+msgid "Fake-IP Cache"
+msgstr "Fake-IP 缓存"
+
+msgid "Use System Hosts"
+msgstr "使用系统的 Hosts"
+
+msgid "Use Hosts"
+msgstr "使用 Hosts"
+
+msgid "Edit Hosts"
+msgstr "编辑 Hosts"
+
+msgid "Domain Name"
+msgstr "域名"
+
+msgid "Overwrite Nameserver"
+msgstr "覆盖 DNS 服务器"
+
+msgid "Edit Nameservers"
+msgstr "编辑 DNS 服务器"
+
+msgid "Type"
+msgstr "类型"
+
+msgid "Nameserver"
+msgstr "DNS 服务器"
+
+msgid "Overwrite Fallback Filter"
+msgstr "覆盖 Fallback 过滤列表"
+
+msgid "Edit Fallback Filters"
+msgstr "编辑 Fallback 过滤列表"
+
+msgid "Value"
+msgstr "值"
+
+msgid "Overwrite Nameserver Policy"
+msgstr "覆盖 DNS 服务器查询策略"
+
+msgid "Edit Nameserver Policies"
+msgstr "编辑 DNS 服务器查询策略"
+
+msgid "Matcher"
+msgstr "匹配"
+
+msgid "Sniffer Config"
+msgstr "嗅探器配置"
+
+msgid "Sniff Redir-Host"
+msgstr "嗅探 Redir-Host 流量"
+
+msgid "Sniff Pure IP"
+msgstr "嗅探纯IP连接"
+
+msgid "Overwrite Destination"
+msgstr "将嗅探结果作为连接的目标"
+
+msgid "Force Sniff Domain Name"
+msgstr "强制嗅探的域名"
+
+msgid "Ignore Sniff Domain Name"
+msgstr "忽略嗅探的域名"
+
+msgid "Sniff By Protocol"
+msgstr "按协议嗅探"
+
+msgid "GeoX Config"
+msgstr "GeoX 配置"
+
+msgid "GeoIP Format"
+msgstr "GeoIP 格式"
+
+msgid "GeoData Loader"
+msgstr "GeoData 加载器"
+
+msgid "Standard Loader"
+msgstr "标准加载器"
+
+msgid "Memory Conservative Loader"
+msgstr "为内存受限设备优化的加载器"
+
+msgid "GeoIP(MMDB) Url"
+msgstr "GeoIP(MMDB) 下载地址"
+
+msgid "GeoIP(DAT) Url"
+msgstr "GeoIP(DAT) 下载地址"
+
+msgid "GeoSite Url"
+msgstr "GeoSite 下载地址"
+
+msgid "GeoX Auto Update"
+msgstr "定时更新GeoX文件"
+
+msgid "GeoX Update Interval"
+msgstr "GeoX 文件更新间隔"
+
+msgid "Hour"
+msgstr "小时"
+
+msgid "Mixin File Content"
+msgstr "混入文件内容"
+
+msgid "The file's content above will be merged into profile before other mixin config(means low priority), and it will overwrite the same field in the profile."
+msgstr "上方文件内容将会在其他混入配置之前合并到配置文件（意味着更低的优先级），并且将重写配置文件中相同的字段。"
+
+msgid "Log"
+msgstr "日志"
+
+msgid "App Log"
+msgstr "应用日志"
+
+msgid "Core Log"
+msgstr "核心日志"
+
+msgid "Scroll To Bottom"
+msgstr "滚动到底部"

@@ -1,0 +1,15 @@
+#!/bin/sh
+
+uci -q batch <<-EOF >/dev/null
+	delete ucitrack.@istoreenhance[-1]
+	add ucitrack istoreenhance
+	set ucitrack.@istoreenhance[-1].init=istoreenhance
+	commit ucitrack
+
+	delete firewall.istoreenhance
+EOF
+
+/etc/init.d/istoreenhance enable
+/etc/init.d/istoreenhance start
+
+exit 0
