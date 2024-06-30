@@ -1,0 +1,7 @@
+
+config cloudflared 'config'
+	    option cmdenabled '0'
+	    option config '/etc/cloudflared/config.yml'
+	    option origincert '/etc/cloudflared/cert.pem'
+	    option enabled '0'
+            option loglevel 'info'

@@ -1,0 +1,97 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+
+PROG=/usr/bin/cloudflared
+
+USE_PROCD=1
+
+start_instance() {
+	local cfg="$1"
+        local enabled
+	config_get_bool enabled "$cfg" 'enabled' '0'
+	[ "$enabled" = "1" ] || return 1
+	local token loglevel custom_cmd cmdenabled
+	config_get token "$cfg" 'token'
+	config_get loglevel "$cfg" 'loglevel'
+	config_get custom_cmd "$cfg" 'custom_cmd'
+	config_get_bool cmdenabled "$cfg" 'cmdenabled'
+	if [ ! -f "$PROG" ] ;then
+	 uci -q set cloudflared.@cloudflared[0].enabled=0 
+	 uci commit cloudflared 
+	 echo "$(TZ=UTC-8 date -R +%Y年%m月%d日\ %X) : $PROG 未找到，无法启动!请确认已上传程序" >>/tmp/cloudflared.info  
+	 exit 1
+	fi
+	chmod +x $PROG
+	if [ "$(basename $PROG)" = "cloudflared" ] ;then
+	 ln -sf $PROG /tmp/cloudflared0 
+	 PROG="/tmp/cloudflared0"
+	fi
+	
+	if [ $(($($PROG help | wc -l))) -lt 3 ] ;then
+	  uci -q set cloudflared.@cloudflared[0].enabled=0 
+	  uci commit cloudflared 
+	  echo "$(TZ=UTC-8 date -R +%Y年%m月%d日\ %X) : $PROG 程序不完整或CPU架构不支持的程序，无法启动!" >>/tmp/cloudflared.info 
+	  exit 1
+	fi
+	if [ "$cmdenabled" = "1" ] && [ -z "$custom_cmd" ] ;then 
+	   uci -q set cloudflared.@cloudflared[0].enabled=0 
+	   uci commit cloudflared 
+	   echo "$(TZ=UTC-8 date -R +%Y年%m月%d日\ %X) : 自定义参数为空，无法启动!" >>/tmp/cloudflared.info  
+	   exit 1
+	fi
+	procd_open_instance cloudflared
+	procd_set_param command $PROG
+	
+	if [ "$cmdenabled" = "1" ];  then
+                  if [[ "$(grep "list custom_cmd" /etc/config/cloudflared | awk '{print $3}' | wc -l ) " -eq 1 ]]; then
+                     procd_append_param command "$custom_cmd"
+                 else
+                   for custom_cmds in $(cat /etc/config/cloudflared | grep 'list custom_cmd' | awk '{printf "%s %s %s %s\n", $3, $4, $5, $6}' | sed "s/'/\n/g" | tr -d "'"); do
+                   procd_append_param command "$custom_cmds"
+                   done
+                 fi
+	else 
+	   if [ -z "$token" ] ;then 
+	     uci -q set cloudflared.@cloudflared[0].enabled=0 
+	     uci commit cloudflared 
+	     echo "$(TZ=UTC-8 date -R +%Y年%m月%d日\ %X) : token参数为空，无法启动!" >>/tmp/cloudflared.info  
+	     exit 1
+	   fi
+	   procd_append_param command tunnel
+	   procd_append_param command --no-autoupdate
+	   procd_append_param command --logfile /tmp/cloudflared.info
+	   [ "$loglevel" != "info" ] && procd_append_param command --loglevel "$loglevel"
+	   procd_append_param command run
+	   procd_append_param command --token "$token"
+	fi
+	
+	procd_set_param respawn
+	procd_set_param stderr 1
+	procd_close_instance
+	echo `date +%s` > /tmp/cloudflared_time
+	 
+}
+
+start_service() {
+	config_load 'cloudflared'
+        sysctl -w net.ipv4.ping_group_range="0 429296729"
+        sysctl -w net.core.rmem_max=2500000
+        sleep 20
+	config_foreach start_instance 'cloudflared'
+}
+
+reload_service() {
+	stop
+	start
+}
+
+stop_service() {
+	killall cloudflared0
+  rm -rf /tmp/cloudflared0 /tmp/cloudflared.info
+  rm -rf /tmp/cloudflared.tag /tmp/cloudflarednew.tag
+}
+
+service_triggers() {
+	procd_add_reload_trigger cloudflared
+}
