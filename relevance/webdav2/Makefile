@@ -6,7 +6,7 @@ PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/jjm2473/webdav/tar.gz/v$(PKG_VERSION)?
-PKG_HASH:=skip
+PKG_HASH:=bcf62572725d031e835f7e7c6fa6a707abf6708030c4d3c81459df19dafcb47d
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 PKG_MAINTAINER:=jjm2473 <jjm2473@gmail.com>

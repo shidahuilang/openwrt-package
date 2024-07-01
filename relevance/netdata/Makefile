@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=netdata
-PKG_VERSION:=1.38.1
-PKG_RELEASE:=17
+PKG_VERSION:=1.33.1
+PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_MAINTAINER:=Josef Schlehofer <pepe.schlehofer@gmail.com>, Daniel Engberg <daniel.engberg.lists@pyret.net>
 PKG_LICENSE:=GPL-3.0-or-later
@@ -18,22 +18,20 @@ PKG_CPE_ID:=cpe:/a:my-netdata:netdata
 
 PKG_SOURCE:=$(PKG_NAME)-v$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://github.com/netdata/netdata/releases/download/v$(PKG_VERSION)
-PKG_HASH:=skip
+PKG_HASH:=20ba8695d87187787b27128ac3aab9b09aa29ca6b508c48542e0f7d50ec9322b
 PKG_BUILD_DIR=$(BUILD_DIR)/$(PKG_NAME)-v$(PKG_VERSION)
 
 PKG_INSTALL:=1
 PKG_BUILD_PARALLEL:=1
-PKG_BUILD_DEPENDS:=protobuf/host
 PKG_FIXUP:=autoreconf
-PKG_BUILD_FLAGS:=no-mips16 gc-sections
+PKG_USE_MIPS16:=0
 
 include $(INCLUDE_DIR)/package.mk
 
 define Package/netdata
   SECTION:=admin
   CATEGORY:=Administration
-  DEPENDS:=+zlib +libuuid +libuv +libmnl +libjson-c +libopenssl \
-    +libstdcpp +libatomic +protobuf +openssl-util +curl +bash
+  DEPENDS:=+zlib +libuuid +libuv +libmnl +libjson-c +coreutils-timeout
   TITLE:=Real-time performance monitoring tool
   URL:=https://www.netdata.cloud/
 endef
@@ -46,7 +44,9 @@ define Package/netdata/description
   python3-urllib3
 endef
 
-TARGET_CFLAGS := $(filter-out -O%,$(TARGET_CFLAGS)) -O3
+TARGET_CFLAGS := $(filter-out -O%,$(TARGET_CFLAGS))
+TARGET_CFLAGS += -ffunction-sections -fdata-sections -O3
+TARGET_LDFLAGS += -Wl,--gc-sections
 
 CONFIGURE_ARGS += \
 	--with-zlib \
@@ -55,15 +55,17 @@ CONFIGURE_ARGS += \
 	--enable-lto \
 	--disable-ebpf \
 	--without-libcap \
+	--disable-https \
 	--disable-dbengine \
 	--disable-compression \
 	--disable-plugin-nfacct \
 	--disable-plugin-freeipmi \
 	--disable-plugin-cups \
 	--disable-plugin-xenstat \
-	--disable-exporting-prometheus-remote-write \
+	--disable-backend-prometheus-remote-write \
 	--disable-unit-tests \
-	--disable-ml
+	--disable-ml \
+	--disable-cloud
 
 define Build/Configure
 	$(SED) 's/m4_esyscmd(\[git describe .*\])/$(PKG_VERSION)/' $(PKG_BUILD_DIR)/configure.ac
@@ -81,12 +83,11 @@ define Package/netdata/install
 	touch $(1)/etc/netdata/.opt-out-from-anonymous-statistics
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/netdata $(1)/usr/lib
+	$(CP) $(1)/usr/lib/netdata/conf.d/fping.conf $(1)/etc
 	$(CP) $(1)/usr/lib/netdata/conf.d/health_alarm_notify.conf $(1)/etc
 	$(CP) $(1)/usr/lib/netdata/plugins.d/tc-qos-helper.sh $(1)/etc
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/netdata $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/netdatacli $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/netdata-claim.sh $(1)/usr/sbin
 	$(INSTALL_DIR) $(1)/usr/share/netdata
 	$(CP) $(PKG_INSTALL_DIR)/usr/share/netdata $(1)/usr/share
 	rm $(1)/usr/share/netdata/web/demo*html
@@ -99,6 +100,7 @@ define Package/netdata/install
 	rm -rf $(1)/usr/share/netdata/web/old
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/netdata.init $(1)/etc/init.d/netdata
+	$(INSTALL_DATA) ./files/charts.d.conf $(1)/etc/netdata/charts.d.conf
 endef
 
 $(eval $(call BuildPackage,netdata))

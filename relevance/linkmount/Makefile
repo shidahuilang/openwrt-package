@@ -12,11 +12,11 @@ PKG_ARCH_LINKEASE:=$(ARCH)
 
 PKG_NAME:=linkmount
 PKG_VERSION:=1.0.3
-PKG_RELEASE:=1
+PKG_RELEASE:=$(PKG_ARCH_LINKEASE)-2
 
 PKG_SOURCE:=$(PKG_NAME)-binary-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://fw0.koolcenter.com/binary/LinkEase/AutoUpgrade/linkmount/
-PKG_HASH:=skip
+PKG_HASH:=b8a5b99751cdd3dd84ac75c94e3cff5b898f910c86f12b4c7ec74dc8b3c510cb
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-binary-$(PKG_VERSION)
 
