@@ -150,11 +150,6 @@ luci-app-go-aliyundrive-webdav
 luci-app-guest-wifi
 luci-app-homeassistant
 luci-app-homebox
-luci-app-homebridge
-luci-app-homeredirect
-luci-app-htreader
-luci-app-hypermodem
-luci-app-internet-detector
 luci-app-iperf
 luci-app-iperf3-server
 luci-app-ipsec-server
@@ -182,16 +177,12 @@ luci-app-netdata
 luci-app-netspeedtest
 luci-app-nezha
 luci-app-nfs
-luci-app-ngrokc
 luci-app-npc
 luci-app-nps
 luci-app-oaf
 luci-app-onliner
-luci-app-openclash
 luci-app-openvpn-client
 luci-app-openvpn-server
-luci-app-passwall
-luci-app-passwall2
 luci-app-plex
 luci-app-poweroffdevice
 luci-app-pptp-server
@@ -246,7 +237,6 @@ luci-mod-status
 luci-mod-system
 luci-nginxer
 luci-proto-fm350
-luci-proto-minieap
 luci-proto-xmm
 lucky
 lux
