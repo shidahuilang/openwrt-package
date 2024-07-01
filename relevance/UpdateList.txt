@@ -19,7 +19,6 @@ ariang
 atinout
 autocore
 autokick-wiwiz
-automount
 autoshare-ksmbd
 autoshare-samba
 autoupdate
@@ -40,9 +39,6 @@ cups-bjnp
 cups
 curl
 cxxopts
-dae
-daed-next
-daed
 dapnet-gateway
 dcc2-wiwiz
 ddns-go
@@ -62,9 +58,6 @@ ethstatus
 exfatprogs
 fancontrol
 ffmpeg-remux
-fibocom-dial
-fibocom_MHI
-fibocom_QMI_WWAN
 filebrowser
 fm350-modem
 frp
@@ -95,7 +88,6 @@ joker
 jpcre2
 k3-firmware
 k3screenctrl
-keepalived
 libcron
 libcryptopp
 libdouble-conversion
@@ -128,12 +120,10 @@ luci-app-autorepeater
 luci-app-autotimeset
 luci-app-autoupdate
 luci-app-broadbandacc
-luci-app-bypass
 luci-app-chatgpt-web
 luci-app-chinadns-ng
 luci-app-chinesesubfinder
 luci-app-cifs
-luci-app-clash
 luci-app-clouddrive2
 luci-app-cloudflarespeedtest
 luci-app-cloudreve
@@ -148,7 +138,6 @@ luci-app-dnsforwarder
 luci-app-dnsmasq-ipset
 luci-app-docker
 luci-app-dockerman
-luci-app-easymesh
 luci-app-easyupdate
 luci-app-emby
 luci-app-eqosplus
@@ -162,7 +151,6 @@ luci-app-guest-wifi
 luci-app-homeassistant
 luci-app-homebox
 luci-app-homebridge
-luci-app-homeproxy
 luci-app-homeredirect
 luci-app-htreader
 luci-app-hypermodem
@@ -182,11 +170,9 @@ luci-app-jackett
 luci-app-jellyfin
 luci-app-linkease
 luci-app-log
-luci-app-lorawan-basicstation
 luci-app-ltqtapi
 luci-app-lucky
 luci-app-lxc
-luci-app-macvlan
 luci-app-mail
 luci-app-memos
 luci-app-mosdns
@@ -222,10 +208,8 @@ luci-app-smartdns
 luci-app-snmpd
 luci-app-socat
 luci-app-softethervpn
-luci-app-speederv2
 luci-app-speedtest-web
 luci-app-ssr-mudb-server
-luci-app-ssr-plus
 luci-app-store
 luci-app-syncdial
 luci-app-syncthing
@@ -268,9 +252,6 @@ lucky
 lux
 mhz
 microsocks
-mihomo
-minieap-openwrt
-miniupnpd
 mmdvm-cal
 mmdvm-host
 mmdvm-luci
@@ -297,7 +278,6 @@ ngrokc
 njitclient
 nload
 nps
-ntfs3-mount
 nxdn-clients
 oaf
 ookla-speedtest
@@ -323,11 +303,6 @@ qBittorrent-static
 qBittorrent
 qt6base
 qt6tools
-quectel_Gobinet
-quectel_MHI
-quectel_QMI_WWAN
-quectel_SRPD_PCIE
-quectel_cm_5G
 quickjspp
 quickstart
 r8101
@@ -380,7 +355,6 @@ trojan-plus
 trojan
 tuic-client
 tuic-server
-ua2f
 ucl
 udp2raw
 unishare
