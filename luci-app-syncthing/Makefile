@@ -1,3 +1,6 @@
+# Copyright (C) 2020 Gyj1109
+#
+
 include $(TOPDIR)/rules.mk
 
 LUCI_TITLE:=LuCI support for syncthing
@@ -7,4 +10,3 @@ LUCI_PKGARCH:=all
 include $(TOPDIR)/feeds/luci/luci.mk
 
 # call BuildPackage - OpenWrt buildroot signature
-

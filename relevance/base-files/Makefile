@@ -13,7 +13,7 @@ include $(INCLUDE_DIR)/feeds.mk
 
 PKG_NAME:=base-files
 PKG_FLAGS:=nonshared
-PKG_RELEASE:=52
+PKG_RELEASE:=53
 
 PKG_FILE_DEPENDS:=$(PLATFORM_DIR)/ $(GENERIC_PLATFORM_DIR)/base-files/
 PKG_BUILD_DEPENDS:=usign/host ucert/host

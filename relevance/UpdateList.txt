@@ -1,4 +1,3 @@
-3ginfo
 3proxy
 LingTiGameAcc
 MentoHUST-OpenWrt-ipk
@@ -99,7 +98,6 @@ linkease
 linkmount
 lua-maxminddb
 lua-neturl
-luci-app-3ginfo
 luci-app-3proxy
 luci-app-LingTiGameAcc
 luci-app-accesscontrol
@@ -273,7 +271,6 @@ oaf
 ookla-speedtest
 open-app-filter
 openvpn-dns-hotplug
-openwrt-dogcom
 openwrt-nezha
 opkg
 oscam

@@ -1,13 +1,13 @@
 <script type="text/javascript">//<![CDATA[
-	XHR.poll(1, '<%=url([[admin]], [[nas]], [[syncthing]], [[status]])%>', null,
+	XHR.poll(1, '<%=url([[admin]], [[services]], [[syncthing]], [[status]])%>', null,
 		function (x, data) {
 			var tb = document.getElementById('syncthing_status');
 			if (data && tb) {
 				if (data.running) {
-					var links = '<em><b><font color="green">Syncthing <%:RUNNING%></font></b></em><input class="btn cbi-button mar-10" type="button" value="<%:Open Syncthing page%>" onclick="openwebui();" />';
+					var links = '<em><b><font color="green">Syncthing <%:运行中%></font></b></em><input class="btn cbi-button mar-10" type="button" value="<%:打开Syncthing页面%>" onclick="openwebui();" />';
 					tb.innerHTML = links;
 				} else {
-					tb.innerHTML = '<em><b><font color="red">Syncthing <%:NOT RUNNING%></font></b></em>';
+					tb.innerHTML = '<em><b><font color="red">Syncthing <%:未运行%></font></b></em>';
 				}
 			}
 		}
@@ -22,6 +22,6 @@ function openwebui(){
 <style>.mar-10 {margin-left: 50px; margin-right: 10px;}</style>
 <fieldset class="cbi-section">
 	<p id="syncthing_status">
-		<em><%:Collecting data...%></em>
+		<em><%:正在收集数据...%></em>
 	</p>
 </fieldset>

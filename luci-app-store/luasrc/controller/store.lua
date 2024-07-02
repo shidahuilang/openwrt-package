@@ -30,12 +30,20 @@ function index()
 
     entry({"admin", "store", "configured"}, call("configured"))
 
+    -- docker
+    entry({"admin", "store", "docker_check_dir"}, call("docker_check_dir"))
+    entry({"admin", "store", "docker_check_migrate"}, call("docker_check_migrate"))
+    entry({"admin", "store", "docker_migrate"}, post("docker_migrate"))
+
+    -- package
     for _, action in ipairs({"update", "install", "upgrade", "remove"}) do
         store_api(action, true)
     end
     for _, action in ipairs({"status", "installed"}) do
         store_api(action, false)
     end
+
+    -- backup
     if nixio.fs.access("/usr/libexec/istore/backup") then
         entry({"admin", "store", "get_support_backup_features"}, call("get_support_backup_features"))
         entry({"admin", "store", "light_backup"}, post("light_backup"))
@@ -77,6 +85,7 @@ local function user_config()
     local data = {
         hide_docker = uci:get("istore", "istore", "hide_docker") == "1",
         ignore_arch = uci:get("istore", "istore", "ignore_arch") == "1",
+        last_path = uci:get("istore", "istore", "last_path"),
         super_arch = uci:get("istore", "istore", "super_arch"),
         channel = uci:get("istore", "istore", "channel")
     }
@@ -300,6 +309,9 @@ function store_action(param)
                     local autoenable = luci.http.formvalue("enable")
                     if autopath ~= nil then
                         autoenv = autoenv .. " path=" .. luci.util.shellquote(autopath)
+                        local uci  = require "luci.model.uci".cursor()
+                        uci:set("istore", "istore", "last_path", autopath)
+                        uci:commit("istore")
                     end
                     autoenv = autoenv .. " enable=" .. autoenable
                     code, out, err = _action(myopkg, luci.util.shellquote(autoenv), action, metapkg)
@@ -402,6 +414,46 @@ function configured()
     local configured = nixio.fs.access("/etc/config/" .. uci)
     luci.http.prepare_content("application/json")
     luci.http.write_json({code=200, configured=configured})
+end
+
+function docker_check_dir()
+    local docker_on_system = luci.sys.call("/usr/libexec/istore/docker check_dir >/dev/null 2>&1") ~= 0
+    luci.http.prepare_content("application/json")
+    luci.http.write_json({code=200, docker_on_system=docker_on_system})
+end
+
+function docker_check_migrate()
+    local path = luci.http.formvalue("path")
+    if path == nil or path == "" then
+        luci.http.status(400, "Bad Request")
+        return
+    end
+    local r,o,e = is_exec("/usr/libexec/istore/docker migrate_check " .. luci.util.shellquote(path))
+    local result = "good"
+    if r == 1 then
+        result = "bad"
+    elseif r == 2 then
+        result = "existed"
+    end
+    luci.http.prepare_content("application/json")
+    luci.http.write_json({code=200, result=result, error=e})
+end
+
+function docker_migrate()
+    local path = luci.http.formvalue("path")
+    if path == nil or path == "" then
+        luci.http.status(400, "Bad Request")
+        return
+    end
+
+    local action = "migrate"
+    local overwrite = luci.http.formvalue("overwrite")
+    if overwrite == "chdir" then
+        action = "change_dir"
+    end
+    local r,o,e = is_exec("/usr/libexec/istore/docker " .. action .. " " .. luci.util.shellquote(path), true)
+    luci.http.prepare_content("application/json")
+    luci.http.write_json({code=r, stdout=o, stderr=e})
 end
 
 local function split(str,reps)
