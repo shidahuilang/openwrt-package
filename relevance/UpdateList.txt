@@ -18,7 +18,6 @@ ffmpeg-remux
 filebrowser
 go-aliyundrive-webdav
 gost
-homebox
 istoreenhance
 kcptun
 linkease
@@ -56,7 +55,6 @@ luci-app-mosdns
 luci-app-msd_lite
 luci-app-natter
 luci-app-netdata
-luci-app-netspeedtest
 luci-app-netwizard
 luci-app-nezha-agent
 luci-app-nginx-manager
