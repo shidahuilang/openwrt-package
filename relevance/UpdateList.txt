@@ -271,6 +271,7 @@ oaf
 ookla-speedtest
 open-app-filter
 openvpn-dns-hotplug
+openwrt-dogcom
 openwrt-nezha
 opkg
 oscam
