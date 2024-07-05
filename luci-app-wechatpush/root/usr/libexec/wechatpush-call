@@ -14,7 +14,7 @@ function file_date(){
 }
 
 function down_oui(){
-	if [ ! -z "$oui_data" ] && [ "$oui_data" -ne "3" ]; then
+	if [ -n "$oui_data" ] && [ "$oui_data" -ne "3" ]; then
 		echo "`date "+%Y-%m-%d %H:%M:%S"` 【info】开始后台更新 MAC 信息文件" >> ${logfile}
 		wget --no-check-certificate -t 10 -T 15 -O ${dir}oui.txt "$oui_url" >/dev/null 2>&1
 		[ $? -ne "0"] && echo "`date "+%Y-%m-%d %H:%M:%S"` 【!!!】设备 MAC 信息文件下载失败，返回码为 $? " && return
@@ -29,11 +29,7 @@ function down_oui(){
 	fi
 }
 	
-if [ "$1" == "get_client" ]; then
-	# 生成在线设备列表，沿用 LUA 版本生成的临时文件
-	devices=$(find /tmp/wechatpush/client -type f -print0 | xargs -0 cat | sed "s/'/\"/g" | tr '\n' ',')
-	echo "{\"devices\": [${devices%,}]}"
-elif [ "$1" == "clear_log" ]; then
+if [ "$1" == "clear_log" ]; then
 	# 清空日志
 	> /tmp/wechatpush/wechatpush.log
 elif [ "$1" == "update_list" ]; then
