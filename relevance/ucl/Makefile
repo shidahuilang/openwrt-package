@@ -8,7 +8,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ucl
 PKG_VERSION:=1.03
-PKG_RELEASE:=3
+PKG_RELEASE:=1
 
 PKG_MAINTAINER:=Xingwang Liao <kuoruan@gmail.com>
 PKG_LICENSE:=GPL-2.0-only
@@ -16,7 +16,7 @@ PKG_LICENSE_FILES:=COPYING
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.oberhumer.com/opensource/ucl/download
-PKG_HASH:=b865299ffd45d73412293369c9754b07637680e5c826915f097577cd27350348
+PKG_HASH:=skip
 
 PKG_FIXUP:=autoreconf
 PKG_BUILD_PARALLEL:=1

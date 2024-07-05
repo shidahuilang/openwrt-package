@@ -1,70 +1,61 @@
+# SPDX-License-Identifier: GPL-3.0-only
 #
-# Copyright (C) 2009-2012 OpenWrt.org
-#
-# This is free software, licensed under the GNU General Public License v2.
-# See /LICENSE for more information.
-#
+# Copyright (C) 2021-2023 ImmortalWrt.org
 
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libcryptopp
-PKG_VERSION:=5.6.4
-PKG_RELEASE:=2
+PKG_VERSION:=8.9.0
+PKG_RELEASE:=19
 
 PKG_SOURCE:=cryptopp$(subst .,,$(PKG_VERSION)).zip
-PKG_SOURCE_URL:=http://www.cryptopp.com/
-PKG_MD5SUM:=4ee7e5cdd4a45a14756c169eaf2a77fc
+PKG_SOURCE_URL:=https://github.com/weidai11/cryptopp/releases/download/CRYPTOPP_$(subst .,_,$(PKG_VERSION))/ \
+		https://www.cryptopp.com/
+PKG_HASH:=skip
 
-PKG_USE_NINJA:=0
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)/$(PKG_NAME)-$(PKG_VERSION)
+PKG_LICENSE:=BSL-1.0
+PKG_LICENSE_FILES:=License.txt
+PKG_CPE_ID:=cpe:/a:cryptopp:crypto++
 
-CMAKE_INSTALL:=1
+PKG_BUILD_PARALLEL:=1
+PKG_INSTALL:=1
 
 include $(INCLUDE_DIR)/package.mk
-include $(INCLUDE_DIR)/cmake.mk
+
+UNZIP_CMD:=unzip -q -d $(PKG_BUILD_DIR) $(DL_DIR)/$(PKG_SOURCE)
 
 define Package/libcryptopp
   SECTION:=libs
   CATEGORY:=Libraries
-  DEPENDS:=+libpthread +libstdcpp
   TITLE:=Free C++ class library of cryptographic schemes
-  URL:=http://packages.debian.org/sid/libcrypto++-dev
+  URL:=https://packages.debian.org/sid/libcrypto++-dev
+  DEPENDS:=+libpthread +libstdcpp
 endef
 
 define Package/libcryptopp/description
-  Crypto++ is library for creating C++ programs which use cryptographic algorithms.
-  The library uses a Pipes & Filters architecture with heavy use of templates and
-  abstract base classes.
+  Crypto++ is library for creating C++ programs which use cryptographic
+  algorithms. The library uses a Pipes & Filters architecture with heavy
+  use of templates and abstract base classes.
 endef
 
-#CONFIGURE_ARGS += \
-#	--enable-static \
-#	--enable-shared
+ifdef CONFIG_TARGET_x86
+  TARGET_CFLAGS+= $(FPIC)
+endif
 
-#TARGET_LDFLAGS += \
-#	-lpthread
-
-CMAKE_OPTIONS += -DCMAKE_CXX_FLAGS="$(FPIC)"
-CMAKE_OPTIONS += -DBUILD_STATIC=ON
-CMAKE_OPTIONS += -DBUILD_SHARED=ON
-
-UNPACK_CMD=cd $(PKG_BUILD_DIR) && unzip "$(DL_DIR)/$(PKG_SOURCE)"
-
-define Build/Prepare
-	$(Build/Prepare/Default)
-	cd $(PKG_BUILD_DIR) && rm -f GNUmakefile GNUmakefile-cross
-endef
+MAKE_FLAGS+= dynamic libcryptopp.pc
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include/cryptopp
-	$(CP) $(PKG_INSTALL_DIR)/usr/include/cryptopp/* $(1)/usr/include/cryptopp/
+	$(CP) $(PKG_INSTALL_DIR)/usr/local/include/cryptopp/* $(1)/usr/include/cryptopp/
+	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
+	$(CP) $(PKG_INSTALL_DIR)/usr/local/lib/pkgconfig/libcryptopp.pc $(1)/usr/lib/pkgconfig/
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libcryptopp.{a,so*} $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/local/lib/libcryptopp.so* $(1)/usr/lib/
 endef
 
 define Package/libcryptopp/install
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libcryptopp.so* $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/local/lib/libcryptopp.so* $(1)/usr/lib/
 endef
 
 $(eval $(call BuildPackage,libcryptopp))

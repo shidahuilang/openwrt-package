@@ -11,8 +11,6 @@ LUCI_DEPENDS:=+luci-lib-fs
 LUCI_PKGARCH:=all
 
 PKG_NAME:=luci-app-filetransfer
-PKG_VERSION:=1
-PKG_RELEASE:=2
 
 include $(TOPDIR)/feeds/luci/luci.mk
 

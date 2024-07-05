@@ -37,7 +37,5 @@ start()
 
 stop()
 {
-	sed -i '/reboot/d' /etc/crontabs/root >/dev/null 2>&1
-	/etc/init.d/cron restart
 	echo "Auto REBOOT has stoped."
 }

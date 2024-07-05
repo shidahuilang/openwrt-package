@@ -105,7 +105,7 @@ get_bind_ip(){
 gen_device_sign(){
 	local ifname macaddr
 	while :;do
-		ifname=$(uci get "network.$network.ifname" 2> /dev/null)
+		ifname=$(uci get "network.$network.device" 2> /dev/null)
 		[ "${ifname:0:1}" = @ ] && network="${ifname:1}" || break
 	done
 	[ -z "$ifname" ] && { _log "获取网络 $network 信息出错";return;}

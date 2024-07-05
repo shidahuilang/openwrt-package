@@ -8,12 +8,12 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=upx
 PKG_VERSION:=4.2.2
-PKG_RELEASE:=1
+PKG_RELEASE:=31
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/upx/upx.git
 PKG_SOURCE_VERSION:=099c3d829e80488af7395a4242b318877e980da4
-PKG_MIRROR_HASH:=8bee3cd1ada2e4bfbe396348d2aecb3e044f92cdae2b7010838e36997fe6b3c3
+PKG_MIRROR_HASH:=skip
 
 PKG_MAINTAINER:=Xingwang Liao <kuoruan@gmail.com>
 PKG_LICENSE:=GPL-2.0-only

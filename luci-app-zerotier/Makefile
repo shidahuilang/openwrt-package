@@ -11,8 +11,6 @@ LUCI_DEPENDS:=+zerotier
 LUCI_PKGARCH:=all
 
 PKG_NAME:=luci-app-zerotier
-PKG_VERSION:=1.0
-PKG_RELEASE:=20
 
 include $(TOPDIR)/feeds/luci/luci.mk
 

@@ -1,76 +1,62 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=chinadns-ng
-PKG_VERSION:=2023.10.28
-PKG_RELEASE:=1
+PKG_VERSION:=2024.05.12
+PKG_RELEASE:=46
 
-PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://github.com/zfl9/chinadns-ng.git
-PKG_SOURCE_VERSION:=66426e2da2c9e34d70f25a5adf5cb3f588556f41
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
-PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION)
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)/$(PKG_SOURCE_SUBDIR)
+ifeq ($(ARCH),aarch64)
+  PKG_ARCH:=chinadns-ng@aarch64-linux-musl@generic+v8a@fast+lto
+  PKG_HASH:=skip
+else ifeq ($(ARCH),arm)
+  ARM_CPU_FEATURES:=$(word 2,$(subst +,$(space),$(call qstrip,$(CONFIG_CPU_TYPE))))
+  ifeq ($(ARM_CPU_FEATURES),)
+    PKG_ARCH:=chinadns-ng@arm-linux-musleabi@generic+v6+soft_float@fast+lto
+    PKG_HASH:=skip
+  else
+    PKG_ARCH:=chinadns-ng@arm-linux-musleabihf@generic+v7a@fast+lto
+    PKG_HASH:=skip
+  endif
+else ifeq ($(ARCH),mips)
+  PKG_ARCH:=chinadns-ng@mips-linux-musl@mips32+soft_float@fast+lto
+  PKG_HASH:=skip
+else ifeq ($(ARCH),mipsel)
+  PKG_ARCH:=chinadns-ng@mipsel-linux-musl@mips32+soft_float@fast+lto
+  PKG_HASH:=skip
+else ifeq ($(ARCH),i386)
+  PKG_ARCH:=chinadns-ng@i386-linux-musl@i686@fast+lto
+  PKG_HASH:=skip
+else ifeq ($(ARCH),x86_64)
+  PKG_ARCH:=chinadns-ng@x86_64-linux-musl@x86_64@fast+lto
+  PKG_HASH:=skip
+else
+  PKG_HASH:=skip
+endif
 
-PKG_BUILD_PARALLEL:=1
-PKG_USE_MIPS16:=0
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(ARCH_PACKAGES)
+PKG_SOURCE_URL:=https://github.com/zfl9/chinadns-ng/releases/download/$(PKG_VERSION)/$(PKG_ARCH)?
+UNPACK_CMD=$(CP) $(DL_DIR)/$(PKG_SOURCE) $(PKG_BUILD_DIR)/$(PKG_NAME)
 
-PKG_LICENSE:=GPL-3.0
+PKG_LICENSE:=AGPL-3.0-only
 PKG_LICENSE_FILES:=LICENSE
-PKG_MAINTAINER:=pexcn <pexcn97@gmail.com>
+PKG_MAINTAINER:=sbwml <admin@cooluc.com>
 
 include $(INCLUDE_DIR)/package.mk
 
 define Package/chinadns-ng
-	SECTION:=net
-	CATEGORY:=Network
-	TITLE:=ChinaDNS Next Generation, refactoring with epoll and ipset
-	URL:=https://github.com/zfl9/chinadns-ng
-	DEPENDS:=+ipset
+  SECTION:=net
+  CATEGORY:=Network
+  SUBMENU:=IP Addresses and Names
+  TITLE:=ChinaDNS next generation, refactoring with epoll and ipset.
+  URL:=https://github.com/zfl9/chinadns-ng
+  DEPENDS:=@(aarch64||arm||i386||mips||mipsel||x86_64) @!(TARGET_x86_geode||TARGET_x86_legacy) +ipset
 endef
 
-define Package/chinadns-ng/description
-ChinaDNS Next Generation, refactoring with epoll and ipset.
+define Build/Compile
 endef
-
-define Package/chinadns-ng/conffiles
-/etc/config/chinadns-ng
-/etc/chinadns-ng/chnroute.txt
-/etc/chinadns-ng/chnroute6.txt
-/etc/chinadns-ng/gfwlist.txt
-/etc/chinadns-ng/chinalist.txt
-endef
-
-MAKE_FLAGS += STATIC=1
 
 define Package/chinadns-ng/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/chinadns-ng $(1)/usr/bin
-	$(INSTALL_BIN) files/chinadns-ng-daily.sh $(1)/usr/bin
-	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) files/chinadns-ng.init $(1)/etc/init.d/chinadns-ng
-	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_CONF) files/chinadns-ng.config $(1)/etc/config/chinadns-ng
-	$(INSTALL_DIR) $(1)/etc/chinadns-ng
-	$(INSTALL_DATA) files/chnroute.txt $(1)/etc/chinadns-ng
-	$(INSTALL_DATA) files/chnroute6.txt $(1)/etc/chinadns-ng
-	$(INSTALL_DATA) files/gfwlist.txt $(1)/etc/chinadns-ng
-	$(INSTALL_DATA) files/chinalist.txt $(1)/etc/chinadns-ng
-endef
-
-define Package/chinadns-ng/postinst
-#!/bin/sh
-if ! crontab -l | grep -q "chinadns-ng"; then
-  (crontab -l; echo -e "# chinadns-ng\n10 3 * * * /usr/bin/chinadns-ng-daily.sh") | crontab -
-fi
-exit 0
-endef
-
-define Package/chinadns-ng/postrm
-#!/bin/sh
-exec 2>/dev/null
-rmdir --ignore-fail-on-non-empty /etc/chinadns-ng
-(crontab -l | grep -v "chinadns-ng") | crontab -
-exit 0
 endef
 
 $(eval $(call BuildPackage,chinadns-ng))

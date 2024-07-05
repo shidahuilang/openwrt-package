@@ -1,6 +1,6 @@
 config DOCKER_CHECK_CONFIG
 	bool "Installs check-config.sh with dependencies"
-	default n
+	default y
 	depends on PACKAGE_dockerd
 	select PACKAGE_bash
 	select PACKAGE_kmod-ikconfig
@@ -11,18 +11,10 @@ config DOCKER_CGROUP_OPTIONS
 	bool "Enable available kernel support for CGroupsV1"
 	default y
 	depends on PACKAGE_dockerd
-	select KERNEL_CGROUPS
-	select KERNEL_CGROUP_CPUACCT
 	select KERNEL_CGROUP_DEVICE
 	select KERNEL_CGROUP_FREEZER
-	select KERNEL_CGROUP_SCHED
-	select KERNEL_NAMESPACES
-	select KERNEL_CPUSETS
-	select KERNEL_MEMCG
-	select KERNEL_KEYS
 	select KERNEL_NET_CLS_CGROUP
 	select KERNEL_CGROUP_NET_PRIO
-	select KERNEL_POSIX_MQUEUE
 	select PACKAGE_cgroupfs-mount
 	help
 		Selects kernel options to enable CGroups V1.
@@ -44,7 +36,7 @@ menu "Network"
 
 	config DOCKER_NET_OVERLAY
 		bool "Includes the Overlay network feature"
-		default n
+		default y
 		select PACKAGE_kmod-vxlan
 		help
 			Selects kmod-vxlan for the Overlay network feature.
@@ -52,7 +44,7 @@ menu "Network"
 	config DOCKER_NET_ENCRYPT
 		bool "Includes encrypted networking kernel modules"
 		depends on DOCKER_NET_OVERLAY
-		default n
+		default y
 		select PACKAGE_kmod-crypto-gcm
 		select PACKAGE_kmod-crypto-seqiv
 		select PACKAGE_kmod-crypto-ghash
@@ -68,7 +60,7 @@ menu "Network"
 
 	config DOCKER_NET_TFTP
 		bool "Includes ftp/tftp client kernel modules"
-		default n
+		default y
 		select PACKAGE_kmod-nf-nathelper
 		select PACKAGE_kmod-nf-nathelper-extra
 endmenu
@@ -78,7 +70,7 @@ menu "Storage"
 
 	config DOCKER_STO_DEVMAPPER
 	bool "Enables support for devmapper snapshotting"
-		default n
+		default y
 		select PACKAGE_libdevmapper
 
 	config DOCKER_STO_EXT4
@@ -89,7 +81,7 @@ menu "Storage"
 
 	config DOCKER_STO_BTRFS
 		bool "Enables support for btrfs as the backing filesystem"
-		default n
+		default y
 		select KERNEL_BTRFS_FS_POSIX_ACL
 		select PACKAGE_btrfs-progs
 endmenu

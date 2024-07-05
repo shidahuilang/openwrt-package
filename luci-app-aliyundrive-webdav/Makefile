@@ -1,18 +1,14 @@
-#
-# Copyright (C) 2008-2014 The LuCI Team <luci@lists.subsignal.org>
-#
-# This is free software, licensed under the Apache License, Version 2.0 .
-#
-
 include $(TOPDIR)/rules.mk
 
-LUCI_TITLE:=LuCI support for KMS
-LUCI_DEPENDS:=+vlmcsd
-LUCI_PKGARCH:=all
+PKG_NAME:=luci-app-aliyundrive-webdav
+PKG_PO_VERSION:=$(PKG_VERSION)-$(PKG_RELEASE)
 
-PKG_NAME:=luci-app-vlmcsd
-PKG_VERSION:=1.0
-PKG_RELEASE:=6
+PKG_LICENSE:=MIT
+PKG_MAINTAINER:=messense <messense@icloud.com>
+
+LUCI_TITLE:=LuCI Support for aliyundrive-webdav
+LUCI_PKGARCH:=all
+LUCI_DEPENDS:=+aliyundrive-webdav
 
 include $(TOPDIR)/feeds/luci/luci.mk
 

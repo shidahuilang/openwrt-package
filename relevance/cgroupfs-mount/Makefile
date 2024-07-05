@@ -1,13 +1,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=cgroupfs-mount
-PKG_RELEASE:=3
+PKG_RELEASE:=13
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/tianon/$(PKG_NAME)
 PKG_SOURCE_VERSION:=0549428171605eae3097a3e21bf7664845eac9e8
 PKG_SOURCE_DATE:=2020-06-26
-PKG_MIRROR_HASH:=ca217ffff5aa938149d2d8adfe15d800903d2fec180acb2400c36d62905988ea
+PKG_MIRROR_HASH:=skip
 
 PKG_MAINTAINER:=Gerard Ryan <G.M0N3Y.2503@gmail.com>
 
@@ -17,7 +17,7 @@ define Package/cgroupfs-mount/config
 	config CGROUPFS_MOUNT_KERNEL_CGROUPS
 		bool "Enable kernel cgroups support"
 		depends on PACKAGE_cgroupfs-mount
-		default y
+		default y if ( DOCKER_KERNEL_OPTIONS || LXC_KERNEL_OPTIONS )
 		select KERNEL_CGROUPS
 endef
 
