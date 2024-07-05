@@ -13,7 +13,6 @@ app-lucky
 ardhome
 assets
 autocore
-automount
 autosamba
 baidupcs-go
 baidupcs-web
