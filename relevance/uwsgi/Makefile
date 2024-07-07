@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=uwsgi
 PKG_VERSION:=2.0.25.1
-PKG_RELEASE:=11
+PKG_RELEASE:=12
 
 PYPI_NAME:=uWSGI
 PYPI_SOURCE_NAME:=uwsgi
@@ -10,6 +10,7 @@ PKG_HASH:=skip
 
 PKG_LICENSE:=GPL-2.0-or-later
 PKG_LICENSE_FILES:=LICENSE
+PKG_CPE_ID:=cpe:/a:unbit:uwsgi
 PKG_MAINTAINER:=Ansuel Smith <ansuelsmth@gmail.com>
 
 PKG_BUILD_DEPENDS:=python3/host
