@@ -18,30 +18,10 @@ debug() {
 	fi
 }
 
-getIP() {
-	mac="$1"	
-	LANDEV=$(uci get wiwiz.portal.lan 2>/dev/null)
-	if [ "$LANDEV" == "" ]; then
-		LANDEV=br-lan
-	fi
-
-	for i in $(seq 6); do	
-		s=$(cat /proc/net/arp | grep -F "$LANDEV" | grep -F "$mac" | grep -F '0x2')
-		if [ "$s" = "" ]; then
-			sleep 1
-			continue
-		else
-			echo "$s"
-			break
-		fi
-	done
-	
-	return
-}
-
 doAuth() {
 	MAC="$1"
-	AS_HOSTNAME_X="$2"
+	IP="$2"
+	AS_HOSTNAME_X="$3"
 
     URL="http://$AS_HOSTNAME_X/as/s/auth/?stage=token&gw_id=$HID&mac=$MAC"
     
@@ -52,19 +32,8 @@ doAuth() {
 	token=$(cat "$TMPFILE" 2>/dev/null |  cut -d ':' -f 2)
 	ip=$(cat "$TMPFILE" 2>/dev/null |  cut -d ':' -f 3)
 	rm -f "$TMPFILE"
-
-    if [ "$ip" != "" ]; then
-		ping -c4 "$ip" 2>/dev/null &
-    fi
-    	
-    IP=$(getIP "$MAC" | awk '{print $1}')
-    if [ "$IP" = "" ]; then
-    	return
-    fi
-    
-	debug "IP=$IP"
 	
-	if [ "$token" = "" ]; then
+	if [ "$token" == "" ]; then
 		return
 	fi
 	
@@ -80,30 +49,41 @@ doAuth() {
 
 
 logread -f | while read LINE; do
-        s=$(echo "$LINE" | grep hostapd | grep STA | grep -F ' associated')
-				
-        if [ "$s" != "" ]; then
-				debug "s=$s"
-				HID=$(uci get wiwiz.portal.hotspotid 2>/dev/null)
-				if [ "$HID" = "" ]; then
-					continue
-				fi
-				
-				ROAMING=$(cat "$ROAMING_FILE" 2>/dev/null)
-				if [ "$ROAMING" = "" ]; then
-					continue
-				fi
+	s=$(echo "$LINE"  | grep 'dnsmasq' | grep 'DHCPACK')
+			
+	if [ "$s" != "" ]; then
+		LANDEV=$(uci get wiwiz.portal.lan 2>/dev/null)
+		ss=$(echo "$s" | grep -F "$LANDEV")
+		debug "ss = $ss"
+		if [ "$ss" == "" ]; then
+			continue
+		fi
 
-				AS_HOSTNAME_X=$(uci get wiwiz.portal.server 2>/dev/null)
-				if [ "$AS_HOSTNAME_X" = "" ]; then
-					continue
-				fi
+		HID=$(uci get wiwiz.portal.hotspotid 2>/dev/null)
+		if [ "$HID" == "" ]; then
+			continue
+		fi				
+		
+		ROAMING=$(cat "$ROAMING_FILE" 2>/dev/null)
+		if [ "$ROAMING" == "" ]; then
+			continue
+		fi
 
-                MAC=$(echo "$LINE" | awk '{print $10}')
-                if [ "$MAC" = "" ]; then
-                	continue
-                fi
-				debug "MAC=$MAC"				
-                doAuth "$MAC" "$AS_HOSTNAME_X" &
-        fi
+		AS_HOSTNAME_X=$(uci get wiwiz.portal.server 2>/dev/null)
+		if [ "$AS_HOSTNAME_X" == "" ]; then
+			continue
+		fi
+
+		MAC=$(echo "$ss" | awk '{print $10}')
+		IP=$(echo "$ss" | awk '{print $9}')
+		if [ "$MAC" == "" ]; then
+			continue
+		fi
+		if [ "$IP" == "" ]; then
+			continue
+		fi
+		
+		debug "MAC = $MAC, IP = $IP"				
+		doAuth "$MAC" "$IP" "$AS_HOSTNAME_X" &
+	fi
 done
