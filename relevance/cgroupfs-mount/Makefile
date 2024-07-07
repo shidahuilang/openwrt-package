@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=cgroupfs-mount
-PKG_RELEASE:=13
+PKG_RELEASE:=14
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/tianon/$(PKG_NAME)
@@ -10,6 +10,7 @@ PKG_SOURCE_DATE:=2020-06-26
 PKG_MIRROR_HASH:=skip
 
 PKG_MAINTAINER:=Gerard Ryan <G.M0N3Y.2503@gmail.com>
+PKG_CPE_ID:=cpe:/a:cgroupfs-mount_project:cgroupfs-mount
 
 include $(INCLUDE_DIR)/package.mk
 
