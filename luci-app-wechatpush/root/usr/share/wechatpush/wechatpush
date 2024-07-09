@@ -147,7 +147,6 @@ init() {
 		[ -n "$tmp_ip" ] && add_ip_white "$tmp_ip" "0"
 	done <<<"$tmp_ip_list"
 	set_ip_black
-	rm -f "${dir}/scan_info" >/dev/null 2>&1 # 启动时清理局域网扫描 IP 列表文件
 	return 0
 }
 
@@ -155,7 +154,7 @@ init() {
 deltemp() {
 	unset title content gateway_iplist
 	rm -f "${dir}/title" "${dir}/content" "${dir}/send_enable.lock" "${dir}/send.lock" "${tempjsonpath}" "${dir}/cookies.txt" >/dev/null 2>&1
-	LockFile unlock
+	silent_run LockFile unlock
 	[ -f "$logfile" ] && local logrow=$(grep -c "" "$logfile") || local logrow="0"
 	[ "$logrow" -gt 500 ] && sed -i '1,100d' "$logfile" && log_change "【清理】日志超出上限，删除前 100 条"
 	# 检查 JSON 文件格式是否有效
@@ -173,6 +172,7 @@ enable_detection() {
 		get_config enable
 		[ -z "$enable" ] || [ "$enable" -eq "0" ] && exit || sleep 1
 	done
+	unset i
 }
 
 # 获取 ip
@@ -303,7 +303,7 @@ getmac() {
 
 	# 某些路由器中继模式，会进行 MAC 克隆，如果是重复值，全都重置为 unknown
 	local mac_count=$(jq -r --arg mac "$tmp_mac" '.devices[] | select(.mac == $mac) | .mac' "$devices_json" | wc -l)
-	[ "$mac_count" -gt 1 ] && jq -c --arg mac "$tmp_mac" --arg new_mac "unknown" '.devices |= map(if .mac == $mac then .mac = $new_mac else . end)' "$devices_json" >"$tmp_devices_json" && mv "$tmp_devices_json" "$devices_json"
+	[ "$mac_count" -gt 1 ] && jq --arg mac "$tmp_mac" --arg new_mac "unknown" '.devices |= map(if .mac == $mac then .mac = $new_mac else . end)' "$devices_json" >"$tmp_devices_json" && mv "$tmp_devices_json" "$devices_json"
 
 	# 已保存的 MAC
 	tmp_mac=$(jq -r --arg ip "$ip" '.devices[] | select(.ip == $ip) | .mac' "$devices_json")
@@ -316,6 +316,9 @@ getmac() {
 	# ARP
 	tmp_mac=$(cat /proc/net/arp | grep "0x2\|0x6" | grep -w "${ip}" | awk '{print $4}')
 	process_and_check "$tmp_mac" && return
+
+	# 定时推送时不查询
+	[ -f "${dir}/send.lock" ] && echo "unknown" && return
 
 	# 因 NetBIOS 查询时间过长，跳过离线设备
 	jq -e --arg ip "$ip" '.devices[] | select(.ip == $ip and .status == "online") | .ip' "$devices_json" >/dev/null && tmp_mac=$(nmblookup_timeout "${ip}" "mac" "5")
@@ -354,6 +357,9 @@ getname() {
 	# DHCP
 	[ -f "/tmp/dhcp.leases" ] && tmp_name=$(grep -w "${ip}" /tmp/dhcp.leases | awk '{print $4}')
 	process_and_check "$tmp_name" && return
+
+	# 定时推送时不查询
+	[ -f "${dir}/send.lock" ] && echo "unknown" && return
 
 	# 光猫
 	[ -f "${dir}/gateway_info" ] && tmp_name=$(cut_str "$(grep -w "${ip}" "${dir}/gateway_info" | awk '{print $2}')" "30")
@@ -423,35 +429,48 @@ getgateway() {
 # 扫描范围内 IP
 scanlocalip() {
 	[ -z "$scan_ip_range" ] && return
-	last_scan_ip_time=$(file_date "${dir}/scan_info")
+	[ -f "${dir}/send.lock" ] && return # 定时推送时不扫描
+	[ -z "$last_scan_ip_time" ] && last_scan_ip_time=0
 
-	if [ ! -f "${dir}/scan_info" ]; then
-		start_ip=$(echo "$scan_ip_range" | cut -d "-" -f 1)
-		end_ip=$(echo "$scan_ip_range" | cut -d "-" -f 2)
+	local current_time=$(date +%s)
+	local elapsed_time=$((current_time - last_scan_ip_time))
 
-		i=$(echo "$start_ip" | awk -F '.' '{print $NF}')
-		end_i=$(echo "$end_ip" | awk -F '.' '{print $NF}')
-		while [ "$i" -le "$end_i" ]; do
-			if ping -c 1 "${start_ip%.*}.$i" >/dev/null 2>&1 & then
-				echo "${start_ip%.*}.$i" >>"${dir}/scan_info"
-			fi
-			i=$((i + 1))
+	# 判断是否需要重新扫描
+	if [ "$elapsed_time" -ge "$device_info_helper_sleeptime" ]; then
+		local start_ip=$(echo "$scan_ip_range" | cut -d "-" -f 1)
+		local end_ip=$(echo "$scan_ip_range" | cut -d "-" -f 2)
+
+		local start_num=$(echo "$start_ip" | awk -F '.' '{print $NF}')
+		local end_num=$(echo "$end_ip" | awk -F '.' '{print $NF}')
+		local base_ip=$(echo "$start_ip" | awk -F '.' '{print $1"."$2"."$3}')
+
+		for i in $(seq "$start_num" "$end_num"); do
+			# 获取一个令牌
+			read -u 5
+			{
+				ping -c 1 "${base_ip}.${i}" >/dev/null 2>&1
+				# 释放令牌
+				echo >&5
+			} &
 		done
-	fi
+		wait
 
-	[ "$last_scan_ip_time" -ge "$device_info_helper_sleeptime" ] && cat "${dir}/scan_info"
+		last_scan_ip_time="$current_time"
+	fi
+	unset i
 }
 
 # 查询设备接口
 getinterface() {
-	local mac=${1}
+	local ip=${1}
+	local mac=${2}
 	local interface
 
 	[ -z "$mac" ] && return
 	[ "$mac" == "unknown" ] && return
 
 	# 从已保存的地址中获取接口
-	interface=$(jq -r --arg mac "$mac" '.devices[] | select(.mac == $mac) | .interface' "$devices_json")
+	interface=$(jq -r --arg ip "$ip" --arg mac "$mac" '.devices[] | select(.ip == $ip and .mac == $mac) | .interface' "$devices_json")
 	process_and_check "$interface" && return
 
 	# 如果定义了 WLAN 接口列表，则查询每个接口
@@ -474,7 +493,7 @@ getping() {
 	local timeout="$3"
 	local retry_count="$4"
 
-	local interface=$(getinterface "$mac")
+	local interface=$(getinterface "ip" "$mac")
 	[ "$iw_version" ] && [ "$interface" ] && wlan_online=$(iw dev ${interface} station dump 2>/dev/null | grep -i -w "$mac" | grep Station) >/dev/null 2>&1
 	[ "$wlan_online" ] && return 0
 
@@ -485,6 +504,7 @@ getping() {
 		(! echo "$ip_ms" | grep -q "ms") && ip_ms=$(ping -c 5 -w "$timeout" "$ip" | grep -v '100% packet loss') 2>/dev/null
 		(! echo "$ip_ms" | grep -q "ms") && sleep 1
 	done
+	unset i
 	echo "$ip_ms" | grep -q "ms"
 }
 
@@ -518,13 +538,13 @@ soc_temp() {
 		"
 	}
 
-	[ -n "$server_host" ] && ssh_command="ssh -o StrictHostKeyChecking=yes -o BatchMode=yes -i /root/.ssh/id_rsa root@${server_host} -p ${server_port}"
-	temperature=$(getsensors "$ssh_command" 2>/dev/null)
+	[ -n "$server_host" ] && local ssh_command="ssh -o StrictHostKeyChecking=yes -o BatchMode=yes -i /root/.ssh/id_rsa root@${server_host} -p ${server_port}"
+	local temperature=$(getsensors "$ssh_command" 2>/dev/null)
 	# 通用（只能取最高温度，不一定是 CPU，特殊设备自行修改）
 	# 将 grep °C 改为温度所在行的特别字符串，如 grep Core 0 等，就可以指定设备了
-	[ -z "$temperature" ] && temperature=$(sensors 2>/dev/null | grep °C | sed -nr 's#^.*:.*\+(.*)°C .*#\1#gp' | sort -nr | head -n1)
+	[ -z "$temperature" ] && local temperature=$(sensors 2>/dev/null | grep °C | sed -nr 's#^.*:.*\+(.*)°C .*#\1#gp' | sort -nr | head -n1)
 	# 将 thermal_zone* 改为 thermal_zone0 thermal_zone1 等，就可以指定设备了
-	[ -z "$temperature" ] && temperature=$(cat /sys/class/thermal/thermal_zone*/temp 2>/dev/null | sort -nr | head -n1 | cut -c-2)
+	[ -z "$temperature" ] && local temperature=$(cat /sys/class/thermal/thermal_zone*/temp 2>/dev/null | sort -nr | head -n1 | cut -c-2)
 	printf "%.1f" "$temperature"
 }
 # 流量数据
@@ -674,6 +694,8 @@ cut_str() {
 				max_column=$i
 			fi
 		done
+		unset i
+
 		local text=$(echo -n "$1" | cut -d ' ' -f $max_column)
 		if [ $(length_str "$text") -le "$2" ]; then
 			echo "$text" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
@@ -703,15 +725,17 @@ rand() {
 
 # 在线设备列表
 first() {
-	local IPLIST=$(jq -r '.devices[] | select(.status == "online") | .ip' "$devices_json" | sort -u)
+	local IPLIST=$(jq -r '.devices[] | select(.status == "online" or .status == "unknown") | .ip' "$devices_json" | sort -u)
 	getgateway
-	local scan_iplist=$(scanlocalip)
+	silent_run scanlocalip
 	for ip in $IPLIST; do
 		[ -n "$passive_mode" ] && [ "$passive_mode" -eq "1" ] && break
+		# 获取一个令牌
 		read -u 5
 		{
 			down "$ip"
-			echo "" >&5
+			# 释放令牌
+			echo >&5
 		} &
 	done
 	wait
@@ -720,13 +744,15 @@ first() {
 	[ -n "$IP_INFO" ] && local SUBNET=$(echo $IP_INFO | cut -d'/' -f1 | cut -d'.' -f1-3)
 	[ -n "$SUBNET" ] && local IPLIST=$(cat /proc/net/arp | grep "0x2\|0x6" | awk '{print $1}' | grep -v "^169.254." | grep -v "^$" | sort -u | grep -oE "${SUBNET}\.[0-9]{1,3}") || local IPLIST=$(cat /proc/net/arp | grep "0x2\|0x6" | awk '{print $1}' | grep -v "^169.254." | grep -v "^$" | sort -u | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')
 
-	local IPLIST=$(echo -e "${IPLIST}\n${gateway_iplist}\n${scan_iplist}\n${always_check_ip_list}" | grep -v "^$" | sort -u)
+	local IPLIST=$(echo -e "${IPLIST}\n${gateway_iplist}\n${always_check_ip_list}" | grep -v "^$" | sort -u)
 	for ip in $IPLIST; do
 		[ -n "$passive_mode" ] && [ "$passive_mode" -eq "1" ] && break
+		# 获取一个令牌
 		read -u 5
 		{
 			up "$ip"
-			echo "" >&5
+			# 释放令牌
+			echo >&5
 		} &
 	done
 	wait
@@ -837,7 +863,7 @@ blackwhitelist() {
 	# 仅通知列表内设备
 	[ -n "$up_down_push_blacklist" ] && (! echo "$up_down_push_blacklist" | grep -q -i -w "$mac") && return 1
 	# 仅通知接口
-	[ -n "$up_down_push_interface" ] && (! echo $(getinterface "$mac") | grep -q -i -w $up_down_push_interface) && return 1
+	[ -n "$up_down_push_interface" ] && (! echo $(getinterface "" "$mac") | grep -q -i -w $up_down_push_interface) && return 1
 
 	for check_mac in $mark_mac_list; do
 		# 设备在线时免打扰
@@ -916,12 +942,12 @@ check_connect() {
 	is_online() {
 		local urls=(http://connect.rom.miui.com/generate_204 http://wifi.vivo.com.cn/generate_204 http://connectivitycheck.platform.hicloud.com/generate_204 http://www.apple.com/library/test/success.html)
 		local shuffled_urls=($(for i in "${urls[@]}"; do echo "$i"; done | awk 'BEGIN {srand()} {print rand(), $0}' | sort -n | cut -d' ' -f2-))
-
 		for url in "${shuffled_urls[@]}"; do
 			local status_code
 			status_code=$(curl -o /dev/null -sI -w "%{http_code}" "$url")
 			[[ "$status_code" -eq 204 || "$status_code" -eq 200 ]] && return 0
 		done
+		unset i url
 		return 1
 	}
 
@@ -983,7 +1009,7 @@ ip_changes() {
 
 	local last_IPv4=$(jq -r '.address[] | select(.IPv4 != null) | .IPv4' "$devices_json")
 	local last_IPv6=$(jq -r '.address[] | select(.IPv6 != null) | .IPv6' "$devices_json")
-	LockFile lock
+	silent_run LockFile lock
 
 	if [ -z "$last_IPv4" ] && [ -z "$last_IPv6" ]; then
 		log_change "${disturb_text}路由器已经重启!"
@@ -995,7 +1021,7 @@ ip_changes() {
 		[ -z "$title" ] && title="IP 地址变化"
 		[ -z "$content" ] && content="${content}${str_splitline}${str_title_start} IP 地址变化${str_title_end}"
 		content="${content}${str_linefeed}${str_tab}当前 IP：  ${IPv4}"
-		jq -c --arg IPv4 "$IPv4" '.address[0].IPv4 = $IPv4' "$devices_json" >"$tmp_devices_json" && mv "$tmp_devices_json" "$devices_json"
+		jq --arg IPv4 "$IPv4" '.address[0].IPv4 = $IPv4' "$devices_json" >"$tmp_devices_json" && mv "$tmp_devices_json" "$devices_json"
 
 	fi
 	if [ "$get_ipv6_mode" -ne "0" ] && [ -n "$IPv6" ] && [ "$IPv6" != "$last_IPv6" ]; then
@@ -1003,7 +1029,7 @@ ip_changes() {
 		[ -z "$title" ] && title="IPv6 地址变化"
 		[ -z "$content" ] && content="${content}${str_splitline}${str_title_start} IPv6 地址变化${str_title_end}"
 		content="${content}${str_linefeed}${str_tab}当前 IPv6：${IPv6}"
-		jq -c --arg IPv6 "$IPv6" '.address[0].IPv6 = $IPv6' "$devices_json" >"$tmp_devices_json" && mv "$tmp_devices_json" "$devices_json"
+		jq --arg IPv6 "$IPv6" '.address[0].IPv6 = $IPv6' "$devices_json" >"$tmp_devices_json" && mv "$tmp_devices_json" "$devices_json"
 	fi
 
 	# IP 变化，悄咪咪的重启 zerotier
@@ -1013,7 +1039,7 @@ ip_changes() {
 			/etc/init.d/zerotier restart >/dev/null 2>&1
 		fi
 	fi
-	LockFile unlock
+	silent_run LockFile unlock
 }
 
 # 检测设备上线
@@ -1028,7 +1054,7 @@ up() {
 
 	# 连通
 	if [ "$ping_online" -eq "0" ]; then
-		LockFile lock
+		silent_run LockFile lock
 		local time_up=$(date +%s)
 
 		# 如果 IP 不存在，或者 http_access 键值为空，检查 http_access 参数
@@ -1037,19 +1063,15 @@ up() {
 
 		# 如果 json 文件中能找到相同的 MAC，恢复数据
 		if [ "$mac" != "unknown" ] && jq -e --arg mac "$mac" '.devices[] | select(.mac == $mac) | .mac' "$devices_json" >/dev/null; then
-			# 如果是离线设备，json 文件中依然有信息，重置 IP、在线时间、流量
-			if jq -e --arg mac "$mac" '.devices[] | select(.mac == $mac and .status == "offline") | .mac' "$devices_json" >/dev/null; then
-				jq -c --arg ip "$ip" --arg mac "$mac" --arg time_up "$time_up" '.devices |= map(if .mac == $mac then .ip = $ip | .uptime = $time_up | .usage = "" else . end)' "$devices_json" >"$tmp_devices_json" && mv "$tmp_devices_json" "$devices_json"
-			fi
-			# 离线、待确认离线设备，修改在线状态为 online
-			jq -c --arg ip "$ip" '.devices |= map(if .ip == $ip then .status = "online" else . end)' "$devices_json" >"$tmp_devices_json" && mv "$tmp_devices_json" "$devices_json"
+			# 如果是待检测离线设备，json 文件中依然有信息，重置 IP、在线时间、流量，修改在线状态为 online
+			jq --arg ip "$ip" --arg mac "$mac" --arg time_up "$time_up" '.devices |= map(if .mac == $mac then .ip = $ip | .uptime = $time_up | .usage = "" | .status = "online" else . end)' "$devices_json" >"$tmp_devices_json" && mv "$tmp_devices_json" "$devices_json"
 		# up
 		else
 			usage down ${ip}
 			# 删除当前 IP 对应的键值，重新写入
-			jq -c --arg ip "$ip" 'del(.devices[] | select(.ip == $ip))' "$devices_json" >"$tmp_devices_json" && mv "$tmp_devices_json" "$devices_json"
+			jq --arg ip "$ip" 'del(.devices[] | select(.ip == $ip))' "$devices_json" >"$tmp_devices_json" && mv "$tmp_devices_json" "$devices_json"
 			local name=$(getname "$ip" "$mac")
-			local interface=$(getinterface "$mac")
+			local interface=$(getinterface "ip" "$mac")
 			local http_access=$(check_http_access "$ip")
 			new_device='{
 				"name": "'"${name}"'",
@@ -1061,12 +1083,12 @@ up() {
 				"http_access": "'"${http_access}"'",
 				"status": "online"
 			}'
-			jq -c --argjson newdevice "$new_device" '.devices += [$newdevice]' "$devices_json" >"$tmp_devices_json" && mv "$tmp_devices_json" "$devices_json"
+			jq --argjson newdevice "$new_device" '.devices += [$newdevice]' "$devices_json" >"$tmp_devices_json" && mv "$tmp_devices_json" "$devices_json"
 
 			blackwhitelist ${mac}
 			local ip_blackwhite=$?
-			[ -f "${dir}/send_enable.lock" ] || [ -z "$notification_online" ] || [ -z "$ip_blackwhite" ] && LockFile unlock && return
-			[ -z "$ip_blackwhite" ] || [ "$ip_blackwhite" -ne "0" ] && LockFile unlock && return
+			[ -f "${dir}/send_enable.lock" ] || [ -z "$notification_online" ] || [ -z "$ip_blackwhite" ] && silent_run LockFile unlock && return
+			[ -z "$ip_blackwhite" ] || [ "$ip_blackwhite" -ne "0" ] && silent_run LockFile unlock && return
 
 			[ -f "${dir}/title" ] && local title=$(cat "${dir}/title")
 			[ -f "${dir}/content" ] && local content=$(cat "${dir}/content")
@@ -1094,7 +1116,7 @@ up() {
 			[ -n "$content" ] && echo -n "$content" >>"${dir}/content"
 		fi
 	fi
-	LockFile unlock
+	silent_run LockFile unlock
 }
 
 # 检测设备离线
@@ -1108,15 +1130,19 @@ down() {
 	local ip_blackwhite=$? && [ "$ip_blackwhite" -ne "0" ] && tmp_timeout=10 && tmp_retry_count=2
 	getping "$ip" "$mac" "$tmp_timeout" "$tmp_retry_count"
 	local ping_online=$?
-	LockFile lock
+	silent_run LockFile lock
 	# 离线，置入待验证区
 	if [ "$ping_online" -eq "1" ]; then
 		# 修改为 unknown
-		jq -c --arg ip "$ip" '.devices |= map(if .ip == $ip then .status = "unknown" else . end)' "$devices_json" >"$tmp_devices_json" && mv "$tmp_devices_json" "$devices_json"
+		if jq -e --arg ip "$ip" '.devices[] | select(.ip == $ip and .status == "online") | .ip' "$devices_json" >/dev/null; then
+			jq --arg ip "$ip" '.devices |= map(if .ip == $ip then .status = "unknown" else . end)' "$devices_json" >"$tmp_devices_json" && mv "$tmp_devices_json" "$devices_json"
+		elif jq -e --arg ip "$ip" '.devices[] | select(.ip == $ip and .status == "unknown") | .ip' "$devices_json" >/dev/null; then
+			jq --arg ip "$ip" '.devices |= map(if .ip == $ip then .status = "offline" else . end)' "$devices_json" >"$tmp_devices_json" && mv "$tmp_devices_json" "$devices_json"
+		fi
 	# 更新主机名或 MAC
 	else
 		local name=$(getname "$ip" "$mac")
-		local interface=$(getinterface "$mac")
+		local interface=$(getinterface "ip" "$mac")
 
 		# 检查是否有变化
 		local current_mac=$(jq -r --arg ip "$ip" '.devices[] | select(.ip == $ip) | .mac' "$devices_json")
@@ -1124,7 +1150,7 @@ down() {
 		local current_interface=$(jq -r --arg ip "$ip" '.devices[] | select(.ip == $ip) | .interface' "$devices_json")
 
 		if [[ "$current_mac" != "$mac" || "$current_name" != "$name" || "$current_interface" != "$interface" ]]; then
-			jq -c --arg ip "$ip" --arg new_mac "$mac" --arg new_name "$name" --arg new_interface "$interface" '
+			jq --arg ip "$ip" --arg new_mac "$mac" --arg new_name "$name" --arg new_interface "$interface" '
 				.devices |= map(
 					if .ip == $ip then 
 						.mac = $new_mac | 
@@ -1137,20 +1163,16 @@ down() {
 		fi
 
 	fi
-	LockFile unlock
+	silent_run LockFile unlock
 }
 
 # 设备离线通知
 down_send() {
-	# 如果待验证区没有设备，退出
-	[ "$(jq '.devices | map(select(.status == "unknown")) | length' "$devices_json")" -eq 0 ] && return
+	# 如果没有离线设备，退出
+	[ "$(jq '.devices | map(select(.status == "offline")) | length' "$devices_json")" -eq 0 ] && return
 
-	local IPLIST=$(jq -r '.devices[] | select(.status == "unknown") | .ip' "$devices_json" | sort -u)
+	local IPLIST=$(jq -r '.devices[] | select(.status == "offline") | .ip' "$devices_json" | sort -u)
 	for ip in $IPLIST; do
-		LockFile lock
-		jq -c --arg ip "$ip" '.devices |= map(if .ip == $ip then .status = "offline" else . end)' "$devices_json" >"$tmp_devices_json" && mv "$tmp_devices_json" "$devices_json"
-		LockFile unlock
-
 		local mac=$(getmac "$ip")
 		blackwhitelist "$mac"
 		local ip_blackwhite=$?
@@ -1158,7 +1180,7 @@ down_send() {
 		[ -z "$ip_blackwhite" ] || [ "$ip_blackwhite" -ne "0" ] && continue
 
 		local name=$(getname "$ip" "$mac")
-		local time_up=$(jq -r --arg ip "$ip" '.devices[] | select(.ip == $ip and .status == "unknown") | .uptime' "$devices_json")
+		local time_up=$(jq -r --arg ip "$ip" '.devices[] | select(.ip == $ip and .status == "offline") | .uptime' "$devices_json")
 		local ip_total=$(usage get "$mac")
 		[ -n "$ip_total" ] && ip_total="${str_linefeed}${str_tab}总计流量： ${str_space}${str_space}${str_space}${str_space}${ip_total}"
 		local time1=$(date +%s)
@@ -1177,13 +1199,16 @@ down_send() {
 
 		local content_name="${str_linefeed}${str_tab}客户端名：${str_space}${str_space}${str_space}${str_space}${str_space}${name}"
 		local content_ip="${str_linefeed}${str_tab}客户端IP：${str_space}${str_space}${str_space}${str_space}${ip}"
-		local content_mac="${str_linefeed}${str_tab}客户端MAC：${str_space}${str_space}${str_space}${str_space}${ip_mac}${ip_total}"
+		local content_mac="${str_linefeed}${str_tab}客户端MAC：${str_space}${str_space}${str_space}${str_space}${mac}${ip_total}"
 		local content_time="${str_linefeed}${str_tab}在线时间：${str_space}${str_space}${str_space}${str_space}${time1}"
 
 		content="${content}${content_title}${content_name}${content_ip}${content_mac}${content_time}"
 
 		log_change "${disturb_text}设备 ${name} ${ip} 断开连接 "
 	done
+	silent_run LockFile lock
+	jq 'del(.devices[] | select(.status == "offline"))' "$devices_json" >"$tmp_devices_json" && mv "$tmp_devices_json" "$devices_json"
+	silent_run LockFile unlock
 }
 
 # 当前设备列表
@@ -1328,10 +1353,8 @@ cputop() {
 # 检测硬盘状态
 get_disk() {
 	mkdir -p "${dir}/disk_info"
-	local_disk_names=()
-	remote_disk_names=()
 
-	# 获取磁盘名称函数
+	# 获取磁盘名称
 	get_disk_names() {
 		local disk_names=($(lsblk -dno NAME,TYPE 2>/dev/null | awk '$2=="disk" && $1 !~ /^mtd/ && $1 !~ /^ubiblock/ {print $1}' | sort -u))
 		[ -z "$disk_names" ] && disk_names=($(df -h 2>/dev/null | awk '$1 ~ /^\/dev/ && !/^\/dev\/(mtd|ubiblock)/ {if ($NF ~ /^\/[a-zA-Z0-9]/) { sub("/dev/", "", $1); sub(/[0-9]+$/, "", $1); print $1 }}' | sort -u))
@@ -1339,37 +1362,47 @@ get_disk() {
 	}
 
 	# 查询本地硬盘名
-	local_disk_names=($(get_disk_names))
-	local_disk_tags=($(for _ in "${local_disk_names[@]}"; do echo "local"; done))
+	local local_disk_names=($(get_disk_names))
 
 	# 查询远程硬盘名
 	if [ -n "$server_host" ]; then
-		ssh_command="ssh -o StrictHostKeyChecking=yes -o BatchMode=yes -i /root/.ssh/id_rsa root@${server_host} -p ${server_port}"
-		remote_disk_names=$($ssh_command "$(declare -f get_disk_names); get_disk_names" | tr -d '\r')
-		remote_disk_names=($remote_disk_names)
-		remote_disk_tags=($(for _ in "${remote_disk_names[@]}"; do echo "remote"; done))
+		local ssh_command="ssh -o StrictHostKeyChecking=yes -o BatchMode=yes -i /root/.ssh/id_rsa root@${server_host} -p ${server_port}"
+		local remote_disk_names=$($ssh_command "$(declare -f get_disk_names); get_disk_names" | tr -d '\r')
+		local remote_disk_names=($remote_disk_names)
+		local remote_disk_tags=($(for _ in "${remote_disk_names[@]}"; do echo "remote"; done))
+		# 删除重复的直通硬盘
+		local get_host_disk_uuids=$(eval ${ssh_command} ls -l /dev/disk/by-uuid/ | awk '{print $9}')
+		for uuid in $get_host_disk_uuids; do
+			local fstab_config=$(uci show fstab | grep -i -w "${uuid}" | sed -n 's/\(fstab\..*\)\..*/\1/p')
+			[ -n "$fstab_config" ] && local tmp_target=$(uci get ${fstab_config}.target)
+			[ -n "$tmp_target" ] && local local_dev=$(df -h 2>/dev/null | grep -w "${tmp_target}" | awk '$1 ~ /^\/dev/ && !/^\/dev\/(mtd|ubiblock)/ {if ($NF ~ /^\/[a-zA-Z0-9]/) { sub("/dev/", "", $1); sub(/[0-9]+$/, "", $1); print $1 }}' | sort -u)
+			[ -n "$local_dev" ] && local local_disk_names=(${local_disk_names[@]/$local_dev})
+		done
+		unset uuid
 	fi
 
+	# 先删除重复的直通硬盘，再添加标记
+	local local_disk_tags=($(for _ in "${local_disk_names[@]}"; do echo "local"; done))
+
 	# 合并本地和远程硬盘名及标记
-	all_disk_names=("${local_disk_names[@]}" "${remote_disk_names[@]}")
-	all_disk_tags=("${local_disk_tags[@]}" "${remote_disk_tags[@]}")
+	local all_disk_names=("${local_disk_names[@]}" "${remote_disk_names[@]}")
+	local all_disk_tags=("${local_disk_tags[@]}" "${remote_disk_tags[@]}")
 
 	for i in "${!all_disk_names[@]}"; do
-		tmp_name=${all_disk_names[i]}
-		tmp_tag=${all_disk_tags[i]}
-		error_pattern="No such device|Unable to detect device type|Unknown USB bridge|QEMU HARDDISK"
-		unset tmp_command disk_type disk_err
+		local tmp_name=${all_disk_names[i]}
+		local tmp_tag=${all_disk_tags[i]}
+		local error_pattern="No such device|Unable to detect device type|Unknown USB bridge|QEMU HARDDISK"
 
 		# 判断硬盘类型
 		if [ "$tmp_tag" == "remote" ]; then
-			tmp_command="$ssh_command"
-			disk_type="_remote"
+			local disk_type="_remote"
+			local tmp_command="$ssh_command"
 		fi
-		file_path="${dir}/disk_info/${tmp_name}${disk_type}"
+		local file_path="${dir}/disk_info/${tmp_name}${disk_type}"
 
 		# 如果不能获取值，使用分区名重试（因为不清楚是 OpenWrt 的原因还是 smartctl 版本的原因，使用出错重试的方式）
 		eval ${tmp_command} smartctl -i -n standby "/dev/${tmp_name}" 2>/dev/null | grep -qE "$error_pattern" && {
-			tmp_name=$(eval ${tmp_command} df -h | awk "/^\\/dev\\/${tmp_name}/ {print \$1}" | awk -F '/' '{print $NF}' | head -n1)
+			local tmp_name=$(eval ${tmp_command} df -h | awk "/^\\/dev\\/${tmp_name}/ {print \$1}" | awk -F '/' '{print $NF}' | head -n1)
 			[ -z "$tmp_name" ] && continue
 		}
 
@@ -1377,7 +1410,10 @@ get_disk() {
 		last_disk_time=$(date -r "${file_path}" +%s 2>/dev/null) || last_disk_time=0
 
 		if [ $(($(date +%s) - $last_disk_time)) -gt 86000 ]; then
-			disk_info=$(eval ${tmp_command} smartctl -i -n standby "/dev/${tmp_name}" 2>/dev/null)
+			local disk_info=$(eval ${tmp_command} smartctl -i -n standby "/dev/${tmp_name}" 2>/dev/null)
+			[ -z "$disk_info" ] && {
+				cat /sys/block/"${tmp_name}"/device/model 2>/dev/null | grep -qE "$error_pattern" && continue
+			} ||
 			echo "$disk_info" | grep -qE "$error_pattern" && {
 				continue
 			} ||
@@ -1389,54 +1425,62 @@ get_disk() {
 
 		# 硬盘状态
 		if [ -f "${file_path}" ] && [ -s "${file_path}" ] && (! cat "${file_path}" | grep -q -v "STANDBY"); then
-			disk_name=$(awk '/Device Model/{print $NF}' "$file_path")
+			local disk_name=$(awk '/Device Model/{print $NF}' "$file_path")
 			[[ -n $disk_name && $disk_name != null && $disk_name != 0 ]] && {
-				disk_name=$(cut_str "$disk_name" "20")
-				disk_name="${disk_name}_$(eval ${tmp_command} lsblk -o NAME,SIZE | awk "/^${tmp_name}/ {print \$NF}")"
+				local disk_name=$(cut_str "$disk_name" "20")
+				local disk_name="${disk_name}_$(eval ${tmp_command} lsblk -o NAME,SIZE | awk "/^${tmp_name}/ {print \$NF}")"
 			}
 			printf "${str_linefeed}${str_title_start} 硬盘名称：${disk_name}${disk_type}${str_title_end}${str_linefeed}${str_tab}硬盘休眠中" >>"$output_dir/get_disk"
 		elif [ -f "${file_path}" ]; then
 			# 硬盘名称
-			disk_name=$(jq -r .model_name ${file_path})
-			[ -z "$disk_name" ] && disk_name=$(cat /sys/block/"${tmp_name}"/device/model)
+			local disk_name=$(jq -r .model_name ${file_path})
+			[ -z "$disk_name" ] && local disk_name=$(cat /sys/block/"${tmp_name}"/device/model)
 			[[ -n $disk_name && $disk_name != null && $disk_name != 0 ]] && {
-				disk_name=$(cut_str "$disk_name" "20")
-				disk_size=$(eval ${tmp_command} lsblk -o NAME,SIZE 2>/dev/null | awk "/^${tmp_name}/ {print \$NF}")
+				local disk_name=$(cut_str "$disk_name" "20")
+				local disk_size=$(eval ${tmp_command} lsblk -o NAME,SIZE 2>/dev/null | awk "/^${tmp_name}/ {print \$NF}")
 				[ -z "$disk_size" ] && disk_size=$(eval ${tmp_command} df -h 2>/dev/null | awk -v tmp_disk_name="${tmp_name}" '$1 ~ "^/dev/"tmp_disk_name && !disk_found {print $2; disk_found=1}')
-				disk_name="${disk_name}_${disk_size}"
+				local disk_name="${disk_name}_${disk_size}"
 			}
 			printf "${str_linefeed}${str_title_start} 硬盘名称：${disk_name}${disk_type}${str_title_end}" >>"$output_dir/get_disk"
 			# 硬盘温度
-			disk_temp=$(jq -r .temperature.current ${file_path})
+			local disk_temp=$(jq -r .temperature.current ${file_path})
 			[[ -n $disk_temp && $disk_temp != null && $disk_temp != 0 ]] && printf "${str_linefeed}${str_tab}硬盘温度：${disk_temp}℃" >>"$output_dir/get_disk"
 			# 通电时间
-			disk_time=$(jq -r .power_on_time.hours ${file_path})
+			local disk_time=$(jq -r .power_on_time.hours ${file_path})
 			[[ -n $disk_time && $disk_time != null ]] && printf "${str_linefeed}${str_tab}通电时间：${disk_time}h" >>"$output_dir/get_disk"
 			# 空间使用
-			disk_use=$(eval ${tmp_command} lsblk -o NAME,FSUSE%,TYPE 2>/dev/null | awk -v part_name="${tmp_name}" '$NF == "part" && $1 ~ part_name && NF > 2 {sub(".*" part_name, part_name, $1); printf "%s: %s  ", $1, $2} END {print ""}')
+			local disk_use=$(eval ${tmp_command} lsblk -o NAME,FSUSE% "/dev/${tmp_name}" 2>/dev/null | awk '$2 != "" { gsub(/^[^a-zA-Z0-9]+/, "", $1); printf "%s: %s\n", $1, $2 }')
 			[ -z "$disk_use" ] && disk_use=$(eval ${tmp_command} df -h 2>/dev/null | awk -v part_name="${tmp_name}" '$1 ~ "^/dev/"part_name && NF > 1 {sub("/dev/", "", $1); if (!seen[$1]) { printf "%s: %s  ", $1, $5; seen[$1] = 1; }} END {print ""}')
+			[ -z "$disk_use" ] && [ -n "$tmp_command" ] && {
+				local uuid=$($tmp_command ls -l /dev/disk/by-uuid/ 2>/dev/null | grep "$disk" | awk '{print $9}')
+				local fstab_config=$(uci show fstab 2>/dev/null | grep -i -w "${uuid}" | sed -n 's/\(fstab\..*\)\..*/\1/p')
+				[ -n "$fstab_config" ] && local mount_point=$(uci get ${fstab_config}.target 2>/dev/null)
+				[ -n "$mount_point" ] && local disk_use=$(df -h 2>/dev/null | awk -v mount="$mount_point" '$NF == mount {sub("^/dev/", "", $1); printf "%s: %s\n", $1, $5}')
+			}
+			[ -n "$disk_use" ] && disk_use=$(echo "$disk_use" | sed ':a;N;$!ba;s/\n/'"${str_linefeed}${str_tab}${str_space}${str_space}${str_space}${str_space}${str_space}${str_space}${str_space}${str_space}${str_space}${str_space}"'/g')
 			[ -n "$disk_use" ] && [ -n "${disk_use// /}" ] && echo -e -n "${str_linefeed}${str_tab}空间使用：${disk_use}" >>"$output_dir/get_disk"
 			# 寿命使用
-			disk_health=$(jq -r .nvme_smart_health_information_log.percentage_used ${file_path})
+			local disk_health=$(jq -r .nvme_smart_health_information_log.percentage_used ${file_path})
 			[[ -n $disk_health && $disk_health != null ]] && echo -e -n "${str_linefeed}${str_tab}寿命使用：${disk_health}%" >>"$output_dir/get_disk"
 			# 错误日志
-			disk_log_err=$(jq -r .ata_smart_error_log.summary.count ${file_path})
-			[[ -n $disk_log_err && $disk_log_err != null && $disk_log_err != 0 ]] && disk_err="true" && printf "${str_linefeed}${str_tab}错误日志：${disk_log_err}" >>"$output_dir/get_disk"
+			local disk_log_err=$(jq -r .ata_smart_error_log.summary.count ${file_path})
+			[[ -n $disk_log_err && $disk_log_err != null && $disk_log_err != 0 ]] && local disk_err="true" && printf "${str_linefeed}${str_tab}错误日志：${disk_log_err}" >>"$output_dir/get_disk"
 			# 自检错误
-			disk_test_err=$(jq -r .ata_smart_self_test_log.standard.error_count_total ${file_path})
-			[[ -n $disk_test_err && $disk_test_err != null && $disk_test_err != 0 ]] && disk_err="true" && printf "${str_linefeed}${str_tab}自检错误：${disk_test_err}" >>"$output_dir/get_disk"
+			local disk_test_err=$(jq -r .ata_smart_self_test_log.standard.error_count_total ${file_path})
+			[[ -n $disk_test_err && $disk_test_err != null && $disk_test_err != 0 ]] && local disk_err="true" && printf "${str_linefeed}${str_tab}自检错误：${disk_test_err}" >>"$output_dir/get_disk"
 			# 0E 错误
-			disk_0e_err=$(jq -r .nvme_smart_health_information_log.media_errors ${file_path})
-			[[ -n $disk_0e_err && $disk_0e_err != null && $disk_0e_err != 0 ]] && disk_err="true" && printf "${str_linefeed}${str_tab}0E 错误：${disk_0e_err}" >>"$output_dir/get_disk"
+			local disk_0e_err=$(jq -r .nvme_smart_health_information_log.media_errors ${file_path})
+			[[ -n $disk_0e_err && $disk_0e_err != null && $disk_0e_err != 0 ]] && local disk_err="true" && printf "${str_linefeed}${str_tab}0E 错误：${disk_0e_err}" >>"$output_dir/get_disk"
 			# 整体健康
-			smart_status=$(jq -r .smart_status.passed ${file_path})
+			local smart_status=$(jq -r .smart_status.passed ${file_path})
 			[[ -n $smart_status && $smart_status != null && $smart_status != "true" ]] && {
 				echo -e -n "${str_linefeed}${str_tab}${str_title_start}硬盘整体健康评估不通过！！！${str_title_end}" >>"$output_dir/get_disk"
-				disk_err="true"
+				local disk_err="true"
 			}
 			[ -n "$disk_err" ] && echo -e -n "${str_linefeed}${str_tab}${str_title_start}硬盘存在错误，请及时备份数据！！！${str_title_end}" >>"$output_dir/get_disk"
 		fi
 	done
+	unset i
 }
 
 # 查询 IP 归属地
@@ -1845,10 +1889,10 @@ diy_send() {
 	local type=$(jq -r '.type' ${3}) && local type=$(eval echo ${type})
 	local data=$(jq -r '.data' ${3}) && local data=$(eval echo ${data})
 	local content_type=$(jq -r '.content_type' ${3})
-	! jq -c "$type" ${3} >${tempjsonpath} && log_change "【！！！】type:{ } 字段转义变量后格式错误，请检查 type:{ } 字段内是否有特殊符号未转义或语法错误" && return 1
+	! jq "$type" ${3} >${tempjsonpath} && log_change "【！！！】type:{ } 字段转义变量后格式错误，请检查 type:{ } 字段内是否有特殊符号未转义或语法错误" && return 1
 
 	[ -n "$proxy_address" ] && local proxy_cmd="-x $proxy_address"
-	curl $proxy_cmd --connect-timeout 30 -m 60 --retry 1 -X POST -H "$content_type" -d "$data" "${diyurl}"
+	curl $proxy_cmd --connect-timeout 30 --max-time 60 --retry 2 -X POST -H "$content_type" -d "$data" "${diyurl}"
 	local RETVAL=$?
 	if [ -n "$4" ] || [ $RETVAL -ne 0 ]; then
 		log_change "【！！！】网络错误或 URL 错误，推送失败，curl 返回值为 ${RETVAL}，请参考如下调试信息进行排查"
@@ -1859,7 +1903,7 @@ diy_send() {
 		log_change "【debug】json 文件已保存至：${dir}/debug_send_json"
 		log_change "【debug】推送内容预览文件保存至：${dir}/debug_send_content"
 		log_change "【debug】如果收不到信息，请检查 ${dir}/debug_send_data 文件，或使用下列命令手动测试返回值 (可能需要关闭日志自动刷新方便选中)"
-		log_change "【debug】"'curl -X POST -H "'$content_type'" -d "@'${dir}/debug_send_data'" "'${diyurl}'"  '
+		log_change "【debug】curl -X POST -H \"$content_type\" -d \"@${dir}/debug_send_data\" \"${diyurl}\""
 		[ -n "$4" ] && [ $RETVAL -eq 0 ] && return 0
 		return 1
 	else
@@ -1964,8 +2008,6 @@ while [ "$enable" -eq "1" ]; do
 	usage update
 	disturb
 	disturb=$?
-	# 重新读取自定义备注
-	device_aliases=$(cat "$device_aliases_path" 2>/dev/null)
 
 	# 网络状态与 IP 变动
 	if [ "$get_ipv4_mode" -ne "0" ] || [ "$get_ipv6_mode" -ne "0" ]; then
