@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=dockerd
 PKG_VERSION:=27.0.3
-PKG_RELEASE:=25
+PKG_RELEASE:=27
 PKG_LICENSE:=Apache-2.0
 PKG_LICENSE_FILES:=LICENSE
 
@@ -36,7 +36,7 @@ define Package/dockerd
   DEPENDS:=$(GO_ARCH_DEPENDS) \
     +ca-bundle \
     +containerd \
-    +iptables \
+    \
     +iptables-mod-extra \
     +IPV6:ip6tables \
     +IPV6:kmod-ipt-nat6 \

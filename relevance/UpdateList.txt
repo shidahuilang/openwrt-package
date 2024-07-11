@@ -69,7 +69,6 @@ go-aliyundrive-webdav
 go-nats
 go-rice
 go-wol
-golang
 gost
 gotop
 haproxy
