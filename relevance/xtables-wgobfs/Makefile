@@ -7,7 +7,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=xtables-wgobfs
 PKG_VERSION:=0.4.1
-PKG_RELEASE:=4
+PKG_RELEASE:=6
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/xt_wgobfs-$(PKG_VERSION)
 PKG_SOURCE:=xt_wgobfs-$(PKG_VERSION).tar.xz
@@ -32,7 +32,7 @@ define Package/xtables-wgobfs
 	TITLE:=iptables WireGuard obfuscation extension
 	URL:=https://github.com/infinet/xt_wgobfs
 	MAINTAINER:=Wei Chen <weichen302@gmail.com>
-	DEPENDS:= +iptables +kmod-ipt-core +libxtables
+	DEPENDS:= +kmod-ipt-core +libxtables
 endef
 
 define Package/xtables-wgobfs/description
@@ -67,7 +67,7 @@ define Package/iptables-mod-wgobfs
 	$(call Package/xtables-wgobfs)
 	CATEGORY:=Network
 	TITLE:=WireGuard obfuscation iptables extension
-	DEPENDS:=+iptables +kmod-ipt-wgobfs
+	DEPENDS:=+kmod-ipt-wgobfs
 endef
 
 define Package/iptables-mod-wgobfs/install

@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=fullconenat
-PKG_RELEASE:=24
+PKG_RELEASE:=26
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/llccd/netfilter-full-cone-nat.git
@@ -28,7 +28,7 @@ define Package/iptables-mod-fullconenat
   SECTION:=net
   CATEGORY:=Network
   TITLE:=FULLCONENAT iptables extension
-  DEPENDS:=+iptables +kmod-ipt-fullconenat
+  DEPENDS:=+kmod-ipt-fullconenat
 endef
 
 define Package/ip6tables-mod-fullconenat
