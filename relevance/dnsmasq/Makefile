@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=dnsmasq
 PKG_UPSTREAM_VERSION:=2.90
 PKG_VERSION:=$(subst test,~~test,$(subst rc,~rc,$(PKG_UPSTREAM_VERSION)))
-PKG_RELEASE:=42
+PKG_RELEASE:=43
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_UPSTREAM_VERSION).tar.xz
 PKG_SOURCE_URL:=https://thekelleys.org.uk/dnsmasq/
@@ -22,7 +22,6 @@ PKG_CPE_ID:=cpe:/a:thekelleys:dnsmasq
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_UPSTREAM_VERSION)
 
-PKG_BUILD_DEPENDS:=nftables
 PKG_INSTALL:=1
 PKG_BUILD_PARALLEL:=1
 PKG_BUILD_FLAGS:=lto
@@ -67,7 +66,8 @@ $(call Package/dnsmasq/Default)
   TITLE += (with DNSSEC, DHCPv6, Auth DNS, IPset, Nftset, Conntrack, NO_ID enabled by default)
   DEPENDS+=+PACKAGE_dnsmasq_full_dnssec:libnettle \
 	+PACKAGE_dnsmasq_full_ipset:kmod-ipt-ipset \
-	+PACKAGE_dnsmasq_full_conntrack:libnetfilter-conntrack
+	+PACKAGE_dnsmasq_full_conntrack:libnetfilter-conntrack \
+	+PACKAGE_dnsmasq_full_nftset:nftables-json
   VARIANT:=full
   PROVIDES:=dnsmasq
 endef
@@ -187,10 +187,6 @@ define Package/dnsmasq/install
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(INSTALL_BIN) ./files/50-dnsmasq-migrate-resolv-conf-auto.sh $(1)/etc/uci-defaults
 	$(INSTALL_BIN) ./files/50-dnsmasq-migrate-ipset.sh $(1)/etc/uci-defaults
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(INSTALL_BIN) $(STAGING_DIR)/usr/lib/libnftables.so.1 $(1)/usr/lib/libnftables.so.1
-	$(INSTALL_BIN) $(STAGING_DIR)/usr/lib/libjansson.so.4 $(1)/usr/lib/libjansson.so.4
-	$(INSTALL_BIN) $(STAGING_DIR)/usr/lib/libnftnl.so.11 $(1)/usr/lib/libnftnl.so.11
 endef
 
 Package/dnsmasq-dhcpv6/install = $(Package/dnsmasq/install)
