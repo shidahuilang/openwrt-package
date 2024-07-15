@@ -10,8 +10,8 @@ include $(TOPDIR)/rules.mk
 PKG_ARCH_ISTOREENHANCE:=$(ARCH)
 
 PKG_NAME:=istoreenhance
-PKG_VERSION:=0.1.3
-PKG_RELEASE:=3
+PKG_VERSION:=0.1.5
+PKG_RELEASE:=4
 PKG_SOURCE:=iStoreEnhance-binary-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://fw.koolcenter.com/binary/iStoreEnhance/
 PKG_HASH:=skip
