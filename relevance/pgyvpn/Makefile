@@ -37,7 +37,7 @@ endif
 
 PKG_NAME:=pgyvpn
 PKG_VERSION:=3.1.0
-PKG_RELEASE:=12
+PKG_RELEASE:=13
 
 PKG_SOURCE:=pgyvpnsvr
 PKG_SOURCE_URL:=https://mirrors.oray.com/orayos/packages/$(PKG_NAME)/$(PKG_ARCH_PGYYPN)/$(PKG_VERSION)/bin
@@ -52,7 +52,7 @@ define Package/pgyvpn
   CATEGORY:=Network
   SUBMENU:=VPN
   DEPENDS:=@(arm||aarch64||mips||mipsel||i386||x86_64) \
-	+libc +libopenssl +librt \
+	+iptables +libc +libopenssl +librt \
 	+libpthread +libstdcpp +kmod-tun
   TITLE:=PuGongYing VPN, Fast networking
   URL:=https://pgy.oray.com/

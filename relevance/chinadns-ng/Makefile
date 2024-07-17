@@ -1,32 +1,37 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=chinadns-ng
-PKG_VERSION:=2024.05.12
-PKG_RELEASE:=46
+PKG_VERSION:=2024.07.16
+PKG_RELEASE:=47
 
 ifeq ($(ARCH),aarch64)
-  PKG_ARCH:=chinadns-ng@aarch64-linux-musl@generic+v8a@fast+lto
-  PKG_HASH:=skip
+  ifeq ($(BOARD),rockchip)
+    PKG_ARCH:=chinadns-ng+wolfssl@aarch64-linux-musl@generic+v8a@fast+lto
+    PKG_HASH:=skip
+  else
+    PKG_ARCH:=chinadns-ng+wolfssl_noasm@aarch64-linux-musl@generic+v8a@fast+lto
+    PKG_HASH:=skip
+  endif
 else ifeq ($(ARCH),arm)
   ARM_CPU_FEATURES:=$(word 2,$(subst +,$(space),$(call qstrip,$(CONFIG_CPU_TYPE))))
   ifeq ($(ARM_CPU_FEATURES),)
-    PKG_ARCH:=chinadns-ng@arm-linux-musleabi@generic+v6+soft_float@fast+lto
+    PKG_ARCH:=chinadns-ng+wolfssl@arm-linux-musleabi@generic+v6+soft_float@fast+lto
     PKG_HASH:=skip
   else
-    PKG_ARCH:=chinadns-ng@arm-linux-musleabihf@generic+v7a@fast+lto
+    PKG_ARCH:=chinadns-ng+wolfssl@arm-linux-musleabihf@generic+v7a@fast+lto
     PKG_HASH:=skip
   endif
 else ifeq ($(ARCH),mips)
-  PKG_ARCH:=chinadns-ng@mips-linux-musl@mips32+soft_float@fast+lto
+  PKG_ARCH:=chinadns-ng+wolfssl@mips-linux-musl@mips32+soft_float@fast+lto
   PKG_HASH:=skip
 else ifeq ($(ARCH),mipsel)
-  PKG_ARCH:=chinadns-ng@mipsel-linux-musl@mips32+soft_float@fast+lto
+  PKG_ARCH:=chinadns-ng+wolfssl@mipsel-linux-musl@mips32+soft_float@fast+lto
   PKG_HASH:=skip
 else ifeq ($(ARCH),i386)
-  PKG_ARCH:=chinadns-ng@i386-linux-musl@i686@fast+lto
+  PKG_ARCH:=chinadns-ng+wolfssl@i386-linux-musl@i686@fast+lto
   PKG_HASH:=skip
 else ifeq ($(ARCH),x86_64)
-  PKG_ARCH:=chinadns-ng@x86_64-linux-musl@x86_64@fast+lto
+  PKG_ARCH:=chinadns-ng+wolfssl@x86_64-linux-musl@x86_64@fast+lto
   PKG_HASH:=skip
 else
   PKG_HASH:=skip
@@ -48,7 +53,7 @@ define Package/chinadns-ng
   SUBMENU:=IP Addresses and Names
   TITLE:=ChinaDNS next generation, refactoring with epoll and ipset.
   URL:=https://github.com/zfl9/chinadns-ng
-  DEPENDS:=@(aarch64||arm||i386||mips||mipsel||x86_64) @!(TARGET_x86_geode||TARGET_x86_legacy) +ipset
+  DEPENDS:=@(aarch64||arm||i386||mips||mipsel||x86_64) +ipset
 endef
 
 define Build/Compile

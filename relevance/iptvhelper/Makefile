@@ -5,7 +5,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=iptvhelper
 PKG_VERSION:=0.1.1
-PKG_RELEASE:=9
+PKG_RELEASE:=10
 PKG_MAINTAINER:=Shun Li <riverscn@gmail.com>
 PKG_LICENSE:=GPL-3.0
 
@@ -17,7 +17,7 @@ define Package/iptvhelper
    SUBMENU:=Routing and Redirection
    DEPENDS:= \
      +ipset \
-     
+     +iptables
    TITLE:=Scripts for configure IPTV easily
    MAINTAINER:=Shun Li <riverscn@gmail.com>
    PKGARCH:=all
