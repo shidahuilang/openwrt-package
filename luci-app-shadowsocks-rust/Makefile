@@ -15,7 +15,7 @@ PKG_LICENSE_FILES:=LICENSE
 PKG_MAINTAINER:=honwen <https://github.com/honwen>
 
 LUCI_TITLE:=LuCI Support for shadowsocks-rust
-LUCI_DEPENDS:=+ipset +curl +ip +iptables-mod-tproxy
+LUCI_DEPENDS:=+iptables +ipset +curl +ip +iptables-mod-tproxy
 LUCI_PKGARCH:=all
 
 define Package/$(PKG_NAME)/conffiles
