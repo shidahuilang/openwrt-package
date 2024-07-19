@@ -1,34 +1,30 @@
 # SPDX-Identifier-License: GPL-3.0-only
 #
-# Copyright (C) 2023-2024 沉默の金 <cmzj@cmzj.org>
 # Copyright (C) 2022 Lean <coolsnowwolf@gmail.com>
-# Copyright (C) 2019-2022 ImmortalWrt.org
+# Copyright (C) 2019-2024 ImmortalWrt.org
 
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-turboacc
+PKG_FLAGS:=nonshared
 
 PKG_LICENSE:=GPL-3.0-only
-PKG_MAINTAINER:=chenmozhijin <cmzj11@gmail.com>
-PKG_FLAGS:=nonshared
+PKG_MAINTAINER:=Lean <coolsnowwolf@gmail.com>
 
 PKG_CONFIG_DEPENDS:= \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_BBR_CCA \
+	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_DNSFORWARDER \
+	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_DNSPROXY \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_OFFLOADING \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_SHORTCUT_FE \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_SHORTCUT_FE_CM \
-	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_SHORTCUT_FE_DRV \
-	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_NFT_FULLCONE
+	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_SHORTCUT_FE_DRV
 
 LUCI_TITLE:=LuCI support for Flow Offload / Shortcut-FE
-LUCI_DEPENDS:= \
-	+luci +luci-compat \
-	+PACKAGE_$(PKG_NAME)_INCLUDE_BBR_CCA:kmod-tcp-bbr \
-	+PACKAGE_$(PKG_NAME)_INCLUDE_OFFLOADING:kmod-nft-offload \
+LUCI_DEPENDS:=+PACKAGE_$(PKG_NAME)_INCLUDE_BBR_CCA:kmod-tcp-bbr \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_SHORTCUT_FE:kmod-fast-classifier \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_SHORTCUT_FE_CM:kmod-shortcut-fe-cm \
-	+PACKAGE_$(PKG_NAME)_INCLUDE_SHORTCUT_FE_DRV:kmod-shortcut-fe-drv \
-	+PACKAGE_$(PKG_NAME)_INCLUDE_NFT_FULLCONE:kmod-nft-fullcone
+	+PACKAGE_$(PKG_NAME)_INCLUDE_SHORTCUT_FE_DRV:kmod-shortcut-fe-drv
 LUCI_PKGARCH:=all
 
 define Package/$(PKG_NAME)/config
@@ -57,9 +53,17 @@ config PACKAGE_$(PKG_NAME)_INCLUDE_BBR_CCA
 	bool "Include BBR CCA"
 	default y
 
-config PACKAGE_$(PKG_NAME)_INCLUDE_NFT_FULLCONE
-	bool "Include NFT FULLCONE"
+config PACKAGE_$(PKG_NAME)_INCLUDE_PDNSD
+	bool "Include Pdnsd"
 	default y
+
+config PACKAGE_$(PKG_NAME)_INCLUDE_DNSFORWARDER
+	bool "Include DNSForwarder"
+	default n
+
+config PACKAGE_$(PKG_NAME)_INCLUDE_DNSPROXY
+	bool "Include DNSProxy"
+	default n
 endef
 
 include $(TOPDIR)/feeds/luci/luci.mk

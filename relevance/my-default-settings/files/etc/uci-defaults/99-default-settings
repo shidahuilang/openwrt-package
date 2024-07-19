@@ -71,6 +71,10 @@ if [[ ! "$version" || "$version" -lt 1 ]]; then
 	
 	. /etc/openwrt_release
 
+		uci -q set firewall.@defaults[0].flow_offloading='1'
+		uci -q set firewall.@defaults[0].flow_offloading_hw='1'
+		uci commit firewall
+
 	sed -i '/option disabled/d' /etc/config/wireless
 
 	wifi_setup_radio(){
