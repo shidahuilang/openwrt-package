@@ -83,6 +83,7 @@ luci-app-smartdns
 luci-app-smartinfo
 luci-app-socat
 luci-app-softethervpn
+luci-app-sqm
 luci-app-ssr-mudb-server
 luci-app-store
 luci-app-supervisord
