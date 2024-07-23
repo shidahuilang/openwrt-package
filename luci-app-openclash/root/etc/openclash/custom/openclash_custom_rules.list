@@ -29,6 +29,9 @@ rules:
 ##- SRC-IP-CIDR,192.168.1.201/32,DIRECT #匹配数据发起IP(直连)
 ##- DST-PORT,80,DIRECT #匹配数据目标端口(直连)
 ##- SRC-PORT,7777,DIRECT #匹配数据源端口(直连)
+###- SRC-IP-CIDR,192.168.2.70/32,香港 01丨1x HK
+###- SRC-IP-CIDR,192.168.2.71/32,香港 02丨1x HK
+###- SRC-IP-CIDR,192.168.2.72/32,香港 03丨1x HK
 ## 群晖DDNS
 - DOMAIN-SUFFIX,spk7.imnks.com,DIRECT
 - DOMAIN-SUFFIX,checkip.synology.com,DIRECT
