@@ -223,15 +223,6 @@ if [[ ! "$version" || "$version" -lt 1 ]]; then
 	echo net.nf_conntrack_max=$nf_conntrack_max >>$SYSCTL_LOCAL
 	echo net.core.rmem_max=$nf_conntrack_max >>$SYSCTL_LOCAL
 
-if [ -f /etc/config/nginx ]; then
-uci -q rename nginx._redirect2ssl='op'
-uci -q set nginx.op.server_name='op'
-uci -q set nginx.op.include='conf.d/*.locations'
-uci -q set nginx.op.access_log='off; # logd openwrt'
-uci commit nginx
-sed -i 's/option return/# option return/' /etc/config/nginx
-fi
-
 	version=1
 fi
 

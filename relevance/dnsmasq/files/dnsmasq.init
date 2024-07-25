@@ -1235,10 +1235,16 @@ dnsmasq_start()
 	config_get_bool dns_redirect "$cfg" dns_redirect 0
 	config_get dns_port "$cfg" port 53
 	if [ "$dns_redirect" = 1 ]; then
+	if [ -n "$(command -v nft)" ]; then
+		nft add table inet dnsmasq
+		nft add chain inet dnsmasq prerouting "{ type nat hook prerouting priority -105; policy accept; }"
+		nft add rule inet dnsmasq prerouting "meta nfproto { ipv4, ipv6 } udp dport 53 counter redirect to :$dns_port comment \"DNSMASQ HIJACK\""
+	else
 		iptables -t nat -A PREROUTING -m comment --comment "DNSMASQ" -p udp --dport 53 -j REDIRECT --to-ports $dns_port
 		iptables -t nat -A PREROUTING -m comment --comment "DNSMASQ" -p tcp --dport 53 -j REDIRECT --to-ports $dns_port
 		[ -n "$(command -v ip6tables)" ] && ip6tables -t nat -A PREROUTING -m comment --comment "DNSMASQ" -p udp --dport 53 -j REDIRECT --to-ports $dns_port
 		[ -n "$(command -v ip6tables)" ] && ip6tables -t nat -A PREROUTING -m comment --comment "DNSMASQ" -p tcp --dport 53 -j REDIRECT --to-ports $dns_port
+	fi
 	fi
 }
 
@@ -1264,6 +1270,12 @@ iptables_clear()
 	iptables -t nat -D PREROUTING -m comment --comment "DNSMASQ" -p tcp --dport 53 -j REDIRECT --to-ports $dns_port 2>"/dev/null"
 	[ -n "$(command -v ip6tables)" ] && ip6tables -t nat -D PREROUTING -m comment --comment "DNSMASQ" -p udp --dport 53 -j REDIRECT --to-ports $dns_port 2>"/dev/null"
 	[ -n "$(command -v ip6tables)" ] && ip6tables -t nat -D PREROUTING -m comment --comment "DNSMASQ" -p tcp --dport 53 -j REDIRECT --to-ports $dns_port 2>"/dev/null"
+}
+
+nftables_clear()
+{
+	! nft --check list table inet dnsmasq > "/dev/null" 2>&1 || \
+		nft delete table inet dnsmasq
 }
 
 add_interface_trigger()
@@ -1336,7 +1348,7 @@ start_service() {
 }
 
 reload_service() {
-	iptables_clear
+	[ -n "$(command -v nft)" ] && nftables_clear || iptables_clear
 	rc_procd start_service "$@"
 	procd_send_signal dnsmasq "$@"
 }
@@ -1363,5 +1375,5 @@ stop_service() {
 	else
 		config_foreach dnsmasq_stop dnsmasq
 	fi
-	iptables_clear
+	[ -n "$(command -v nft)" ] && nftables_clear || iptables_clear
 }
