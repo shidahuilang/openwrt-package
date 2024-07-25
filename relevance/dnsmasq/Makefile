@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=dnsmasq
 PKG_UPSTREAM_VERSION:=2.90
 PKG_VERSION:=$(subst test,~~test,$(subst rc,~rc,$(PKG_UPSTREAM_VERSION)))
-PKG_RELEASE:=46
+PKG_RELEASE:=49
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_UPSTREAM_VERSION).tar.xz
 PKG_SOURCE_URL:=https://thekelleys.org.uk/dnsmasq/
@@ -21,6 +21,8 @@ PKG_LICENSE_FILES:=COPYING
 PKG_CPE_ID:=cpe:/a:thekelleys:dnsmasq
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_UPSTREAM_VERSION)
+
+PKG_BUILD_DEPENDS:=nftables
 
 PKG_INSTALL:=1
 PKG_BUILD_PARALLEL:=1

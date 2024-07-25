@@ -18,6 +18,7 @@ rm -f "$nft_incdir/input/zerotier.nft" "$nft_incdir/forward/zerotier.nft" "$$nft
 
 nat_enable="$(uci get zerotier.sample_config.nat)"
 [ "$nat_enable" -eq "1" ] && {
+[ -n "$(command -v nft)" ] && {
 	[ -d "$nft_incdir/input" ] || mkdir -p "$nft_incdir/input"
 	[ -d "$nft_incdir/forward" ] || mkdir -p "$nft_incdir/forward"
 	[ -d "$nft_incdir/srcnat" ] || mkdir -p "$nft_incdir/srcnat"
@@ -34,4 +35,17 @@ nat_enable="$(uci get zerotier.sample_config.nat)"
 	uci -q set firewall.@defaults[0].auto_includes="1"
 	uci -q commit firewall
 	fw4 reload
+} else {
+	zt0="$(ifconfig | grep 'zt' | awk '{print $1}')"
+	echo "${zt0}" > "/tmp/zt.nif"
+	for i in ${zt0}
+	do
+		ip_segment=""
+		iptables -I FORWARD -i "$i" -j ACCEPT
+		iptables -I FORWARD -o "$i" -j ACCEPT
+		iptables -t nat -I POSTROUTING -o "$i" -j MASQUERADE
+		ip_segment="$(ip route | grep "dev $i proto kernel" | awk '{print $1}')"
+		iptables -t nat -I POSTROUTING -s "${ip_segment}" -j MASQUERADE
+	done
+}
 }

@@ -5,8 +5,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=naiveproxy
-PKG_VERSION:=122.0.6261.43-1
-PKG_RELEASE:=100
+PKG_VERSION:=125.0.6422.35-1
+PKG_RELEASE:=101
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/klzgrad/naiveproxy/tar.gz/v$(PKG_VERSION)?
@@ -19,17 +19,6 @@ PKG_MAINTAINER:=Tianling Shen <cnsztl@immortalwrt.org>
 PKG_BUILD_DEPENDS:=gn/host
 PKG_BUILD_PARALLEL:=1
 PKG_BUILD_FLAGS:=no-mips16
-
-ifeq ($(strip $(NINJA)),)
-ifneq ($(wildcard $(TOPDIR)/feeds/packages/devel/ninja/ninja.mk),)
-PKG_BUILD_DEPENDS+=ninja/host
-NINJA = \
-	MAKEFLAGS="$(MAKE_JOBSERVER)" \
-	$(STAGING_DIR_HOSTPKG)/bin/ninja \
-		$(if $(findstring c,$(OPENWRT_VERBOSE)),-v) \
-		$(if $(MAKE_JOBSERVER),,-j1)
-endif
-endif
 
 ifneq ($(CONFIG_CPU_TYPE)," ")
   CPU_TYPE:=$(word 1, $(subst +," ,$(CONFIG_CPU_TYPE)))
@@ -66,7 +55,7 @@ ifneq ($(CONFIG_CCACHE),)
   export naive_ccache_flags=cc_wrapper="$(CCACHE)"
 endif
 
-CLANG_VER:=18-init-16072-gc4146121e940-5
+CLANG_VER:=19-init-8091-gab037c4f-1
 CLANG_FILE:=clang-llvmorg-$(CLANG_VER).tgz
 define Download/CLANG
 	URL:=https://commondatastorage.googleapis.com/chromium-browser-clang/Linux_x64
@@ -75,7 +64,7 @@ define Download/CLANG
 	HASH:=skip
 endef
 
-PGO_VER:=6261-1707846690-1391fcc4772c0b31e214f533af5cafa87e4ccf40
+PGO_VER:=6422-1715102072-9bdbfa29f2bb1ff28f0f031b98501a1193b8d03b-13cfbf145656b369f9c23bff70ab2fb07e1e2fdb
 PGO_FILE:=chrome-linux-$(PGO_VER).profdata
 define Download/PGO_PROF
 	URL:=https://storage.googleapis.com/chromium-optimization-profiles/pgo_profiles

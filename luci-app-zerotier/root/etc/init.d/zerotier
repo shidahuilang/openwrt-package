@@ -94,10 +94,25 @@ start_service() {
 stop_instance() {
 	rm -f /tmp/zero.log
 	local cfg="$1"
-
+	[ -n "$(command -v nft)" ] && {
 	rm -f "/usr/share/nftables.d/chain-pre/forward/zerotier.nft" "/usr/share/nftables.d/chain-pre/srcnat/zerotier.nft"
 	fw4 reload
 	echo "zt interface rules removed!" > /tmp/zero.log 2>&1 &
+	} else {
+	zt0="$(ifconfig | grep 'zt' | awk '{print $1}')"
+	[ -z "${zt0}" ] && zt0="$(cat "/tmp/zt.nif")"
+
+	for i in ${zt0}
+	do
+	ip_segment=""
+	iptables -D FORWARD -i "$i" -j ACCEPT 2>/dev/null
+	iptables -D FORWARD -o "$i" -j ACCEPT 2>/dev/null
+	iptables -t nat -D POSTROUTING -o "$i" -j MASQUERADE 2>/dev/null
+	ip_segment="$(ip route | grep "dev $i proto" | awk '{print $1}')"
+	iptables -t nat -D POSTROUTING -s "${ip_segment}" -j MASQUERADE 2>/dev/null
+	echo "zt interface $i is stopped!"
+	done
+	}
 
 	# Remove existing link or folder
 	rm -f $CONFIG_PATH/networks.d/*.conf
