@@ -313,7 +313,6 @@ shellsync
 shortcut-fe
 simple-obfs
 simpleproxy
-sing-box
 smartdns
 sms-tool
 softethervpn5

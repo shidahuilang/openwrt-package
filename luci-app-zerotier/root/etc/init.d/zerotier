@@ -98,7 +98,7 @@ stop_instance() {
 	rm -f "/usr/share/nftables.d/chain-pre/forward/zerotier.nft" "/usr/share/nftables.d/chain-pre/srcnat/zerotier.nft"
 	fw4 reload
 	echo "zt interface rules removed!" > /tmp/zero.log 2>&1 &
-	} else {
+	} || {
 	zt0="$(ifconfig | grep 'zt' | awk '{print $1}')"
 	[ -z "${zt0}" ] && zt0="$(cat "/tmp/zt.nif")"
 

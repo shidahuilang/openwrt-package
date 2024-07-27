@@ -35,7 +35,7 @@ nat_enable="$(uci get zerotier.sample_config.nat)"
 	uci -q set firewall.@defaults[0].auto_includes="1"
 	uci -q commit firewall
 	fw4 reload
-} else {
+} || {
 	zt0="$(ifconfig | grep 'zt' | awk '{print $1}')"
 	echo "${zt0}" > "/tmp/zt.nif"
 	for i in ${zt0}

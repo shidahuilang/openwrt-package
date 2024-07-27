@@ -137,7 +137,6 @@ else
 fi
 }
 sethttps() {
-    uhttp=`uci -q get uhttpd.main.listen_https | awk -F ' ' '{printf $1}'`
     if [ "x$(uci -q get advancedplus.@basic[0].uhttps)" = "x1" ] ; then
     	if [ -n "$(command -v nginx)" ]; then
     		uci -q rename nginx.op='_redirect2ssl'
@@ -147,22 +146,12 @@ sethttps() {
     		uci commit nginx
     		/etc/init.d/nginx reload
     	else
-	     [  $uhttp ] || {
-	         sed -i "/listen_https/d" /etc/config/uhttpd
-	         /etc/init.d/uhttpd stop
-	         uci -q add_list uhttpd.main.listen_https='0.0.0.0:443'
-	         uci -q add_list uhttpd.main.listen_https='[::]:443'
+	         uci -q set uhttpd.main.redirect_https='1'
 	         uci commit uhttpd
-	         /etc/init.d/uhttpd restart
-	    }
+	         /etc/init.d/uhttpd reload
     	fi
     else
-        if [  $uhttp ]; then
-	         /etc/init.d/uhttpd stop
-	         sed -i "/listen_https/d" /etc/config/uhttpd
-	         uci commit uhttpd
-	         /etc/init.d/uhttpd restart
-	elif [ -n "$(command -v nginx)" ]; then
+        if [ -n "$(command -v nginx)" ]; then
 	         uci -q rename nginx._redirect2ssl='op'
 	         uci -q set nginx.op.server_name='op'
 	         uci -q set nginx.op.include='conf.d/*.locations'
@@ -170,6 +159,10 @@ sethttps() {
 	         uci commit nginx
 	         sed -i 's/option return/# option return/' /etc/config/nginx
 	         /etc/init.d/nginx reload
+		else
+	         uci -q set uhttpd.main.redirect_https='0'
+	         uci commit uhttpd
+	         /etc/init.d/uhttpd reload
         fi
     fi
 }
