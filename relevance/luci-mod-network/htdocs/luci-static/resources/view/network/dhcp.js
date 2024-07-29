@@ -348,11 +348,11 @@ return view.extend({
 
 		so = ss.option(form.Value, 'name', _('Domain Name'));
 		so.datatype = 'hostname';
-		so.rmempty  = true;
+		so.rmempty  = false;
 
 		so = ss.option(form.Value, 'ip', _('<abbr title=\"Internet Protocol Version 4\">IPv4</abbr>-Address'));
 		so.datatype = 'or(ip4addr,"ignore")';
-		so.rmempty  = true;
+		so.rmempty  = false;
 
 		so = ss.option(form.Value, 'comments', _('Comments'));
 		so.rmempty  = true;
