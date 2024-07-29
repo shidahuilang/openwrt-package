@@ -226,6 +226,15 @@ if [[ ! "$version" || "$version" -lt 1 ]]; then
 	version=1
 fi
 
+if [ -n "$(command -v nginx)" ]; then
+if [ -z "`uci -q get nginx.default_server`" ]; then
+	uci -q set nginx.default_server=server
+	uci -q set nginx.default_server.server_name='op'
+	uci -q add_list nginx.default_server.include='conf.d/*.locations'
+	uci -q set nginx.default_server.access_log='off; # logd openwrt'
+fi
+fi
+
 grep -q "location /luci " /etc/nginx/conf.d/luci.locations 2>/dev/null &&
 	cp -pR /www/cgi-bin/* /www/
 
