@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=dnsmasq
 PKG_UPSTREAM_VERSION:=2.90
 PKG_VERSION:=$(subst test,~~test,$(subst rc,~rc,$(PKG_UPSTREAM_VERSION)))
-PKG_RELEASE:=51
+PKG_RELEASE:=54
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_UPSTREAM_VERSION).tar.xz
 PKG_SOURCE_URL:=https://thekelleys.org.uk/dnsmasq/
@@ -71,12 +71,6 @@ $(call Package/dnsmasq/Default)
 	+PACKAGE_dnsmasq_full_conntrack:libnetfilter-conntrack
   VARIANT:=full
   PROVIDES:=dnsmasq
-endef
-
-define Package/dnsmasq-full/extra_provides
-    echo "libnftables.so.1"; \
-    echo "libjansson.so.4"; \
-    echo "libnftnl.so.11";
 endef
 
 define Package/dnsmasq/description
@@ -194,6 +188,11 @@ define Package/dnsmasq/install
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(INSTALL_BIN) ./files/50-dnsmasq-migrate-resolv-conf-auto.sh $(1)/etc/uci-defaults
 	$(INSTALL_BIN) ./files/50-dnsmasq-migrate-ipset.sh $(1)/etc/uci-defaults
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(INSTALL_BIN) $(STAGING_DIR)/usr/lib/libnftables.so.1 $(1)/usr/lib/libnftables.so.1
+	$(INSTALL_BIN) $(STAGING_DIR)/usr/lib/libjansson.so.4 $(1)/usr/lib/libjansson.so.4
+	$(INSTALL_BIN) $(STAGING_DIR)/usr/lib/libnftnl.so.11 $(1)/usr/lib/libnftnl.so.11
+	$(INSTALL_BIN) $(STAGING_DIR)/usr/lib/libmnl.so.0 $(1)/usr/lib/libmnl.so.0
 endef
 
 Package/dnsmasq-dhcpv6/install = $(Package/dnsmasq/install)

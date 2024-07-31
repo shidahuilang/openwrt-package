@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=modeminfo
 PKG_VERSION:=0.4.2
-PKG_RELEASE:=64
+PKG_RELEASE:=68
 PKG_MAINTAINER:=Konstantine Shevlakov <shevlakov@132lan.ru>
 
 include $(INCLUDE_DIR)/package.mk
@@ -107,5 +107,6 @@ $(eval $(call SerialPlugin,tw,+kmod-usb-serial-option,ThinkWill ML7820+,THINKWIL
 $(eval $(call SerialPlugin,yuge,+kmod-usb-serial-option,Yuge CLM920,YUGE))
 $(eval $(call SerialPlugin,zte,+kmod-usb-serial-option,ZTE MF823/MF823D,ZTE))
 $(eval $(call SerialPlugin,fm350,+kmod-usb-acm,FIBOCOM FM350,FM350))
+$(eval $(call SerialPlugin,thales,+kmod-usb-serial-option,Thales MV31-W T99W175,THALES))
 $(eval $(call BuildPackage,$(PKG_NAME)-qmi))
 $(eval $(call BuildPackage,$(PKG_NAME)-telegram))
