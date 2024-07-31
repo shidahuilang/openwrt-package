@@ -4,7 +4,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-openvpn-server
 PKG_VERSION:=20211229
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 LUCI_TITLE:=LuCI support for OpenVPN Server
 LUCI_DEPENDS:=+openvpn-easy-rsa +openvpn-openssl +kmod-tun +@OPENVPN_openssl_ENABLE_MANAGEMENT
