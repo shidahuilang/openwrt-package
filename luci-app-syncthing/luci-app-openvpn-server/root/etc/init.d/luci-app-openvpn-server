@@ -23,13 +23,13 @@ ipt_flag="OpenVPN Server"
 
 ipt_rule() {
 	if [ "$1" = "add" ]; then
-		iptables -t nat -I POSTROUTING -s ${ip_segment%.*}.0/${ip_prefix} -m comment --comment "${ipt_flag}" -j MASQUERADE 2>/dev/null
+		iptables -t nat -I postrouting_rule -s ${ip_segment%.*}.0/${ip_prefix} -m comment --comment "${ipt_flag}" -j MASQUERADE 2>/dev/null
 		iptables -I forwarding_rule -s ${ip_segment%.*}.0/${ip_prefix} -m comment --comment "${ipt_flag}" -j ACCEPT 2>/dev/null
-		iptables -I INPUT -p ${proto} --dport ${port} -m comment --comment "${ipt_flag}" -j ACCEPT 2>/dev/null
+		iptables -I input_rule -p ${proto} --dport ${port} -m comment --comment "${ipt_flag}" -j ACCEPT 2>/dev/null
 		iptables -t mangle -I OUTPUT -p ${proto} --sport ${port} -m comment --comment "${ipt_flag}" -j RETURN 2>/dev/null
 		
 		[ "${ipv6}" -eq 1 ] && {
-			ip6tables -I INPUT -p ${proto} --dport ${port} -m comment --comment "${ipt_flag}" -j ACCEPT 2>/dev/null
+			ip6tables -I input_rule -p ${proto} --dport ${port} -m comment --comment "${ipt_flag}" -j ACCEPT 2>/dev/null
 			ip6tables -t mangle -I OUTPUT -p ${proto} --sport ${port} -m comment --comment "${ipt_flag}" -j RETURN 2>/dev/null
 		}
 	else
@@ -40,10 +40,10 @@ ipt_rule() {
 			done
 		}
 		ipt_del "iptables" "forwarding_rule"
-		ipt_del "iptables" "INPUT"
-		ipt_del "iptables -t nat" "POSTROUTING"
+		ipt_del "iptables" "input_rule"
+		ipt_del "iptables -t nat" "postrouting_rule"
 		ipt_del "iptables -t mangle" "OUTPUT"
-		ipt_del "ip6tables" "INPUT"
+		ipt_del "ip6tables" "input_rule"
 		ipt_del "ip6tables -t mangle" "OUTPUT"
 	fi
 }
