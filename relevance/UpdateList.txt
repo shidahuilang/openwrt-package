@@ -95,7 +95,6 @@ libtorrent-rasterbar
 libwxwidgets
 linkease
 linkmount
-lua-maxminddb
 lua-neturl
 luci-app-3proxy
 luci-app-LingTiGameAcc
