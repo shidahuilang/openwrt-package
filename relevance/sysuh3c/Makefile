@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=sysuh3c
 PKG_VERSION:=1.0
-PKG_RELEASE:=14
+PKG_RELEASE:=18
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/haswelliris/h3c.git

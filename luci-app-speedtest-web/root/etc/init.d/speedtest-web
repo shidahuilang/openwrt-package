@@ -15,5 +15,5 @@ start() {
 }
 
 stop() {
-	killall -q -9 `which speedtest-web`
+	killall -3 speedtest-web >/dev/null 2>&1
 }

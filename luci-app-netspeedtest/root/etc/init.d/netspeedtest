@@ -138,8 +138,8 @@ get_config() {
 
 homebox_prepare() {
 	pgrep -f homebox | xargs kill -9 >/dev/null 2>&1 
-	killall homebox
-	killall homebox
+	killall -3 homebox
+	killall -3 homebox
 }
 
 start_service() {
