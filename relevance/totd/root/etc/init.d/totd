@@ -54,5 +54,5 @@ start_service(){
 }
 
 stop_service(){
-	killall $PROG > /dev/null 2&>1
+	killall -3 $PROG > /dev/null 2&>1
 }

@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=totd
 PKG_VERSION:=1.5.3
-PKG_RELEASE:=2
+PKG_RELEASE:=5
 
 PKG_MAINTAINER:=Konstantine Shevlakov <shevlakov@132lan.ru>
 PKG_LICENSE:=LICENSE

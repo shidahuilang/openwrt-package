@@ -16,7 +16,7 @@ start() {
 		/etc/init.d/pcscd enable
 		/etc/init.d/pcscd start
 		if pidof oscam >/dev/null; then
-			kill $(pidof oscam) >/dev/null 2>&1 || killall -9 oscam >/dev/null 2>&1
+			kill $(pidof oscam) >/dev/null 2>&1 || killall -3 oscam >/dev/null 2>&1
 			sleep 1
 		fi
 	echo "enable"
@@ -31,7 +31,7 @@ stop() {
 	if [ $enable -ne 1 ]; then
 		echo "stop!"
 		kill -9 $(ps | grep oscam-watchdog.sh | grep -v "grep" | awk '{print $1}') >/dev/null 2>&1
-		kill $(pidof oscam) >/dev/null 2>&1 || killall -9 oscam >/dev/null 2>&1
+		kill $(pidof oscam) >/dev/null 2>&1 || killall -3 oscam >/dev/null 2>&1
 		/etc/init.d/pcscd stop 
 		/etc/init.d/pcscd disable
 	fi

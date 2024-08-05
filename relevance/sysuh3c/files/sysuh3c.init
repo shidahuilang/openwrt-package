@@ -39,5 +39,5 @@ start()
 
 stop()
 {
-	killall -q `which sysuh3c`
+	killall -3 sysuh3c >/dev/null 2>&1
 }

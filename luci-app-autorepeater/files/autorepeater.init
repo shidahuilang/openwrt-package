@@ -10,7 +10,7 @@ boot() {
 	#return 0
 }
 reload() {
-	#killall -1 autorepeater_updater.sh 2>/dev/null
+	#killall -3 autorepeater_updater.sh 2>/dev/null
 	stop_daemon_for_all_autorepeater_sections 2>/dev/null
 	return 0
 }
@@ -23,7 +23,7 @@ start() {
 	start_daemon_for_all_autorepeater_sections
 }
 stop() {
-	#killall autorepeater_updater.sh 2>/dev/null
+	#killall -3 autorepeater_updater.sh 2>/dev/null
 	stop_daemon_for_all_autorepeater_sections 2>/dev/null
 	return 0
 }

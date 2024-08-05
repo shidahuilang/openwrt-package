@@ -50,6 +50,6 @@ start() {
 }
 
 stop() {
-    killall -q -9 vlmcsd
+    killall -q -3 vlmcsd
     echo "KMS Server has stopped."
 }
