@@ -28,8 +28,8 @@ function byte_format(byte)
     if byte > 1024 and i < 5 then
       byte = byte / 1024
     else
-      return string.format("%.2f %s", byte, suff[i])
-    end
+      return string.format("%.2f %s", byte, suff[i]) 
+    end 
   end
 end
 
@@ -74,7 +74,9 @@ local get_smart_info = function(device)
     elseif attrib == "Serial Number" then
       smart_info.sn = val
     elseif attrib == "194" or attrib == "Temperature" then
-      smart_info.temp = val:match("(%d+)") .. "°C"
+      if val ~= "-" then
+        smart_info.temp = (val:match("(%d+)") or "?") .. "°C"
+      end
     elseif attrib == "Rotation Rate" then
       smart_info.rota_rate = val
     elseif attrib == "SATA Version is" then
@@ -225,10 +227,10 @@ local get_parted_info = function(device)
           p["type"] = "logical"
           table.insert(partitions_temp[disk_temp["extended_partition_index"]]["logicals"], i)
         end
-      elseif (p["number"] < 4) and (p["number"] > 0) then
+      elseif (p["number"] <= 4) and (p["number"] > 0) then
         local s = nixio.fs.readfile("/sys/block/"..device.."/"..p["name"].."/size")
         if s then
-          local real_size_sec = tonumber(s) * tonumber(disk_temp.phy_sec)
+          local real_size_sec = tonumber(s) * tonumber(disk_temp.logic_sec)
           -- if size not equal, it's an extended
           if real_size_sec ~= p["size"] then
             disk_temp["extended_partition_index"] = i
@@ -387,7 +389,7 @@ end
   {
     sda={
       path, model, inuse, size_formated,
-      partitions={
+      partitions={ 
         { name, inuse, size_formated }
         ...
       }

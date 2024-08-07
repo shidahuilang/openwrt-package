@@ -15,8 +15,7 @@ $Id$
 local sid = arg[1]
 local utl = require "luci.util"
 
-m = Map("vsftpd")
-m.title = translate("FTP Server - Virtual User &lt;new&gt;")
+m = Map("vsftpd", translate("FTP Server - Virtual User &lt;new&gt;"))
 
 m.redirect = luci.dispatcher.build_url("admin/nas/vsftpd/users")
 
@@ -55,8 +54,7 @@ o.default = "/home/ftp"
 o = s:option(Value, "umask", translate("File mode umask"))
 o.default = "022"
 
-o = s:option(Value, "maxrate", translate("Max transmit rate"))
-o.description = translate("0 means no limitation")
+o = s:option(Value, "maxrate", translate("Max transmit rate"), translate("0 means no limitation"))
 o.default = "0"
 
 o = s:option(Flag, "writemkdir", translate("Enable write/mkdir"))
@@ -65,8 +63,8 @@ o.default = false
 o = s:option(Flag, "upload", translate("Enable upload"))
 o.default = false
 
-o = s:option(Flag, "others", translate("Enable other rights"))
-o.description = translate("Include rename, deletion ...")
+o = s:option(Flag, "others", translate("Enable other rights"), translate("Include rename, deletion ..."))
 o.default = false
+
 
 return m

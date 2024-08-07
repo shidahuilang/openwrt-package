@@ -5,11 +5,11 @@
 
 include $(TOPDIR)/rules.mk
 
-LUCI_TITLE:=LuCI support for ramfree
+LUCI_TITLE:=luci-app-ramfree
 LUCI_PKGARCH:=all
-
-PKG_NAME:=luci-app-ramfree
 
 include $(TOPDIR)/feeds/luci/luci.mk
 
 # call BuildPackage - OpenWrt buildroot signature
+
+

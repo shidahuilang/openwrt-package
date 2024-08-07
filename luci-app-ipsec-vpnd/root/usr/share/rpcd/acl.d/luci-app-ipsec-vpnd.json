@@ -1,7 +1,10 @@
 {
 	"luci-app-ipsec-vpnd": {
-		"description": "Grant UCI access for luci-app-ipsec-vpnd",
+		"description": "Grant access to ipsec configuration",
 		"read": {
+			"ubus": {
+				"service": [ "list" ]
+			},
 			"uci": [ "ipsec" ]
 		},
 		"write": {

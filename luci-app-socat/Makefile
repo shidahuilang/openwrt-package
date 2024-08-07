@@ -5,17 +5,10 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=luci-app-socat
-
-PKG_MAINTAINER:=Lienol <lawlienol@gmail.com>
-
 LUCI_TITLE:=LuCI support for Socat
 LUCI_DEPENDS:=+socat
 LUCI_PKGARCH:=all
-
-define Package/$(PKG_NAME)/conffiles
-/etc/config/socat
-endef
+PKG_DATE:=20200824
 
 include $(TOPDIR)/feeds/luci/luci.mk
 

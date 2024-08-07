@@ -140,8 +140,6 @@ luci-app-eqosplus
 luci-app-fileassistant
 luci-app-filebrowser
 luci-app-filetransfer
-luci-app-frpc
-luci-app-frps
 luci-app-go-aliyundrive-webdav
 luci-app-guest-wifi
 luci-app-homeassistant
@@ -161,9 +159,7 @@ luci-app-jackett
 luci-app-jellyfin
 luci-app-linkease
 luci-app-log
-luci-app-ltqtapi
 luci-app-lucky
-luci-app-lxc
 luci-app-mail
 luci-app-memos
 luci-app-mosdns

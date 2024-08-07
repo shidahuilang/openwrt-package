@@ -9,8 +9,8 @@ LUCI_TITLE:=LuCI support for SoftEtherVPN
 LUCI_DEPENDS:=+zlib +libpthread +librt +libreadline +libncurses +libiconv-full +kmod-tun +libopenssl +softethervpn5-bridge +softethervpn5-client +softethervpn5-server
 LUCI_PKGARCH:=all
 
-PKG_NAME:=luci-app-softethervpn
-
 include $(TOPDIR)/feeds/luci/luci.mk
 
 # call BuildPackage - OpenWrt buildroot signature
+
+
