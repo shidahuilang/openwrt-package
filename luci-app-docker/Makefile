@@ -7,10 +7,8 @@
 include $(TOPDIR)/rules.mk
 
 LUCI_TITLE:=Luci for Docker-CE
-LUCI_DEPENDS:=+dockerd +docker +dockerd +e2fsprogs +fdisk
+LUCI_DEPENDS:=+docker +dockerd +dockerd +e2fsprogs +fdisk
 LUCI_PKGARCH:=all
-
-PKG_NAME:=luci-app-docker
 
 include $(TOPDIR)/feeds/luci/luci.mk
 

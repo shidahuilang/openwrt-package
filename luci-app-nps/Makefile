@@ -6,11 +6,9 @@
 
 include $(TOPDIR)/rules.mk
 
-LUCI_TITLE:=LuCI support for Nps
-LUCI_DEPENDS:=+wget +npc
+LUCI_TITLE:=LuCI for Nps
+LUCI_DEPENDS:=+wget-ssl +npc
 LUCI_PKGARCH:=all
-
-PKG_NAME:=luci-app-nps
 
 include $(TOPDIR)/feeds/luci/luci.mk
 

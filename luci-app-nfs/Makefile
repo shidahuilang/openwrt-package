@@ -9,8 +9,7 @@ LUCI_TITLE:=LuCI support for nfs
 LUCI_DEPENDS:=+nfs-utils +nfs-kernel-server +nfs-kernel-server-utils +mount-utils
 LUCI_PKGARCH:=all
 
-PKG_NAME:=luci-app-nfs
-
 include $(TOPDIR)/feeds/luci/luci.mk
 
 # call BuildPackage - OpenWrt buildroot signature
+

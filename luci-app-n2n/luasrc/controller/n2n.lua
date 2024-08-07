@@ -8,13 +8,17 @@ function index()
 	end
 
 	entry({"admin", "vpn"}, firstchild(), "VPN", 45).dependent = false
-	entry({"admin", "vpn", "n2n"}, cbi("n2n"), _("N2N VPN"), 45).dependent = true
-	entry({"admin", "vpn", "n2n", "status"}, call("act_status")).leaf = true
+
+	local page = entry({"admin", "vpn", "n2n"}, cbi("n2n"), _("N2N VPN"), 45)
+	page.dependent = true
+	page.acl_depends = { "luci-app-n2n" }
+
+	entry({"admin", "vpn", "n2n", "status"}, call("n2n_status")).leaf = true
 end
 
-function act_status()
-	local e = {}
-	e.running = luci.sys.call("pgrep n2n-edge >/dev/null") == 0
+function n2n_status()
+	local status = {}
+	status.running = luci.sys.call("pgrep n2n-edge >/dev/null")==0
 	luci.http.prepare_content("application/json")
-	luci.http.write_json(e)
+	luci.http.write_json(status)
 end

@@ -9,7 +9,6 @@ include $(TOPDIR)/rules.mk
 LUCI_TITLE:=LuCI Access Control Configuration
 LUCI_DEPENDS:=
 LUCI_PKGARCH:=all
-
 PKG_NAME:=luci-app-accesscontrol
 
 include $(TOPDIR)/feeds/luci/luci.mk
