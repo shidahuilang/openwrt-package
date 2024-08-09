@@ -247,6 +247,8 @@ if [ -n "$(command -v nginx)" ]; then
 if [ -z "`uci -q get nginx.default_server`" ]; then
 	uci -q set nginx.default_server=server
 	uci -q set nginx.default_server.server_name='op'
+	uci -q add_list nginx.default_server.listen='80 default_server'
+	uci -q add_list nginx.default_server.listen='[::]:80 default_server'
 	uci -q add_list nginx.default_server.include='conf.d/*.locations'
 	uci -q set nginx.default_server.access_log='off; # logd openwrt'
 	uci commit nginx

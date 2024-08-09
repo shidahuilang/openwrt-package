@@ -20,7 +20,6 @@ function index()
 	page.acl_depends = { "luci-app-advancedplus" }
 	
 	entry({"admin","system","advancedplus","advancededit"},cbi("advancedplus/advancededit"),_("Advanced Edit"),10).leaf = true
-	entry({"admin","system","advancedplus","advancedset"},cbi("advancedplus/advancedset"),_("Advanced Setting"),20).leaf = true
 	if nixio.fs.access('/www/luci-static/kucat/css/style.css') then
 	    entry({"admin","system","advancedplus","kucatset"},cbi("advancedplus/kucatset"),_("KuCat Theme Config"),40).leaf = true
 	    entry({"admin", "system","advancedplus","kucatupload"}, form("advancedplus/kucatupload"), _("Desktop background upload"), 80).leaf = true
