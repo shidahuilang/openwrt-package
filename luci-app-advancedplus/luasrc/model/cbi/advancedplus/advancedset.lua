@@ -24,9 +24,11 @@ ul:depends("qos", true)
 
 e = t:option(Flag, "uhttps",translate('Accessing using HTTPS'), translate('Open the address in the background and use HTTPS for secure access'))
 
-if fs.access('/usr/bin/zsh') then
 e = t:option(Flag, "usshmenu",translate('No backend menu required'), translate('OPENWRT backend and SSH login do not display shortcut menus'))
-end
+
+e = t:option(Flag, "wizard",translate('Hide Wizard'), translate('Show or hide the setup wizard menu'))
+e.default = "0"
+e.rmempty = false
 
 e = t:option(Flag, "tsoset",translate('TSO optimization for network card interruption'), translate('Turn off the TSO parameters of the INTEL225 network card to improve network interruption'))
 e.default = "1"

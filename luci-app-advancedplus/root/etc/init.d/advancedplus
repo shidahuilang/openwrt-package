@@ -137,38 +137,24 @@ else
 fi
 }
 sethttps() {
-	if [ -n "$(command -v nginx)" ]; then
-		if [ -z "`uci -q get nginx._redirect2ssl`" ]; then
-			uci -q set nginx._redirect2ssl=server
-			uci -q set nginx._redirect2ssl.server_name='_redirect2ssl'
-			uci -q set nginx._redirect2ssl.return='302 https://$host$request_uri'
-			uci -q set nginx._redirect2ssl.access_log='off; # logd openwrt'
-		fi
-    	if [ "x$(uci -q get advancedplus.@basic[0].uhttps)" = "x1" ] ; then
-    		uci -q del nginx.default_server.listen
-    		uci -q add_list nginx.default_server.listen='80'
-    		uci -q add_list nginx.default_server.listen='[::]:80'
-    		uci -q del nginx._redirect2ssl.listen
-    		uci -q add_list nginx._redirect2ssl.listen='80 default_server'
-    		uci -q add_list nginx._redirect2ssl.listen='[::]:80 default_server'
-    	else
-	         uci -q del nginx._redirect2ssl.listen
-	         uci -q add_list nginx._redirect2ssl.listen='80'
-	         uci -q add_list nginx._redirect2ssl.listen='[::]:80'
-	         uci -q del nginx.default_server.listen
-	         uci -q add_list nginx.default_server.listen='80 default_server'
-	         uci -q add_list nginx.default_server.listen='[::]:80 default_server'
-    	fi
-		uci commit nginx
-    	/etc/init.d/nginx reload
+    uhttp=`uci -q get uhttpd.main.listen_https | awk -F ' ' '{printf $1}'`
+    if [ "x$(uci -q get advancedplus.@basic[0].uhttps)" = "x1" ] ; then
+	     [  $uhttp ] || {
+	         sed -i "/listen_https/d" /etc/config/uhttpd
+	         /etc/init.d/uhttpd stop
+	         uci -q add_list uhttpd.main.listen_https='0.0.0.0:443'
+	         uci -q add_list uhttpd.main.listen_https='[::]:443'
+	         uci commit uhttpd
+	         /etc/init.d/uhttpd restart
+	    }
     else
-        if [ "x$(uci -q get advancedplus.@basic[0].uhttps)" = "x1" ] ; then
-	         uci -q set uhttpd.main.redirect_https='1'
-		else
-	         uci -q set uhttpd.main.redirect_https='0'
-        fi
-		uci commit uhttpd
-	    /etc/init.d/uhttpd reload
+        [  $uhttp ] && 
+	{  
+	     /etc/init.d/uhttpd stop
+	    sed -i "/listen_https/d" /etc/config/uhttpd
+	    uci commit uhttpd
+	    /etc/init.d/uhttpd restart
+	}
     fi
 }
 
@@ -210,21 +196,24 @@ set_ttyd() {
 }
 
 dhcp_domain() {
-    domain_name="time.android.com"
-    existing_records="$(uci -q get dhcp.$domain_name)"
     if [ "x$(uci -q get advancedplus.@basic[0].dhcp_domain)" = "x1" ] ; then
+        local domain_name="time.android.com"
         local domain_ip="203.107.6.88"
+        existing_records=$(uci show dhcp | grep "dhcp.@domain\[[0-9]\+\].name='$domain_name'")
         if [ -z "$existing_records" ]; then
-        uci set dhcp.$domain_name=domain
-        uci -q set dhcp.$domain_name.name="$domain_name"
-        uci -q set dhcp.$domain_name.ip="$domain_ip"
+        uci add dhcp domain
+        uci -q set "dhcp.@domain[-1].name=$domain_name"
+        uci -q set "dhcp.@domain[-1].ip=$domain_ip"
+        uci commit dhcp
         fi
     else
-       if [ -n "$existing_records" ]; then
-       uci delete dhcp.$domain_name
+       existing_records=$(uci show dhcp | grep "dhcp.@domain\[[0-9]\+\].name='$domain_name'")
+       if [ -z "$existing_records" ]; then
+       uci delete dhcp.@domain[-1].name
+       uci delete dhcp.@domain[-1].ip
+       uci commit dhcp
        fi
     fi
-    uci commit dhcp
 }
 advancedset(){
 dev=`ifconfig | grep "Point-to-Point" | cut -d " " -f1`
@@ -244,10 +233,8 @@ tsoset
     fi
     #cpumode=`uci -q get advancedplus.@basic[0].cpumode`
     #[ ! $cpumode ] || cpumodeset $cpumode   /usr/bin/zsh
-    if [ "$(which zsh)" ]; then
     sed -i "\/bin\/zsh/d" /etc/profile
     [ "x$(uci -q get advancedplus.@basic[0].usshmenu)" = "x1" ] || echo '/usr/bin/zsh'  >> /etc/profile
-    fi
     uci commit netwizard 
 }
 
@@ -365,7 +352,6 @@ uci commit advancedplus
 start() {
     [ "x$(uci -q get advancedplus.@basic[0].mode)" = "x" ]  && /etc/config/advancedplus reset 
     kucatset
-    advancedset
     rm -rf /tmp/luci-*
 }
 

@@ -168,8 +168,24 @@ msgstr "已用空间"
 msgid "Upgrade all…"
 msgstr "更新所有软件包 (谨慎)"
 
-msgid "Temperature"
-msgstr "温度"
+msgid "Expose WAN"
+msgstr "暴露至公网"
+
+msgid "Ports to Expose"
+msgstr "需要暴露至公网的端口"
+
+msgid "Danger! Proceed at your own risk."
+msgstr "危险! 风险自担."
+
+msgid "Multiple ports can be, separated by spaces, format: 80 81 82"
+msgstr "可多端口,空格隔开,格式:80 81 82"
+
+msgid "Enable FullCone NAT"
+msgstr "开启 FullCone NAT"
+
+msgid "Enable FullCone NAT6"
+msgstr "开启 FullCone NAT6"
+
 
 msgid "Ethernet Information"
 msgstr "网口信息"
