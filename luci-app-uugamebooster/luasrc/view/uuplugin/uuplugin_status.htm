@@ -1,7 +1,7 @@
 <script type="text/javascript">//<![CDATA[
-XHR.poll(3, '<%=url([[admin]], [[services]], [[uugamebooster]], [[status]])%>', null,
+XHR.poll(3, '<%=url([[admin]], [[services]], [[uuplugin]], [[status]])%>', null,
 	function(x, data) {
-		var tb = document.getElementById('uugamebooster_status');
+		var tb = document.getElementById('uuplugin_status');
 		if (data && tb) {
 			if (data.running) {
 				tb.innerHTML = '<em><b><font color=green>UU GameAcc <%:RUNNING%></font></b></em>';
@@ -15,7 +15,7 @@ XHR.poll(3, '<%=url([[admin]], [[services]], [[uugamebooster]], [[status]])%>', 
 </script>
 <style>.mar-10 {margin-left: 50px; margin-right: 10px;}</style>
 <fieldset class="cbi-section">
-	<p id="uugamebooster_status">
+	<p id="uuplugin_status">
 		<em><%:Collecting data...%></em>
 	</p>
 </fieldset>
