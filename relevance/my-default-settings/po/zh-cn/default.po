@@ -180,6 +180,12 @@ msgstr "危险! 风险自担."
 msgid "Multiple ports can be, separated by spaces, format: 80 81 82"
 msgstr "可多端口,空格隔开,格式:80 81 82"
 
+msgid "Expose SSH"
+msgstr "暴露SSH至公网"
+
+msgid "Expose Backend"
+msgstr "暴露后台管理至公网"
+
 msgid "Enable FullCone NAT"
 msgstr "开启 FullCone NAT"
 
