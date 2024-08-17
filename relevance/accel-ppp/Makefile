@@ -9,7 +9,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=accel-ppp
-PKG_RELEASE:=7
+PKG_RELEASE:=8
 PKG_VERSION:=1.13.0
 
 PKG_SOURCE_PROTO:=git
@@ -36,8 +36,6 @@ define Package/$(PKG_NAME)
 endef
 
 CMAKE_OPTIONS += \
-	-DBUILD_IPOE_DRIVER=TRUE \
-	-DBUILD_VLAN_MON_DRIVER=TRUE \
 	-DKDIR=$(LINUX_DIR) \
 	-DCMAKE_INSTALL_PREFIX=/usr \
 	-DCMAKE_BUILD_TYPE=Release \
@@ -47,6 +45,13 @@ CMAKE_OPTIONS += \
 	-DNETSNMP=FALSE \
 	-DLOG_FILE=TRUE \
 	-DLIB_SUFFIX= \
+
+ifeq ($(ARCH),$(filter $(ARCH), x86_64 i386))
+  CMAKE_OPTIONS += \
+	-DBUILD_IPOE_DRIVER=TRUE \
+	-DBUILD_VLAN_MON_DRIVER=TRUE
+endif
+
 
 CMAKE_BINARY_DIR := $(PKG_BUILD_DIR)/build
 TARGET_CFLAGS += -I$(STAGING_DIR)/opt/include -D_GNU_SOURCE -g -O2 -Wno-incompatible-pointer-types
@@ -120,5 +125,7 @@ done
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
-$(eval $(call KernelPackage,$(PKG_NAME)-ipoe))
-$(eval $(call KernelPackage,$(PKG_NAME)-vlan-mon))
+ifeq ($(ARCH),$(filter $(ARCH), x86_64 i386))
+  $(eval $(call KernelPackage,$(PKG_NAME)-ipoe))
+  $(eval $(call KernelPackage,$(PKG_NAME)-vlan-mon))
+endif
