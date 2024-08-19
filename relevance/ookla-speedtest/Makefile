@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ookla-speedtest
 PKG_VERSION:=1.2.0
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 PKG_MAINTAINER:=Konstantine Shevlakov <shevlakov@132lan.ru>
 
 include $(INCLUDE_DIR)/package.mk
@@ -46,4 +46,6 @@ define Package/$(PKG_NAME)/install
 	$(CP) $(BIN_PATH)/speedtest $(1)/usr/bin
 endef
 
-$(eval $(call BuildPackage,$(PKG_NAME))) 
+ifeq ($(ARCH),$(filter $(ARCH), x86_64 i386 arm aarch64))
+  $(eval $(call BuildPackage,$(PKG_NAME))) 
+endif
