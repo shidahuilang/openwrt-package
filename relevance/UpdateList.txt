@@ -101,6 +101,7 @@ luci-app-unishare
 luci-app-vlmcsd
 luci-app-webd
 luci-app-wifidog
+luci-app-wol
 luci-app-wolplus
 luci-app-wxedge
 luci-app-xunlei
