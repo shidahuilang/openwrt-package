@@ -5,8 +5,6 @@ UnblockNeteaseMusic-Go
 UnblockNeteaseMusic
 Wiwiz-PinPinWiFi
 adguardhome
-alist
-alist2
 app-lucky
 ardhome
 assets
