@@ -272,7 +272,6 @@ sed -i "s/client_max_body_size 128/client_max_body_size 3072/" /etc/nginx/uci.co
 sed -i "s/large_client_header_buffers 2 1k/large_client_header_buffers 4 512k/" /etc/nginx/uci.conf.template
 
 rm -rf /tmp/luci-*
-/etc/init.d/dropbear restart
 uci -q set base_config.@status[0].version=$version
 uci commit base_config
 
