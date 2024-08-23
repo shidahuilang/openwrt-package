@@ -287,11 +287,7 @@ qt6base
 qt6tools
 quickjspp
 quickstart
-r8101
-r8125
-r8126
 r8152
-r8168
 rapidjson
 redsocks2
 rkp-ipid

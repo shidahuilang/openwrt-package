@@ -1,8 +1,10 @@
 # qmi addon for luci-app-modeminfo
-# (c) 2020-2022 written by Konstantine Shevlakov (c) at <shevlakov@132lan.ru>
+# require full version libqmi (need build in SDK)
+# (c) 2020-2024 written by Konstantine Shevlakov (c) at <shevlakov@132lan.ru>
 
 get_device_info(){
-	DEVPORT=$(uci -q get modeminfo.@modeminfo[0].device_qmi)
+	DEVPORT=$(uci -q get modeminfo.@modeminfo[$s].device_qmi)
+	DEVCTL=$(echo $DEVPORT | awk -F [\/] '{print $NF}')
 	if [ -x /usr/bin/qmicli ]; then
 		export QMICTL="qmicli -p -d $DEVPORT"
 	else
@@ -10,7 +12,7 @@ get_device_info(){
 		exit 1
         fi
 	if [ $DEVPORT ]; then
-		QPROXY=$(uci -q get modeminfo.@modeminfo[0].qmi_proxy)
+		QPROXY=$(uci -q get modeminfo.@modeminfo[$s].qmi_proxy)
                 if [ $QPROXY -eq 1 ]; then           
                         export QMICTL="qmicli -p -d $DEVPORT"
                 else                              
@@ -41,13 +43,15 @@ get_device_info(){
 
 
 get_hardware_info(){
-        MANUF=$(${QMICTL} --dms-get-manufacturer | awk -F [:] '/Manufacturer:/{gsub("'\''|^ ", "");print $2}')
-        MODEL="$($QMICTL --dms-get-model | awk -F [:] '/Model/{gsub("'\''|^ ", "");print $2}')"
+        MANUF=$(cat $(readlink -f /sys/class/usbmisc/${DEVCTL})/../../../manufacturer)
+        MODEL="$(cat $(readlink -f /sys/class/usbmisc/${DEVCTL})/../../../product)"
+
 	if [ -n "$(echo "${MODEL}" | grep -Ei "${MANUF}")" ] || [  -n "$(echo "${MANUF}" | grep -Ei QUAL)" ]; then
 		DEVICE="${MODEL}"
 	else
 	        DEVICE="${MANUF} ${MODEL}"
 	fi
+
         IMEI=`$QMICTL --dms-get-ids | awk -F [:] '/IMEI:/{gsub("'\''|\*", ""); print $2}'`
 	FW=$($QMICTL --dms-get-software-version | awk -F [:] '/version:/{print $2}' )
 	ICCID=$($QMICTL --dms-uim-get-iccid | awk -F [:] '/ICCID/{gsub("'\''",""); print $2}' )
@@ -156,9 +160,10 @@ get_signal_info(){
 			REGST=3
 		;;
         esac
-	if [ $(uci -q get modeminfo.@modeminfo[0].decimail) -eq 1 ]; then
-                LAC=$LAC_NUM
-                CID=$CID_NUM
+	DECIMAL=$(uci -q get modeminfo.@general[0].decimail)
+	if [ "x${DECIMAL}" != "x" ]; then
+                LAC=$(printf %d 0x$LAC_NUM)
+                CID=$(printf %d 0x$CID_NUM)
         fi
 }
 
