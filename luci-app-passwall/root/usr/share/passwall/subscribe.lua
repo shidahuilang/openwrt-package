@@ -488,6 +488,10 @@ local function processData(szType, content, add_mode, add_from)
 		if info.net == 'grpc' then
 			result.grpc_serviceName = info.path
 		end
+		if info.net == 'splithttp' then
+			result.splithttp_host = info.host
+			result.splithttp_path = info.path
+		end
 		if not info.security then result.security = "auto" end
 		if info.tls == "tls" or info.tls == "1" then
 			result.tls = "1"
@@ -495,6 +499,11 @@ local function processData(szType, content, add_mode, add_from)
 			result.tls_allowInsecure = allowInsecure_default and "1" or "0"
 		else
 			result.tls = "0"
+		end
+
+		if result.type == "sing-box" and (result.transport == "mkcp" or result.transport == "splithttp") then
+			log("跳过节点:" .. result.remarks .."，因Sing-Box不支持" .. szType .. "协议的" .. result.transport .. "传输方式，需更换Xray。")
+			return nil
 		end
 	elseif szType == "ss" then
 		result.type = "SS"
@@ -506,6 +515,7 @@ local function processData(szType, content, add_mode, add_from)
 		--ss://2022-blake3-aes-256-gcm:YctPZ6U7xPPcU%2Bgp3u%2B0tx%2FtRizJN9K8y%2BuKlW2qjlI%3D@192.168.100.1:8888#Example3
 		--ss://2022-blake3-aes-256-gcm:YctPZ6U7xPPcU%2Bgp3u%2B0tx%2FtRizJN9K8y%2BuKlW2qjlI%3D@192.168.100.1:8888/?plugin=v2ray-plugin%3Bserver#Example3
 		--ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTp0ZXN0@xxxxxx.com:443?type=ws&path=%2Ftestpath&host=xxxxxx.com&security=tls&fp=&alpn=h3%2Ch2%2Chttp%2F1.1&sni=xxxxxx.com#test-1%40ss
+		--ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTp4eHh4eHhAeHh4eC54eHh4eC5jb206NTYwMDE#Hong%20Kong-01
 
 		local idx_sp = 0
 		local alias = ""
@@ -540,7 +550,7 @@ local function processData(szType, content, add_mode, add_from)
 			info = info:sub(1, find_index - 1)
 		end
 
-		local hostInfo = split(UrlDecode(info), "@")
+		local hostInfo = split(base64Decode(info), "@")
 		if hostInfo and #hostInfo > 0 then
 			local host_port = hostInfo[#hostInfo]
 			-- [2001:4860:4860::8888]:443
@@ -821,11 +831,19 @@ local function processData(szType, content, add_mode, add_from)
 				if params.serviceName then result.grpc_serviceName = params.serviceName end
 				result.grpc_mode = params.mode
 			end
+			if params.type == 'splithttp' then
+				result.splithttp_host = params.host
+				result.splithttp_path = params.path
+			end
 			
 			result.encryption = params.encryption or "none"
 
 			result.flow = params.flow or nil
 
+			if result.type == "sing-box" and (result.transport == "mkcp" or result.transport == "splithttp") then
+				log("跳过节点:" .. result.remarks .."，因Sing-Box不支持" .. szType .. "协议的" .. result.transport .. "传输方式，需更换Xray。")
+				return nil
+			end
 		end
 
 	elseif szType == "ssd" then
@@ -971,6 +989,11 @@ local function processData(szType, content, add_mode, add_from)
 
 			result.port = port
 			result.tls_allowInsecure = allowInsecure_default and "1" or "0"
+
+			if result.type == "sing-box" and (result.transport == "mkcp" or result.transport == "splithttp") then
+				log("跳过节点:" .. result.remarks .."，因Sing-Box不支持" .. szType .. "协议的" .. result.transport .. "传输方式，需更换Xray。")
+				return nil
+			end
 		end
 	elseif szType == 'hysteria' then
 		local alias = ""
