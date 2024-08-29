@@ -5,10 +5,7 @@ function index()
 		return
 	end
 
-	local page = entry({"admin", "services", "mia"}, cbi("mia"), _("Internet Access Schedule Control"), 30)
-	page.dependent = true
-	page.acl_depends = { "luci-app-accesscontrol" }
-
+	entry({"admin", "services", "mia"}, cbi("mia"), _("Internet Access Schedule Control"), 30).dependent = true
 	entry({"admin", "services", "mia", "status"}, call("act_status")).leaf = true
 end
 
