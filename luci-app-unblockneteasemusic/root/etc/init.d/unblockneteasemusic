@@ -73,7 +73,6 @@ start_service() {
 	local update_time
 	config_get update_time "config" "update_time" "3"
 	sed -i "/$NAME/d" /etc/crontabs/root
-	echo -e "30 2 * * * /etc/init.d/unblockneteasemusic restart" >> "/etc/crontabs/root"
 	! is_enabled "config" "auto_update" || echo -e "0 ${update_time} * * * $UNM_DIR/update.sh update_core" >> "/etc/crontabs/root"
 	/etc/init.d/cron restart
 
@@ -97,7 +96,7 @@ start_service() {
 	json_add_int https_port "${https_port}"
 	json_add_string hijack_ways "${hijack_ways}"
 
-	append_param_arg "config" "music_source" "-o"
+	append_param_arg "config" "music_source" "-o" "kugou kuwo migu pyncmd"
 	append_param_arg "config" "cnrelay" "-c"
 	append_param_arg "config" "endpoint_url" "-e" "https://music.163.com"
 	append_param_arg "config" "netease_server_ip" "-f"
@@ -110,7 +109,6 @@ start_service() {
 	procd_append_param env LOG_LEVEL="$log_level"
 
 	append_param_env "config" "joox_cookie" "JOOX_COOKIE"
-	append_param_env "config" "kuwo_cookie" "KUWO_COOKIE"
 	append_param_env "config" "migu_cookie" "MIGU_COOKIE"
 	append_param_env "config" "qq_cookie" "QQ_COOKIE"
 	append_param_env "config" "youtube_key" "YOUTUBE_KEY"
