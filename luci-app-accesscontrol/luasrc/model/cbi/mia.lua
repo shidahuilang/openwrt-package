@@ -1,5 +1,7 @@
+a = Map("mia")
+a.title = translate("Internet Access Schedule Control")
+a.description = translate("Access Schedule Control Settins")
 
-a = Map("mia", translate("Internet Access Schedule Control"), translate("Access Schedule Control Settins"))
 a:section(SimpleSection).template  = "mia/mia_status"
 
 t = a:section(TypedSection, "basic")
@@ -9,8 +11,8 @@ e = t:option(Flag, "enable", translate("Enabled"))
 e.rmempty = false
 
 e = t:option(Flag, "strict", translate("Strict Mode"))
-e.rmempty = false
 e.description = translate("Strict Mode will degrade CPU performance, but it can achieve better results")
+e.rmempty = false
 
 t = a:section(TypedSection, "macbind", translate("Client Rules"))
 t.template = "cbi/tblsection"
@@ -28,12 +30,12 @@ e:value(t,"%s (%s)"%{t,a})
 end)
 
 e = t:option(Value, "timeon", translate("Start time"))
-e.default = "00:00"
 e.optional = false
+e.default = "00:00"
 
 e = t:option(Value, "timeoff", translate("End time"))
-e.default = "23:59"
 e.optional = false
+e.default = "23:59"
 
 e = t:option(Flag, "z1", translate("Mon"))
 e.rmempty = true
