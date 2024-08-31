@@ -76,7 +76,6 @@ headscale
 homebox
 homeredirect
 hysteria
-images
 ipset-lists
 ipt2socks
 iptvhelper
