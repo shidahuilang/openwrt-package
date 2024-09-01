@@ -105,16 +105,16 @@ get_signal_info(){
 			BWC=$(echo "$LTE_O" | grep -A4 '^Secondary Cell' | awk -F [:] '/DL Bandwidth:/{gsub("'\''| ", ""); printf "+"$2}')
                         BWCA=$(($BWDx$BWC))
 			BANDCH=$(echo "$LTE_O" | grep -A4 '^Primary Cell' | awk -F [:] '/RX Channel:/{gsub("'\''| ", ""); print $2}')
-			# Fix qmicli band
-			case $MANUF in
-				*DEL*) CA=$(echo "$LTE_O" | grep -A4 '^Secondary Cell' | awk -F [:-]  '/LTE Band:/{gsub("'\''| ", ""); printf " "$NF-1}') ;;
+			# Fix qmicli band T77W968 modem
+			case $DEVICE in
+				*Dell*|*LN960*) CA=$(echo "$LTE_O" | grep -A4 '^Secondary Cell' | awk -F [:-]  '/LTE Band:/{gsub("'\''| ", ""); printf " "$NF-1}') ;;
 				*) CA=$(echo "$LTE_O" | grep -A4 '^Secondary Cell' | awk -F [:-]  '/LTE Band:/{gsub("'\''| ", ""); print $NF}') ;;
 			esac
 			for cc in $CA; do
 				SCC=$SCC+$cc
 			done
 		else
-			BANDCH=$(echo "$RFBAND" |  awk -F [:] '/Active Channel:/{gsub("'\''",""); print $2}')
+			BANDCH=$(echo "$RFBAND" |  awk -F [:] '/Active Channel:/{gsub("'\''",""); print $2}' | head -1)
 			if [ "x" == "x$BWDx" ]; then                                                                                                        
                                 BWDx=$(echo "$RFBAND" | awk -F [:] '/Bandwidth:/{gsub("'\''| ",""); print $2}' | tail -1)                                   
                                 get_lte_bw                                                                                                                  
