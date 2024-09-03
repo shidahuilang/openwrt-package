@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=spotifyd
 PKG_VERSION:=0.3.5
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/Spotifyd/spotifyd/tar.gz/v$(PKG_VERSION)?
@@ -22,7 +22,7 @@ define Package/spotifyd
   SECTION:=sound
   CATEGORY:=Sound
   TITLE:=A spotify daemon
-  DEPENDS:=$(RUST_ARCH_DEPENDS) @!(mips||mipsel) +alsa-lib
+  DEPENDS:=$(RUST_ARCH_DEPENDS) @(!arm||TARGET_bcm53xx||HAS_FPU) @!(mips||mipsel) +alsa-lib
   URL:=https://spotifyd.rs/
 endef
 
