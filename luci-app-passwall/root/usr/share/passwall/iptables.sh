@@ -584,13 +584,14 @@ filter_haproxy() {
 		local ip=$(get_host_ip ipv4 $(echo $item | awk -F ":" '{print $1}') 1)
 		ipset -q add $IPSET_VPSLIST $ip
 	done
-	echolog "  - [$?]加入负载均衡的节点到ipset[$IPSET_VPSLIST]"
+	echolog "  - [$?]加入负载均衡的节点到ipset[$IPSET_VPSLIST]直连完成"
 }
 
 filter_vpsip() {
-	uci show $CONFIG | grep ".address=" | cut -d "'" -f 2 | grep -E "([0-9]{1,3}[\.]){3}[0-9]{1,3}" | sed -e "/^$/d" | sed -e "s/^/add $IPSET_VPSLIST &/g" | awk '{print $0} END{print "COMMIT"}' | ipset -! -R
+	uci show $CONFIG | grep ".address=" | cut -d "'" -f 2 | grep -E "([0-9]{1,3}[\.]){3}[0-9]{1,3}" | grep -v "^127\.0\.0\.1$" | sed -e "/^$/d" | sed -e "s/^/add $IPSET_VPSLIST &/g" | awk '{print $0} END{print "COMMIT"}' | ipset -! -R
+	echolog "  - [$?]加入所有IPv4节点到ipset[$IPSET_VPSLIST]直连完成"
 	uci show $CONFIG | grep ".address=" | cut -d "'" -f 2 | grep -E "([A-Fa-f0-9]{1,4}::?){1,7}[A-Fa-f0-9]{1,4}" | sed -e "/^$/d" | sed -e "s/^/add $IPSET_VPSLIST6 &/g" | awk '{print $0} END{print "COMMIT"}' | ipset -! -R
-	echolog "  - [$?]加入所有节点到ipset[$IPSET_VPSLIST]"
+	echolog "  - [$?]加入所有IPv6节点到ipset[$IPSET_VPSLIST6]直连完成"
 }
 
 filter_node() {
@@ -795,7 +796,7 @@ add_firewall_rule() {
 
 	#  过滤所有节点IP
 	filter_vpsip > /dev/null 2>&1 &
-	filter_haproxy > /dev/null 2>&1 &
+	# filter_haproxy > /dev/null 2>&1 &
 
 	accept_icmp=$(config_t_get global_forwarding accept_icmp 0)
 	accept_icmpv6=$(config_t_get global_forwarding accept_icmpv6 0)
@@ -841,7 +842,10 @@ add_firewall_rule() {
 	$ipt_m -A PSW $(dst $IPSET_LANLIST) -j RETURN
 	$ipt_m -A PSW $(dst $IPSET_VPSLIST) -j RETURN
 	
-	[ ! -z "${WAN_IP}" ] && $ipt_m -A PSW $(comment "WAN_IP_RETURN") -d "${WAN_IP}" -j RETURN
+	[ ! -z "${WAN_IP}" ] && {
+		$ipt_m -A PSW $(comment "WAN_IP_RETURN") -d "${WAN_IP}" -j RETURN
+		echolog "  - [$?]追加WAN IP到iptables：${WAN_IP}"
+	}
 	unset WAN_IP
 
 	insert_rule_before "$ipt_m" "PREROUTING" "mwan3" "-j PSW"
