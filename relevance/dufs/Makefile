@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=dufs
 PKG_VERSION:=0.42.0
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/sigoden/dufs/tar.gz/v$(PKG_VERSION)?
@@ -34,6 +34,10 @@ endef
 define Package/dufs/description
   Dufs is a distinctive utility file server that supports static
   serving, uploading, searching, accessing control, webdav...
+endef
+
+define Package/dufs/conffiles
+/etc/config/dufs
 endef
 
 define Package/dufs/install

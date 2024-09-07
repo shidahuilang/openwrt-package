@@ -15,7 +15,7 @@ ROOT_DISK_NAME="$(echo $ROOT_DISK | cut -d / -f 3)"
 LAST_PART_NAME="$(lsblk -nlo NAME | grep $ROOT_DISK_NAME | tail -n 1)"
     # 格式化新分区
 mkfs.ext4 -F -L "docker" /dev/${LAST_PART_NAME}
-
+umount -f /dev/${LAST_PART_NAME}
 mkdir -p /opt/docker
 eval $(block info /dev/${LAST_PART_NAME} | grep -o -e 'UUID="\S*"')
 [ ! -f /etc/config/fstab ] && ( block detect > /etc/config/fstab )
