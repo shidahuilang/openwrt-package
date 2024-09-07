@@ -290,7 +290,6 @@ r8152
 rapidjson
 redsocks2
 rkp-ipid
-rp-pppoe
 rrm-nr-distributor
 rtl8189es
 rustdesk-server
