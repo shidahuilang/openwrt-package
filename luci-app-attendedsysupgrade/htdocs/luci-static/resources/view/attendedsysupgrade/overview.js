@@ -393,7 +393,7 @@ return view.extend({
 								if (keep) {
 									ui.awaitReconnect(window.location.host);
 								} else {
-									ui.awaitReconnect('192.168.1.1', 'openwrt.lan');
+									ui.awaitReconnect('10.0.0.1', 'kwrt.lan');
 								}
 							});
 						}
