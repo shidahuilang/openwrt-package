@@ -187,7 +187,7 @@ fi
 if [ -n "$(command -v nginx)" ]; then
 if [ -z "`uci -q get nginx.default_server`" ]; then
 	uci -q set nginx.default_server=server
-	uci -q set nginx.default_server.server_name='op'
+	uci -q set nginx.default_server.server_name='kwrt'
 	uci -q add_list nginx.default_server.listen='80 default_server'
 	uci -q add_list nginx.default_server.listen='[::]:80 default_server'
 	uci -q add_list nginx.default_server.include='conf.d/*.locations'
@@ -196,7 +196,7 @@ if [ -z "`uci -q get nginx.default_server`" ]; then
 fi
 if [ -z "`uci -q get dhcp.default_server`" ]; then
 	uci -q set dhcp.default_server=domain
-	uci -q set dhcp.default_server.name='op'
+	uci -q set dhcp.default_server.name='kwrt'
 	uci -q set dhcp.default_server.ip='10.0.0.1'
 	uci -q set dhcp.default_server.comments='后台地址'
 	uci commit dhcp
