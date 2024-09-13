@@ -23,6 +23,8 @@ totd(){
 		return 1
 	}
 
+	test -d /var/etc/ || mkdir -p /var/etc
+
         {
                 [ -n "$forwarder" ] && {
 			for fa in $forwarder; do
