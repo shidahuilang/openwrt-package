@@ -251,10 +251,46 @@ return view.extend({
 		ui.showModal(_('Error building the firmware image'), body);
 	},
 
+	GENERATE_NG_ONE_TIME_VERIF_VALUE: function() {
+    function UUID() {
+      if (typeof crypto === 'object') {
+        if (typeof crypto.randomUUID === 'function') {
+          return crypto.randomUUID();
+        }
+        if (typeof crypto.getRandomValues === 'function' && typeof Uint8Array === 'function') {
+          return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c =>
+            (+c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16)
+          );
+        }
+      }
+      let timestamp = new Date().getTime();
+      let perforNow = (typeof performance !== 'undefined' && performance.now && performance.now() * 1000) || 0;
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+        let random = Math.random() * 16;
+        if (timestamp > 0) {
+          random = (timestamp + random) % 16 | 0;
+          timestamp = Math.floor(timestamp / 16);
+        } else {
+          random = (perforNow + random) % 16 | 0;
+          perforNow = Math.floor(perforNow / 16);
+        }
+        return (c === 'x' ? random : (random & 0x3) | 0x8).toString(16);
+      });
+    }
+    const data = {
+      uuid: UUID()
+    }
+    const inputArray = JSON.stringify(data).split('');
+    const xorArray = inputArray.map(char => String.fromCharCode(char.charCodeAt(0) ^ 80));
+    const resultString = xorArray.join('');
+    return btoa(resultString);
+	},
+
 	handleRequest: function (server, main) {
 		let request_url = `${server}/api/v1/build`;
 		let method = 'POST';
 		let content = this.firmware;
+		let headers = {'Ng-One-Time-Verif-Value':this.GENERATE_NG_ONE_TIME_VERIF_VALUE()}
 
 		/**
 		 * If `request_hash` is available use a GET request instead of
@@ -267,7 +303,7 @@ return view.extend({
 		}
 
 		request
-			.request(request_url, { method: method, content: content })
+			.request(request_url, { method: method, content: content, headers:headers })
 			.then((response) => {
 				switch (response.status) {
 					case 202:
@@ -568,12 +604,8 @@ return view.extend({
 		this.data.revision = response[1].release.revision;
 
 		this.data.efi = response[2];
-		this.firmware.rootfs_size_mb = Number(response[1].release.distribution);
-		if (this.data.efi) {
-			this.firmware.efi = "efi";
-		} else {
-			this.firmware.efi = "not";
-		}
+		Number(response[1].release.distribution) ? this.firmware.rootfs_size_mb = Number(response[1].release.distribution) : 
+		this.data.efi ? this.firmware.efi = "efi" : this.firmware.efi = "not";
 
 		this.data.url = uci.get_first('attendedsysupgrade', 'server', 'url');
 		this.data.advanced_mode =
