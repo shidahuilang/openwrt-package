@@ -203,6 +203,7 @@ luci-app-turboacc
 luci-app-unblockmusic
 luci-app-unblockneteasemusic
 luci-app-upnp
+luci-app-usb-printer
 luci-app-uugamebooster
 luci-app-v2ray-server
 luci-app-v2raya
@@ -269,6 +270,7 @@ openwrt-nezha
 opkg
 oscam
 p25-clients
+p910nd
 pcap-dnsproxy
 pcat-manager
 pdnsd-alt
