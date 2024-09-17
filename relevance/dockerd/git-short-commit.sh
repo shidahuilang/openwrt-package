@@ -26,7 +26,7 @@ if [ -z "${GIT_DIR}" ]; then
 fi
 
 clean_up() {
-	rm -rf "${GIT_DIR}"
+	rm --force --recursive "${GIT_DIR}"
 }
 trap clean_up EXIT
 
