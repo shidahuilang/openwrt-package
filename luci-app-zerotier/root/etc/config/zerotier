@@ -1,0 +1,20 @@
+
+config zerotier sample_config
+	option enabled 0
+
+	# persistent configuration folder (for ZT controller mode)
+	#option config_path '/etc/zerotier'
+	# copy <config_path> to RAM to prevent writing to flash (for ZT controller mode)
+	#option copy_config_path '1'
+
+	#option port '9993'
+
+	# path to the local.conf
+	#option local_conf '/etc/zerotier.conf'
+
+	# Generate secret on first start
+	option secret ''
+
+	# Join a public network called Earth
+	list join '8056c2e21c000001'
+	#list join '<other_network>'

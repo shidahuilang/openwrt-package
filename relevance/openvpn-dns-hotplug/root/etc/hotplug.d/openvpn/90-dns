@@ -38,7 +38,7 @@ unset_ns(){
 
 
 # Get interface name in uci 
-UCI_conf=$(uci show openvpn | awk -F [=] '/config/{gsub("'\''", "");print $2}')
+UCI_conf=$(uci show openvpn | awk -F [\/=] '/config/{gsub("'\''", "");print $NF}')
 for cfg in $UCI_conf; do
 	if [ $config = $cfg ]; then
 		CFGIFACE=$(uci show network | awk -F [.] -v device=$dev '$0 ~ device {print $2}')
