@@ -69,6 +69,7 @@ typedef enum {
 	oExternalInterface,
 	oGatewayID,
 	oGatewayInterface,
+	oGatewayInterfaceMac,	/*wiwiz added*/
 	oGatewayAddress,
 	oGatewayPort,
 	oAuthServer,
@@ -109,6 +110,7 @@ static const struct {
 	{ "externalinterface",  	oExternalInterface },
 	{ "gatewayid",          	oGatewayID },
 	{ "gatewayinterface",   	oGatewayInterface },
+	{ "gatewayinterfacemac",   	oGatewayInterfaceMac },	/*wiwiz added*/
 	{ "gatewayaddress",     	oGatewayAddress },
 	{ "gatewayport",        	oGatewayPort },
 	{ "authserver",         	oAuthServer },
@@ -168,6 +170,7 @@ config_init(void)
 	config.external_interface = NULL;
 	config.gw_id = DEFAULT_GATEWAYID;
 	config.gw_interface = NULL;
+	config.gw_interface_mac = NULL;	/* wiwiz added */
 	config.gw_address = NULL;
 	config.gw_port = DEFAULT_GATEWAYPORT;
 	config.auth_servers = NULL;
@@ -696,6 +699,11 @@ config_read(const char *filename)
 				case oGatewayInterface:
 					config.gw_interface = safe_strdup(p1);
 					break;
+				/* wiwiz added starts */
+				case oGatewayInterfaceMac:
+					config.gw_interface_mac = safe_strdup(p1);
+					break;
+				/* wiwiz added ends */
 				case oGatewayAddress:
 					config.gw_address = safe_strdup(p1);
 					break;

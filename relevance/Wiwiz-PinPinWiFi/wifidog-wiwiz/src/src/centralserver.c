@@ -92,7 +92,7 @@ auth_server_request(t_authresponse *authresponse, const char *request_type, cons
 	memset(buf, 0, sizeof(buf));
         safe_token=httpdUrlEncode(token);
 	snprintf(buf, (sizeof(buf) - 1),
-		"GET %s%sstage=%s&ip=%s&mac=%s&token=%s&incoming=%llu&outgoing=%llu&gw_id=%s HTTP/1.0\r\n"
+		"GET %s%sstage=%s&ip=%s&mac=%s&token=%s&incoming=%llu&outgoing=%llu&gw_id=%s&gw_mac=%s HTTP/1.0\r\n"
 		"User-Agent: WiFiDog %s\r\n"
 		"Host: %s\r\n"
 		"\r\n",
@@ -104,7 +104,8 @@ auth_server_request(t_authresponse *authresponse, const char *request_type, cons
 		safe_token,
 		incoming,
 		outgoing,
-                config_get_config()->gw_id,
+        config_get_config()->gw_id,
+		config_get_config()->gw_interface_mac,
 		VERSION,
 		auth_server->authserv_hostname
 	);
