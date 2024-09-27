@@ -200,10 +200,11 @@ authenticate_client(request *r)
 			config->gw_id
 		);
 		*/
-		safe_asprintf(&urlFragment, "%sgw_id=%s&gw_address=%s&token=%s",
+		safe_asprintf(&urlFragment, "%sgw_id=%s&gw_address=%s&gw_mac=%s&token=%s",
 			auth_server->authserv_portal_script_path_fragment,
 			config->gw_id,
 			config->gw_address,
+			config->gw_interface_mac,
 			client->token
 		);
 
