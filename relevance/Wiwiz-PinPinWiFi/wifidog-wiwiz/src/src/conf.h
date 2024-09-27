@@ -143,6 +143,7 @@ typedef struct {
     char *gw_id;		/**< @brief ID of the Gateway, sent to central
 				     server */
     char *gw_interface;		/**< @brief Interface we will accept connections on */
+    char *gw_interface_mac;	/* wiwiz added */
     char *gw_address;		/**< @brief Internal IP address for our web
 				     server */
     int gw_port;		/**< @brief Port the webserver will run on */
