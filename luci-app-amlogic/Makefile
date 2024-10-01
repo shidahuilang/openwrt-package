@@ -1,4 +1,4 @@
-#===================================================================================================
+#=====================================================================================================
 # This file is licensed under the terms of the GNU General Public
 # License version 2. This program is licensed "as is" without any
 # warranty of any kind, whether express or implied.
@@ -6,12 +6,12 @@
 # This file is a part of the luci-app-amlogic plugin
 # https://github.com/ophub/luci-app-amlogic
 #
-# Description: Support install/update/backup/restore/snapshot etc for OpenWrt on amlogic s9xxx boxs
+# Description: Supports install/update/backup/restore/snapshot operations using OpenWrt on many boxes
 # Copyright (C) 2021- https://github.com/unifreq/openwrt_packit
 # Copyright (C) 2021- https://github.com/ophub/luci-app-amlogic
 #
 # Command: curl -fsSL git.io/luci-app-amlogic | bash
-#===================================================================================================
+#=====================================================================================================
 
 include $(TOPDIR)/rules.mk
 
