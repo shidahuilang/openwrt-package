@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=wifidog-wiwiz
-PKG_VERSION:=20130917
+PKG_VERSION:=20241103
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 
 
@@ -33,6 +33,7 @@ endef
 
 define Package/wifidog-wiwiz/conffiles
 /etc/wifidog.conf
+/etc/config/wiwiz
 endef
 
 define Package/wifidog-wiwiz/config
