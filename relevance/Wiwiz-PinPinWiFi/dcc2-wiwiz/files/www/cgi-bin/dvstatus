@@ -1,0 +1,47 @@
+#!/usr/bin/lua
+require("luci.sys")
+require("luci.util")
+
+function exec(cmd)
+	return string.gsub(luci.sys.exec(cmd), "\n", "")
+end
+
+function getFormPara( varname )
+    local value
+    local query = luci.sys.getenv("QUERY_STRING")
+    if query ~= nil then
+      query = '&' .. query
+      varname = '&' .. varname .. '='
+      local p, q = string.find( query, varname )
+      if q ~= nil then
+        p = string.find( query, '&', q )
+        if p == nil then p = -1 else p = p - 1 end
+        value = string.sub( query, q + 1, p )
+      end
+    end
+    value = value or 'No such variable'
+    return value
+end
+
+local token = getFormPara("token")
+local id = getFormPara("id")
+local mytoken = exec("uci get rtty.dcc2.token 2>/dev/null")
+if token ~= mytoken then
+	return
+end
+
+local sysinfo = luci.util.ubus("system", "info") or { }
+--local stat = require "luci.tools.status"
+
+--leases = stat.dhcp_leases()  -- #leases is number
+local leasesNum = exec("cat /tmp/dhcp.leases 2>/dev/null | wc -l 2>/dev/null")
+local loadavg    = sysinfo.load or { 0, 0, 0 }
+local clientNum = exec("cat /proc/net/arp | grep 'br-lan' | grep '0x2' | wc -l")
+local assocNum = exec("sh /usr/bin/assocnum.sh | wc -l")
+local conn_count = exec("cat /proc/sys/net/netfilter/nf_conntrack_count")
+local conn_max = exec("sysctl -n -e net.nf_conntrack_max net.ipv4.netfilter.ip_conntrack_max")
+
+print("Content-type: application/javascript\n")
+print("{\"id\":\"".. id .."\", \"clientNum\": \"".. clientNum .."\", \"assocNum\": \"".. 
+	assocNum .."\", \"leasesNum\": \"".. leasesNum .."\", \"loadavg\":".. 
+	luci.util.serialize_json(loadavg) ..", \"conn_count\": \"".. conn_count .."\", \"conn_max\": \"".. conn_max .."\"}")
