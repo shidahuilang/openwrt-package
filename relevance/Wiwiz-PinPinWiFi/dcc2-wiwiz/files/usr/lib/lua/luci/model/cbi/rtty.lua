@@ -1,4 +1,5 @@
-m = Map("rtty", translate("Wiwiz")) 
+m = Map("rtty", translate("Wiwiz"),
+translate("DCC2远程管理 Ver 1.2.2 <a href='http://www.wiwiz.com/pinpinwifi/wiwiz-ipk.htm' target='_blank'>使用说明</a>")) 
 
 rtty = m:section(TypedSection, "rtty", "")
 
