@@ -113,7 +113,7 @@ return view.extend({
 		o.default = '0';
 		o.rmempty = false;
 
-		o = s.option(form.Flag, 'allow_wan', _('Allow Access From Internet'));
+		o = s.option(form.Flag, 'allow_wan', _('Open firewall port'));
 		o.rmempty = false;
 
 		o = s.option(form.Button, '_newpassword', _('Reset Password'),
@@ -170,7 +170,12 @@ return view.extend({
 		o.default = 1;
 		o.rmempty = false;
 
-		o = s.option(form.Value, 'log_max_size', _('Max Size'));
+		o = s.option(form.Value, 'log_path', _('Log path'));
+		o.default = '/var/log/alist.log';
+		o.rmempty = false;
+		o.depends('log', '1');
+
+		o = s.option(form.Value, 'log_max_size', _('Max Size (MB)'));
 		o.datatype = 'uinteger';
 		o.default = '10';
 		o.rmempty = false;
