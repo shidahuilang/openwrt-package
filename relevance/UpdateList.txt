@@ -46,6 +46,7 @@ luci-app-ddnsto
 luci-app-diskman
 luci-app-fileassistant
 luci-app-filebrowser
+luci-app-filetransfer
 luci-app-gost
 luci-app-homebox
 luci-app-ikoolproxy
