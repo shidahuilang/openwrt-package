@@ -1,2 +1,0 @@
-.PHONY: all
-all:

@@ -1,3 +1,0 @@
-#!/bin/sh
-
-[ -d /usr/lib/cups/filter ] && chmod 0754 /usr/lib/cups/filter/*

@@ -1,5 +1,0 @@
-
-config smartvpn 'global'
-	option vpn_enable '0'
-	option dns_mainland '119.29.29.29'
-

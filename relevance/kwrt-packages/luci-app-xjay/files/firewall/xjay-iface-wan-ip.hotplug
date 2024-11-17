@@ -1,9 +1,0 @@
-#!/bin/sh
-
-[ "$INTERFACE" == "wan" ] || exit 0
-[ "$ACTION" == "ifupdate" ] || exit 0
-[ "$IFUPDATE_ADDRESSES" == "1" ] || exit 0
-
-# updating firewall rules for xjay
-logger -st xjay[$$] -p4 "WAN IP changed, restarting xjay service..."
-service xjay enabled && service xjay restart

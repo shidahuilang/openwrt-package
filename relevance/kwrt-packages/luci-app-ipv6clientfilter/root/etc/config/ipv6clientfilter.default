@@ -1,5 +1,0 @@
-
-config ipv6clientfilter 'prefs'
-    option enabled '0'
-    option mode 'blacklist'
-

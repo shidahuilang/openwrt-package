@@ -1,6 +1,0 @@
-config gxu-webconnect
-    option enable '0'
-    option id ''
-    option password ''
-    option web_provier '0'
-    option delay '60'

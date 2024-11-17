@@ -1,7 +1,0 @@
-#!/bin/sh
-
-uci set wizard.default.landing_page='routerdog'
-uci commit wizard
-
-rm -f /tmp/luci-indexcache
-exit 0

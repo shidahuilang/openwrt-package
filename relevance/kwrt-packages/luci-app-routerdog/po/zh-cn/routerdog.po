@@ -1,2 +1,0 @@
-msgid "RouterDog"
-msgstr "路由狗"
