@@ -20,6 +20,7 @@ filebrowser
 firewall4
 go-aliyundrive-webdav
 gost
+internet-detector-mod-email
 istoreenhance
 kcptun
 linkease
