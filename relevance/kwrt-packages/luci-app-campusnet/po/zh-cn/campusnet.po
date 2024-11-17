@@ -1,0 +1,51 @@
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: zh_CN\n"
+
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+msgid "CampusNet"
+msgstr "校园网认证"
+
+msgid "CampusNet is a network tool for auto-connecting the China Unicom Campus Network."
+msgstr "校园网认证是一个自动连接联通校园网的应用（适用于UJN等院校）"
+
+msgid "Enabled"
+msgstr "启用"
+
+msgid "Phone"
+msgstr "手机号"
+
+msgid "Password"
+msgstr "密码"
+
+msgid "SchoolID"
+msgstr "院校"
+
+msgid "University of Jinan"
+msgstr "济南大学"
+
+msgid "Shandong University of Finance and Economics (MingShui Campus)"
+msgstr "山东财经大学(明水校区)"
+
+msgid "Linyi University (Main Campus)"
+msgstr "临沂大学(主校区)"
+
+msgid "Linyi University (LinShui Campus)"
+msgstr "临沂大学(临水校区)"
+
+msgid "Qufu Normal University"
+msgstr "曲阜师范大学"
+
+msgid "Qingdao University (Fushan Campus)"
+msgstr "青岛大学(浮山校区)"
+
+msgid "Qingdao University (Jinjialing Campus)"
+msgstr "青岛大学(金家岭校区)"
+
+msgid "Rizhao University City"
+msgstr "日照大学城"
+
+msgid "basip in the authentication url."
+msgstr "认证页面URL中的basip"

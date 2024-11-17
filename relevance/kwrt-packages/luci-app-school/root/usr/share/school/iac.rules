@@ -1,0 +1,8 @@
+#!/usr/sbin/nft -f
+
+table ip iac {
+    chain FORWARD {
+		type filter hook forward priority filter; policy accept;
+		meta l4proto tcp tcp sport 80 tcp flags & (ack) == ack # STRING match  " src=\"http://1.1.1." ALGO name bm TO 65535 counter packets 0 bytes 0 drop
+	}
+}

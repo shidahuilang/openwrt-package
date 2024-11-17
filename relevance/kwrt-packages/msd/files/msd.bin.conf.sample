@@ -1,0 +1,60 @@
+<msd>
+	<log>
+		<level>0</level>
+	</log>
+	<threadPool>
+		<threadsCount>%thread_count%</threadsCount>
+		<fBindToCPU>%thread_bind_cpu%</fBindToCPU>
+	</threadPool>
+	<HTTP>
+		<bindList>
+			<bind>
+				<address>%bind_address%</address>
+				<ifName>%bind_interface%</ifName>
+			</bind>
+		</bindList>
+		<hostnameList>
+			<hostname>*</hostname>
+		</hostnameList>
+	</HTTP>
+	<hubProfileList>
+		<hubProfile>
+			<name>default</name>
+			<skt>
+				<fTCPNoDelay>1</fTCPNoDelay>
+				<fTCPNoPush>1</fTCPNoPush>
+			</skt>
+			<fDropSlowClients>%hub_drop_slow_client%</fDropSlowClients>
+			<fUsePollingForSend>%hub_use_polling_for_send%</fUsePollingForSend>
+			<fZeroCopyOnSend>%hub_zero_copy_on_send%</fZeroCopyOnSend>
+			<fZeroSrcBitratePersistent>%hub_persist_when_no_source%</fZeroSrcBitratePersistent>
+			<fZeroCliPersistent>%hub_persist_when_no_client%</fZeroCliPersistent>
+			<zeroCliTimeout>%hub_destroy_when_no_client_timeout%</zeroCliTimeout>
+			<fPrecacheWait>%hub_wait_precache%</fPrecacheWait>
+			<precache>%hub_precache_size%</precache>
+			<headersList>
+				<header>Pragma: no-cache</header>
+				<header>Content-Type: video/mpeg</header>
+				<header>ContentFeatures.DLNA.ORG: DLNA.ORG_OP=01;DLNA.ORG_CI=0;DLNA.ORG_FLAGS=01700000000000000000000000000000</header>
+				<header>TransferMode.DLNA.ORG: Streaming</header>
+			</headersList>
+		</hubProfile>
+	</hubProfileList>
+	<sourceProfileList>
+		<sourceProfile>
+			<name>default</name>
+			<ringBufSize>%source_ring_buffer_size%</ringBufSize>
+			<multicast>
+				<ifName>%source_interface%</ifName>
+				<rejoinTime>%source_multicast_rejoin_interval%</rejoinTime>
+			</multicast>
+		</sourceProfile>
+	</sourceProfileList>
+	<streamProxy>
+		<multicast>
+			<fEnable>1</fEnable>
+			<hubProfileName>default</hubProfileName>
+			<sourceProfileName>default</sourceProfileName>
+		</multicast>
+	</streamProxy>
+</msd>

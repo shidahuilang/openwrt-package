@@ -1,0 +1,77 @@
+(ads) {
+    ads {
+        default-lists
+        blacklist https://raw.githubusercontent.com/privacy-protection-tools/anti-AD/master/anti-ad-domains.txt
+        whitelist https://files.krnl.eu/whitelist.txt
+        log
+        auto-update-interval 24h
+        list-store ads-cache
+    }
+}
+
+(dnsredir_default) {
+    dnsredir . {
+      expire 30s
+      max_fails 3
+      health_check 3s
+      policy random
+      spray
+
+      to 114.114.114.114
+      #to tls://8.8.8.8@dns.google tls://8.8.4.4@dns.google
+      #to tls://1.1.1.1@1dot1dot1dot1.cloudflare-dns.com tls://1.0.0.1@1dot1dot1dot1.cloudflare-dns.com
+      # Global TLS server name
+      # tls_servername cloudflare-dns.com
+  }
+}
+
+(dnsredir_1) {
+   dnsredir https://cdn.jsdelivr.net/gh/felixonmars/dnsmasq-china-list/accelerated-domains.china.conf {
+   #dnsredir accelerated-domains.china.conf {
+       expire 30s
+       max_fails 3
+       health_check 3s
+       policy round_robin
+       path_reload 60m
+       spray
+       
+       to 119.29.29.29 114.114.114.114 223.5.5.5 
+   }
+}
+
+(global_cache) {
+    # https://coredns.io/plugins/cache/
+    cache {
+        # [5, 60]
+        success 65536 3600 300
+        # [1, 10]
+        denial 8192 600 60
+        prefetch 1 60m 10%
+    }
+}
+
+.:5366  {
+
+    hosts {
+        fallthrough
+    }
+    health
+    #prometheus :9153
+    errors
+    log
+    loop
+    reload 3600s
+
+    import global_cache
+
+    template ANY AAAA {
+        rcode NXDOMAIN
+    }
+
+    #import ads
+
+    #import dnsredir_1
+
+    import dnsredir_default
+  
+}

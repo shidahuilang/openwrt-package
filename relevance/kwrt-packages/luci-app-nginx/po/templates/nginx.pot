@@ -1,0 +1,152 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+""
+
+#: luci-app-nginx/root/usr/share/luci/menu.d/luci-app-nginx.json:16
+# msgid "Status"
+# msgstr ""
+
+#: luci-app-nginx/root/usr/share/luci/menu.d/luci-app-nginx.json:34
+msgid "Locations"
+msgstr ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/locations.js:38
+msgid "Location files"
+msgstr ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/locations.js:39
+msgid "All <code>.locations</code> files under <code>/etc/nginx/conf.d</code>"
+msgstr ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/locations.js:43
+msgid "Known location files"
+msgstr ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/locations.js:44
+msgid "We found those <code>.locations</code> files under <code>/etc/nginx/conf.d</code>"
+msgstr ""
+
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/servers.js:24
+msgid "Nginx Servers"
+msgstr ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/servers.js:25
+msgid "Servers Configuration for Nginx"
+msgstr ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/servers.js:29
+msgid "All Servers"
+msgstr ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/servers.js:30
+msgid "All of the known Nginx servers."
+msgstr ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/servers.js:36
+msgid "Listening on:"
+msgstr ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/servers.js:40
+msgid "Server Name:"
+msgstr ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/servers.js:46
+msgid "SSL Managed By UCI:"
+msgstr ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/servers.js:47
+msgid "Set to any value other than self-signed to manage it yourself."
+msgstr ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/servers.js:51
+msgid "SSL Certificate:"
+msgstr ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/servers.js:55
+msgid "SSL Certificate Key:"
+msgstr ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/servers.js:59
+msgid "SSL Session Cache Option:"
+msgstr ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/servers.js:64
+msgid "SSL Session Timeout:"
+msgstr ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/servers.js:70
+msgid "Return:"
+msgstr ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/servers.js:75
+msgid "Access Log:"
+msgstr ""
+
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:72
+# msgid "Running"
+# msgstr ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:76
+# msgid "Stopped"
+# msgstr ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:80
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:121
+# msgid "Unknown"
+# msgstr ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:119
+msgid "Nginx status:"
+msgstr ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:128
+# msgid "System"
+# msgid ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:128
+# msgid "Startup"
+# msgstr ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:143
+msgid "LuCI on Nginx:"
+msgstr ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:147
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:177
+# msgid "Yes"
+# msgstr ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:147
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:177
+# msgid "No"
+# msgstr ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:150
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:180
+msgid "Install <code>curl</code> for this info."
+msgstr ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:158
+# msgid "Services"
+# msgstr ""
+
+#: luci-app-nginx/root/usr/share/luci/menu.d/luci-app-nginx.json:3
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:158
+msgid "Nginx"
+msgstr ""
+
+#: luci-app-nginx/root/usr/share/luci/menu.d/luci-app-nginx.json:25
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:158
+msgid "Servers"
+msgstr ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:173
+msgid "Https Redirect Enabled:"
+msgstr ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:190
+msgid "Running Servers Count:"
+msgstr ""

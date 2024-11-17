@@ -1,0 +1,26 @@
+{
+	"luci-app-yt-dlp": {
+		"description": "Grant access to LuCI app yt-dlp",
+		"read": {
+			"ubus": {
+				"file": [ "exec", "read", "stat" ],
+				"luci": [ "isFfmpegOrWhispercppRunning" ]
+			},
+			"file": {
+				"/tmp/yt-dlp/*": [ "read" ]
+			},
+			"cgi-io": [ "download" ]
+		},
+		"write": {
+			"cgi-io": [ "upload"],
+			"file": {
+				"/usr/bin/yt-dlp": ["exec", "write" ],
+				"/tmp/yt-dlp/*": [ "write", "remove" ]
+			},
+			"ubus": {
+				"file": [ "exec", "remove", "write" ],
+				"yt-dlp": [ "download" ]
+			}
+		}
+	}
+}

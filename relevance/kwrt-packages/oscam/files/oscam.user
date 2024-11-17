@@ -1,0 +1,19 @@
+[account]
+user                          = test
+pwd                           = test
+disabled                      = 0
+expdate                       = 
+group                         = 1
+hostname                      = 
+uniq                          = 0
+sleep                         = 0
+monlevel                      = 4
+au                            = cyfra
+services                      = 
+caid                          = 0100
+betatunnel                    = 
+ident                         = 
+cccmaxhops                    = 10
+keepalive                     = 1
+numusers                      = 0
+penalty                       = 0

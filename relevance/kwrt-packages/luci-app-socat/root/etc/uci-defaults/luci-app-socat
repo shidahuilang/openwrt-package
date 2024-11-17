@@ -1,0 +1,12 @@
+#!/bin/sh
+
+uci -q batch <<-EOF >/dev/null
+	delete firewall.socat
+	set firewall.socat=include
+	set firewall.socat.type=script
+	set firewall.socat.path=/var/etc/socat.include
+	set firewall.socat.reload=1
+EOF
+
+rm -rf /tmp/luci-*cache
+exit 0

@@ -1,0 +1,40 @@
+<%+cbi/valueheader%>
+<script type="text/javascript">//<![CDATA[
+	function vnt_all(btn)
+	{
+		btn.disabled = true;
+		btn.value = '<%:Collecting data...%>';
+		XHR.get('<%=luci.dispatcher.build_url("admin", "vpn", "vnt", "vnt_all")%>',
+			null,
+			function(x,rv)
+			{
+			var tb = document.getElementById('<%=self.option%>-status');
+			if (tb) {
+  rv.all = rv.all.replace(/Name/g, "<em><b>设备名称</em></b>")
+                   .replace(/虚拟IP/g, "<em><b>虚拟IP</em></b>")
+                   .replace(/Status/g, "<em><b>状态</em></b>")
+                   .replace(/P2P\/Relay/g, "<em><b>直连/转发</em></b>")
+                   .replace(/Rt/g, "<em><b>延迟（ms）</em></b>")
+                   .replace(/Online/g, "<font color='#00FF00'>在线</font>")
+                   .replace(/NAT类型/g, "<em><b>NAT类型</em></b>")
+                   .replace(/Cone/g, "<font color='#1E90FF'>全锥型NAT</font>")
+                   .replace(/Symmetric/g, "<font color='#CC0000'>对称型NAT</font>")
+                   .replace(/外网IP/g, "<em><b>外网IP</em></b>")
+                   .replace(/WAN口IP/g, "<em><b>WAN口IP</em></b>")
+                   .replace(/IPv6/g, "<em><b>IPv6地址</em></b>")
+                   .replace(/server-relay/g, "<font color='#FF3300'>服务器转发</font>")
+                   .replace(/client-relay/g, "<font color='#CC3300'>客户端转发</font>")
+                   .replace(/Offline/g, "<font color='#CC0000'>离线</font>")
+                   .replace(/p2p/g, "<font color='#1E90FF'>直连</font>");
+  tb.innerHTML = "<br><font color='#F260CE'>&nbsp;&nbsp;&nbsp;<b><%:vnt-cli --all %></b></font><br>" + rv.all ;
+}
+				btn.disabled = false;
+				btn.value = '<%:所有设备信息%>';
+			}
+		);
+		return false;
+	}
+//]]></script>
+<input type="button" class="btn cbi-button cbi-button-apply" value="<%:所有设备信息%>" onclick="return vnt_all(this)" />
+<span id="<%=self.option%>-status"><em><%=self.value%></em></span>
+<%+cbi/valuefooter%>

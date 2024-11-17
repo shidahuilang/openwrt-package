@@ -1,0 +1,171 @@
+#!/usr/bin/env lua
+
+local json  = require "luci.jsonc"
+local nixio = require "nixio"
+local fs    = require "nixio.fs"
+
+local sysHwmon   = "/sys/class/hwmon"
+local sysThermal = "/sys/class/thermal"
+
+local tDevPath = {}
+
+local function readFile(path)
+	local s = fs.readfile(path)
+	return s and (s:gsub("^%s+", ""):gsub("%s+$", ""))
+end
+
+local function list()
+	io.write('{"getTempStatus":{}}')
+end
+
+local function findTPoints(thermalDirPath)
+	local tPoints = {}
+	local thermalItemDir = fs.dir(thermalDirPath)
+	if thermalItemDir then
+		for tItem in thermalItemDir do
+			if tItem:match("^trip_point_[0-9]+_type$") then
+				local pTypePath = string.format("%s/%s", thermalDirPath, tItem)
+				local pNumber   = tonumber(tItem:match("[0-9]+"))
+				local pType     = readFile(pTypePath)
+				local pTemp     = tonumber(
+					readFile(pTypePath:gsub("_type$", "_temp")))
+				if pNumber ~= nil and pType and pTemp ~= nil then
+					tPoints[pNumber] = { type = pType, temp = pTemp }
+				end
+			end
+		end
+	end
+	return next(tPoints) and tPoints or nil
+end
+
+local function getHwmonData()
+	local hwmon    = {}
+	local hwmonDir = fs.dir(sysHwmon)
+	if hwmonDir then
+		for item in hwmonDir do
+			if item:match("^hwmon[0-9]+$") then
+				local hwmonDirPath  = string.format("%s/%s", sysHwmon, item)
+				local deviceDirPath = fs.readlink(string.format("%s/device", hwmonDirPath))
+				if deviceDirPath then
+					nixio.chdir(hwmonDirPath)
+					tDevPath[fs.realpath(deviceDirPath)] = true
+				end
+				local deviceDir = fs.dir(hwmonDirPath)
+				if deviceDir then
+					local dNumber = tonumber(item:match("[0-9]+"))
+					local title   = readFile(hwmonDirPath .. "/name")
+					local sources = {}
+					for source in deviceDir do
+						if source:match("^temp[0-9]+_input$") then
+							local tPoints    = {}
+							local sNumber    = tonumber(source:match("[0-9]+"))
+							local temp       = readFile(string.format(
+								"%s/%s", hwmonDirPath, source))
+							local label      = readFile(string.format(
+								"%s/%s", hwmonDirPath, source:gsub("_input$", "_label")))
+							local tPointEmer = readFile(string.format(
+								"%s/%s", hwmonDirPath, source:gsub("_input$", "_emergency")))
+							if tPointEmer ~= nil then
+								tPoints["0"] = { type = "emergency", temp = tPointEmer }
+							end
+							local tPointCrit = readFile(string.format(
+								"%s/%s", hwmonDirPath, source:gsub("_input$", "_crit")))
+							if tPointCrit ~= nil then
+								tPoints["1"] = { type = "critical", temp = tPointCrit }
+							end
+							local tPointMax  = readFile(string.format(
+								"%s/%s", hwmonDirPath, source:gsub("_input$", "_max")))
+							if tPointMax ~= nil then
+								tPoints["2"] = { type = "max", temp = tPointMax }
+							end
+							if deviceDirPath and (not tPoints or not next(tPoints)) then
+								tPoints = findTPoints(deviceDirPath) or tPoints
+							end
+							if sNumber ~= nil and temp ~= nil then
+								sources[#sources + 1] = {
+									number  = sNumber,
+									item    = source,
+									label   = label,
+									temp    = tonumber(temp),
+									tpoints = (next(tPoints) and tPoints or nil),
+								}
+							end
+						end
+					end
+					if dNumber ~= nil then
+						if #sources > 0 then
+							hwmon[#hwmon + 1] = {
+								number  = dNumber,
+								item    = item,
+								title   = title,
+								sources = sources,
+							}
+						end
+					end
+				end
+			end
+		end
+	end
+	return hwmon
+end
+
+local function getThermalData()
+	local thermal    = {}
+	local thermalDir = fs.dir(sysThermal)
+	if thermalDir then
+		nixio.chdir(sysThermal)
+		for item in thermalDir do
+			if item:match("^thermal_zone[0-9]+$") then
+				local thermalDirPath = string.format("%s/%s", sysThermal, item)
+				local deviceDirPath  = fs.readlink(thermalDirPath)
+				if deviceDirPath and tDevPath[fs.realpath(deviceDirPath)] then
+				else
+					local number  = tonumber(item:match("[0-9]+"))
+					local temp    = readFile(string.format("%s/temp", thermalDirPath))
+					local title   = readFile(string.format("%s/type", thermalDirPath))
+					local tPoints = findTPoints(thermalDirPath)
+					if number ~= nil and temp ~= nil then
+						thermal[#thermal + 1] = {
+							number  = number,
+							item    = item,
+							title   = title,
+							sources = {
+								[1] = {
+									number  = 0,
+									item    = nil,
+									label   = nil,
+									temp    = tonumber(temp),
+									tpoints = tPoints,
+								},
+							},
+						}
+					end
+				end
+			end
+		end
+	end
+	return thermal
+end
+
+local function getTempStatus()
+	local sensors  = {}
+	-- /sys/class/hwmon
+	local hwmon = getHwmonData()
+	if #hwmon > 0 then
+		sensors["0"] = hwmon
+	end
+	-- /sys/class/thermal
+	local thermal = getThermalData()
+	if #thermal > 0 then
+		sensors["1"] = thermal
+	end
+	io.write(json.stringify(sensors))
+end
+
+if arg[1] == "list" then
+	list()
+elseif arg[1] == "call" and arg[2] == "getTempStatus" then
+	getTempStatus()
+end
+
+os.exit(0)

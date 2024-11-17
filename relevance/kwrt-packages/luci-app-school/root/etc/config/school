@@ -1,0 +1,6 @@
+config school 'config'
+	option IPID '0'
+    option IUA '0'
+	option INTP '0'
+	option ITTL '0'
+	option IACFlash '0'

@@ -1,0 +1,2 @@
+config campusnet
+	option enabled '0'

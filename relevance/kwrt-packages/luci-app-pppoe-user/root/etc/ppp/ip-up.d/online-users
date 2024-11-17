@@ -1,0 +1,87 @@
+#!/bin/sh
+#
+# This script is run by pppd after the link is established.
+# It is used to add routes, set IP address, run mailq, etc.
+#
+# This script is called with the following arguments:
+# Arg  Name               Example
+# $1   Interface name     ppp0
+# $2   The tty            ttyS1
+# $3   The link speed     38400
+# $4   Local IP number    12.34.56.78
+# $5   Peer IP number     12.34.56.99
+#
+
+# Reset the PATH environment variable
+PATH=/usr/sbin:/sbin:/usr/bin:/bin
+export PATH
+
+LOGIN_TIME=$(date "+%Y-%m-%d_%H:%M:%S")
+USERNAME="${PEERNAME}"
+IFACE="${1}"
+TTY="${2}"
+PEERIP="${5}"
+
+USER_LOG="/var/pppoe-user/log/userinfo"
+USER_LOG_FILE="${USER_LOG}/${USERNAME}.log"
+USER_CONFIG="pppoe-user"
+USER_CFGID="$(uci show ${USER_CONFIG} | grep "${USERNAME}" | cut -d '.' -sf 2)"
+SERVIC_NAME="$(uci get ${USER_CONFIG}.${USER_CFGID}.servicename)"
+USER_PACKAGE="$(uci get ${USER_CONFIG}.${USER_CFGID}.package)"
+USER_QOS="$(uci get ${USER_CONFIG}.${USER_CFGID}.qos)"
+USER_UPLOAD="$(uci get ${USER_CONFIG}.${USER_CFGID}.urate)"
+USER_DOWNLOAD="$(uci get ${USER_CONFIG}.${USER_CFGID}.drate)"
+USER_CONNECT="$(uci get ${USER_CONFIG}.${USER_CFGID}.connect)"
+RENEWAL_DATE="$(uci get ${USER_CONFIG}.${USER_CFGID}.expires)"
+
+CONFIG_PATH="/var/etc/pppoe-user"
+SESSION_PATH="${CONFIG_PATH}/session"
+
+PID="$(cat /var/run/pppd/${IFACE}.pid 2>/dev/null)"
+MAC="$(ps -w | grep pppd | grep -v 'grep' | grep -h -m 1 "${PID}" | awk '{print $10}' | cut -d : -f 2,2-7)"
+
+mkdir -p "${USER_LOG}"
+mkdir -p "${SESSION_PATH}"
+
+# Write session information in JSON format
+cat <<-EOF > "${SESSION_PATH}/${USERNAME}.${IFACE}"
+{
+    "username": "${USERNAME}",
+    "mac": "${MAC}",
+    "interface": "${IFACE}",
+    "tty": "${TTY}",
+    "speed": "${SPEED}",
+    "ip": "${PEERIP}",
+    "servicename": "${SERVIC_NAME}",
+    "package": "${USER_PACKAGE}",
+    "connect": "${USER_CONNECT}",
+    "updated": "${RENEWAL_DATE}",
+    "uptime": "${LOGIN_TIME}",
+    "pid": "${PID}"
+}
+EOF
+
+# Find and kill previous PPP sessions for the same user
+cfgid=$(uci show ${USER_CONFIG} | grep "@user" | grep ".username='${USERNAME}'" | cut -d '.' -sf 2)
+if [ -n "$cfgid" ]; then
+    HAS_LOGIN=$(ls "${SESSION_PATH}" | grep "^${USERNAME}\.ppp" | grep -v "${IFACE}")
+    if [ -n "$HAS_LOGIN" ]; then
+        KO_IFACE=$(echo "$HAS_LOGIN" | awk -F '.' '{print $2}')
+        KO_PID=$(cat "/var/run/${KO_IFACE}.pid" 2>/dev/null)
+        [ -n "$KO_PID" ] && kill -9 "$KO_PID" >/dev/null 2>&1
+        rm -f "${SESSION_PATH}/${HAS_LOGIN}"
+        rm -f "/var/run/${KO_IFACE}.pid"
+    fi
+fi
+
+# Update the MAC address in the user's configuration
+uci set "${USER_CONFIG}.${USER_CFGID}.macaddr=${MAC}"
+uci commit "${USER_CONFIG}"
+
+# Log the connection details
+echo "${LOGIN_TIME} ${USERNAME} Online PID: ${PID} Interface: ${IFACE} IP: ${PEERIP} MAC: ${MAC}" >> "${USER_LOG_FILE}"
+echo >> "${USER_LOG_FILE}"
+
+logger "${LOGIN_TIME} ${PEERNAME} ${PEERIP} ONLINE-USERS >>>>>> The script has been executed!"
+
+exit 0

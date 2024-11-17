@@ -1,0 +1,169 @@
+<%
+local cns_version=luci.sys.exec("/usr/bin/cns -help 2>&1 | sed -n 3P | awk '{print $4}'")
+-%>
+
+<script type="text/javascript">
+	//<![CDATA[
+	var cnsInfo;
+	var tokenStr = '<%=token%>';
+	var noUpdateText = '<%:It is the latest version%>';
+	var updateSuccessText = '<%:Update successful%>';
+	var clickToUpdateText = '<%:Click to update%>';
+	var inProgressText = '<%:Updating...%>';
+	var unexpectedErrorText = '<%:Unexpected error%>';
+	var updateInProgressNotice = '<%:Updating, are you sure to close?%>';
+	var downloadingText = '<%:Downloading...%>';
+	var decompressioningText = '<%:Unpacking...%>';
+	var movingText = '<%:Moving...%>';
+
+	window.onload = function() {
+		var cnsCheckBtn = document.getElementById('_cns-check_btn');
+		var cnsDetailElm = document.getElementById('_cns-check_btn-detail');
+	};
+
+	function addPageNotice_cns() {
+		window.onbeforeunload = function(e) {
+			e.returnValue = updateInProgressNotice;
+			return updateInProgressNotice;
+		};
+	}
+
+	function removePageNotice_cns() {
+		window.onbeforeunload = undefined;
+	}
+
+	function onUpdateSuccess_cns(btn) {
+		alert(updateSuccessText);
+
+		if(btn) {
+			btn.value = updateSuccessText;
+			btn.placeholder = updateSuccessText;
+			btn.disabled = true;
+		}
+
+		window.setTimeout(function() {
+			window.location.reload();
+		}, 1000);
+	}
+
+	function onRequestError_cns(btn, errorMessage) {
+		btn.disabled = false;
+		btn.value = btn.placeholder;
+
+		if(errorMessage) {
+			alert(errorMessage);
+		}
+	}
+
+	function doAjaxGet(url, data, onResult) {
+		new XHR().get(url, data, function(_, json) {
+			var resultJson = json || {
+				'code': 1,
+				'error': unexpectedErrorText
+			};
+
+			if(typeof onResult === 'function') {
+				onResult(resultJson);
+			}
+		})
+	}
+
+	function onBtnClick_cns(btn) {
+		if(cnsInfo === undefined) {
+			checkUpdate_cns(btn);
+		} else {
+			doUpdate_cns(btn);
+		}
+	}
+
+	function checkUpdate_cns(btn) {
+		btn.disabled = true;
+		btn.value = inProgressText;
+
+		addPageNotice_cns();
+
+		var ckeckDetailElm = document.getElementById(btn.id + '-detail');
+
+		doAjaxGet('<%=url([[admin]], [[services]], [[cns_server]], [[check]])%>', {
+			token: tokenStr,
+			arch: ''
+		}, function(json) {
+			removePageNotice_cns();
+
+			if(json.code) {
+				cnsInfo = undefined;
+				onRequestError_cns(btn, json.error);
+			} else {
+				if(json.update) {
+					cnsInfo = json;
+					btn.disabled = false;
+					btn.value = clickToUpdateText;
+					btn.placeholder = clickToUpdateText;
+					
+					if(ckeckDetailElm) {
+						var urlNode = '';
+						if(json.version) {
+							urlNode = '<em style="color:red;">最新版本号：' + json.version + '</em>';
+							if(json.url && json.url.html) {
+								urlNode = '<a href="' + json.url.html + '" target="_blank">' + urlNode + '</a>';
+							}
+						}
+					ckeckDetailElm.innerHTML = urlNode;
+					}
+				} else {
+					btn.disabled = true;
+					btn.value = noUpdateText;
+				}
+			}
+		});
+	}
+
+	function doUpdate_cns(btn) {
+		btn.disabled = true;
+		btn.value = downloadingText;
+
+		addPageNotice_cns();
+
+		var cnsUpdateUrl = '<%=url([[admin]], [[services]], [[cns_server]], [[update]])%>';
+		// Download file
+		doAjaxGet(cnsUpdateUrl, {
+			token: tokenStr,
+			url: cnsInfo ? cnsInfo.url.download : ''
+		}, function(json) {
+			if(json.code) {
+				removePageNotice_cns();
+				onRequestError_cns(btn, json.error);
+			} else {
+				btn.value = movingText;
+
+                // Move file to target dir
+                doAjaxGet(cnsUpdateUrl, {
+                    token: tokenStr,
+                    task: 'move',
+                    file: json.file
+                }, function(json) {
+                    removePageNotice_cns();
+                    if(json.code) {
+                        onRequestError_cns(btn, json.error);
+                    } else {
+                        onUpdateSuccess_cns(btn);
+                    }
+                })
+			}
+		})
+	}
+	//]]>
+</script>
+
+<div class="cbi-value">
+	<label class="cbi-value-title">cns
+		<%:Version%>
+	</label>
+	<div class="cbi-value-field">
+		<div class="cbi-value-description">
+			<span>【 <%=cns_version%>】</span>
+			<input class="cbi-button cbi-input-apply" type="submit" id="_cns-check_btn" onclick="onBtnClick_cns(this);" value="<%:Manually update%>">
+			<span id="_cns-check_btn-detail"></span>
+		</div>
+	</div>
+</div>

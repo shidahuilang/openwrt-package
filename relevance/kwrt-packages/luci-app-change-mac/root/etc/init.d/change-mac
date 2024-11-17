@@ -1,0 +1,107 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2020-2023 muink
+
+. "${IPKG_INSTROOT}/lib/functions.sh"
+
+START=17
+#STOP=90
+USE_PROCD=1
+
+EXTRA_COMMANDS="change restore"
+EXTRA_HELP=\
+"	change		Change MAC address of the selected NIC
+	restore		Restore MAC address of the selected NIC"
+
+PROG=/usr/sbin/change-mac.sh
+CONFIG_NAME="change-mac"
+TYPEDSECTION="change-mac"
+
+
+validate_section() {
+	uci_load_validate $CONFIG_NAME $TYPEDSECTION "$1" "$2" \
+		'interface:list(network)' \
+		'random_mode:or("disorderly", "sequence"):disorderly' \
+		'mac_type:or("locally", "specific", "vendor"):locally' \
+		'mac_type_specific:string' \
+		'mac_type_vendor:string'
+}
+
+change_mac() {
+#	local ucivv="interface random_mode mac_type mac_type_specific mac_type_vendor"
+#
+#	for _var in $ucivv; do
+#		eval "local $_var=\$(config_get $1 $_var 2>/dev/null)"
+#	done
+
+	[ "$2" == "0" ] || { >&2 echo "section $1 validation failed"; return 1; }
+
+#	for _var in $ucivv; do
+#		eval "echo \"$_var=\$$_var\""
+#	done
+
+local mode
+local type
+if   [ "$random_mode" == "disorderly" ]; then mode="";
+elif [ "$random_mode" == "sequence" ]; then mode=" -e";
+else mode="";
+fi
+if   [ "$mac_type" == "locally" ]; then type="";
+elif [ "$mac_type" == "specific" ]; then type=" -s$mac_type_specific";
+elif [ "$mac_type" == "vendor" ]; then type=" -t$mac_type_vendor";
+else type="";
+fi
+
+procd_open_instance
+procd_set_param command "$PROG" $interface
+procd_append_param command $mode $type
+procd_set_param stdout 1
+procd_set_param stderr 1
+#procd_set_param respawn
+procd_close_instance
+}
+
+restore_mac() {
+
+#	local interface=$(config_get $1 interface 2>/dev/null)
+
+	[ "$2" == "0" ] || { >&2 echo "section $1 validation failed"; return 1; }
+
+procd_open_instance
+procd_set_param command "$PROG" $interface
+procd_append_param command -d
+procd_set_param stdout 1
+procd_set_param stderr 1
+procd_close_instance
+}
+
+start_service() {
+	local enabled
+	local action="$1"
+
+	config_load "$CONFIG_NAME"
+	eval "enabled=\$CONFIG_${CONFIG_SECTIONS%% *}_enabled"
+	[ "${enabled:-0}" -gt "0" -o -n "$action" ] || return 1
+
+	config_foreach validate_section "$TYPEDSECTION" "${action:=change_mac}"
+}
+
+stop_service() {
+	uci set ${CONFIG_NAME}.@${TYPEDSECTION}[0].enabled='0'
+	uci commit ${CONFIG_NAME}
+}
+
+change() {
+	start 'change_mac'
+}
+
+restore() {
+	start 'restore_mac'
+}
+
+restart() {
+	start
+}
+
+service_triggers() {
+      procd_add_reload_trigger "change-mac"
+}

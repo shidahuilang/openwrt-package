@@ -1,0 +1,12 @@
+#!/bin/sh /etc/rc.common
+
+START=85
+
+start() {
+	[ -d /var/log/oscam ] || mkdir -p /var/log/oscam
+	/usr/bin/oscam -b
+}
+
+stop() {
+	killall -3 oscam
+}

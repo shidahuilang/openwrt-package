@@ -1,0 +1,10 @@
+{
+    "admin/system/shutdown": {
+        "title": "Shutdown",
+        "order": 90,
+        "action": {
+            "type": "view",
+            "path": "syscontrol/shutdown"
+        }
+    }
+}

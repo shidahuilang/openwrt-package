@@ -1,0 +1,12 @@
+
+config ipinfo 'config'
+	option enable '1'
+	list isp 'ip'
+	list isp 'name'
+	list isp 'organization'
+	list isp 'asn'
+	list loc 'city'
+	list loc 'country'
+	list loc 'timezone'
+	list co 'latitude'
+	list co 'longitude'

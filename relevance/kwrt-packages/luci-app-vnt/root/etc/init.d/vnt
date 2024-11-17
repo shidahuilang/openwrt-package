@@ -1,0 +1,593 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2008-2020 OpenWrt.org
+
+START=99
+USE_PROCD=1
+size="$(df -k | awk '/\/overlay$/ {sub(/K$/, "", $4); print $4}')"
+[ -z "$size" ] && size="$(df -k /usr/bin | awk 'NR==2 {print $(NF-2) }')"
+
+start_vntcli() {
+                local cfg="$1"
+		local enabled
+		config_get_bool enabled "$cfg" 'enabled' '0'
+		[ "$enabled" = "1" ] || return 1
+                config_get clibin "$cfg" 'clibin'
+                if [ -z "$clibin" ] ;then
+                   clibin=/tmp/vnt-cli
+                fi
+                echo "$(date '+%Y-%m-%d %H:%M:%S') vnt : vnt-cli_${cpucore}开始启动" >>/tmp/vnt-cli.log
+                [ -z "`opkg list-installed | grep kmod-tun`" ] && echo "$(date '+%Y-%m-%d %H:%M:%S') vnt : 未安装kmod-tun模块，	请确定安装好kmod-tun " >>/tmp/vnt-cli.log 
+                path=$(dirname "$clibin")
+                if [ -f /tmp/vnt-cli ] && [ "${path:0:4}" != "/tmp" ] ;then
+                   chmod +x /tmp/vnt-cli
+                   echo "$(date '+%Y-%m-%d %H:%M:%S') vnt : 找到上传的程序/tmp/vnt-cli，替换为$clibin " >>/tmp/vnt-cli.log
+                   upsize="$(du -k /tmp/vnt-cli | cut -f1)"
+                   result=$(expr $size - $upsize)
+                   if [ $(($(/tmp/vnt-cli -h | wc -l))) -gt 3 ] && [ "$result" -gt 500 ] ; then
+                     mv -f /tmp/vnt-cli "$clibin"
+                     else
+                     echo "$(date '+%Y-%m-%d %H:%M:%S') vnt : 无法替换，上传的程序不完整或自定义路径的可用空间不足，当前空间剩余${size}kb" >>/tmp/vnt-cli.log
+                   fi
+                fi
+                if [ ! -f "$clibin" ] && [ "$size" -lt 4000 ] ; then
+                    echo "$(date '+%Y-%m-%d %H:%M:%S') vnt : 自定义程序路径的可用空间不足，当前可用空间剩余${size}kb,自动切换为内存/tmp/vnt-cli" >>/tmp/vnt-cli.log
+                    sed -i "/clibin/c option clibin '/tmp/vnt-cli' " /etc/config/vnt 
+                    clibin=/tmp/vnt-cli
+                fi
+		if [ $(($($clibin -h | wc -l))) -lt 3 ] || [ ! -f "$clibin" ] ; then
+		 echo "$(date '+%Y-%m-%d %H:%M:%S') vnt : 未找到程序 $clibin 开始在线下载，下载较慢耐心等候" >>/tmp/vnt-cli.log
+                 mkdir -p "$path"
+	         curl -o "${clibin}" --connect-timeout 10 --retry 3 "http://webd.liaoh.dedyn.io:19213/vnt-cli_${cpucore}" || wget -O "${clibin}" --timeout=10 --tries=3 "http://webd.liaoh.dedyn.io:19213/vnt-cli_${cpucore}"
+                 chmod +x "$clibin"
+ if [ $(($($clibin -h | wc -l))) -gt 3 ]; then
+    echo "$(date '+%Y-%m-%d %H:%M:%S') vnt : ${clibin} 下载成功" >>/tmp/vnt-cli.log
+ else
+   uci -q set vnt.@vnt-cli[0].enabled=0
+   uci commit vnt
+   echo "$(date '+%Y-%m-%d %H:%M:%S') vnt : $clibin 下载失败，请手动下载上传程序,程序退出" >>/tmp/vnt-cli.log
+   return 1
+ fi
+                fi
+                chmod +x "$clibin"
+                ver="$($clibin -h | grep version | awk -F ':' {'print $2'})"
+                [ ! -z "$ver" ] && echo "$(date '+%Y-%m-%d %H:%M:%S') vnt : ${clibin}当前版本号-${ver} " >>/tmp/vnt-cli.log
+                pgrep -f vnt_check | xargs kill -9 >/dev/null 2>&1
+                ps | grep 'vnt-cli' | grep -v grep | awk '{print $1}' | xargs kill >/dev/null 2>&1
+                ps | grep 'vnt-cli' | grep -v grep | awk '{print $1}' | xargs kill -9 >/dev/null 2>&1
+		local token mode ipaddr mtu desvice_id localadd log comp local_dev
+		local peeradd desvice_name vntshost stunhost checkip mapping disable_stats
+		local punch client_port key forward serverw vntdns allow_wg
+		local finger relay first_latency tunname passmode
+		config_get token "$cfg" 'token'
+                config_get vntdns "$cfg" 'vntdns'
+                config_get desvice_id "$cfg" 'desvice_id'
+                config_get desvice_name "$cfg" 'desvice_name'
+                config_get vntshost "$cfg" 'vntshost'
+                config_get local_dev "$cfg" 'local_dev'
+#以下解析IP4P地址的脚本由恩山大佬liaohcai提供
+if [ ! -z "$vntshost" ] ; then
+
+  cas=$(echo $vntshost | grep -oE ':|/'| head -1)
+	case ${cas} in
+  :)  vntshost="$vntshost" 
+  
+  ;;
+ 	# 原地址
+  /) vntshost="`curl $vntshost`"
+
+	# 短链接
+	;;
+	* ) addr=$(curl -k -s "https://ipw.cn/api/dns/${vntshost}/AAAA/all" |  grep -o -i  "2001::[0-9a-fA-F:]\+" | head -n 1 )
+	
+		if [ ! -z "$(echo "$addr" | grep -o -i  "2001::[0-9a-fA-F:]\+")" ] ; then # 判断AAAA记录是不是IP4P地址  使用通断检测 服务器的虚拟ip 来定时检测ip变化
+			eval $(echo "$addr" | awk '/2001/'|cut -d ':' -f 1-6 | awk -F ':' '{print "port="$3" ipa="$4" ipb="$5 }')
+			port=$((0x$port))
+			ip1=$((0x${ipa:0:2}))
+			ip2=$((0x${ipa:2:2}))
+			ip3=$((0x${ipb:0:2}))
+			ip4=$((0x${ipb:2:2}))
+			ipv4="${ip1}.${ip2}.${ip3}.${ip4}:${port}"
+			
+		else
+			ip_port=$(curl -k -s "https://ipw.cn/api/dns/${ddns}/TXT/all" |  grep -oE '"Type":"TXT","recordValue":[^,}]*' | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+:[0-9]+' | head -n 1 ) 
+			if echo "$ip_port" | grep -E '^([0-9]{1,3}\.){3}[0-9]{1,3}:[0-9]{1,5}$' &>/dev/null 2>&1 ; then  # 判断TXT记录是不是IP:PORT地址
+
+				ipv4="${ip_port}"
+
+			else
+				echo "不是有效的IPv4地址:端口格式，请检查下服务地址"
+				echo "退出"
+				exit 0
+			fi
+		fi
+		vntshost=${ipv4}
+	
+	;;
+	esac
+fi
+                config_get stunhost "$cfg" 'stunhost'
+                config_get client_port "$cfg" 'client_port'
+                config_get punch "$cfg" 'punch' 'all'
+                config_get passmode "$cfg" 'passmode'
+                config_get peeradd "$cfg" 'peeradd'
+                config_get localadd "$cfg" 'localadd'
+		config_get mode "$cfg" 'mode'
+		config_get ipaddr "$cfg" 'ipaddr'
+		config_get mtu "$cfg" 'mtu'
+		config_get tunname "$cfg" 'tunname'
+		config_get key "$cfg" 'key'
+		config_get relay "$cfg" 'relay'
+		config_get_bool serverw "$cfg" 'serverw' '0'
+		config_get_bool forward "$cfg" 'forward' '0'
+		config_get_bool finger "$cfg" 'finger' '0'
+		config_get_bool first_latency "$cfg" 'first_latency' '0'
+                config_get_bool log "$cfg" 'log' '0'
+                config_get_bool disable_stats "$cfg" 'disable_stats' '0'
+                config_get_bool allow_wg "$cfg" 'allow_wg' '0'
+                config_get checkip "$cfg" 'checkip'
+                config_get comp "$cfg" 'comp'
+                config_get mapping "$cfg" 'mapping'
+               if [ "$log" = "1" ] ;then
+                 if [ ! -f /tmp/log4rs.yaml ] ; then
+                  cat > /tmp/log4rs.yaml<<EOF
+refresh_rate: 30 seconds
+appenders:
+  rolling_file:
+    kind: rolling_file
+    path: /tmp/vnt-cli.log
+    append: true
+    encoder:
+      pattern: "{d(%Y-%m-%d %H:%M:%S vnt:)} [{f}:{L}] {h({l})} {M}:{m}{n}"
+    policy:
+      kind: compound
+      trigger:
+        kind: size
+        limit: 1 mb
+      roller:
+        kind: fixed_window
+        pattern: /tmp/vnt-cli.{}.log
+        base: 1
+        count: 2
+
+root:
+  level: info
+  appenders:
+    - rolling_file
+EOF
+           fi
+        [ ! -L /log4rs.yaml ] && rm -rf /log4rs.yaml && ln -sf /tmp/log4rs.yaml /log4rs.yaml
+        [ ! -L /tmp/vnt-cli.0.log ] && ln -sf /tmp/vnt-cli.log /tmp/vnt-cli.0.log
+        [ ! -L /tmp/vnt-cli.1.log ] && ln -sf /tmp/vnt-cli.log /tmp/vnt-cli.1.log
+      else
+      rm -rf /tmp/log4rs.yaml
+          fi
+		procd_open_instance "vnt-cli"
+		procd_set_param command "$clibin"
+		procd_append_param command -k "$token"
+		[ -z "$ipaddr" ] || procd_append_param command --ip "$ipaddr"
+		[ -z "$mtu" ] || procd_append_param command -u "$mtu"
+		[ -z "$desvice_id" ] || procd_append_param command -d "$desvice_id"
+		[ -z "$desvice_name" ] || procd_append_param command -n "$desvice_name"
+		[ -z "$vntshost" ] || procd_append_param command -s "$vntshost"
+		[ -z "$client_port" ] || procd_append_param command --ports "$client_port"
+		if [ ! -z "$peeradd" ] ; then
+                  if [[ "$(grep "list peeradd" /etc/config/vnt | awk '{print $3}' | wc -l ) " -eq 1 ]]; then
+                    procd_append_param command -i "$peeradd"
+                  else
+                    for peeraddr in $(cat /etc/config/vnt | grep 'list peeradd'  | awk -F 'list peeradd' '{print $2}' | sed "s/'/\n/g" | tr -d " ' "); do
+                    procd_append_param command -i "$peeraddr"
+                   done
+                   fi
+                fi
+
+                if [ ! -z "$localadd" ] ; then
+                  if [[ "$(grep "list localadd" /etc/config/vnt | awk '{print $3}' | wc -l ) " -eq 1 ]]; then
+                     procd_append_param command -o "$localadd"
+                 else
+                   for localaddr in $(cat /etc/config/vnt | grep 'list localadd'  | awk -F 'list localadd' '{print $2}' | sed "s/'/\n/g" | tr -d " ' "); do
+                   procd_append_param command -o "$localaddr"
+                   done
+                   fi
+                fi
+
+                if [ ! -z "$vntdns" ] ; then
+                  if [[ "$(grep "list vntdns" /etc/config/vnt | awk '{print $3}' | wc -l ) " -eq 1 ]]; then
+                    procd_append_param command --dns "$vntdns"
+                  else
+                    for vntdnss in $(cat /etc/config/vnt | grep 'list vntdns'  | awk -F 'list vntdns' '{print $2}' | sed "s/'/\n/g" | tr -d " ' "); do
+                    procd_append_param command --dns "$vntdnss"
+                   done
+                   fi
+                fi
+
+                if [ ! -z "$stunhost" ] ; then
+                  if [[ "$(grep "list stunhost" /etc/config/vnt | awk '{print $3}' | wc -l ) " -eq 1 ]]; then
+                    procd_append_param command -e "$stunhost"
+                  else
+                    for stunhosts in $(cat /etc/config/vnt | grep 'list stunhost'  | awk -F 'list stunhost' '{print $2}' | sed "s/'/\n/g" | tr -d " ' "); do
+                    procd_append_param command -e "$stunhosts"
+                   done
+                   fi
+                fi
+
+                if [ ! -z "$mapping" ] ; then
+                  if [[ "$(grep "list mapping" /etc/config/vnt | awk '{print $3}' | wc -l ) " -eq 1 ]]; then
+                    procd_append_param command --mapping "$mapping"
+                  else
+                    for mappings in $(cat /etc/config/vnt | grep 'list mapping'  | awk -F 'list mapping' '{print $2}' | sed "s/'/\n/g" | tr -d " ' "); do
+                    procd_append_param command --mapping "$mappings"
+                   done
+                   fi
+                fi
+		[ -z "$tunname" ] || procd_append_param command --nic "$tunname"
+                [ -z "$local_dev" ] || procd_append_param command --local-dev "$local_dev"
+		[ "$punch" = "all" ] || procd_append_param command --punch "$punch"
+		[ "$passmode" != "off" ] && [ -n "$key" ] && procd_append_param command --model "$passmode"
+		[ "$passmode" != "off" ] && [ -n "$key" ] && procd_append_param command -w "$key"
+                [ "$allow_wg" = "0" ] || procd_append_param command --allow-wg
+		[ "$forward" = "0" ] || procd_append_param command --no-proxy
+		[ "$finger" = "0" ] || procd_append_param command --finger
+		[ "$serverw" = "0" ] || procd_append_param command -W
+                [ "$disable_stats" = "1" ] || procd_append_param command --disable-stats
+		[ "$first_latency" = "0" ] || procd_append_param command --first-latency
+                [ "$relay" = "转发" ] && procd_append_param command --use-channel relay
+                [ "$relay" = "P2P" ] && procd_append_param command --use-channel p2p
+                [ "$comp" != "OFF" ] && procd_append_param command --compressor "$comp"
+
+		procd_set_param limits core="unlimited"
+		procd_set_param limits nofile="1000000 1000000"
+		procd_set_param stdout 1
+		procd_set_param stderr 1
+		procd_set_param respawn
+		procd_close_instance
+
+                if [ -z "$tunname" ] ; then
+                   vnt_tun="vnt-tun"
+                else
+                   vnt_tun="$tunname"
+                fi 
+                if [ ! -z "$client_port" ] ; then
+                   if [ ! -z "$(echo $client_port | grep ',' )" ] ; then
+	              vnt_tcp_port="${client_port%%,*}"
+	           else
+                      vnt_tcp_port="$client_port"
+                    fi
+	            uci -q delete firewall.vntcli
+		    uci set firewall.vntcli=rule
+		    uci set firewall.vntcli.name="vntcli"
+		    uci set firewall.vntcli.target="ACCEPT"
+		    uci set firewall.vntcli.src="wan"
+		    uci set firewall.vntcli.proto="tcp"
+		    uci set firewall.vntcli.dest_port="$vnt_tcp_port"
+		    uci set firewall.vntcli.enabled="1"
+	        fi
+		#vnt_ip="$($clibin --info | awk -F 'Virtual ip:' {'print $2'} | tr -d ' \n')"
+                if [ -z "$(uci -q get network.VNT)" ];  then				
+			uci set network.VNT='interface'
+			if [ -z "$ipaddr" ]; then
+				uci set network.VNT.proto='none'
+			else
+				uci set network.VNT.proto='static'
+				uci set network.VNT.ipaddr=$ipaddr
+				uci set network.VNT.netmask='255.0.0.0'
+			fi
+                        uci set network.VNT.device=$vnt_tun
+                        uci set network.VNT.device=$vnt_tun
+		fi
+                if [ -z "$(uci -q get firewall.vntzone)" ];  then
+				uci set firewall.vntzone='zone'
+				uci set firewall.vntzone.input='ACCEPT'
+				uci set firewall.vntzone.output='ACCEPT'
+				uci set firewall.vntzone.forward='ACCEPT'
+				uci set firewall.vntzone.masq='1'
+                                uci set firewall.vntzone.mtu_fix='1'
+				uci set firewall.vntzone.name='VNT'
+				uci set firewall.vntzone.network='VNT'
+		fi
+                uci set firewall.vntfwlan=forwarding
+		uci set firewall.vntfwlan.dest='lan'
+		uci set firewall.vntfwlan.src='VNT'
+                uci set firewall.vntfwwan=forwarding
+		uci set firewall.vntfwwan.dest='wan'
+		uci set firewall.vntfwwan.src='VNT'
+                uci set firewall.lanfwvnt=forwarding
+		uci set firewall.lanfwvnt.dest='VNT'
+		uci set firewall.lanfwvnt.src='lan'
+                uci set firewall.wanfwvnt=forwarding
+		uci set firewall.wanfwvnt.dest='VNT'
+		uci set firewall.wanfwvnt.src='wan'
+                [ -n "$(uci changes network)" ] && uci commit network && /etc/init.d/network reload >/dev/null 2>&1
+		[ -n "$(uci changes firewall)" ] && uci commit firewall && /etc/init.d/firewall reload >/dev/null 2>&1
+		[ "$forward" = "0" ] || sysctl -w net.ipv4.ip_forward=1 >/dev/null 2>&1
+                [ ! -z "$checkip" ] && check
+                echo `date +%s` > /tmp/vnt_time
+                
+}
+
+check () {
+if [ ! -z "$checkip" ] ; then
+  echo ' ' >/tmp/vnt_check
+  cat > /tmp/vnt_check<<'EOF'
+#!/bin/sh
+time="$(($(uci -q get vnt.@vnt-cli[0].checktime) * 60))"
+  if [ -z "$time" ] ;then
+     time=120
+     uci -q set vnt.@vnt-cli[0].checktime=2
+     uci commit vnt
+  fi 
+while true; do
+  if [ "$(uci -q get vnt.@vnt-cli[0].enabled)" = "1" ] ; then
+    ping -c 3 223.5.5.5 -w 5 >/dev/null 2>&1
+    if [ "$?" == "0" ]; then
+        if [ ! -z "$(uci -q get vnt.@vnt-cli[0].checkip)" ] ; then
+           online=""
+           for ip in $(uci -q get vnt.@vnt-cli[0].checkip); do
+           ms=`echo $(ping -4 $ip  -c 2 -w 4 -q) | awk -F '/' '{print $4}'`
+           [ ! -z "$ms" ] && echo "$(date '+%Y-%m-%d %H:%M:%S') vnt : 通断检测：${ip} 延迟：${ms}ms " >>/tmp/vnt-cli.log && online=1
+           [ -z "$ms" ] && echo "$(date '+%Y-%m-%d %H:%M:%S') vnt : 通断检测：${ip} 网络中断 " >>/tmp/vnt-cli.log
+           done     
+           [ "$online" != "1" ] && echo "$(date '+%Y-%m-%d %H:%M:%S') vnt : 通断检测：$(uci -q get vnt.@vnt-cli[0].checkip) 所有指定IP皆无法ping通,重新启动程序！ " >>/tmp/vnt-cli.log && /etc/init.d/vnt restart
+        fi
+     else
+        echo "$(date '+%Y-%m-%d %H:%M:%S') vnt : 通断检测：检测到互联网未能成功访问，跳过检测 " >>/tmp/vnt-cli.log
+    fi
+ else
+ echo "$(date '+%Y-%m-%d %H:%M:%S') vnt : 通断检测：程序已关闭，退出检测 " >>/tmp/vnt-cli.log
+ /etc/init.d/vnt restart
+ break
+ fi
+sleep $((time))
+[ "$(du -k /log/vnt-cli.log | cut -f1)" = "1000" ] && echo " " >/tmp/vnt-cli.log
+done
+EOF
+  chmod +x /tmp/vnt_check
+  /tmp/vnt_check &
+fi
+}
+
+start_vnts() {
+                local cfg="$1"
+		local enabled
+		config_get_bool enabled "$cfg" 'enabled' '0'
+		[ "$enabled" = "1" ] || return 1
+		echo "$(date '+%Y-%m-%d %H:%M:%S') vnt : vnts_${cpucore}开始启动" >>/tmp/vnts.log
+                config_get vntsbin "$cfg" 'vntsbin'
+                if [ -z "$vntsbin" ] ;then
+                   vntsbin=/tmp/vnts
+                fi
+                if [ -f /tmp/vnts ] && [ "${path:0:4}" != "/tmp" ] ;then
+                   chmod +x /tmp/vnts
+                   echo "$(date '+%Y-%m-%d %H:%M:%S') vnt : 找到上传的程序/tmp/vnts，替换为$vntsbin " >>/tmp/vnts.log
+                   upsize="$(du -k /tmp/vnts | cut -f1)"
+                   result=$(expr $size - $upsize)
+                   if [ $(($(/tmp/vnts -h | wc -l))) -gt 3 ] && [ "$result" -gt 500 ] ; then
+                     mv -f /tmp/vnts "$vntsbin"
+                     else
+                     echo "$(date '+%Y-%m-%d %H:%M:%S') vnt : 无法替换，上传的程序不完整或自定义路径的可用空间不足，当前空间剩余${size}kb" >>/tmp/vnts.log
+                   fi
+                fi
+                if [ ! -f "$vntsbin" ] && [ "$size" -lt 10240 ] ; then
+                    echo "$(date '+%Y-%m-%d %H:%M:%S') vnt : 自定义程序路径的可用空间不足，当前可用空间剩余${size}kb,自动切换为内存/tmp/vnts" >>/tmp/vnts.log
+                    uci -q set vnt.@vnts[0].vntsbin=/tmp/vnts
+                    uci commit
+                    vntsbin=/tmp/vnts
+                fi
+                path=$(dirname "$vntsbin")
+                key_path="${path}/key"
+                log_path="${path}/log"
+		if [ $(($($vntsbin -h | wc -l))) -lt 3 ] || [ ! -f "$vntsbin" ] ; then
+		echo "$(date '+%Y-%m-%d %H:%M:%S') vnt : ${vntsbin} 不存在，开始在线下载1.2.12版本，下载较慢耐心等候，如需最新版请前去官方下载手动上传或修改此脚本" >>/tmp/vnts.log
+                mkdir -p "$path"
+                proxy_url="https://hub.gitmirror.com/"
+                proxy_url2="http://gh.ddlc.top/"
+                tag=v1.2.12
+		case "${cpucore}" in 
+	           "mipsle")  curl -L -k -o /tmp/vnts.tar.gz --connect-timeout 10 --retry 3 "${proxy_url}https://github.com/vnt-dev/vnts/releases/download/${tag}/vnts-mipsel-unknown-linux-musl-${tag}.tar.gz" || curl -L -k -o /tmp/vnts.tar.gz --connect-timeout 10 --retry 3 "${proxy_url2}https://github.com/vnt-dev/vnts/releases/download/${tag}/vnts-mipsel-unknown-linux-musl-${tag}.tar.gz" || wget --no-check-certificate -O /tmp/vnts.tar.gz --timeout=10 --tries=3 "https://dl.cnqq.cloudns.ch/https://github.com/vnt-dev/vnts/releases/download/${tag}/vnts-mipsel-unknown-linux-musl-${tag}.tar.gz"
+	           ;;
+	           "mips")  curl -L -k -o /tmp/vnts.tar.gz --connect-timeout 10 --retry 3 "${proxy_url}https://github.com/vnt-dev/vnts/releases/download/${tag}/vnts-mips-unknown-linux-musl-${tag}.tar.gz" || curl -L -k -o /tmp/vnts.tar.gz --connect-timeout 10 --retry 3 "${proxy_url2}https://github.com/vnt-dev/vnts/releases/download/${tag}/vnts-mips-unknown-linux-musl-${tag}.tar.gz" || wget --no-check-certificate -O /tmp/vnts.tar.gz --timeout=10 --tries=3 "https://dl.cnqq.cloudns.ch/https://github.com/vnt-dev/vnts/releases/download/${tag}/vnts-mips-unknown-linux-musl-${tag}.tar.gz" 
+	           ;;
+	           "x86_64")  curl -L -k -o /tmp/vnts.tar.gz --connect-timeout 10 --retry 3 "${proxy_url}https://github.com/vnt-dev/vnts/releases/download/${tag}/vnts-x86_64-unknown-linux-musl-${tag}.tar.gz" || curl -L -k -o /tmp/vnts.tar.gz --connect-timeout 10 --retry 3 "${proxy_url2}https://github.com/vnt-dev/vnts/releases/download/${tag}/vnts-x86_64-unknown-linux-musl-${tag}.tar.gz" || wget --no-check-certificate -O /tmp/vnts.tar.gz --timeout=10 --tries=3 "https://dl.cnqq.cloudns.ch/https://github.com/vnt-dev/vnts/releases/download/${tag}/vnts-x86_64-unknown-linux-musl-${tag}.tar.gz"
+	           ;;
+	           "i386")  echo "$(date '+%Y-%m-%d %H:%M:%S') vnt : 不支持的架构,程序退出" >>/tmp/vnts.log
+                     return 1
+	           ;;
+	           "arm")  curl -L -k -o /tmp/vnts.tar.gz --connect-timeout 10 --retry 3 "${proxy_url}https://github.com/vnt-dev/vnts/releases/download/${tag}/vnts-arm-unknown-linux-musleabi-${tag}.tar.gz" || curl -L -k -o /tmp/vnts.tar.gz --connect-timeout 10 --retry 3 "${proxy_url2}https://github.com/vnt-dev/vnts/releases/download/${tag}/vnts-arm-unknown-linux-musleabi-${tag}.tar.gz" || wget --no-check-certificate -O /tmp/vnts.tar.gz --timeout=10 --tries=3 "https://dl.cnqq.cloudns.ch/https://github.com/vnt-dev/vnts/releases/download/${tag}/vnts-arm-unknown-linux-musleabi-${tag}.tar.gz"
+	           ;;
+	           "armv7")  curl -L -k -o /tmp/vnts.tar.gz --connect-timeout 10 --retry 3 "${proxy_url}https://github.com/vnt-dev/vnts/releases/download/${tag}/vnts-armv7-unknown-linux-musleabi-${tag}.tar.gz" || curl -L -k -o /tmp/vnts.tar.gz --connect-timeout 10 --retry 3 "${proxy_url2}https://github.com/vnt-dev/vnts/releases/download/${tag}/vnts-armv7-unknown-linux-musleabi-${tag}.tar.gz" || wget --no-check-certificate -O /tmp/vnts.tar.gz --timeout=10 --tries=3 "https://dl.cnqq.cloudns.ch/https://github.com/vnt-dev/vnts/releases/download/${tag}/vnts-armv7-unknown-linux-musleabi-${tag}.tar.gz"
+	           ;;
+	           "aarch64")  curl -L -k -o /tmp/vnts.tar.gz --connect-timeout 10 --retry 3 "${proxy_url}https://github.com/vnt-dev/vnts/releases/download/${tag}/vnts-aarch64-unknown-linux-musl-${tag}.tar.gz" || curl -L -k -o /tmp/vnts.tar.gz --connect-timeout 10 --retry 3 "${proxy_url2}https://github.com/vnt-dev/vnts/releases/download/${tag}/vnts-aarch64-unknown-linux-musl-${tag}.tar.gz" || wget --no-check-certificate -O /tmp/vnts.tar.gz --timeout=10 --tries=3 "https://dl.cnqq.cloudns.ch/https://github.com/vnt-dev/vnts/releases/download/${tag}/vnts-aarch64-unknown-linux-musl-${tag}.tar.gz"
+	           ;;
+                   esac
+                   tar zxf /tmp/vnts.tar.gz -C /tmp/
+                   chmod +x /tmp/vnts
+                   rm -rf /tmp/vnts.tar.gz
+                  if [ $(($(/tmp/vnts -h | wc -l))) -gt 3 ]; then
+                    echo "$(date '+%Y-%m-%d %H:%M:%S') vnt : /tmp/vnts 下载成功" >>/tmp/vnts.log
+                    mv -f /tmp/vnts "$vntsbin"
+                 else
+                     uci -q set vnt.@vnts[0].enabled=0
+                     uci commit vnt
+                     echo "$(date '+%Y-%m-%d %H:%M:%S') vnt : $vntsbin 下载失败，请手动下载上传程序,程序退出" >>/tmp/vnts.log
+                     return 1
+                  fi
+                fi
+               chmod +x "$vntsbin"
+                ps | grep 'vnts' | grep -v grep | awk '{print $1}' | xargs kill >/dev/null 2>&1
+                ps | grep 'vnts' | grep -v grep | awk '{print $1}' | xargs kill -9 >/dev/null 2>&1
+		local server_port white_Token subnet servern_netmask logs sfinger web_port webuser webpass web web_wan
+		config_get server_port "$cfg" 'server_port'
+		config_get white_Token "$cfg" 'white_Token'
+		config_get subnet "$cfg" 'subnet'
+		config_get servern_netmask "$cfg" 'servern_netmask'
+		config_get web_port "$cfg" 'web_port' 
+		config_get webuser "$cfg" 'webuser'
+		config_get webpass "$cfg" 'webpass'
+		config_get_bool web "$cfg" 'web' '0'
+                config_get_bool web_wan "$web_wan" 'web_wan' '0'
+                config_get_bool logs "$cfg" 'logs' '0'
+                config_get_bool sfinger "$cfg" 'sfinger' '0'
+
+		procd_open_instance "vnts"
+		procd_set_param command "$vntsbin"
+		procd_append_param command --port "$server_port"
+
+		if [ ! -z "$white_Token" ] ; then
+                   if [[ "$(grep "list white_Token" /etc/config/vnt | awk '{print $3}' | wc -l ) " -eq 1 ]]; then
+                     procd_append_param command --white-token "$white_Token"
+                   else
+                   for white_Tokens in $(cat /etc/config/vnt | grep 'list white_Token'  | awk -F 'list white_Token' '{print $2}' | sed "s/'/\n/g" | tr -d " ' "); do
+                   procd_append_param command --white-token "$white_Tokens"
+                   done
+                   fi
+                fi
+		[ -z "$subnet" ] || procd_append_param command --gateway "$subnet"
+		[ -z "$servern_netmask" ] || procd_append_param command --netmask "$servern_netmask"
+                [ "$sfinger" = "0" ] || procd_append_param command --finger
+                [ "$logs" = "1" ] || procd_append_param command --log-path /dev/null
+                
+                  if [ ! -f "${log_path}/log4rs.yaml" ] ; then
+mkdir -p ${log_path}
+cat > "${log_path}/log4rs.yaml"<<EOF
+refresh_rate: 30 seconds
+appenders:
+  rolling_file:
+    kind: rolling_file
+    path: /tmp/vnts.log
+    append: true
+    encoder:
+      pattern: "{d(%Y-%m-%d %H:%M:%S vnt:)} [{f}:{L}] {h({l})} {M}:{m}{n}"
+    policy:
+      kind: compound
+      trigger:
+        kind: size
+        limit: 1 mb
+      roller:
+        kind: fixed_window
+        pattern: /tmp/vnts.{}.log
+        base: 1
+        count: 2
+
+root:
+  level: info
+  appenders:
+    - rolling_file
+EOF
+                   fi
+                if [ "$web" = "1" ] && [ "$cpucore" != "mips" ] ; then
+                  [ -z "$web_port" ] || procd_append_param command --web-port "$web_port"
+		  [ -z "$webuser" ] || procd_append_param command --username "$webuser"
+		  [ -z "$webpass" ] || procd_append_param command --password "$webpass"
+		  [ -z "$web_port" ] && web_port=29870
+		 else
+                  [ "$cpucore" = "mips" ] && echo "$(date '+%Y-%m-%d %H:%M:%S') vnt : mips架构不支持web界面" >>/tmp/vnt-cli.log
+                  [ "$cpucore" != "mips" ] && procd_append_param command --web-port 0
+		fi
+
+		procd_set_param limits core="unlimited"
+		procd_set_param limits nofile="1000000 1000000"
+		procd_set_param stdout 1
+		procd_set_param stderr 1
+		procd_set_param respawn
+		procd_close_instance
+ 
+                uci -q delete firewall.vnts
+		uci set firewall.vnts=rule
+		uci set firewall.vnts.name="vnts"
+		uci set firewall.vnts.target="ACCEPT"
+		uci set firewall.vnts.src="wan"
+		uci set firewall.vnts.proto="tcp udp icmp igmp"
+		uci set firewall.vnts.dest_port="$server_port"
+		uci set firewall.vnts.enabled="1"
+                if [ "$web" = "1" ] && [ "$web_wan" = "1" ] ; then
+                   uci -q delete firewall.vntsweb
+		   uci set firewall.vntsweb=rule
+		   uci set firewall.vntsweb.name="vnts_web"
+		   uci set firewall.vntsweb.target="ACCEPT"
+		   uci set firewall.vntsweb.src="wan"
+		   uci set firewall.vntsweb.proto="tcp"
+		   uci set firewall.vntsweb.dest_port="$web_port"
+		   uci set firewall.vntsweb.enabled="1"
+		fi
+              [ -n "$(uci changes firewall)" ] && uci commit firewall && /etc/init.d/firewall reload >/dev/null 2>&1
+	        [ "$(uci -q get vnt.@vnts[0].logs)" = "0" ] && rm -rf /tmp/vnts*.log 
+	      if [ "$logs" = "1" ] ;then
+	       sed -i 's|limit: 10 mb|limit: 1 mb|g' ${log_path}/log4rs.yaml
+	       sed -i 's|count: 5|count: 2|g' ${log_path}/log4rs.yaml
+	       logyaml=$(cat ${log_path}/log4rs.yaml |grep path: | awk -F'path: ' '{print $2}')
+               logyaml2=$(cat ${log_path}/log4rs.yaml | grep pattern: | awk -F'pattern: ' '{print $2}')
+               if [ "$logyaml" != "/tmp/vnts.log" ] ; then
+                  sed -i "s|${logyaml}|/tmp/vnts.log|g" ${log_path}/log4rs.yaml
+                  sed -i "s|${logyaml2}|/tmp/vnts.{}.log|g" ${log_path}/log4rs.yaml
+               fi
+               [ ! -L /tmp/vnts.0.log ] && ln -sf /tmp/vnts.log /tmp/vnts.0.log
+               [ ! -L /tmp/vnts.1.log ] && ln -sf /tmp/vnts.log /tmp/vnts.1.log
+	      fi
+              mkdir -p /tmp/vnts_key
+              [ ! -L /tmp/vnts_key/public_key.pem ] && ln -sf ${key_path}/public_key.pem /tmp/vnts_key/public_key.pem
+              [ ! -L /tmp/vnts_key/private_key.pem ] && ln -sf ${key_path}/private_key.pem /tmp/vnts_key/private_key.pem
+              echo `date +%s` > /tmp/vnts_time
+}
+
+stop_cli() {
+                local cfg="$1"
+                pgrep -f vnt_check | xargs kill -9 >/dev/null 2>&1
+                ps | grep 'vnt-cli' | grep -v grep | awk '{print $1}' | xargs kill >/dev/null 2>&1
+                ps | grep 'vnt-cli' | grep -v grep | awk '{print $1}' | xargs kill -9 >/dev/null 2>&1
+                uci -q delete network.VNT
+                uci -q delete firewall.vntzone
+	        uci -q delete firewall.vntfwlan
+	        uci -q delete firewall.vntfwwan
+	        uci -q delete firewall.lanfwvnt
+	        uci -q delete firewall.wanfwvnt
+                uci -q delete firewall.vntcli
+                [ -n "$(uci changes network)" ] && uci commit network && /etc/init.d/network reload >/dev/null 2>&1
+	        [ -n "$(uci changes firewall)" ] && uci commit firewall && /etc/init.d/firewall reload >/dev/null 2>&1
+                rm -rf /tmp/vnt-cli_info /tmp/vnt-cli_all /tmp/vnt-cli_list /tmp/vnt-cli_route
+                rm -rf /tmp/vnt-cli.log /tmp/vnt-cli*.log
+                rm -rf /tmp/vntnew.tag /tmp/vnt.tag
+                echo "$(date '+%Y-%m-%d %H:%M:%S') vnt : 停止运行" >>/tmp/vnt-cli.log
+}
+stop_vnts() {
+	        local cfg="$1"
+                ps | grep 'vnts' | grep -v grep | awk '{print $1}' | xargs kill -9 >/dev/null 2>&1
+		uci -q delete firewall.vnts
+                uci -q delete firewall.vntsweb
+                [ -n "$(uci changes firewall)" ] && uci commit firewall && /etc/init.d/firewall reload >/dev/null 2>&1
+                rm -rf /tmp/vnts.log /tmp/vnts*.log
+                rm -rf /tmp/vntsnew.tag /tmp/vnts.tag
+                echo "$(date '+%Y-%m-%d %H:%M:%S') vnt : 停止运行" >>/tmp/vnts.log
+}
+
+start_service() {
+	config_load 'vnt'
+	cputype=$(uname -ms | tr ' ' '_' | tr '[A-Z]' '[a-z]')
+        [ -n "$(echo $cputype | grep -E "linux.*armv.*")" ] && cpucore="arm"
+        [ -n "$(echo $cputype | grep -E "linux.*armv7.*")" ] && [ -n "$(cat /proc/cpuinfo | grep vfp)" ] && [ ! -d /jffs/clash ] && cpucore="armv7"
+        [ -n "$(echo $cputype | grep -E "linux.*aarch64.*|linux.*armv8.*")" ] && cpucore="aarch64"
+        [ -n "$(echo $cputype | grep -E "linux.*86.*")" ] && cpucore="i386"
+        [ -n "$(echo $cputype | grep -E "linux.*86_64.*")" ] && cpucore="x86_64"
+        if [ -n "$(echo $cputype | grep -E "linux.*mips.*")" ] ; then
+           mipstype=$(echo -n I | hexdump -o 2>/dev/null | awk '{ print substr($2,6,1); exit}') 
+           [ "$mipstype" = "0" ] && cpucore="mips" || cpucore="mipsle"
+        fi
+        
+        #[ -z "`opkg list-installed | grep curl`" ] && echo "$(date '+%Y-%m-%d %H:%M:%S') vnt : 未安装curl，请确定安装好curl " >>/tmp/vnt-cli.log 
+        #[ -z "`opkg list-installed | grep luci-lib-fs`" ] && echo "$(date '+%Y-%m-%d %H:%M:%S') vnt : 未安装luci-lib-fs，请确定安装好luci-lib-fs " >>/tmp/vnt-cli.log 
+	config_foreach start_vntcli 'vnt-cli'
+	config_foreach start_vnts 'vnts'
+}
+
+stop_service() {
+        [ "$(uci -q get vnt.@vnts[0].enabled)" = "0" ] && stop_vnts 'vnts'
+        [ "$(uci -q get vnt.@vnt-cli[0].enabled)" = "0" ] && stop_cli 'vnt-cli'
+}
+
+reload_service() {
+	stop
+	start
+}
+
+service_triggers() {
+	procd_add_reload_trigger "vnt"
+        procd_add_interface_trigger "interface.*.up" wan /etc/init.d/vnt reload
+}

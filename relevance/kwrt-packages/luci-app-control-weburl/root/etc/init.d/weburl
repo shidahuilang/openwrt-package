@@ -1,0 +1,90 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2016 fw867 <ffkykzs@gmail.com>
+# Copyright (C) 2024 Lienol
+
+START=99
+
+CONFIG=weburl
+ipt="iptables -w"
+ip6t="ip6tables -w"
+
+start(){
+	stop
+	ENABLED=$(uci -q get ${CONFIG}.@basic[0].enable || echo "0")
+	[ "${ENABLED}" != "1" ] && exit 0
+	ALGOS=$(uci -q get ${CONFIG}.@basic[0].algos || echo "0")
+	WEBURL_ALGOS="bm"
+	[ "${ALGOS}" = "1" ] && WEBURL_ALGOS="kmp"
+
+	# resolve interface
+	local interface=$(
+		. /lib/functions/network.sh
+
+		network_is_up "lan" && network_get_device device "lan"
+		echo "${device:-br-lan}"
+	)
+
+	$ipt -t filter -N WEBURL_REJECT
+	$ipt -t filter -I WEBURL_REJECT -j DROP
+	$ipt -t filter -I WEBURL_REJECT -p tcp -j REJECT --reject-with tcp-reset
+	$ipt -t filter -N WEBURL_RULES
+	$ipt -t filter -N WEBURL
+	$ipt -t filter -I WEBURL -i $interface -m length --length 53:768 -j WEBURL_RULES
+	# $ipt -t filter -I WEBURL -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+	$ipt -t filter -I FORWARD -j WEBURL
+	
+	$ip6t -t filter -N WEBURL_REJECT 2>/dev/null
+	$ip6t -t filter -I WEBURL_REJECT -j DROP 2>/dev/null
+	$ip6t -t filter -I WEBURL_REJECT -p tcp -j REJECT --reject-with tcp-reset 2>/dev/null
+	$ip6t -t filter -N WEBURL_RULES 2>/dev/null
+	$ip6t -t filter -N WEBURL 2>/dev/null
+	$ip6t -t filter -I WEBURL -i $interface -m length --length 53:768 -j WEBURL_RULES 2>/dev/null
+	# $ip6t -t filter -I WEBURL -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT 2>/dev/null
+	$ip6t -t filter -I FORWARD -j WEBURL 2>/dev/null
+
+	local items=$(uci show ${CONFIG} | grep "=macbind" | cut -d '.' -sf 2 | cut -d '=' -sf 1)
+	for i in $items; do
+		enable=$(uci -q get ${CONFIG}.${i}.enable || echo "0")
+		macaddr=$(uci -q get ${CONFIG}.${i}.macaddr)
+		timeon=$(uci -q get ${CONFIG}.${i}.timeon)
+		timeoff=$(uci -q get ${CONFIG}.${i}.timeoff)
+		keyword=$(uci -q get ${CONFIG}.${i}.keyword)
+		if [ "$enable" == "0" ] || [ -z "$keyword" ]; then
+			continue
+		fi
+		if [ -z "$timeon" ] || [ -z "$timeoff" ]; then
+			settime=""
+		else
+			settime="-m time --kerneltz --timestart $timeon --timestop $timeoff"
+		fi
+
+		if [ -z "$macaddr" ]; then
+			$ipt -t filter -I WEBURL_RULES $settime -m string --string "$keyword" --algo $WEBURL_ALGOS -j WEBURL_REJECT
+			$ip6t -t filter -I WEBURL_RULES $settime -m string --string "$keyword" --algo $WEBURL_ALGOS -j WEBURL_REJECT 2>/dev/null
+		else
+			$ipt -t filter -I WEBURL_RULES $settime -m mac --mac-source $macaddr -m string --string "$keyword" --algo $WEBURL_ALGOS -j WEBURL_REJECT
+			$ip6t -t filter -I WEBURL_RULES $settime -m mac --mac-source $macaddr -m string --string "$keyword" --algo $WEBURL_ALGOS -j WEBURL_REJECT 2>/dev/null
+		fi
+		unset enable macaddr timeon timeoff keyword
+	done
+
+	logger -t weburl "weburl filter on $interface"
+}
+
+stop(){
+	$ipt -t filter -D FORWARD -j WEBURL 2>/dev/null
+	$ipt -t filter -F WEBURL 2>/dev/null
+	$ipt -t filter -X WEBURL 2>/dev/null
+	$ipt -t filter -F WEBURL_RULES 2>/dev/null
+	$ipt -t filter -X WEBURL_RULES 2>/dev/null
+	$ipt -t filter -F WEBURL_REJECT 2>/dev/null
+	$ipt -t filter -X WEBURL_REJECT 2>/dev/null
+	
+	$ip6t -t filter -D FORWARD -j WEBURL 2>/dev/null
+	$ip6t -t filter -F WEBURL 2>/dev/null
+	$ip6t -t filter -X WEBURL 2>/dev/null
+	$ip6t -t filter -F WEBURL_RULES 2>/dev/null
+	$ip6t -t filter -X WEBURL_RULES 2>/dev/null
+	$ip6t -t filter -F WEBURL_REJECT 2>/dev/null
+	$ip6t -t filter -X WEBURL_REJECT 2>/dev/null
+}

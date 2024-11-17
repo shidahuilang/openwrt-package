@@ -1,0 +1,4 @@
+config ram_release 'schedule'
+    option enabled '1'
+    option time '03:00'
+    option days 'mon tue wed thu fri sat sun'

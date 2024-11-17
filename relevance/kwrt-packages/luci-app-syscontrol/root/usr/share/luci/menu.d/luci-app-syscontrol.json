@@ -1,0 +1,61 @@
+{
+	"admin/system/syscontrol": {
+		"title": "System control",
+		"order": 60,
+		"action": {
+			"type": "firstchild"
+		},
+		"depends": {
+			"acl": [ "luci-app-syscontrol" ],
+			"uci": { "system": true }
+		}
+	},
+	"admin/system/syscontrol/overview": {
+		"title": "Overview",
+		"order": 10,
+		"action": {
+			"type": "view",
+			"path": "syscontrol/overview"
+		}
+	},
+	"admin/system/syscontrol/release-ram": {
+		"title": "Release RAM",
+		"order": 20,
+		"action": {
+			"type": "view",
+			"path": "syscontrol/release-ram"
+		}
+	},
+	"admin/system/syscontrol/reboot": {
+		"title": "Reboot",
+		"order": 30,
+		"action": {
+			"type": "view",
+			"path": "syscontrol/reboot"
+		}
+	},
+	"admin/system/syscontrol/shutdown": {
+		"title": "Shutdown",
+		"order": 40,
+		"action": {
+			"type": "view",
+			"path": "syscontrol/shutdown"
+		}
+	},
+	"admin/system/syscontrol/config": {
+		"title": "RAM Release Schedule",
+		"order": 50,
+		"action": {
+			"type": "view",
+			"path": "syscontrol/config"
+		}
+	},
+	"admin/system/syscontrol/log": {
+		"title": "RAM Release Log",
+		"order": 60,
+		"action": {
+			"type": "view",
+			"path": "syscontrol/log"
+		}
+	}
+}

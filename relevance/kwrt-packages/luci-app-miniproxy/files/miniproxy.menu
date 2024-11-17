@@ -1,0 +1,17 @@
+{
+    "admin/network/miniproxy": {
+        "title": "miniproxy",
+        "action": {
+            "type": "view",
+            "path": "miniproxy"
+        },
+        "depends": {
+            "acl": [
+                "luci-app-miniproxy"
+            ],
+            "uci": {
+                "miniproxy": true
+            }
+        }
+    }
+}

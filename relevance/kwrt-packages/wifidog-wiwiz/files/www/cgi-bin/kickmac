@@ -1,0 +1,37 @@
+#!/usr/bin/lua
+require("luci.sys")
+require("luci.util")
+require("luci.http")
+
+function getFormPara( varname )
+    local value
+    local query = luci.sys.getenv("QUERY_STRING")
+    if query ~= nil then
+      query = '&' .. query
+      varname = '&' .. varname .. '='
+      local p, q = string.find( query, varname )
+      if q ~= nil then
+        p = string.find( query, '&', q )
+        if p == nil then p = -1 else p = p - 1 end
+        value = string.sub( query, q + 1, p )
+      end
+    end
+    value = value or 'No such variable'
+    return value
+end
+
+local act = getFormPara("act")
+
+print("Content-type: text/plain\n")
+
+if act == "list" then
+    local s = "timestamp " .. luci.util.exec("date +%s")
+    s = s .. luci.util.exec("cat /tmp/wiwiz_kickmac 2>/dev/null")
+    print(s)
+end
+
+if act == "kick" then
+    local mac = getFormPara("mac")
+    local s = luci.util.exec("S=$(cat /tmp/wiwiz_kickmac | grep -v '".. mac .."' 2>/dev/null); echo \"$S\">/tmp/wiwiz_kickmac")
+    print("ok")
+end

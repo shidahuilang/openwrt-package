@@ -1,0 +1,79 @@
+#!/bin/bash
+
+# Environment GPIOLED
+source /usr/share/gpioled/env
+
+function power() {
+    echo "$TIMESTAMP [$c] $c1" >>$LOG_FILE
+    echo "$TIMESTAMP [$c] $c2" >>$LOG_FILE
+    while :; do
+        if [ "$CPWR" = "red" ]; then
+            if [ "$MPWR" = "0" ]; then
+                echo "0" >/sys/class/gpio/gpio$GPWR1/value && echo "1" >/sys/class/gpio/gpio$GPWR2/value
+                sleep $MPWR
+            elif [ "$MPWR" = "0.1" ]; then
+                echo "0" >/sys/class/gpio/gpio$GPWR1/value && echo "1" >/sys/class/gpio/gpio$GPWR2/value
+                sleep $MPWR
+                echo "0" >/sys/class/gpio/gpio$GPWR1/value && echo "0" >/sys/class/gpio/gpio$GPWR2/value
+                sleep $MPWR
+            elif [ "$MPWR" = "1" ]; then
+                echo "0" >/sys/class/gpio/gpio$GPWR1/value && echo "1" >/sys/class/gpio/gpio$GPWR2/value
+                sleep $MPWR
+                echo "0" >/sys/class/gpio/gpio$GPWR1/value && echo "0" >/sys/class/gpio/gpio$GPWR2/value
+                sleep $MPWR
+            elif [ "$MPWR" = "2" ]; then
+                echo "0" >/sys/class/gpio/gpio$GPWR1/value && echo "1" >/sys/class/gpio/gpio$GPWR2/value
+                sleep $MPWR
+                echo "0" >/sys/class/gpio/gpio$GPWR1/value && echo "0" >/sys/class/gpio/gpio$GPWR2/value
+                sleep $MPWR
+            fi
+        elif [ "$CPWR" = "yellow" ]; then
+            if [ "$MPWR" = "0" ]; then
+                echo "1" >/sys/class/gpio/gpio$GPWR1/value && echo "1" >/sys/class/gpio/gpio$GPWR2/value
+                sleep $MPWR
+            elif [ "$MPWR" = "0.1" ]; then
+                echo "1" >/sys/class/gpio/gpio$GPWR1/value && echo "1" >/sys/class/gpio/gpio$GPWR2/value
+                sleep $MPWR
+                echo "0" >/sys/class/gpio/gpio$GPWR1/value && echo "0" >/sys/class/gpio/gpio$GPWR2/value
+                sleep $MPWR
+            elif [ "$MPWR" = "1" ]; then
+                echo "1" >/sys/class/gpio/gpio$GPWR1/value && echo "1" >/sys/class/gpio/gpio$GPWR2/value
+                sleep $MPWR
+                echo "0" >/sys/class/gpio/gpio$GPWR1/value && echo "0" >/sys/class/gpio/gpio$GPWR2/value
+                sleep $MPWR
+            elif [ "$MPWR" = "2" ]; then
+                echo "1" >/sys/class/gpio/gpio$GPWR1/value && echo "1" >/sys/class/gpio/gpio$GPWR2/value
+                sleep $MPWR
+                echo "0" >/sys/class/gpio/gpio$GPWR1/value && echo "0" >/sys/class/gpio/gpio$GPWR2/value
+                sleep $MPWR
+            fi
+        elif [ "$CPWR" = "green" ]; then
+            if [ "$MPWR" = "0" ]; then
+                echo "1" >/sys/class/gpio/gpio$GPWR1/value && echo "0" >/sys/class/gpio/gpio$GPWR2/value
+                sleep $MPWR
+            elif [ "$MPWR" = "0.1" ]; then
+                echo "1" >/sys/class/gpio/gpio$GPWR1/value && echo "0" >/sys/class/gpio/gpio$GPWR2/value
+                sleep $MPWR
+                echo "0" >/sys/class/gpio/gpio$GPWR1/value && echo "0" >/sys/class/gpio/gpio$GPWR2/value
+                sleep $MPWR
+            elif [ "$MPWR" = "1" ]; then
+                echo "1" >/sys/class/gpio/gpio$GPWR1/value && echo "0" >/sys/class/gpio/gpio$GPWR2/value
+                sleep $MPWR
+                echo "0" >/sys/class/gpio/gpio$GPWR1/value && echo "0" >/sys/class/gpio/gpio$GPWR2/value
+                sleep $MPWR
+            elif [ "$MPWR" = "2" ]; then
+                echo "1" >/sys/class/gpio/gpio$GPWR1/value && echo "0" >/sys/class/gpio/gpio$GPWR2/value
+                sleep $MPWR
+                echo "0" >/sys/class/gpio/gpio$GPWR1/value && echo "0" >/sys/class/gpio/gpio$GPWR2/value
+                sleep $MPWR
+            fi
+        fi
+    done
+}
+
+case "${1}" in
+*)
+    power
+    ;;
+esac
+

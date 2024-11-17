@@ -1,0 +1,254 @@
+msgid "Basic Setting"
+msgstr "基本设置"
+
+msgid "Redir Rule"
+msgstr "转发规则"
+
+msgid "Auto Update"
+msgstr "自动更新"
+
+msgid "Rule Update"
+msgstr "规则更新"
+
+msgid "Core Update"
+msgstr "程序更新"
+
+msgid "Please refer to"
+msgstr "请参考"
+
+msgid "Unknown Version, Pleaes upload a valid CoreDNS program"
+msgstr "未知版本，请上传一个可用的CoreDNS程序"
+
+msgid "RUNNING"
+msgstr "运行中"
+
+msgid "NOT RUNNING"
+msgstr "未运行"
+
+msgid "Collecting data"
+msgstr "获取数据中"
+
+msgid "Basic Options"
+msgstr "基本选项"
+
+msgid "Enabled"
+msgstr "启用"
+
+msgid "Listen port"
+msgstr "监听端口"
+
+msgid "DNSMASQ Forward"
+msgstr "DNS 转发"
+
+msgid "Forward Dnsmasq Domain Name resolution requests to CoreDNS"
+msgstr "将 Dnsmasq 域名解析请求转发到 CoreDNS 服务器"
+
+msgid "Reload Service"
+msgstr "重载服务"
+
+msgid "Reload service to take effect of new configuration"
+msgstr "重载 CoreDNS 服务生效配置文件"
+
+msgid "Edit the custom Corefile in above textarea as you own need"
+msgstr "请在上面的文本框中编写完整的CoreDNS配置文件"
+
+msgid "Enable Cache"
+msgstr "启用缓存"
+
+msgid "Enable Log"
+msgstr "启用日志"
+
+msgid "Please do NOT enable cache when working with OpenClash, AdguardHome"
+msgstr "当和OpenClash, AdguardHome配合使用时请不要启用缓存"
+
+msgid "Default DNS"
+msgstr "默认DNS"
+
+msgid "Upstream DNS server"
+msgstr "此DNS服务器将会被设置为默认的DNS上游服务器，优先级低于转发规则中指定的DNS服务器"
+
+msgid "Randomly select a healthy upstream host"
+msgstr "随机选择一个可用的DNS服务器"
+
+msgid "Select a healthy upstream host in round robin order"
+msgstr "循环选择一个可用的DNS服务器"
+
+msgid "Select a healthy upstream host in sequential order"
+msgstr "按顺序选择一个可用的DNS服务器"
+
+msgid "Bootstrap DNS servers"
+msgstr "Bootstrap DNS 服务器"
+
+msgid "Bootstrap DNS servers are used to resolve IP addresses of the DoH/DoT resolvers you specify as upstreams"
+msgstr "Bootstrap DNS 服务器用于解析您指定为上游的 DoH / DoT 解析器的 IP 地址"
+
+msgid "Subscribe"
+msgstr "订阅"
+
+msgid "Subscribe URL"
+msgstr "订阅地址(URL)"
+
+msgid "Manual subscription"
+msgstr "手工订阅"
+
+msgid "Refresh"
+msgstr "刷新"
+
+msgid "Update"
+msgstr "更新"
+
+msgid "View"
+msgstr "查看"
+
+msgid "Domain List"
+msgstr "域名列表"
+
+msgid "DOMAIN, which the whole line is the domain name"
+msgstr "DOMAIN, 整行填写完整的域名"
+
+msgid "server=/DOMAIN/DNS, which is the format of dnsmasq config file, note that only the DOMAIN will be honored, other fields will be simply discarded"
+msgstr "server=/DOMAIN/DNS, 按照Dnsmasq的域名转发规则填写，仅域名将会被使用"
+
+msgid "Text after # character will be treated as comment"
+msgstr "#开头的行为注释行不起作用"
+
+msgid "Unparsable lines(including whitespace-only line) are therefore just ignored"
+msgstr "不符合规则的行(例如空行)将会被忽略"
+
+msgid "Disable IPv6"
+msgstr "禁用IPv6 DNS解析"
+
+msgid "Path Reload"
+msgstr "文件扫描时间间隔"
+
+msgid "changes the reload interval between each path in FROM, Default is 2s, minimal is 1s"
+msgstr "规则文件的扫描时间间隔，默认值是2s，最小值是1s"
+
+msgid "Expire"
+msgstr "连接保持时间"
+
+msgid "will expire (cached) connections after this time interval, Default is 15s, minimal is 1s"
+msgstr "在这个时间之后连接将会过期，默认值是15s，最小值是1s"
+
+msgid "Max Fails"
+msgstr "最大失败次数"
+
+msgid "is the maximum number of consecutive health checking failures that are needed before considering an upstream as down. 0 to disable this feature(which the upstream will never be marked as down), Default is 3"
+msgstr "DNS服务器失败次数超过这个数值之后这个DNS服务器将会被禁用,设置为0表示禁用这个功能（即是永远不会禁用DNS服务器），默认值是3"
+
+msgid "Health Check"
+msgstr "DNS健康检测周期"
+
+msgid "configure the behaviour of health checking of the upstream hosts, Default is 2s, minimal is 1s"
+msgstr "DNS服务器健康检测周期，默认值是2s，最小值是1s"
+
+msgid "Please input a valid Subscribe URL!"
+msgstr "请输入有效的订阅URL地址"
+
+msgid "Path"
+msgstr "路径"
+
+msgid "The hosts file has a top prority over DNS"
+msgstr "hosts文件拥有DNS解析的最高优先级"
+
+msgid "Update DNS Redir Rules Subscribe"
+msgstr "更新转发规则的订阅"
+
+msgid "Update Time"
+msgstr "更新时间"
+
+msgid "Update Cycle"
+msgstr "更新周期"
+
+msgid "Clear Cycle"
+msgstr "清空周期"
+
+msgid "Every"
+msgstr "每"
+
+msgid "hours"
+msgstr "小时"
+
+msgid "Every Day"
+msgstr "每天"
+
+msgid "Every Monday"
+msgstr "每周一"
+
+msgid "Every Tuesday"
+msgstr "每周二"
+
+msgid "Every Wednesday"
+msgstr "每周三"
+
+msgid "Every Thursday"
+msgstr "每周四"
+
+msgid "Every Friday"
+msgstr "每周五"
+
+msgid "Every Saturday"
+msgstr "每周六"
+
+msgid "Every Sunday"
+msgstr "每周日"
+
+msgid "Check And Update"
+msgstr "检查并更新"
+
+msgid "Enable Auto Update"
+msgstr "启用自动更新"
+
+msgid "Enable Auto Clear"
+msgstr "启用自动清空"
+
+msgid "Updating"
+msgstr "正在更新"
+
+msgid "Update success"
+msgstr "更新成功"
+
+msgid "Update failed, Please check the network status"
+msgstr "更新失败，请检查网络状态"
+
+msgid "Config File"
+msgstr "配置文件"
+
+msgid "Default Config"
+msgstr "内置预设"
+
+msgid "Custom Config"
+msgstr "自定义"
+
+msgid "Log File"
+msgstr "日志文件"
+
+msgid "Logs"
+msgstr "日志"
+
+msgid "Clear Logs"
+msgstr "清空日志"
+
+msgid "Upload"
+msgstr "上传"
+
+msgid "CoreDNS program can be download from"
+msgstr "CoreDNS 程序下载地址:"
+
+msgid "The plugins dnsredir & cache are required at least"
+msgstr "请务必上传内置dnsredir & cache插件的CoreDNS程序"
+
+msgid "Plugins"
+msgstr "插件列表"
+
+msgid "Cannot get plugins list, please check if coredns program was uploaded correctly"
+msgstr "无法获取插件列表，请上传一个可用的CoreDNS程序"
+
+msgid "Create upload file error"
+msgstr "创建上传文件失败"
+
+msgid "Please refresh this page, the upload file has already been saved to"
+msgstr "请手工刷新此页面，上传的文件已经保存到"
+
+msgid "No Specify Upload File"
+msgstr "未指定上传文件"

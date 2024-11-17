@@ -1,0 +1,11 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+msgid "No temperature sensors available"
+msgstr ""
+
+msgid "Sensor"
+msgstr ""
+
+msgid "Temperature"
+msgstr ""

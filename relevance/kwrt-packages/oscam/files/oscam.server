@@ -1,0 +1,8 @@
+[reader]
+label = cyfra
+Protocol = mouse
+device = /dev/ttyUSB0
+group = 1
+emmcache = 1,3,2
+CAID = 0100
+MHz = 368

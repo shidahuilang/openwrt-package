@@ -1,0 +1,13 @@
+
+config global 'global'
+        option enable ''
+        option device ''
+
+config service 'service'
+        option id_il 'green'
+        option id_io 'red'
+        option id_mode '1'
+        option ad_app ''
+        option ad_mode '1'
+        option pwr_color 'green'
+        option pwr_mode '0'

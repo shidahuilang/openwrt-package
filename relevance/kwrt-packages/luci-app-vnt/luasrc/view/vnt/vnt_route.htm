@@ -1,0 +1,29 @@
+<%+cbi/valueheader%>
+<script type="text/javascript">//<![CDATA[
+	function vnt_route(btn)
+	{
+		btn.disabled = true;
+		btn.value = '<%:Collecting data...%>';
+		XHR.get('<%=luci.dispatcher.build_url("admin", "vpn", "vnt", "vnt_route")%>',
+			null,
+			function(x,rv)
+			{
+			var tb = document.getElementById('<%=self.option%>-status');
+			if (tb) {
+  rv.route = rv.route.replace(/Destination/g, "<em><b>对端地址</em></b>")
+                   .replace(/下一跳地址/g, "<em><b>下一跳地址</em></b>")
+                   .replace(/Metric/g, "<em><b>跳数</em></b>")
+                   .replace(/Rt/g, "<em><b>延迟（ms）</em></b>")
+                   .replace(/连接地址/g, "<em><b>连接地址</em></b>")
+  tb.innerHTML = "<br><font color='#FF00FF'>&nbsp;&nbsp;&nbsp;<b><%:vnt-cli --route %></b></font><br>" + rv.route ;
+}
+				btn.disabled = false;
+				btn.value = '<%:路由转发信息%>';
+			}
+		);
+		return false;
+	}
+//]]></script>
+<input type="button" class="btn cbi-button cbi-button-apply" value="<%:路由转发信息%>" onclick="return vnt_route(this)" />
+<span id="<%=self.option%>-status"><em><%=self.value%></em></span>
+<%+cbi/valuefooter%>

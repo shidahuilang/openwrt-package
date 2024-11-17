@@ -1,0 +1,11 @@
+{
+	"luci-app-frpc": {
+	"description": "Grant UCI access for luci-app-campusnet",
+	"read": {
+		"uci": [ "campusnet" ]
+		},
+	"write": {
+		"uci": [ "campusnet" ]
+		}
+	}
+}

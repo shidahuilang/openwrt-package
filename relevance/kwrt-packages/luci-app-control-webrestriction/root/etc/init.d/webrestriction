@@ -1,0 +1,86 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2016 fw867 <ffkykzs@gmail.com>
+# Copyright (C) 2024 Lienol
+
+START=99
+
+CONFIG=webrestriction
+ipt="iptables -w"
+ip6t="ip6tables -w"
+
+add_rule(){
+	action=$1
+	local items=$(uci show ${CONFIG} | grep "=macbind" | cut -d '.' -sf 2 | cut -d '=' -sf 1)
+	for i in $items; do
+		enable=$(uci -q get ${CONFIG}.${i}.enable)
+		macaddr=$(uci -q get ${CONFIG}.${i}.macaddr)
+		if [ -z $enable ] || [ -z $macaddr ]; then
+			continue
+		fi
+		if [ "$enable" == "1" ]; then
+			$ipt -A WEB_RESTRICTION -m mac --mac-source $macaddr -j $action
+			$ip6t -A WEB_RESTRICTION -m mac --mac-source $macaddr -j $action 2>/dev/null
+			[ "$limit_type" == "blacklist" ] && {
+				$ipt -t nat -A WEB_RESTRICTION -m mac --mac-source $macaddr -j RETURN
+				$ip6t -t nat -A WEB_RESTRICTION -m mac --mac-source $macaddr -j RETURN 2>/dev/null
+			}
+		fi
+		unset enable macaddr
+	done
+}
+
+start(){
+	stop
+	ENABLED=$(uci -q get ${CONFIG}.@basic[0].enable || echo "0")
+	[ "${ENABLED}" != "1" ] && exit 0
+	limit_type=$(uci -q get ${CONFIG}.@basic[0].limit_type)
+
+	$ipt -N WEB_RESTRICTION
+	$ip6t -N WEB_RESTRICTION 2>/dev/null
+	if [ "$limit_type" == "blacklist" ]; then
+		$ipt -t nat -N WEB_RESTRICTION
+		$ip6t -t nat -N WEB_RESTRICTION 2>/dev/null
+		add_rule DROP
+	else
+		add_rule ACCEPT
+		$ipt -A WEB_RESTRICTION -j DROP
+		$ip6t -A WEB_RESTRICTION -j DROP 2>/dev/null
+	fi
+
+	#获取FORWARD ACCEPT规则行号
+	FA_INDEX=`$ipt -L FORWARD --line-numbers | tail -n +3 | grep -E ACCEPT | grep ctstate | grep fw3 | awk '{print $1}'`
+	[ -n "$FA_INDEX" ] && let FA_INDEX+=1
+	$ipt -I FORWARD $FA_INDEX -j WEB_RESTRICTION
+
+	#获取FORWARD ACCEPT规则行号
+	FA_INDEX=`$ip6t -L FORWARD --line-numbers | tail -n +3 | grep -E ACCEPT | grep ctstate | grep fw3 | awk '{print $1}'`
+	[ -n "$FA_INDEX" ] && let FA_INDEX+=1
+	$ip6t -I FORWARD $FA_INDEX -j WEB_RESTRICTION
+
+	[ "$limit_type" == "blacklist" ] && {
+		$ipt -t nat -I PREROUTING 1 -j WEB_RESTRICTION
+		$ip6t -t nat -I PREROUTING 1 -j WEB_RESTRICTION 2>/dev/null
+	}
+}
+stop(){
+	ipt_del() {
+		for i in $(seq 1 $($1 -nL $2 | grep -c "WEB_RESTRICTION")); do
+			local index=$($1 --line-number -nL $2 | grep "WEB_RESTRICTION" | head -1 | awk '{print $1}')
+			$1 -w -D $2 $index 2>/dev/null
+		done
+	}
+	ipt_del "$ipt" "FORWARD"
+	ipt_del "$ipt" "INPUT"
+	ipt_del "$ipt -t nat" "PREROUTING"
+	ipt_del "$ip6t" "FORWARD"
+	ipt_del "$ip6t" "INPUT"
+	ipt_del "$ip6t -t nat" "PREROUTING"
+	$ipt -F WEB_RESTRICTION 2>/dev/null
+	$ipt -X WEB_RESTRICTION 2>/dev/null
+	$ipt -t nat -F WEB_RESTRICTION 2>/dev/null
+	$ipt -t nat -X WEB_RESTRICTION 2>/dev/null
+	$ip6t -F WEB_RESTRICTION 2>/dev/null
+	$ip6t -X WEB_RESTRICTION 2>/dev/null
+	$ip6t -t nat -F WEB_RESTRICTION 2>/dev/null
+	$ip6t -t nat -X WEB_RESTRICTION 2>/dev/null
+}

@@ -1,0 +1,53 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+msgid "AT Commands"
+msgstr "Comandi AT"
+
+msgid "Configuration"
+msgstr "Configurazione"
+
+msgid "Please specify the AT command to send"
+msgstr "Specificare il comando AT da inviare"
+
+msgid "Please set the port for communication with the modem"
+msgstr "Specificare la porta per la comunicazione con il modem"
+
+msgid "User AT commands"
+msgstr "Comandi AT dell'utente"
+
+msgid "Command to send"
+msgstr "Il comando da inviare"
+
+msgid "Clear form"
+msgstr "Forma chiara"
+
+msgid "Send command"
+msgstr "Invia il comando"
+
+msgid "Reply"
+msgstr "Risposta" 
+
+msgid "User interface for handling AT commands using sms-tool. More information about the sms-tool on the %seko.one.pl forum%s."
+msgstr "Interfaccia utente per la gestione dei comandi AT utilizzando sms-tool. Maggiori informazioni sul programma sms-tool su %sforum eko.one.pl%s."
+
+msgid "Configuration sms-tool"
+msgstr "Configurazione dello strumento sms-tool"
+
+msgid "Configuration panel for sms-tool and gui application."
+msgstr "Pannello impostazioni per il programma sms-tool e per l'interfaccia utente."
+
+msgid "Port for communication with the modem"
+msgstr "Porta di comunicazione modem"
+
+msgid "Select one of the available ttyUSBX ports."
+msgstr "Seleziona una delle porte ttyUSBX disponibili."
+
+msgid "Please select a port"
+msgstr "Seleziona una porta"
+
+msgid "Each line must have the following format: 'At command description;AT command'. For user convenience, the file is saved to the location '/etc/modem/atcommands.user'."
+msgstr "Ogni riga dovrebbe avere il seguente formato: 'AT descrizione comando;AT comando'. Per comodità, i comandi AT sono memorizzati nel file /etc/modem/atcommands.user'."
+
+msgid "Press [Enter] to send the command, press [Delete] to delete the command."
+msgstr "Premere [Enter] per inviare il comando, premere [Delete] per eliminare."

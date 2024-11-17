@@ -1,0 +1,13 @@
+{
+	"admin/services/wifidogx": {
+		"title": "apfree-wifidog",
+		"order": 1,
+		"action": {
+			"type": "view",
+			"path": "wifidogx"
+		},
+		"depends": {
+			"acl": [ "luci-app-apfree-wifidog" ]
+		}
+	}
+}

@@ -1,0 +1,32 @@
+#!/bin/sh
+# Copyright (C) 2023 muink https://github.com/muink
+
+CONF='/etc/config/natmap'
+NAME='natmap'
+NATMAPSECTION='natmap'
+
+. /lib/functions/network.sh
+
+# uci options migration
+if [ -z "$(grep '^config global$' "$CONF")" ]; then
+sed -i '1i\\config global' "$CONF"
+## notify_script --> custom_script
+sed -i 's|\boption notify_script|option custom_script|g' "$CONF"
+## interface --> bind_ifname
+for k in $(uci -q show $NAME|sed -En "s|^$NAME\.@$NATMAPSECTION\[(\d+)\]\.interface='(.*)'$|'\1:\2'|gp"); do
+	i=${k%%:*}; i=${i#\'}
+	iface="${k#*:}"; iface="${iface%\'}"
+	network_get_device ifname "$iface"
+	[ -z "$ifname" ] && network_get_physdev ifname "$iface"
+	[ -z "$ifname" ] && continue
+	uci set $NAME.@$NATMAPSECTION[$i].bind_ifname="$ifname"
+	uci delete $NAME.@$NATMAPSECTION[$i].interface
+	uci commit $NAME
+done
+else
+## def_interval --> def_tcp_interval/def_udp_interval
+sed -Ei 's|def_interval (.*)|def_tcp_interval \1\n\toption def_udp_interval \1|' "$CONF"
+fi
+# gen natmap-curl
+ln -sf "$(command -v curl)" /usr/bin/natmap-curl
+exit 0

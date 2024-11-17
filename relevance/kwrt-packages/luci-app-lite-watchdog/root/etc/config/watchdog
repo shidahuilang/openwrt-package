@@ -1,0 +1,13 @@
+
+config watchdog
+	option iface 'wan'
+	option restartcmd 'at+cfun=1,1'
+	option dest 'google.com'
+	option delay '120'
+	option period '15'
+	option period_count '5'
+	option enabled '0'
+	option action 'wan'
+	option log 'all'
+
+

@@ -1,0 +1,15 @@
+{
+	"luci-app-cpu-perf": {
+		"description": "Grant access to cpu-perf procedures",
+		"read": {
+			"uci": [ "cpu-perf" ],
+			"ubus": {
+				"luci": [ "getInitList", "setInitAction" ],
+				"luci.cpu-perf": [ "getCpuPerf" ]
+			}
+		},
+		"write": {
+			"uci": [ "cpu-perf" ]
+		}
+	}
+}

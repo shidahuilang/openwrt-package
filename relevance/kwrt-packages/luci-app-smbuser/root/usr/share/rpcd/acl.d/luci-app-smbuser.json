@@ -1,0 +1,11 @@
+{
+	"luci-app-smbuser": {
+		"description": "Grant UCI access for luci-app-smbuser",
+		"read": {
+			"uci": [ "smbuser" ]
+		},
+		"write": {
+			"uci": [ "smbuser" ]
+		}
+	}
+}

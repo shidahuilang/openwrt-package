@@ -1,0 +1,75 @@
+#!/bin/sh /etc/rc.common
+#
+# Copyright (C) 2015 OpenWrt-dist
+# Copyright (C) 2016 fw867 <ffkykzs@gmail.com>
+#
+# This is free software, licensed under the GNU General Public License v3.
+# See /LICENSE for more information.
+#
+
+START=99
+
+CONFIG=timewol
+
+uci_get_by_type() {
+	local index=0
+	if [ -n $4 ]; then
+		index=$4
+	fi
+	local ret=$(uci get $CONFIG.@$1[$index].$2 2>/dev/null)
+	echo ${ret:=$3}
+}
+
+is_true() {
+	case $1 in
+		1|on|true|yes|enabled) echo 0;;
+		*) echo 1;;
+	esac
+}
+
+load_config() {
+	ENABLED=$(uci_get_by_type basic enable)
+	return $(is_true $ENABLED)
+}
+
+add_rule(){
+	local items=$(uci show ${CONFIG} | grep "=macclient" | cut -d '.' -sf 2 | cut -d '=' -sf 1)
+	for i in $items; do
+		local macaddr=$(uci -q get ${CONFIG}.${i}.macaddr)
+		local maceth=$(uci -q get ${CONFIG}.${i}.maceth)
+		local minute=$(uci -q get ${CONFIG}.${i}.minute)
+		local hour=$(uci -q get ${CONFIG}.${i}.hour)
+		local day=$(uci -q get ${CONFIG}.${i}.day)
+		local month=$(uci -q get ${CONFIG}.${i}.month)
+		local weeks=$(uci -q get ${CONFIG}.${i}.weeks)
+		if [ -z $macaddr ] || [ -z $maceth ]; then
+			continue
+		fi
+		if [ -z $minute ] ; then
+			minute="0"
+		fi
+		if [ -z $hour ] ; then
+			hour="*"
+		fi
+		if [ -z $day ] ; then
+			day="*"
+		fi
+		if [ -z $month ] ; then
+			month="*"
+		fi
+		if [ -z $weeks ] ; then
+			weeks="*"
+		fi
+		echo "$minute $hour $day $month $weeks /usr/bin/etherwake -D -i $maceth $macaddr" >> /etc/crontabs/root
+		unset macaddr maceth minute hour day month weeks
+	done
+}
+
+start() {
+	stop
+    ! load_config && exit 0
+    add_rule
+}
+stop() {
+	sed -i '/etherwake/d' /etc/crontabs/root >/dev/null 2>&1
+}

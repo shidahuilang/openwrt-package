@@ -1,0 +1,43 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+msgid "forcedata"
+msgstr "原力云"
+
+msgid "Forcedata"
+msgstr "原力云"
+
+msgid "Cache path"
+msgstr "缓存文件路径"
+
+msgid "Service Status"
+msgstr "服务状态"
+
+msgid "Forcedata status:"
+msgstr "原力云的状态信息如下："
+
+msgid "Setup"
+msgstr "安装配置"
+
+msgid "The following parameters will only take effect during installation or upgrade:"
+msgstr "以下参数只在安装或者升级时才会生效："
+
+msgid "Status"
+msgstr "状态"
+
+msgid "Running, click to show QR"
+msgstr "运行中，点击查看二维码"
+
+msgid "forcedata is not running"
+msgstr "原力云 未运行"
+
+
+msgid "Use “原力云” Wechat Little APP to scan the QR, click:"
+msgstr "用“原力云”小程序扫码，请查看："
+
+msgid "Guide"
+msgstr "教程"
+
+msgid "UID"
+msgstr "唯一标识"
+

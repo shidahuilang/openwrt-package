@@ -1,0 +1,11 @@
+{
+	"luci-app-attendedsysupgrade": {
+		"description": "Grant UCI access for luci-app-attendedsysupgrade",
+		"read": {
+			"uci": [ "attendedsysupgrade" ]
+		},
+		"write": {
+			"uci": [ "attendedsysupgrade" ]
+		}
+	}
+}

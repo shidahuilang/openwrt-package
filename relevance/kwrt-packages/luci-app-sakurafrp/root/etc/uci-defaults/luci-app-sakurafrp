@@ -1,0 +1,2 @@
+#!/bin/sh
+[ ! -s "/etc/config/sakurafrp" ] && cp -f /usr/share/sakurafrp/0_default_config /etc/config/sakurafrp

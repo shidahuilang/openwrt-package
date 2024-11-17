@@ -1,0 +1,71 @@
+<%
+local util  = require "luci.util"
+local container_status = util.trim(util.exec("/usr/libexec/istorec/forcedata.sh status"))
+local container_running = container_status == "running"
+local uci = require "luci.model.uci".cursor()
+local uid = uci:get_first("forcedata", "forcedata", "uid", "")
+-%>
+<div class="cbi-value">
+    <label class="cbi-value-title"><%:Status%></label>
+    <div class="cbi-value-field">
+        <% if container_running then %>
+        <button class="cbi-button cbi-button-success" id="btnShowQr"><%:Running, click to show QR%></button>
+        <% else %>
+        <button class="cbi-button cbi-button-negative" disabled="true"><%:Forcedata is not running%></button>
+        <% end %>
+    </div>
+</div>
+<div class="cbi-value" id="winContainer" style="display: none">
+    <label class="cbi-value-title"></label>
+    <div class="cbi-value-field">
+        <div style="display: flex;flex-direction: column;align-items: center; width:276px; background-color: white;">
+            <div style="
+                width: 256px;
+                height: 256px;
+                margin: 10px;
+                ">
+                <div id="qrimage" >
+                </div>
+                <div id="weapp" style="display: none">
+                    <img src="/luci-static/forcedata/weapp.jpg" alt="小程序码" style="
+                        width: 256px;
+                        height: 256px;
+                    ">
+                </div>
+            </div>
+            <h6>用<a id="btnShowWeapp" href="javascript:void(0);">“原力云”小程序</a>扫码，请查看：<a href="https://docs.qq.com/doc/DZXNFWWtKbHN4UHFD" target="_blank">教程</a></h6>
+        </div>
+    </div>
+</div>
+<script src="/luci-static/forcedata/qrcode.min.js"></script>
+
+<script>
+    (function() {
+    'use strict';
+    var shown = false;
+    var tryShowQr = function() {
+        if (shown) {
+            return;
+        }
+        shown = true;
+        new QRCode(document.getElementById("qrimage"), "force_10_"+"<%=uid%>");
+        document.getElementById("winContainer").style.removeProperty('display');
+    };
+
+    document.getElementById("btnShowQr").addEventListener("click", function(e){ 
+        e.preventDefault();
+        tryShowQr();
+    });
+    document.getElementById("btnShowWeapp").addEventListener("mouseenter", function(e){ 
+        e.preventDefault();
+        document.getElementById("qrimage").style.display='none';
+        document.getElementById("weapp").style.removeProperty('display');
+    });
+    document.getElementById("btnShowWeapp").addEventListener("mouseleave", function(e){ 
+        e.preventDefault();
+        document.getElementById("weapp").style.display='none';
+        document.getElementById("qrimage").style.removeProperty('display');
+    });
+})();
+
+</script>

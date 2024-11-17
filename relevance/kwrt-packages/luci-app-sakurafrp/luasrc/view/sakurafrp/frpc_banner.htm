@@ -1,0 +1,37 @@
+<script type="application/javascript">
+    const stopPath = '<%=luci.dispatcher.build_url("admin", "services", "sakurafrp", "frpc_stop")%>'
+    const restartPath = '<%=luci.dispatcher.build_url("admin", "services", "sakurafrp", "frpc_restart")%>'
+    const forceStopPath = '<%=luci.dispatcher.build_url("admin", "services", "sakurafrp", "frpc_force_stop")%>'
+    const uninstallPath = '<%=luci.dispatcher.build_url("admin", "services", "sakurafrp", "frpc_uninstall")%>'
+    const resetPath = '<%=luci.dispatcher.build_url("admin", "services", "sakurafrp", "reset_plugin")%>'
+
+    function stop() {
+        XHR.get(stopPath, null, null);
+    }
+
+    function restart() {
+        XHR.get(restartPath, null, null);
+    }
+
+    function forceStop() {
+        XHR.get(forceStopPath, null, null);
+    }
+
+    function uninstall() {
+        XHR.get(uninstallPath, null, null);
+    }
+
+    function reset() {
+        XHR.get(resetPath, null, function (){
+            location.reload()
+        });
+    }
+</script>
+
+<div style="text-align: center">
+    <input class="btn cbi-button cbi-button-apply" type="button" onclick="stop()" value="<%:Stop Frpc%>" />
+    <input class="btn cbi-button cbi-button-apply" type="button" onclick="restart()" value="<%:Restart Frpc%>" />
+    <input class="btn cbi-button cbi-button-apply" type="button" onclick="forceStop()" value="<%:Force Stop Frpc%>" />
+    <input class="btn cbi-button cbi-button-reset" type="button" onclick="uninstall()" value="<%:Uninstall Frpc%>" />
+    <input class="btn cbi-button cbi-button-reset" type="button" onclick="reset()" value="<%:Reset%>" />
+</div>

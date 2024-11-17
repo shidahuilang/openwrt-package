@@ -1,0 +1,61 @@
+{
+    "admin/network/qosmate": {
+        "title": "QoSmate",
+        "order": 70,
+        "action": {
+            "type": "firstchild"
+        },
+        "depends": {
+            "acl": [ "luci-app-qosmate" ],
+            "uci": { "qosmate": true }
+        }
+    },
+    "admin/network/qosmate/settings": {
+        "title": "Settings",
+        "order": 10,
+        "action": {
+            "type": "view",
+            "path": "qosmate/settings"
+        }
+    },
+    "admin/network/qosmate/hfsc": {
+        "title": "HFSC",
+        "order": 20,
+        "action": {
+            "type": "view",
+            "path": "qosmate/hfsc"
+        }
+    },
+    "admin/network/qosmate/cake": {
+        "title": "CAKE",
+        "order": 30,
+        "action": {
+            "type": "view",
+            "path": "qosmate/cake"
+        }
+    },
+    "admin/network/qosmate/advanced": {
+        "title": "Advanced",
+        "order": 40,
+        "action": {
+            "type": "view",
+            "path": "qosmate/advanced"
+        }
+    },
+    "admin/network/qosmate/rules": {
+        "title": "Rules",
+        "order": 50,
+        "action": {
+            "type": "view",
+            "path": "qosmate/rules"
+        }
+    },
+    "admin/network/qosmate/connections": {
+        "title": "Connections",
+        "order": 60,
+        "action": {
+            "type": "view",
+            "path": "qosmate/connections"
+        }
+    }
+}

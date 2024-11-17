@@ -1,0 +1,15 @@
+{
+    "luci-app-miniproxy": {
+        "description": "Grant access to miniproxy configuration",
+        "read": {
+            "uci": [
+                "miniproxy"
+            ]
+        },
+        "write": {
+            "uci": [
+                "miniproxy"
+            ]
+        }
+    }
+}

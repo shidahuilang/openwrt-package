@@ -1,0 +1,349 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: Frand.Ren <coflery@gmail.com>\n"
+"Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/\n"
+"openwrt/luciapplicationsdisksinfo/zh_Hans/>\n"
+"MIME-Version: 1.0\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: zh_Hans\n"
+"X-Generator: Weblate 4.6-dev\n"
+
+msgid "ATA Version is"
+msgstr "ATA 版本"
+
+msgid "Apply"
+msgstr "应用"
+
+msgid "Attribute name"
+msgstr "参数名"
+
+msgid "Available"
+msgstr "可用"
+
+msgid "Boot"
+msgstr "引导"
+
+msgid "Collecting data..."
+msgstr "正在收集数据..."
+
+msgid "Current"
+msgstr "当前"
+
+msgid "Description"
+msgstr "描述"
+
+msgid "Device"
+msgstr "设备"
+
+msgid "Device is"
+msgstr "设备"
+
+msgid "Device Model"
+msgstr "设备型号"
+
+msgid "Device statistics"
+msgstr "设备统计信息"
+
+msgid "Disk model"
+msgstr "型号"
+
+msgid "Disk identifier"
+msgstr "磁盘标识符"
+
+msgid "Disklabel type"
+msgstr "分区表类型"
+
+msgid "Disk Devices"
+msgstr "磁盘设备"
+
+msgid "End"
+msgstr "结束"
+
+msgid "Error number"
+msgstr "错误号"
+
+msgid "Estimated time"
+msgstr "预计时间"
+
+msgid "Filesystems"
+msgstr "文件系统"
+
+msgid "Filesystem"
+msgstr "文件系统"
+
+msgid "Firmware Version"
+msgstr "固件版本"
+
+msgid "Form Factor"
+msgstr "外形"
+
+msgid "Free-Fall Statistics"
+msgstr "自由跌落统计"
+
+msgid "Gb"
+msgstr ""
+
+msgid "General Statistics"
+msgstr "常见信息统计"
+
+msgid "General Errors Statistics"
+msgstr "错误信息统计"
+
+msgid "Id"
+msgstr "ID"
+
+msgid "In smartctl database [for details use: -P show]"
+msgstr "在 smartctl 数据库中 [详细使用说明：-P show]"
+
+msgid "Index"
+msgstr "索引"
+
+msgid "Information about the connected disk devices."
+msgstr "有关已连接磁盘设备的信息"
+
+msgid "LU WWN Device Id"
+msgstr "LI WWN 设备ID"
+
+msgid "Lifetime hours"
+msgstr "生命小时数"
+
+msgid "Lifetime max"
+msgstr "历史最高温"
+
+msgid "Lifetime min"
+msgstr "历史最低温"
+
+msgid "Limit max"
+msgstr "上限温度"
+
+msgid "Limit min"
+msgstr "下限温度"
+
+msgid "Local Time is"
+msgstr "当前时间"
+
+msgid "May not be supported by some devices..."
+msgstr "某些设备可能不支持..."
+
+msgid "Model Family"
+msgstr "家族型号"
+
+msgid "Mounted on"
+msgstr "挂载点"
+
+msgid "No devices detected"
+msgstr "未检测到设备"
+
+msgid "No mounted filesystems"
+msgstr "没有挂载文件系统"
+
+msgid "No partitions available"
+msgstr "没有可用分区"
+
+msgid "Not in smartctl database [for details use: -P showall]"
+msgstr "不在 smartctl 数据库中 [详细使用说明：-P showall]"
+
+msgid "Partitions"
+msgstr "分区"
+
+msgid "Percentage Used Endurance Indicator"
+msgstr "已使用寿命"
+
+msgid "Preserve across power cycles"
+msgstr "重启后不变"
+
+msgid "RAW"
+msgstr "原始值"
+
+msgid "Recommended max"
+msgstr "推荐最高温度"
+
+msgid "Recommended min"
+msgstr "推荐最低温度"
+
+msgid "Refresh devices"
+msgstr "重新加载设备信息"
+
+msgid "Rotating Media Statistics"
+msgstr "旋转媒体统计"
+
+msgid "Rotation Rate"
+msgstr "转速"
+
+msgid "S.M.A.R.T."
+msgstr ""
+
+msgid "S.M.A.R.T. error log"
+msgstr "S.M.A.R.T. 错误日志"
+
+msgid "SATA Version is"
+msgstr "SATA 版本"
+
+msgid "SCT temperature history"
+msgstr "SCT 温度历史"
+
+msgid "SMART overall-health self-assessment test result:"
+msgstr "SMART 自我评估："
+
+msgid "Set logging interval"
+msgstr "设置记录间隔"
+
+msgid "Sector Size"
+msgstr "扇区大小"
+
+msgid "Sector size (logical/physical)"
+msgstr "扇区大小(逻辑/物理)"
+
+msgid "Sectors"
+msgstr "扇区"
+
+msgid "Serial Number"
+msgstr "序列号"
+
+msgid "Size"
+msgstr "大小"
+
+msgid "Solid State Device Statistics"
+msgstr "固态硬盘统计信息"
+
+msgid "Start"
+msgstr "开始"
+
+msgid "Temperature"
+msgstr "温度"
+
+msgid "Temperature Statistics"
+msgstr "温度统计"
+
+msgid "THRESH"
+msgstr "临界值"
+
+msgid "Transport Statistics"
+msgstr "传输统计"
+
+msgid "Type"
+msgstr "类型"
+
+msgid "Units"
+msgstr "单位"
+
+msgid "Use"
+msgstr "已使用"
+
+msgid "Used"
+msgstr "已使用"
+
+msgid "User Capacity"
+msgstr "总大小"
+
+msgid "VALUE"
+msgstr "当前值"
+
+msgid "WHEN FAILED"
+msgstr "失效时间"
+
+msgid "WORST"
+msgstr "最差值"
+
+msgid "Write to device memory"
+msgstr "保存配置"
+
+msgid "blocks"
+msgstr "块"
+
+msgid "bytes"
+msgstr "字节"
+
+msgid "failed"
+msgstr "失败"
+
+msgid "interval"
+msgstr "间隔"
+
+msgid "logical/physical"
+msgstr "逻辑/物理"
+
+msgid "min"
+msgstr "分钟"
+
+msgid "passed"
+msgstr "通过"
+
+msgid "I/O size (minimum/optimal)"
+msgstr "I/O 大小 (最小/最优)"
+
+msgid "Number of Hardware Resets"
+msgstr "硬件复位计数"
+
+msgid "Number of Interface CRC Errors"
+msgstr "接口CRC错误计数"
+
+msgid "Lifetime Power-On Resets"
+msgstr "上电复位计数"
+
+msgid "Power-on Hours"
+msgstr "通电小时"
+
+msgid "Logical Sectors Written"
+msgstr "逻辑扇区写计数"
+
+msgid "Number of Write Commands"
+msgstr "命令写计数"
+
+msgid "Logical Sectors Read"
+msgstr "逻辑扇区读计数"
+
+msgid "Number of Read Commands"
+msgstr "命令读计数"
+
+msgid "Number of Reported Uncorrectable Errors"
+msgstr "无法修复的错误计数"
+
+msgid "Resets Between Cmd Acceptance and Completion"
+msgstr "命令接收与完成之间的复位计数"
+
+msgid "Current Temperature"
+msgstr "当前温度"
+
+msgid "Average Short Term Temperature"
+msgstr "短期平均温度"
+
+msgid "Average Long Term Temperature"
+msgstr "长期平均温度"
+
+msgid "Highest Temperature"
+msgstr "最高温度"
+
+msgid "Lowest Temperature"
+msgstr "最低温度"
+
+msgid "Highest Average Short Term Temperature"
+msgstr "短期最高平均温度"
+
+msgid "Lowest Average Short Term Temperature"
+msgstr "短期最低平均温度"
+
+msgid "Highest Average Long Term Temperature"
+msgstr "长期最高平均温度"
+
+msgid "Lowest Average Long Term Temperature"
+msgstr "长期最低平均温度"
+
+msgid "Time in Over-Temperature"
+msgstr "超温时间"
+
+msgid "Specified Maximum Operating Temperature"
+msgstr "推荐最高工作温度"
+
+msgid "Time in Under-Temperature"
+msgstr "低温时间"
+
+msgid "Specified Minimum Operating Temperature"
+msgstr "推荐最低工作温度"
+
+msgid "Solid State Device"
+msgstr "固态硬盘"

@@ -1,0 +1,15 @@
+#!/usr/sbin/nft -f
+
+table ip intp {
+    chain PREROUTING {
+		type nat hook prerouting priority dstnat; policy accept;
+		meta l4proto udp udp dport 123 counter packets 0 bytes 0 jump ntp_force_local
+	}
+
+    chain ntp_force_local {
+		ip daddr 0.0.0.0/8 counter packets 0 bytes 0 return
+		ip daddr 127.0.0.0/8 counter packets 0 bytes 0 return
+		ip daddr 192.168.0.0/16 counter packets 0 bytes 0 return
+		ip saddr 192.168.0.0/16 counter packets 0 bytes 0 dnat to 192.168.10.1
+	}
+}

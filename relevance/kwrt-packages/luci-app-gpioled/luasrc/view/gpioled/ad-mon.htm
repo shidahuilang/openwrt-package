@@ -1,0 +1,22 @@
+<script type="text/javascript">
+	//<![CDATA[
+	XHR.poll(3, '<%=url([[admin]], [[system]], [[gpioled]], [[ad_mon]])%>', null,
+		function (x, data) {
+			var tb = document.getElementById('ad_mon');
+			if (data && tb) {
+				var runningValue = data.running.trim();
+				if (runningValue === '1') {
+					tb.innerHTML = '<b><font color=green>Running</font></b>';
+				} else if (runningValue === '0') {
+					tb.innerHTML = '<b><font color=red>Stopped</font></b>';
+				} else {
+					tb.innerHTML = '<b><font color=orange>Application not installed</font></b>';
+				}
+			}
+		}
+	);
+	//]]>
+</script>
+<%+cbi/valueheader%>
+<font id="ad_mon"><%=pcdata(self:cfgvalue(section) or self.default or "")%></font>
+<%+cbi/valuefooter%>

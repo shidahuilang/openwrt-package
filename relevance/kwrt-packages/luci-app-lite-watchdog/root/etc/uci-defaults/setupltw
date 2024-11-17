@@ -1,0 +1,38 @@
+#!/bin/sh
+# Copyright 2020-2023 Rafał Wabik (IceG) - From eko.one.pl forum
+# MIT License
+
+chmod +x /sbin/watchdog2cron.sh 2>&1 &
+chmod +x /sbin/refresh2cron.sh 2>&1 &
+chmod +x /usr/bin/lite-watchdog-data.sh 2>&1 &
+chmod +x /usr/bin/lite_watchdog.sh 2>&1 &
+chmod +x /etc/lite_watchdog.user 2>&1 &
+
+if [ ! -f /etc/lite_watchdog.user ]; then
+        touch /etc/lite_watchdog.user
+        chmod 777 /tmp/lite_watchdog 2>&1 &
+fi
+
+if [ ! -f /tmp/lite_watchdog ]; then
+        touch /tmp/lite_watchdog
+        chmod 777 /tmp/lite_watchdog 2>&1 &
+fi
+
+if [ ! -f /tmp/lite_watchdog_tt ]; then
+        touch /tmp/lite_watchdog_tt
+        chmod 777 /tmp/lite_watchdog_tt 2>&1 &
+fi
+
+if [ ! -f /tmp/lite_watchdog_cnt ]; then
+        touch /tmp/lite_watchdog_cnt
+        chmod 777 /tmp/lite_watchdog_cnt 2>&1 &
+fi
+
+if [ ! -f /etc/modem/log.txt ]; then
+        touch /etc/modem/log.txt
+        chmod 777 /etc/modem/log.txt 2>&1 &
+fi
+
+rm -rf /tmp/luci-indexcache 2>&1 &
+rm -rf /tmp/luci-modulecache/ 2>&1 &
+exit 0

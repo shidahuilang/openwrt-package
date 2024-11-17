@@ -1,0 +1,13 @@
+<script type="text/javascript">
+    const url = '<%=luci.dispatcher.build_url("admin", "services", "sakurafrp", "refresh_tunnels")%>'
+
+    function luciGet() {
+        return XHR.get(url, null, function () {
+            location.reload()
+        });
+    }
+    //]]>
+</script>
+<fieldset class="cbi-section" id="_log_fieldset" style="text-align: center">
+    <input class="btn cbi-button cbi-button-save" type="button" onclick="luciGet()" value="<%:Refresh Tunnels%>" />
+</fieldset>

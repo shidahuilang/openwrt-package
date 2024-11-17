@@ -1,0 +1,14 @@
+{
+	"luci-app-ipinfo": {
+		"description": "Grant access to luci-app-ipnfo",
+		"read": {
+			"file": {
+				"/usr/bin/curl": [ "exec" ]
+			},
+			"uci": [ "ipinfo" ]
+		},
+		"write": {
+			"uci": [ "ipinfo" ]
+		}
+	}
+}
