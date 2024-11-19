@@ -1,0 +1,24 @@
+<script type="text/javascript">
+	//<![CDATA[
+	XHR.poll(3, '<%=url([[admin]], [[system]], [[gpioled]], [[pwr_status]])%>', null,
+		function (x, data) {
+			var tb = document.getElementById('pwr_status');
+			if (data && tb) {
+				var runningValue = data.running.trim();
+				if (runningValue === '0.1') {
+					tb.innerHTML = '<b><font color=orange>Fast</font></b>';
+				} else if (runningValue === '1') {
+					tb.innerHTML = '<b><font color=orange>Normal</font></b>';
+				} else if (runningValue === '2') {
+					tb.innerHTML = '<b><font color=orange>Slow</font></b>';
+				} else if (runningValue === '0') {
+					tb.innerHTML = '<b><font color=orange>Static</font></b>';
+				}
+			}
+		}
+	);
+	//]]>
+</script>
+<%+cbi/valueheader%>
+<font id="pwr_status"><%=pcdata(self:cfgvalue(section) or self.default or "")%></font>
+<%+cbi/valuefooter%>

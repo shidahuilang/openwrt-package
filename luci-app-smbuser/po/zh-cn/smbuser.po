@@ -1,0 +1,14 @@
+msgid "Samba4 User Management"
+msgstr "Samba4 用户管理"
+
+msgid "This LuCI is a basic user management for Samba4."
+msgstr "这是一个 Samba4 基础用户管理 LuCI。"
+
+msgid "User List"
+msgstr "用户列表"
+
+msgid "User Name"
+msgstr "用户名"
+
+msgid "Password"
+msgstr "密码"

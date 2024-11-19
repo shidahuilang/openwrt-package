@@ -1,0 +1,93 @@
+#!/bin/sh
+
+start() {
+    if hash nft 2>/dev/null; then
+        nft -f /usr/share/insomclash/nft.conf
+        ip route add local default dev lo table 100
+        ip rule add fwmark 1 table 100
+    elif hash iptables 2>/dev/null; then
+        # Block QUIC first (for YouTube)
+        iptables -t filter -I INPUT -p udp --dport 443 -j REJECT
+        iptables -t filter -I FORWARD -p udp --dport 443 -j REJECT
+
+        iptables -t mangle -N INSOMCLASH
+        iptables -t mangle -N INSOMCLASH_LOCAL
+
+        # Exclude local networks in INSOMCLASH
+        for addr in 0.0.0.0/8 10.0.0.0/8 100.64.0.0/10 127.0.0.0/8 169.254.0.0/16 172.16.0.0/12 192.168.0.0/16 224.0.0.0/4 240.0.0.0/4; do
+            iptables -t mangle -A INSOMCLASH -d $addr -j RETURN
+        done
+
+        # Exclude interfaces in INSOMCLASH
+        for intf in wg+ ppp+ veth+ docker+; do
+            iptables -t mangle -A INSOMCLASH -i $intf -j RETURN
+            iptables -t mangle -A INSOMCLASH -o $intf -j RETURN
+        done
+
+        # TPROXY rules
+        iptables -t mangle -A INSOMCLASH -p tcp -j TPROXY --on-ip 127.0.0.1 --on-port 7894 --tproxy-mark 1
+        iptables -t mangle -A INSOMCLASH -p udp -j TPROXY --on-ip 127.0.0.1 --on-port 7894 --tproxy-mark 1
+
+        iptables -t mangle -A PREROUTING -j INSOMCLASH
+
+        # Exclude local networks in INSOMCLASH_LOCAL
+        for addr in 0.0.0.0/8 10.0.0.0/8 100.64.0.0/10 127.0.0.0/8 169.254.0.0/16 172.16.0.0/12 192.168.0.0/16 224.0.0.0/4 240.0.0.0/4; do
+            iptables -t mangle -A INSOMCLASH_LOCAL -d $addr -j RETURN
+        done
+
+        # Exclude interfaces in INSOMCLASH_LOCAL
+        for intf in wg+ ppp+ veth+ docker+; do
+            iptables -t mangle -A INSOMCLASH_LOCAL -i $intf -j RETURN
+            iptables -t mangle -A INSOMCLASH_LOCAL -o $intf -j RETURN
+        done
+
+        # Prevent cyclic redirection
+        iptables -t mangle -A INSOMCLASH_LOCAL -m mark --mark 2 -j RETURN
+
+        # Mark packets for routing
+        iptables -t mangle -A INSOMCLASH_LOCAL -p tcp -j MARK --set-mark 1
+        iptables -t mangle -A INSOMCLASH_LOCAL -p udp -j MARK --set-mark 1
+        iptables -t mangle -A OUTPUT -j INSOMCLASH_LOCAL
+
+        ip route add local default dev lo table 100
+        ip rule add fwmark 1 table 100
+    else
+        echo "Unknown firewall, ignoring."
+    fi
+}
+
+stop() {
+    if hash nft 2>/dev/null; then
+        nft delete table ip insomclash
+        ip route del local default dev lo table 100
+        ip rule del table 100
+    elif hash iptables 2>/dev/null; then
+        iptables -t filter -D INPUT -p udp --dport 443 -j REJECT
+        iptables -t filter -D FORWARD -p udp --dport 443 -j REJECT
+        iptables -t mangle -D PREROUTING -j INSOMCLASH
+        iptables -t mangle -F INSOMCLASH
+        iptables -t mangle -X INSOMCLASH
+
+        iptables -t mangle -D OUTPUT -j INSOMCLASH_LOCAL
+        iptables -t mangle -F INSOMCLASH_LOCAL
+        iptables -t mangle -X INSOMCLASH_LOCAL
+
+        ip route del local default dev lo table 100
+        ip rule del table 100
+    else
+        echo "Unknown firewall, ignoring."
+    fi
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    *)
+        echo "Usage: $0 {start|stop}"
+        exit 1
+        ;;
+esac

@@ -1,0 +1,30 @@
+#!/bin/sh
+
+ytdlp() {
+    url=$1
+    output=$2
+    /usr/bin/yt-dlp $url -o $output
+}
+
+handleRequest() {
+    action=$1
+
+    if [ "$action" = "list" ]; then
+        echo "{\"download\":{\"description\":\"Download video\",\"params\":{\"url\":{\"type\":\"string\",\"description\":\"Video URL\"}}}}"
+    elif [ "$action" = "call" ]; then
+        method=$2
+
+        if [ "$method" = "download" ]; then
+            output="/tmp/yt-dlp-output.mp4"
+            read url
+            ytdlp "$url" "$output"
+            result="{\"result\":\"ok\",\"data\":{\"url\":\"$url\",\"output\":\"$output\"}}"
+            echo "$result"
+        else
+            errorResult="{\"result\":\"error\",\"message\":\"Unknown method\"}"
+            echo "$errorResult"
+        fi
+    fi
+}
+
+handleRequest "$@"

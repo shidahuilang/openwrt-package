@@ -1,0 +1,30 @@
+--- a/src/edge_utils.c
++++ b/src/edge_utils.c
+@@ -19,6 +19,7 @@
+ #include "n2n.h"
+ #include "network_traffic_filter.h"
+ #include "edge_utils_win32.h"
++#include <zstd.h>
+ 
+ /* heap allocation for compression as per lzo example doc */
+ #define HEAP_ALLOC(var,size) lzo_align_t __LZO_MMODEL var [ ((size) + (sizeof(lzo_align_t) - 1)) / sizeof(lzo_align_t) ]
+--- a/tools/n2n-benchmark.c
++++ b/tools/n2n-benchmark.c
+@@ -23,6 +23,7 @@
+ #endif
+ 
+ #include "n2n.h"
++#include <zstd.h>
+ 
+ #define DURATION                2.5   // test duration per algorithm
+ #define PACKETS_BEFORE_GETTIME  2047  // do not check time after every packet but after (2 ^ n - 1)
+--- a/tools/tests-compress.c
++++ b/tools/tests-compress.c
+@@ -22,6 +22,7 @@
+ 
+ #include "n2n.h"
+ #include "hexdump.h"
++#include <zstd.h>
+ 
+ /* heap allocation for compression as per lzo example doc */
+ #define HEAP_ALLOC(var,size) lzo_align_t __LZO_MMODEL var [ ((size) + (sizeof(lzo_align_t) - 1)) / sizeof(lzo_align_t) ]

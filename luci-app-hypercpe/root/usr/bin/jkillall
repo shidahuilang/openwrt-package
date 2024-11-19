@@ -1,0 +1,30 @@
+#!/bin/sh
+
+# 检查参数
+if [ -z "$1" ]; then
+    echo "Usage: $0 <process_name>"
+    exit 1
+fi
+
+LOOKFOR="$1"
+
+# 使用 pgrep 来更精确地查找进程
+# pgrep 默认匹配整个进程名称
+# -f 选项使其匹配命令行参数
+# 使用 -o 选项以获得最早启动的进程的 PID
+# 你可以根据需要删除 -o，以杀死所有匹配的进程
+PID=$(pgrep -fo "$LOOKFOR")
+
+# 检查是否找到了进程
+if [ -z "$PID" ]; then
+    echo "No process found matching '$LOOKFOR'"
+    exit 1
+fi
+
+# 杀死进程
+kill "$PID" || {
+    echo "Failed to kill process with PID $PID"
+    exit 1
+}
+
+echo "Process $PID killed successfully"

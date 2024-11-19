@@ -1,0 +1,56 @@
+{
+    "admin/services/squid": {
+        "title": "Squid",
+        "action": {
+            "type": "firstchild"
+        },
+        "depends": {
+            "acl": [
+                "luci-app-squid-adv"
+            ],
+            "uci": {
+                "squid": true
+            }
+        }
+    },
+    "admin/services/squid/general": {
+        "title": "General",
+        "order": 10,
+        "action": {
+            "type": "view",
+            "path": "squid-adv/general"
+        }
+    },
+    "admin/services/squid/transparent": {
+        "title": "Transparent Proxy",
+        "order": 20,
+        "action": {
+            "type": "view",
+            "path": "squid-adv/transparent"
+        }
+    },
+    "admin/services/squid/openssl": {
+        "title": "OpenSSL Cert",
+        "order": 30,
+        "action": {
+            "type": "view",
+            "path": "squid-adv/openssl"
+        }
+    },
+    "admin/services/squid/installation": {
+        "title": "How To Install",
+        "order": 40,
+        "action": {
+            "type": "view",
+            "path": "squid-adv/install"
+        }
+    },
+    "admin/services/squid/advanced": {
+        "title": "Advanced",
+        "order": 50,
+        "action": {
+            "type": "view",
+            "path": "squid-adv/advanced"
+        }
+    },
+}

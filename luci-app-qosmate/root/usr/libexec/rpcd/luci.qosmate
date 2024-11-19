@@ -1,0 +1,121 @@
+#!/usr/bin/env lua
+
+local jsonc = require "luci.jsonc"
+
+-- Check if an IP address is private - not needed at the moment
+local function is_private_ip(ip)
+    if not ip or ip == "" then
+        return false
+    end
+
+    if ip:match(":") then  -- IPv6
+        -- Check for ULA (fc00::/7), link-local (fe80::/10), or loopback (::1)
+        return ip:match("^f[cd]") or ip:match("^fe80:") or ip == "::1"
+    else  -- IPv4
+        local octets = {ip:match("(%d+)%.(%d+)%.(%d+)%.(%d+)")}
+        if not octets[1] then return false end
+        local first, second = tonumber(octets[1]), tonumber(octets[2])
+        -- Check for private IPv4 ranges: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
+        return (first == 10) or
+               (first == 172 and second >= 16 and second <= 31) or
+               (first == 192 and second == 168)
+    end
+end
+
+-- Parse a single connection line from nf_conntrack
+local function parse_connection(line)
+    local conn = {}
+    conn.layer3, conn.layer4, conn.protocol, conn.timeout = line:match("(%w+)%s+(%d+)%s+(%w+)%s+(%d+)")
+    if not (conn.layer3 and conn.layer4 and conn.protocol and conn.timeout) then
+        return nil
+    end
+
+    if conn.protocol == "icmp" or conn.protocol == "icmpv6" then
+        -- Handle ICMP and ICMPv6 protocols
+        conn.src, conn.dst, conn.type, conn.code, conn.id = 
+            line:match("src=(%S+)%s+dst=(%S+)%s+type=(%d+)%s+code=(%d+)%s+id=(%d+)")
+        conn.in_packets, conn.in_bytes = line:match("packets=(%d+)%s+bytes=(%d+)")
+        conn.out_packets, conn.out_bytes = conn.in_packets, conn.in_bytes
+        conn.sport, conn.dport = "-", "-"  -- ICMP doesn't use ports
+    else
+        -- Handle other protocols (e.g., TCP, UDP)
+        local src1, dst1, sport1, dport1, packets1, bytes1,
+              src2, dst2, sport2, dport2, packets2, bytes2 = 
+            line:match("src=(%S+)%s+dst=(%S+)%s+sport=(%d+)%s+dport=(%d+)%s+packets=(%d+)%s+bytes=(%d+).*src=(%S+)%s+dst=(%S+)%s+sport=(%d+)%s+dport=(%d+)%s+packets=(%d+)%s+bytes=(%d+)")
+        
+        -- Always use the first direction as the original
+        conn.src, conn.dst, conn.sport, conn.dport = src1, dst1, sport1, dport1
+        conn.out_packets, conn.in_packets = tonumber(packets1), tonumber(packets2)
+        conn.out_bytes, conn.in_bytes = tonumber(bytes1), tonumber(bytes2)
+    end
+
+    if not (conn.src and conn.dst) then
+        return nil
+    end
+
+    -- Extract additional connection information
+    conn.dscp = math.floor(tonumber(line:match("mark=(%d+)") or "0"))
+    conn.use = tonumber(line:match("use=(%d+)") or "0")
+    conn.timeout = tonumber(conn.timeout) or 0
+
+    -- Determine connection state
+    if line:match("%[ASSURED%]") then
+        conn.state = "ASSURED"
+    elseif line:match("%[UNREPLIED%]") then
+        conn.state = "UNREPLIED"
+    else
+        conn.state = "UNKNOWN"
+    end
+
+    return conn
+end
+
+-- Retrieve all current connections from nf_conntrack
+local function get_connections()
+    local connections = {}
+    local f = io.open("/proc/net/nf_conntrack", "r")
+    if not f then
+        return connections
+    end
+
+    for line in f:lines() do
+        local conn = parse_connection(line)
+        if conn then
+            local key = string.format("%s:%s:%s:%s:%s:%s", conn.layer3, conn.protocol, conn.src, conn.sport, conn.dst, conn.dport)
+            connections[key] = conn
+        end
+    end
+    f:close()
+    
+    return connections
+end
+
+-- Define RPC methods
+local methods = {
+    getConntrackDSCP = {
+        call = function()
+            local connections = get_connections()
+            return {result = jsonc.stringify({connections = connections})}
+        end
+    }
+}
+
+-- Handle RPC calls
+if arg[1] == "list" then
+    local rv = {}
+    for _, v in pairs(methods) do
+        rv[_] = v.args or {}
+    end
+    print((jsonc.stringify(rv):gsub(":%[%]", ":{}")))
+elseif arg[1] == "call" then
+    local args = jsonc.parse(io.stdin:read("*a"))
+    local method = methods[arg[2]]
+    if method then
+        local result = method.call(args)
+        print(result.result)
+        os.exit(result.code or 0)
+    else
+        print(jsonc.stringify({error = "Method not found"}))
+        os.exit(1)
+    end
+end

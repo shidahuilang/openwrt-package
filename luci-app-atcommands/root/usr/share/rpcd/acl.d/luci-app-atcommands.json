@@ -1,0 +1,21 @@
+{
+	"luci-app-atcommands": {
+		"description": "Grant access to atcommands executables",
+		"read": {
+   			"cgi-io": [ "exec" ],
+    			"file": {
+				"/usr/bin/sms_tool": [ "exec" ],
+				"/etc/atcommands": [ "read" ],
+				"/etc/modem/atcommands.user": [ "read" ]
+			},
+			"uci": [ "atcommands", "luci-app-atcommands" ]
+		},
+		"write": {
+			"file": {
+				"/etc/atcommands": [ "write" ],
+				"/etc/modem/atcommands.user": [ "write" ],
+			},
+			"uci": [ "atcommands", "luci-app-atcommands" ]
+		}
+	}
+}

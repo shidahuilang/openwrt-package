@@ -1,0 +1,31 @@
+{
+	"luci-app-squid-adv": {
+		"description": "Grant permissions for the Squid LuCI app",
+		"read": {
+			"ubus": {
+				"luci.squid-adv": [
+					"cert_info",
+					"reconfigure",
+					"generate",
+					"ip_info",
+					"parse_config",
+				]
+			},
+			"uci": [
+				"squid",
+			],
+			"file": {
+				"/usr/libexec/rpcd/luci.squid-adv config read": [ "exec" ],
+			},
+		},
+		"write": {
+			"uci": [
+				"squid",
+			],
+			"file": {
+				"/tmp/luci-app-squid-adv.data": [ "write" ],
+				"/usr/libexec/rpcd/luci.squid-adv config move": [ "exec" ],
+			},
+		}
+	}
+}

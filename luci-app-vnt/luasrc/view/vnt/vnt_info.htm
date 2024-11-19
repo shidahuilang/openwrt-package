@@ -1,0 +1,40 @@
+<%+cbi/valueheader%>
+<script type="text/javascript">//<![CDATA[
+	function vnt_info(btn)
+	{
+		btn.disabled = true;
+		btn.value = '<%:Collecting data...%>';
+		XHR.get('<%=luci.dispatcher.build_url("admin", "vpn", "vnt", "vnt_info")%>',
+			null,
+			function(x,rv)
+			{
+			var tb = document.getElementById('<%=self.option%>-status');
+			if (tb) {
+           rv.info = rv.info.replace(/Name:/g, "<font color='#0000FF'><em><b>设备名称：</em></b></font>")
+                   .replace(/虚拟IP:/g, "<font color='#0000FF'><em><b><br>虚拟IP：</em></b></font>")
+                   .replace(/虚拟网关:/g, "<font color='#0000FF'><em><b><br>虚拟网关：</em></b></font>")
+                   .replace(/虚拟网络掩码:/g, "<font color='#0000FF'><em><b><br>虚拟网络掩码：</em></b></font>")
+                   .replace(/NAT类型:/g, "<font color='#0000FF'><em><b><br>NAT类型：</em></b></font>")
+                   .replace(/服务器地址:/g, "<font color='#0000FF'><em><b><br>服务器地址：</em></b></font>")
+                   .replace(/外网IP:/g, "<font color='#0000FF'><em><b><br>外网IP：</em></b></font>")
+                   .replace(/连接状态:/g, "<font color='#0000FF'><em><b><br>连接状态：</em></b></font>")
+                   .replace(/WAN口IP:/g, "<font color='#0000FF'><em><b><br>WAN口IP：</em></b></font>")
+                   .replace(/IPv6:/g, "<font color='#0000FF'><em><b><br>IPv6地址：</em></b></font>")
+                   .replace(/Connected/g, "<font color='#00CC00'>已连接</font>")
+                   .replace(/Connecting/g, "<font color='#FF0000'>正在连接</font>")
+                   .replace(/Cone/g, "<font color='#33B728'>全锥型NAT</font>")
+		   .replace(/Up:/g, "<font color='#0000FF'><em><b><br>上传总量：</em></b></font>")
+                   .replace(/Down:/g, "<font color='#0000FF'><em><b><br>下载总量：</em></b></font>")
+                   .replace(/Symmetric/g, "<font color='#CC0000'>对称型NAT</font>");
+  tb.innerHTML = "<br><font color='#FF00FF'>&nbsp;&nbsp;&nbsp;<b><%:vnt-cli --info %></b></font><br>" + "<font color='#FF4500'>" + rv.info + "</font>";
+}
+				btn.disabled = false;
+				btn.value = '<%:本机设备信息%>';
+			}
+		);
+		return false;
+	}
+//]]></script>
+<input type="button" class="btn cbi-button cbi-button-apply" value="<%:本机设备信息%>" onclick="return vnt_info(this)" />
+<span id="<%=self.option%>-status"><em><%=self.value%></em></span>
+<%+cbi/valuefooter%>

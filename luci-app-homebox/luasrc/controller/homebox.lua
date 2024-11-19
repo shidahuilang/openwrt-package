@@ -15,7 +15,7 @@ function homebox_status()
 	local uci  = require "luci.model.uci".cursor()
 
 	local status = {
-		running = (sys.call("pidof homebox >/dev/null") == 0),
+		running = (sys.call("pidof homebox >/dev/null 2>&1") == 0),
 		port = 3300
 	}
 

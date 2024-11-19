@@ -1,0 +1,278 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+msgid "Connection Monitor"
+msgstr "Monitor połączenia"
+
+msgid "Connection monitor settings"
+msgstr "Ustawienia monitora połączenia"
+
+msgid "Configuration lite-watchdog"
+msgstr "Konfiguracja lite-watchdog"
+
+msgid "Configuration panel for lite-watchdog and gui application."
+msgstr "Panel ustawień dla aplikacji lite-watchdog oraz dla interfejsu użytkownika."
+
+msgid "Interface"
+msgstr "Interfejs"
+
+msgid "Network interface for Internet access."
+msgstr "Interfejs sieciowy umożliwiający dostęp do Internetu."
+
+msgid "Port for communication with the modem"
+msgstr "Port do komunikacji z modemem"
+
+msgid "Select one of the available ttyUSBX ports."
+msgstr "Wybierz jeden z dostępnych portów ttyUSBX."
+
+msgid "Please select a port"
+msgstr "Wybierz port"
+
+msgid "Perform a modem restart before resuming the connection."
+msgstr "Wykonaj restart modemu przed wznowieniem połączenia."
+
+msgid "Restart modem with AT command"
+msgstr "Restart modemu za pomocą polecenia AT"
+
+msgid "AT command to restart the modem."
+msgstr "Polecenie AT restartujące modem."
+
+msgid "Configuration of the connection monitor, which is a conversion of the monitor known from the easyconfig package. More information on the %seko.one.pl forum%s."
+msgstr "Konfiguracja monitora połączenia, który jest konwersją monitora znanego z pakietu easyconfig. Więcej informacji na %sforum eko.one.pl%s."
+
+msgid "eko.one.pl forum"
+msgstr "forum eko.one.pl"
+
+msgid "Enable a connection monitor."
+msgstr "Włącz monitor połączenia."
+
+msgid "System startup delay"
+msgstr "Opóźnienie przy starcie systemu"
+
+msgid "[1 - 59] minute(s)"
+msgstr "[1 - 59] minut(-y)"
+
+msgid "Expect a decimal value between one and fifty-nine"
+msgstr "Oczekiwana jest wartość dziesiętna z zakresu od jednego do pięćdziesięciu dziewięciu"
+
+msgid "Address or name"
+msgstr "Adres lub nazwa"
+
+msgid "Verification period"
+msgstr "Okres sprawdzenia"
+
+msgid "Number of failed checks"
+msgstr "Liczba nieudanych sprawdzeń"
+
+msgid "Action"
+msgstr "Akcja"
+
+msgid "Connection restart"
+msgstr "Restart połączenia z internetem"
+
+msgid "Modem restart"
+msgstr "Restart modemu"
+
+msgid "Reboot"
+msgstr "Ponowne uruchomienie urządzenia"
+
+msgid "Changes have been saved. Connection Monitor has started."
+msgstr "Zmiany zostały zapisane. Monitor połączenia został uruchomiony."
+
+msgid "Changes have been saved. Connection Monitor is not running."
+msgstr "Zmiany zostały zapisane. Monitor połączenia nie działa."
+
+msgid "Last check"
+msgstr "Ostatnie sprawdzenie"
+
+msgid "minimum"
+msgstr "minimum"
+
+msgid "average"
+msgstr "średnia"
+
+msgid "maximum"
+msgstr "maksimum"
+
+msgid "Information"
+msgstr "Informacje"
+
+msgid "Basic settings"
+msgstr "Ustawienia podstawowe"
+
+msgid "failed"
+msgstr "nieudanych"
+
+msgid "Failed"
+msgstr "Nieudanych"
+
+msgid "out of"
+msgstr "z"
+
+msgid "Activity log"
+msgstr "Dziennik aktywności"
+
+msgid "Wrong regular expression"
+msgstr "Nieprawidłowe wyrażenie regularne"
+
+msgid "No matches..."
+msgstr "Brak wyników..."
+
+msgid "Clear connection monitor log?"
+msgstr "Wyczyścić dziennik monitora połączenia?"
+
+msgid "Download error"
+msgstr "Błąd pobierania"
+
+msgid "Unable to load log data:"
+msgstr "Nie można wczytać danych dziennika:"
+
+msgid "Entries filter"
+msgstr "Filtr wpisów"
+
+msgid "Filter entries using regexp, press [Delete] to delete all text"
+msgstr "Filtruj wpisy za pomocą wyrażenia regularnego, wciśnij [Delete] aby usunąć tekst"
+
+msgid "Refresh"
+msgstr "Odśwież"
+
+msgid "Connection monitor activity log"
+msgstr "Dziennik aktywności monitora połączenia"
+
+msgid "Connection monitor activity log, which is a conversion of the monitor known from the easyconfig package. More information on the %seko.one.pl forum%s."
+msgstr "Dziennik aktywności monitora połączenia, który jest konwersją monitora znanego z pakietu easyconfig. Więcej informacji na %sforum eko.one.pl%s."
+
+msgid "Show only the last entries"
+msgstr "Pokaż tylko ostatnie wpisy"
+
+msgid "Message filter"
+msgstr "Filtr komunikatów"
+
+msgid "Refresh log"
+msgstr "Odśwież dziennik"
+
+msgid "Clear log"
+msgstr "Wyczyść dziennik"
+
+msgid "Download log"
+msgstr "Pobierz dziennik"
+
+msgid "Type of messages"
+msgstr "Rodzaj komunikatów"
+
+msgid "All actions"
+msgstr "Wszystkie działania"
+
+msgid "Only connection problems"
+msgstr "Tylko problemy z połączeniem"
+
+msgid "LED settings"
+msgstr "Ustawienia diody LED"
+
+msgid "The LED shows the internet connection status."
+msgstr "Dioda LED pokazuje stan połączenia z internetem."
+
+msgid "Select the status LED."
+msgstr "Wybierz diodę statusu."
+
+msgid "Edit user script"
+msgstr "Edytuj skrypt użytkownika"
+
+msgid "Before executing the action, system calls a script in which user can place his own commands."
+msgstr "Przed wykonaniem akcji system wywołuje skrypt, w którym użytkownik może umieścić własne polecenia."
+
+msgid "Edit user script"
+msgstr "Edytuj skrypt użytkownika"
+
+msgid "User script"
+msgstr "Skrypt użytkownika"
+
+msgid "User-defined commands."
+msgstr "Polecenia zdefiniowane przez użytkownika."
+
+msgid "Contents have been saved"
+msgstr "Zawartość została zapisana"
+
+msgid "Unable to save the contents"
+msgstr "Nie można zapisać zawartości"
+
+msgid "Unable to read the contents"
+msgstr "Nie można odczytać zawartości"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "ONLINE"
+msgstr "ONLINE"
+
+msgid "OFFLINE"
+msgstr "OFFLINE"
+
+msgid "Action"
+msgstr "Akcja"
+
+msgid "Restarting interface"
+msgstr "Restart połączenia z internetem"
+
+msgid "Reboot"
+msgstr "Ponowne uruchomienie urządzenia"
+
+msgid "At command was sent to modem"
+msgstr "Polecenie at zostało wysłane do modemu"
+
+msgid "January"
+msgstr "Styczeń"
+
+msgid "February"
+msgstr "Luty"
+
+msgid "March"
+msgstr "Marzec"
+
+msgid "April"
+msgstr "Kwiecień"
+
+msgid "May"
+msgstr "Maj"
+
+msgid "June"
+msgstr "Czerwiec"
+
+msgid "July"
+msgstr "Lipiec"
+
+msgid "August"
+msgstr "Sierpień"
+
+msgid "September"
+msgstr "Wrzesień"
+
+msgid "October"
+msgstr "Październik"
+
+msgid "November"
+msgstr "Listopad"
+
+msgid "December"
+msgstr "Grudzień"
+
+msgid "Monday"
+msgstr "Poniedziałek"
+
+msgid "Tuesday"
+msgstr "Wtorek"
+
+msgid "Wednesday"
+msgstr "Środa"
+
+msgid "Thursday"
+msgstr "Czwartek"
+
+msgid "Friday"
+msgstr "Piątek"
+
+msgid "Saturday"
+msgstr "Sobota"
+
+msgid "Sunday"
+msgstr "Niedziela"

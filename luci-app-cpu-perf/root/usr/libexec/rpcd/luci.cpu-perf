@@ -1,0 +1,108 @@
+#!/usr/bin/env lua
+
+local json = require "luci.jsonc"
+local fs   = require "nixio.fs"
+
+local sysCpuDir          = "/sys/devices/system/cpu"
+local sysOndemandDir     = sysCpuDir .. "/cpufreq/ondemand"
+local sysConservativeDir = sysCpuDir .. "/cpufreq/conservative"
+
+local function readFile(path)
+	local s = fs.readfile(path)
+	return s and (s:gsub("^%s+", ""):gsub("%s+$", ""))
+end
+
+local function list()
+	io.write('{"getCpuPerf":{}}')
+end
+
+local function parseMultiValue(s, number)
+	if not s then
+		return
+	end
+	local t = {}
+	for i in s:gmatch("[^%s]+") do
+		if number then
+			i = tonumber(i)
+		end
+		t[#t + 1] = i
+	end
+	return t
+end
+
+local function readCpuPerf()
+	local cpuPerf      = {}
+	local ondemand     = {}
+	local conservative = {}
+	local cpus         = {}
+	if fs.stat(sysOndemandDir, "type") == "dir" then
+		local upThreshold   = tonumber(readFile(sysOndemandDir .. "/up_threshold"))
+		local ignNiceLoad   = tonumber(readFile(sysOndemandDir .. "/ignore_nice_load"))
+		local smpDownFactor = tonumber(readFile(sysOndemandDir .. "/sampling_down_factor"))
+		ondemand["smpDownFactor"] = smpDownFactor
+		ondemand["ignNiceLoad"]   = ignNiceLoad
+		ondemand["upThreshold"]   = upThreshold
+		cpuPerf["ondemand"] = ondemand
+	end
+	if fs.stat(sysConservativeDir, "type") == "dir" then
+		local freqStep      = tonumber(readFile(sysConservativeDir .. "/freq_step"))
+		local downThreshold = tonumber(readFile(sysConservativeDir .. "/down_threshold"))
+		local smpDownFactor = tonumber(readFile(sysConservativeDir .. "/sampling_down_factor"))
+		conservative["freqStep"]      = freqStep
+		conservative["downThreshold"] = downThreshold
+		conservative["smpDownFactor"] = smpDownFactor
+		cpuPerf["conservative"] = conservative
+	end
+	local cpuDir   = fs.dir(sysCpuDir)
+	if cpuDir then
+		for item in cpuDir do
+			if item:match("^cpu[0-9]+$") then
+				local deviceDirPath = string.format("%s/%s/cpufreq", sysCpuDir, item)
+				if fs.stat(deviceDirPath, "type") == "dir" then
+					local dNumber     = item:match("[0-9]+")
+					local sCurFreq    = tonumber(readFile(deviceDirPath .. "/scaling_cur_freq"))
+					local curFreq     = tonumber(readFile(deviceDirPath .. "/cpuinfo_cur_freq"))
+					local sMinFreq    = tonumber(readFile(deviceDirPath .. "/scaling_min_freq"))
+					local minFreq     = tonumber(readFile(deviceDirPath .. "/cpuinfo_min_freq"))
+					local sMaxFreq    = tonumber(readFile(deviceDirPath .. "/scaling_max_freq"))
+					local maxFreq     = tonumber(readFile(deviceDirPath .. "/cpuinfo_max_freq"))
+					local governor    = readFile(deviceDirPath .. "/scaling_governor")
+					local sAvailFreqs = readFile(deviceDirPath .. "/scaling_available_frequencies")
+					if sAvailFreqs then
+						sAvailFreqs = parseMultiValue(sAvailFreqs, true)
+					end
+					local sAvailGovernors = readFile(deviceDirPath .. "/scaling_available_governors")
+					if sAvailGovernors then
+						sAvailGovernors = parseMultiValue(sAvailGovernors)
+					end
+					if dNumber ~= nil then
+						cpus[dNumber] = {
+							number          = tonumber(dNumber),
+							sCurFreq        = sCurFreq,
+							curFreq         = curFreq,
+							sMinFreq        = sMinFreq,
+							minFreq         = minFreq,
+							sMaxFreq        = sMaxFreq,
+							maxFreq         = maxFreq,
+							governor        = governor,
+							sAvailFreqs     = sAvailFreqs,
+							sAvailGovernors = sAvailGovernors,
+						}
+					end
+				end
+			end
+		end
+		cpuPerf["cpus"] = cpus
+	end
+	io.write(json.stringify(cpuPerf))
+end
+
+if arg[1] == "list" then
+	list()
+elseif arg[1] == "call" then
+	if arg[2] == "getCpuPerf" then
+		readCpuPerf()
+	end
+end
+
+os.exit(0)

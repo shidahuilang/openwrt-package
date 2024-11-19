@@ -1,0 +1,18 @@
+{
+	"admin/status/disks-info": {
+		"title": "Disk Devices",
+		"order": 90,
+		"action": {
+			"type": "view",
+			"path": "disks-info"
+		},
+		"depends": {
+			"acl": [ "luci-app-disks-info" ],
+			"fs": {
+				"/bin/df": "executable",
+				"/usr/sbin/fdisk": "executable",
+				"/usr/sbin/smartctl": "executable"
+			}
+		}
+	}
+}

@@ -13,6 +13,7 @@ local BLOCKSIZE = 2048
 local ISTOREOS_PORT = 3038
 
 function index()
+	entry({"admin", "nas"}, firstchild(), _("NAS") , 45).dependent = false
     entry({"istore"}, call("istore_backend")).leaf=true
 end
 

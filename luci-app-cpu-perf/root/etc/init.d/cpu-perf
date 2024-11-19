@@ -1,0 +1,197 @@
+#!/bin/sh /etc/rc.common
+
+START=91
+
+APP_NAME="cpu-perf"
+SYSFS_CPU_DIR="/sys/devices/system/cpu"
+
+OD_CPU_DIR="${SYSFS_CPU_DIR}/cpufreq/ondemand"
+OD_UP_THRESHOLD_FILE="${OD_CPU_DIR}/up_threshold"
+OD_IGN_NICE_LOAD_FILE="${OD_CPU_DIR}/ignore_nice_load"
+OD_SAMPLING_DOWN_FACTOR_FILE="${OD_CPU_DIR}/sampling_down_factor"
+OD_UP_THRESHOLD_DEF=95
+OD_IGN_NICE_LOAD_DEF=0
+OD_SAMPLING_DOWN_FACTOR_DEF=1
+
+C_CPU_DIR="${SYSFS_CPU_DIR}/cpufreq/conservative"
+C_FREQ_STEP_FILE="${C_CPU_DIR}/freq_step"
+C_DOWN_THRESHOLD_FILE="${C_CPU_DIR}/down_threshold"
+C_SAMPLING_DOWN_FACTOR_FILE="${C_CPU_DIR}/sampling_down_factor"
+C_FREQ_STEP_DEF=5
+C_DOWN_THRESHOLD_DEF=20
+C_SAMPLING_DOWN_FACTOR_DEF=1
+
+
+config_load $APP_NAME
+
+get_cpus() {
+	echo `ls "$SYSFS_CPU_DIR" | grep "^cpu[0-9]*$"`
+}
+
+reset_cpu_config() {
+	while uci -q delete ${APP_NAME}.@cpu[0]; do :; done
+	for i in `get_cpus`
+	do
+		uci set ${APP_NAME}.${i}="cpu"
+	done
+	uci commit "$APP_NAME"
+}
+
+CPU_UCI_SECTIONS=0
+CPU_DEVICES=`get_cpus | wc -w`
+
+cpu_sections_counter() {
+	CPU_UCI_SECTIONS=$(($CPU_UCI_SECTIONS + 1))
+}
+
+check_cpu_sections() {
+	CPU_UCI_SECTIONS=0
+	config_foreach cpu_sections_counter cpu
+	if [ $CPU_UCI_SECTIONS -ne $CPU_DEVICES ]; then
+		reset_cpu_config
+	fi
+}
+
+set_cpu_perf() {
+	local cpu=$1
+	local scaling_min_freq scaling_max_freq scaling_governor
+	local cpu_dir="${SYSFS_CPU_DIR}/${cpu}/cpufreq"
+
+	[ ! -d $cpu_dir ] && return
+
+	local scaling_min_freq_file="${cpu_dir}/scaling_min_freq"
+	local scaling_max_freq_file="${cpu_dir}/scaling_max_freq"
+	local scaling_governor_file="${cpu_dir}/scaling_governor"
+
+	config_get scaling_min_freq $cpu scaling_min_freq
+	config_get scaling_max_freq $cpu scaling_max_freq
+	config_get scaling_governor $cpu scaling_governor
+
+	if [ -n "$scaling_min_freq" -a -w "$scaling_min_freq_file" ]; then
+		echo $scaling_min_freq > $scaling_min_freq_file
+	fi
+	if [ -n "$scaling_max_freq" -a -w "$scaling_max_freq_file" ]; then
+		echo $scaling_max_freq > $scaling_max_freq_file
+	fi
+	if [ -n "$scaling_governor" -a -w "$scaling_governor_file" ]; then
+		echo $scaling_governor > $scaling_governor_file
+	fi
+}
+
+reset_cpu_perf() {
+	local cpu=$1
+	local cpu_dir="${SYSFS_CPU_DIR}/${cpu}/cpufreq"
+
+	[ ! -d $cpu_dir ] && return
+
+	local min_freq_file="${cpu_dir}/cpuinfo_min_freq"
+	local max_freq_file="${cpu_dir}/cpuinfo_max_freq"
+	local scaling_min_freq_file="${cpu_dir}/scaling_min_freq"
+	local scaling_max_freq_file="${cpu_dir}/scaling_max_freq"
+	local scaling_governor_file="${cpu_dir}/scaling_governor"
+
+	if [ -r "$min_freq_file" -a -w "$scaling_min_freq_file" ]; then
+		echo `cat $min_freq_file` > $scaling_min_freq_file
+	fi
+	if [ -r "$max_freq_file" -a -w "$scaling_max_freq_file" ]; then
+		echo `cat $max_freq_file` > $scaling_max_freq_file
+	fi
+	if [ -w "$scaling_governor_file" ]; then
+		echo "ondemand" > $scaling_governor_file 2> /dev/null
+		if [ $? -ne 0 ]; then
+			echo "schedutil" > $scaling_governor_file 2> /dev/null
+			if [ $? -ne 0 ]; then
+				echo "conservative" > $scaling_governor_file 2> /dev/null
+			fi
+		fi
+	fi
+}
+
+set_ondemand_tunables() {
+	local up_threshold ignore_nice_load sampling_down_factor
+
+	[ ! -d "$OD_CPU_DIR" ] && return 0
+
+	config_get up_threshold ondemand up_threshold
+	config_get ignore_nice_load ondemand ignore_nice_load
+	config_get sampling_down_factor ondemand sampling_down_factor
+
+	if [ -n "$up_threshold" -a -w "$OD_UP_THRESHOLD_FILE" ]; then
+		echo $up_threshold > $OD_UP_THRESHOLD_FILE
+	fi
+	if [ -n "$ignore_nice_load" -a -w "$OD_IGN_NICE_LOAD_FILE" ]; then
+		echo $ignore_nice_load > $OD_IGN_NICE_LOAD_FILE
+	fi
+	if [ -n "$sampling_down_factor" -a -w "$OD_SAMPLING_DOWN_FACTOR_FILE" ]; then
+		echo $sampling_down_factor > $OD_SAMPLING_DOWN_FACTOR_FILE
+	fi
+}
+
+reset_ondemand_tunables() {
+	[ ! -d "$OD_CPU_DIR" ] && return 0
+
+	if [ -w "$OD_UP_THRESHOLD_FILE" ]; then
+		echo $OD_UP_THRESHOLD_DEF > $OD_UP_THRESHOLD_FILE
+	fi
+	if [ -w "$OD_IGN_NICE_LOAD_FILE" ]; then
+		echo $OD_IGN_NICE_LOAD_DEF > $OD_IGN_NICE_LOAD_FILE
+	fi
+	if [ -w "$OD_SAMPLING_DOWN_FACTOR_FILE" ]; then
+		echo $OD_SAMPLING_DOWN_FACTOR_DEF > $OD_SAMPLING_DOWN_FACTOR_FILE
+	fi
+}
+
+set_conservative_tunables() {
+	local freq_step down_threshold sampling_down_factor
+
+	[ ! -d "$C_CPU_DIR" ] && return 0
+
+	config_get freq_step conservative freq_step
+	config_get down_threshold conservative down_threshold
+	config_get sampling_down_factor conservative sampling_down_factor
+
+	if [ -n "$freq_step" -a -w "$C_FREQ_STEP_FILE" ]; then
+		echo $freq_step > $C_FREQ_STEP_FILE
+	fi
+	if [ -n "$down_threshold" -a -w "$C_DOWN_THRESHOLD_FILE" ]; then
+		echo $down_threshold > $C_DOWN_THRESHOLD_FILE
+	fi
+	if [ -n "$sampling_down_factor" -a -w "$C_SAMPLING_DOWN_FACTOR_FILE" ]; then
+		echo $sampling_down_factor > $C_SAMPLING_DOWN_FACTOR_FILE
+	fi
+}
+
+reset_conservative_tunables() {
+	[ ! -d "$C_CPU_DIR" ] && return 0
+
+	if [ -w "$C_FREQ_STEP_FILE" ]; then
+		echo $C_FREQ_STEP_DEF > $C_FREQ_STEP_FILE
+	fi
+	if [ -w "$C_DOWN_THRESHOLD_FILE" ]; then
+		echo $C_DOWN_THRESHOLD_DEF > $C_DOWN_THRESHOLD_FILE
+	fi
+	if [ -w "$C_SAMPLING_DOWN_FACTOR_FILE" ]; then
+		echo $C_SAMPLING_DOWN_FACTOR_DEF > $C_SAMPLING_DOWN_FACTOR_FILE
+	fi
+}
+
+start() {
+	local enabled
+	if [ -r "/etc/config/${APP_NAME}" ]; then
+		check_cpu_sections
+		enabled=`uci get ${APP_NAME}.config.enabled`
+		if [ "$enabled" = "1" ]; then
+			config_foreach set_cpu_perf cpu
+			set_ondemand_tunables
+			set_conservative_tunables
+		fi
+	else
+		exit 1
+	fi
+}
+
+stop() {
+	config_foreach reset_cpu_perf cpu
+	reset_ondemand_tunables
+	reset_conservative_tunables
+}

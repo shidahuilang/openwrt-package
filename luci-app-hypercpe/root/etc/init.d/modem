@@ -1,0 +1,82 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2006-2014 OpenWrt.org
+
+START=16
+STOP=16
+USE_PROCD=1
+
+# 运行模块配置
+runModem() {
+    local enabled
+    config_get_bool enabled $1 enabled
+    if [ "$enabled" != "1" ]; then
+        echo "Modem not enabled, skipping." >> /tmp/log4g
+        return
+    fi
+
+    echo "run runModem" >> /tmp/log4g
+
+    local user password apn auth pincode device tool pdptype tty atcmd
+    config_get user $1 user
+    config_get password $1 password
+    config_get apn $1 apn
+    config_get auth $1 auth
+    config_get pincode $1 pincode
+    config_get device $1 device
+    config_get tool $1 tool
+    config_get pdptype $1 pdptype
+    config_get tty $1 tty
+    config_get atcmd $1 atcmd
+
+    if [ -z "$device" ] || [ -z "$tool" ]; then
+        echo "Critical configuration missing: device or tool is not set." >> /tmp/log4g
+        return
+    fi
+
+    case "$pdptype" in
+        "IPV4V6") pdptype='-4 -6' ;;
+        "IPV6")   pdptype='-6' ;;
+        *)        pdptype='' ;;
+    esac
+
+    local devname=$(basename "$device")
+    local devpath=$(readlink -f "/sys/class/usbmisc/$devname/device/")
+    local ifname=$(ls "$devpath/net" 2>/dev/null)
+
+    # 构建命令参数
+    local cmd_params=""
+    if [ -n "$ifname" ]; then
+        cmd_params="-i $ifname"
+    fi
+    cmd_params="$cmd_params -s $apn $pdptype"
+
+    if [ -n "$password" ]; then
+        cmd_params="$cmd_params $user $password $auth"
+    fi
+
+    if [ -n "$pincode" ]; then
+        cmd_params="$cmd_params -p $pincode"
+    fi
+
+    procd_open_instance
+    procd_set_param command $tool $cmd_params
+    procd_set_param respawn
+    echo "quectel-CM has started."
+    procd_close_instance
+}
+
+
+service_triggers() {
+    procd_add_reload_trigger "modem"
+}
+
+start_service() {
+    config_load modem
+    config_foreach runModem ndis
+}
+
+stop_service() {
+    echo "runModem stop" >> /tmp/log4g
+    killall -3 quectel-CM  # 考虑使用更精确的方法来停止服务
+    echo "quectel-CM has stopped."
+}

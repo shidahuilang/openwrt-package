@@ -1,0 +1,55 @@
+#!/bin/sh
+
+. /lib/netifd/netifd-proto.sh
+
+add_route() {
+	local route="$1"
+	local next version target mask gw metric
+	version="${route%%,*}"
+	next="${route#*,}"
+	target="${next%%/*}"
+	next="${route#*/}"
+	mask="${next%%,*}"
+	next="${next#*,}"
+	if [ "$next" != "$mask" ]; then
+		gw="${next%%,*}"
+		next="${next#*,}"
+		if [ "$next" == "$gw" ]; then
+			metric="$gw"
+			gw=""
+		else
+			metric="${next#*,}"
+		fi
+	fi
+	if [ "$version" == "4" ]; then
+		echo proto_add_ipv4_route \"$target\" \"$mask\" \"$gw\" \"\" \"$metric\"
+	else
+		echo proto_add_ipv6_route \"$target\" \"$mask\" \"$gw\" \"$metric\"
+	fi
+}
+
+proto_init_update "$INTERFACE" 1
+
+if [ -n "$IPADDR" ]; then
+	proto_add_ipv4_address "${IPADDR%%/*}" "${IPADDR##*/}"
+fi
+
+if [ -n "$IP6ADDR" ]; then
+	proto_add_ipv6_address "${IP6ADDR%%/*}" "${IP6ADDR##*/}"
+fi
+
+# version,target/mask,gw,metric
+# version,target/mask,metric
+# version,target/mask
+
+for route in $ROUTES; do
+	eval $(add_route $route)
+done
+
+echo "MTU:$MTU">>/tmp/debug.txt
+if [ -n "$MTU" ]; then
+	ip link set $INTERFACE mtu $MTU
+fi
+
+proto_send_update "$CONFIG"
+

@@ -1,0 +1,45 @@
+#: kcptun package
+msgid "kcptun"
+msgstr "KCP隧道"
+
+msgid "kcptun client"
+msgstr "KCP隧道客户端"
+
+msgid "Enable this kcptun client instance"
+msgstr "启用此KCP隧道客户端实例"
+
+msgid "kcptun is a Stable & Secure Tunnel Based On KCP with N:M Multiplexing."
+msgstr "KCP隧道是基于KCP协议的稳定、安全的隧道，支持N:M多路复用。"
+
+msgid "Client Settings"
+msgstr "客户端设置"
+
+msgid "Enable kcptun client"
+msgstr "启用kcp隧道客户端"
+
+msgid "Local port to listen"
+msgstr "本地监听端口"
+
+msgid "Server address to connect"
+msgstr "对端KCP服务器地址"
+
+msgid "Server port-range to connect"
+msgstr "对端KCP服务器端口范围"
+
+msgid "Pre-shared secret between client and server"
+msgstr "客户端与服务器之间的预共享密钥"
+
+msgid "Server Settings"
+msgstr "服务器设置"
+
+msgid "Server Command"
+msgstr "服务器命令"
+
+msgid "Command to start kcptun server"
+msgstr "服务器端启动KCP隧道服务器的命令"
+
+msgid "Copy Command"
+msgstr "复制命令"
+
+msgid "Copy the command to clipboard"
+msgstr "复制命令到剪贴板"

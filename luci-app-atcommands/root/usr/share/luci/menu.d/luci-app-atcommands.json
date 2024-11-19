@@ -1,0 +1,42 @@
+{
+	"admin/modem": {
+		"title": "Modem",
+		"order": 30,
+		"action": {
+			"type": "firstchild",
+			"recurse": true
+		}
+	},
+	
+	"admin/modem/luci-app-atcommands": {
+		"title": "AT Commands",
+		"order": 10,
+		"action": {
+			"type": "alias",
+			"path": "admin/modem/luci-app-atcommands/atcommands"
+		},
+		"depends": {
+			"acl": [ "luci-app-atcommands" ],
+			"uci": { "atcommands": true }
+		}
+	},
+	
+	"admin/modem/luci-app-atcommands/atcommands": {
+		"title": "AT Commands",
+		"order": 10,
+		"action": {
+			"type": "view",
+			"path": "modem/atcommands"
+		}
+	},
+
+	"admin/modem/luci-app-atcommands/atconfig": {
+		"title": "Configuration",
+		"order": 20,
+		"action": {
+			"type": "view",
+			"path": "modem/atconfig"
+		}
+	},
+
+}

@@ -1,0 +1,2 @@
+config insomclash 'config'
+        option enabled '0'

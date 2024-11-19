@@ -1,0 +1,163 @@
+#!/bin/sh /etc/rc.common
+
+USE_PROCD=1
+
+# firewall 之后启动
+START=20
+ 
+##########
+name="ipv6 client filter"
+conf=ipv6clientfilter
+
+# nft 
+usenft=false
+nft -v >/dev/null 2>&1 && usenft=true
+
+iptrule(){
+	ipset create $conf hash:mac
+	local mac
+	for mac in $macs;do
+		ipset add $conf $mac
+	done
+
+	local ip6shf=/tmp/.$conf
+
+	local sign='!'
+	if [ "$mode" = 'blacklist' ];then
+		sign=
+	fi
+	
+	cat << EOF > "$ip6shf"
+ip6tables -t raw -I PREROUTING -m set $sign --match-set $conf src -j DROP
+EOF
+
+	chmod +x "$ip6shf"
+	sh "$ip6shf"
+	
+	# 防火墙重载绑定
+	uci -q batch << EOF
+		set firewall.$conf=include
+		set firewall.$conf.reload=1
+		set firewall.$conf.type=script
+		set firewall.$conf.path="$ip6shf"
+		
+		commit firewall
+EOF
+
+}
+
+nftrule(){
+	nft add table ip6 $conf
+	nft add chain ip6 $conf raw_prer { type filter hook prerouting priority raw - 1 \;}
+
+	# 转成 mac, mac2, mac3 set格式
+	local macs_set=$(printf "%s, " $macs)
+	
+	local sign='!='
+	if [ "$mode" = 'blacklist' ];then
+		sign=
+	fi
+	
+	# pppoe-wan进来的数据包没有 ether saddr daddr，它会无视这条规则
+	nft add rule ip6 $conf raw_prer ether saddr $sign { $macs_set } counter drop comment \" 阻止特定mac的ipv6 \"
+}
+
+macs=
+getmacs(){
+	local cfgid=$1 enabled mac
+	
+	config_get_bool enabled $cfgid enabled
+	
+	[ "$enabled" = "1" ] || return 1
+
+	config_get mac $cfgid mac
+	
+	macs="$macs $mac"
+}
+
+
+mode=
+start_service(){
+	# 避免重复开启
+	local started=false
+	if $usenft;then
+		if nft list tables | grep -qF " $conf";then
+			started=true
+		fi
+	else
+		if ipset -n -q list $conf >/dev/null;then
+			started=true
+		fi
+	fi
+	
+	$started && {
+		echo 已经启动
+		return 1
+	}
+	
+	
+	# 是否启用？
+	local enabled
+	
+	config_load $conf
+	
+	config_get_bool enabled prefs enabled
+	
+	[ "$enabled" = "1" ] || {
+		echo "$name 已被禁用"
+		return 1
+	}
+	
+	echo "$name start"
+	config_get mode prefs mode
+	echo "模式: $mode"
+
+	echo 开始获取mac地址
+	config_foreach getmacs client
+	echo "macs:'$macs'"
+	[ "$macs" ] || {
+		echo 没有设置任何客户端mac,无需启动
+		return 3
+	}
+	
+	if $usenft;then
+		echo 生成nftables规则
+		nftrule
+	else
+		echo 生成ip6tables规则
+		iptrule
+	fi
+	
+	echo ok
+	logger -t "$name" "start" "$mode" "$macs"
+}
+
+stop_service(){
+	{
+	if $usenft;then
+		nft delete table ip6 $conf 
+	else
+		# 删除从数字大的索引开始，否则删除小的，后面的索引会变，如果删除了1，索引2就会变成1
+		ip6tables --line-numbers -t raw -nL PREROUTING \
+			| grep -F " $conf " | awk '{print $1}' | sort -nr \
+			| xargs -t -n 1 -r ip6tables -t raw -D PREROUTING 
+		
+		ipset destroy $conf
+		
+		uci delete firewall.$conf
+		uci commit
+	fi
+	} >/dev/null 2>&1
+	
+	echo "$name stopped"
+	logger -t "$name" "stopped"
+}
+
+reload_service() {
+	restart
+}
+
+service_triggers(){
+	procd_add_reload_trigger "$conf"
+}
+

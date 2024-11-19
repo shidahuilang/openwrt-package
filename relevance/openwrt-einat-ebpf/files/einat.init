@@ -1,0 +1,165 @@
+#!/bin/sh /etc/rc.common
+
+. "${IPKG_INSTROOT}/lib/functions/network.sh"
+
+START=60
+STOP=60
+USE_PROCD=1
+
+# einat
+CONF=einat
+CONFIGSECTION=config
+PROG=/usr/bin/einat
+
+config_load "$CONF"
+
+network_find_wan DEF_WAN true
+network_find_wan6 DEF_WAN6 true
+
+
+
+load_interfaces() {
+	local n ifname hairpin_enabled hairpinif
+
+	config_get ifname "$1" ifname
+	config_get hairpinif "$1" hairpinif
+
+	[ "$hairpin_enabled" = 1 ] && ifname="$ifname $hairpinif"
+
+	for n in $ifname; do
+		interfaces=" $(uci -q show network|grep "device='$n'"|cut -f2 -d'.') $interfaces"
+	done
+}
+
+validate_section_config() {
+	uci_load_validate "$CONF" "$CONFIGSECTION" "$1" "$2" \
+		'enabled:bool:0' \
+		'bpf_log_level:range(0, 5):0' \
+		'nat44:bool:1' \
+		'nat66:bool:0' \
+		'ifname:network' \
+		'ports:portrange:20000-29999' \
+		'hairpin_enabled:bool:0' \
+		'hairpinif:list(network)'
+}
+
+einat_instance() {
+
+	procd_open_instance "$CONF"
+	procd_set_param command "$PROG" \
+		--bpf-log "$bpf_log_level" \
+		-i "$ifname" \
+		--ports "$ports"
+
+	[ "$nat44" = 1 ] && procd_append_param command --nat44
+	#[ "$nat66" = 1 ] && procd_append_param command --nat66
+		
+	procd_append_param netdev "$ifname"
+
+	if [ "$hairpin_enabled" = 1 -a -n "$hairpinif" ]; then
+		procd_append_param command --hairpin-if lo $hairpinif
+		for n in $hairpinif; do
+			procd_append_param netdev "$n"
+		done
+	fi
+
+	#procd_set_param capabilities "/etc/capabilities/einat.json"
+
+	procd_set_param stdout 1
+	procd_set_param stderr 1
+	procd_set_param respawn
+
+	procd_open_data
+	# configure firewall
+	json_add_array firewall
+		# IPv4 input (Optional. Relax the localhost firewall)
+		#json_add_object ''
+		#json_add_string type rule
+		#json_add_string target 'ACCEPT'
+		#json_add_string name "Relax input limits"
+		#json_add_string family 'ipv4'
+		#json_add_string proto 'tcp udp'
+		#json_add_string src "$(fw4 -q device $ifname)"
+		#json_add_string dest_port "$ports"
+		#json_close_object
+		# IPv4 accept forward wan -> lan
+		json_add_object ''
+		json_add_string type rule
+		json_add_string target 'ACCEPT'
+		json_add_string name "Forward wan 2 lan"
+		json_add_string family 'ipv4'
+		json_add_string proto 'tcp udp icmp'
+		json_add_string src "$(fw4 -q device $ifname)"
+		json_add_string dest "$(fw4 -q device br-lan)"
+		json_close_object
+		# IPv4 disable Masquerade
+		json_add_object ''
+		json_add_string type nat
+		json_add_string target 'ACCEPT'
+		json_add_string name "Disable Masquerade"
+		json_add_string family 'ipv4'
+		json_add_string proto 'tcp udp icmp'
+		json_add_string src "$(fw4 -q device $ifname)"
+		json_close_object
+	json_close_array
+	procd_close_data
+
+	procd_close_instance
+}
+
+launcher() {
+	[ "$2" = 0 ] || { >&2 echo "$(basename $0): section $1 validation failed"; return 1; }
+	[ "$enabled" = 0 ] && return 0
+
+	local error=0
+	local wanifname
+
+	# ifname
+	case "$nat66$nat44" in
+		00) network_get_device wanifname "$DEF_WAN";;
+		01) network_get_device wanifname "$DEF_WAN";;
+		10) network_get_device wanifname "$DEF_WAN6";;
+		11) network_get_device wanifname "$DEF_WAN6";;
+	esac
+	local ifname="${ifname:-$wanifname}"
+	[ -z "$ifname" ] && >&2 echo "$(basename $0): section $1 option ifname parsing failed, there may be no network connection" && let error++
+
+	# review
+	[ -n "$EINAT_DEBUG" ] && {
+		local v ucivv="enabled bpf_log_level nat44 nat66 ifname ports hairpin_enabled hairpinif"
+		for v in $ucivv; do eval "echo $1 $v=\'\$$v\'"; done # ash not support ${!v}
+	}
+	[ "$error" -gt 0 ] && return 1
+
+	einat_instance "$1"
+}
+
+service_triggers() {
+	procd_add_reload_trigger "$CONF" 'network'
+
+	local interfaces
+
+	load_interfaces $CONFIGSECTION
+	[ -n "$interfaces" ] && {
+		procd_add_reload_interface_trigger $interfaces
+	} || {
+		for n in $DEF_WAN $DEF_WAN6; do
+			procd_add_reload_interface_trigger $n
+		done
+	}
+
+	procd_add_validation validate_section_config
+}
+
+start_service() {
+	validate_section_config "$CONFIGSECTION" launcher
+}
+
+reload_service() {
+	stop
+	start
+}
+
+service_started() { procd_set_config_changed firewall; }
+
+service_stopped() { procd_set_config_changed firewall; }

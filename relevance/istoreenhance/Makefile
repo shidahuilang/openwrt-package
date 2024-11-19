@@ -11,10 +11,10 @@ PKG_ARCH_ISTOREENHANCE:=$(ARCH)
 
 PKG_NAME:=istoreenhance
 PKG_VERSION:=0.1.7
-PKG_RELEASE:=$(PKG_ARCH_ISTOREENHANCE)-1
+PKG_RELEASE:=3
 PKG_SOURCE:=iStoreEnhance-binary-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://fw.koolcenter.com/binary/iStoreEnhance/
-PKG_HASH:=6c670eced471c9be7a3b59b52701bc6154cd4d3144e354d492f2ba4cf3caa6f5
+PKG_HASH:=skip
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/iStoreEnhance-binary-$(PKG_VERSION)
 

@@ -1,0 +1,13 @@
+{
+  "admin/services/msd": {
+    "title": "MSD",
+    "action": {
+      "type": "view",
+      "path": "msd"
+    },
+    "depends": {
+      "acl": [ "luci-app-msd" ],
+      "uci": { "msd": true }
+    }
+  }
+}

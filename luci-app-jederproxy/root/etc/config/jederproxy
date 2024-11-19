@@ -1,0 +1,80 @@
+config general
+	option transparent_proxy_enable '1'
+	option tproxy_enable_udp '1'
+	option server 'clashmeta'
+
+	option tproxy_port '7892'
+	option packet_mark_id '255'
+	list whitelist_process_uids '346'
+	list whitelist_process_gids '346'
+	option lan_interface 'br-lan'
+
+	# file descriptor limit
+	option rlimit_nofile '8192 16384'
+	# memory limit
+	option rlimit_data '314572800 314572800'
+
+	option dnsmasq_takeover_enable '0'
+	option dns_port '5353'
+	# option dns_count '0'
+
+	list wan_bypass_rules '114.114.114.114'
+	list wan_forward_rules '8.8.8.8'
+
+	option wan_forward_rule_file '/etc/mihomo/forwardlist.txt'
+	option wan_bypass_rule_file '/etc/mihomo/chnlist.txt'
+
+
+config server 'clashmeta'
+	option alias 'Clash Meta (mihomo)'
+	option server_type 'mihomo'
+	option executable_path '/usr/bin/mihomo'
+
+	option config_type 'directory'
+	# option config_type 'file'
+
+	option config_directory '/etc/mihomo'
+	option config_file '/etc/mihomo/config.yml'
+
+
+config server 'clash'
+	option alias 'Clash / Clash Premium'
+	option server_type 'mihomo'
+	option executable_path '/usr/bin/clash'
+
+	option config_type 'directory'
+	# option config_type 'file'
+
+	option config_directory '/etc/clash'
+	option config_file '/etc/clash/config.yml'
+
+
+config server 'xray'
+	option server_type 'xray'
+	option executable_path '/usr/bin/xray'
+
+	option config_type 'directory'
+	# option config_type 'file'
+
+	option config_directory '/etc/xray'
+	option config_file '/etc/xray/config.json'
+
+
+config server 'v2ray'
+	option server_type 'xray'
+	option executable_path '/usr/bin/v2ray'
+
+	option config_type 'directory'
+	# option config_type 'file'
+
+	option config_directory '/etc/v2ray'
+	option config_file '/etc/v2ray/config.json'
+
+
+config lan_hosts 'example_bypass'
+	option macaddr '22:11:33:44:55:66'
+	option bypassed '1'
+
+config lan_hosts 'example_forward'
+	option macaddr '66:55:44:33:22:11'
+	option bypassed '0'

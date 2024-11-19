@@ -1,0 +1,409 @@
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2023-08-10 08:05+0000\n"
+"Last-Translator: Džiugas J <dziugas1959@hotmail.com>\n"
+"Language-Team: Lithuanian <https://hosted.weblate.org/projects/openwrt/"
+"luciapplicationsnatmap/lt/>\n"
+"Language: lt\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n % 10 == 1 && (n % 100 < 11 || n % 100 > "
+"19)) ? 0 : ((n % 10 >= 2 && n % 10 <= 9 && (n % 100 < 11 || n % 100 > 19)) ? "
+"1 : 2);\n"
+"X-Generator: Weblate 5.0-dev\n"
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:372
+msgid "(This device default Lan)"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:373
+msgid "(This device default Wan)"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:562
+msgid "A Record"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:569
+msgid "AAAA Record"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/status/include/72_natmap.js:46
+msgid "Active NATMap Portmap"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:304
+msgid "Bind port"
+msgstr "Priskirti prievadą"
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:597
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:606
+msgid "Can refer to RFC8552"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:213
+msgid "Check"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:212
+msgid "Check NAT Behavior"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:274
+msgid "Comment"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:247
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:677
+msgid "Custom Script"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:246
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:542
+msgid "DDNS Scripts"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:103
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:107
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:111
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:115
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:118
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:123
+msgid "Default"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:537
+msgid "EnDDNS"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:501
+msgid "EnNotify"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:99
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:249
+msgid "Enable"
+msgstr "Įjungti"
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:234
+msgid "Expand/Collapse result"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:136
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:341
+msgid "Expecting: non-empty value"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:487
+msgid "External IP"
+msgstr "Išorinis „IP“"
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:494
+msgid "External Port"
+msgstr "Išorinis prievadas"
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:562
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:569
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:591
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:649
+msgid "FQDN"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:332
+msgid "Firewall DNAT"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:265
+msgid "For TCP mode"
+msgstr "Dėl „TCP“ režimo"
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:244
+msgid "Forward Settings"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:331
+msgid "Forward method"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:308
+msgid "Forward mode"
+msgstr "Pravedimo režimas"
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:370
+msgid "Forward target"
+msgstr "Pravedimo numatymas (taikinys)"
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:408
+msgid "Forward target port"
+msgstr "Pravedimo numatymo (taikinio) prievadas"
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:362
+msgid "Forward timeout"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:115
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:270
+msgid "Fwmark value"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:243
+msgid "General Settings"
+msgstr ""
+
+#: applications/luci-app-natmapt/root/usr/share/rpcd/acl.d/luci-app-natmap.json:3
+msgid "Grant access to LuCI app natmap"
+msgstr "Duoti prieigą „LuCI app natmap“"
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:111
+msgid "HTTP keep-alive"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:265
+msgid "HTTP server"
+msgstr "„HTTP“ serveris"
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:636
+msgid "HTTPS Record"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:289
+msgid "IPv4"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:290
+msgid "IPv6"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/status/include/72_natmap.js:61
+msgid "Inner Addr"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/status/include/72_natmap.js:62
+msgid "Inner Port"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:297
+msgid "Interface"
+msgstr "Išvaizda"
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:255
+msgid "Keep-alive interval"
+msgstr "„Laikyti-gyvą“ intervalas"
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:270
+msgid "Mark fwmark for STUN/HTTP outbound traffic"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:355
+msgid "NAT loopback"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:128
+msgid "NATBehavior-Test port open on"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:85
+#: applications/luci-app-natmapt/root/usr/share/luci/menu.d/luci-app-natmap.json:3
+msgid "NATMap"
+msgstr "„NATMap“"
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/status/include/72_natmap.js:59
+msgid "Name"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:328
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:405
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:436
+msgid "No"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:245
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:506
+msgid "Notify Scripts"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/status/include/72_natmap.js:63
+msgid "Outer Addr"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/status/include/72_natmap.js:64
+msgid "Outer Port"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:481
+msgid "Password"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:128
+msgid ""
+"Please check <a href=\"%s\"><b>Firewall Rules</b></a> to avoid port "
+"conflicts.</br>"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:362
+msgid "Port forwarding session idle timeout in seconds"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:622
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:670
+msgid "Priority"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:526
+msgid "Private API Domain"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:277
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:606
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/status/include/72_natmap.js:60
+msgid "Protocol"
+msgstr "Protokolas"
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:446
+msgid "Refresh Scripts"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:439
+msgid "Refresh client listen port"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:90
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:91
+msgid "Reload"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:287
+msgid "Restrict to address family"
+msgstr "Riboti tik adresų šeimai"
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:576
+msgid "SRV Record"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:260
+msgid "STUN server"
+msgstr "„STUN“ serveris"
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:103
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:107
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:111
+msgid "Server"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:597
+msgid "Service"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:408
+msgid "Set 0 will follow Public port"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:663
+msgid "SvcParams"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:118
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:607
+msgid "TCP"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:103
+msgid "TCP STUN"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:609
+msgid "TLS"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:615
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:655
+msgid "Target"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:532
+msgid "Text content"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:331
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:350
+msgid "The DNAT method not support under IPv6"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:517
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:553
+msgid ""
+"The KEY required by the script above. See <a href=\"%s\" "
+"target=\"_blank\">%s*</a> for the format of KEY required by each script. Add "
+"multiple entries here in KEY=VAL shell variable format to supply multiple "
+"KEY variables."
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/status/include/72_natmap.js:83
+msgid "There are no active portmap"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:145
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:154
+msgid "This port is already used"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:216
+msgid ""
+"To check NAT Behavior you need to install <a href=\"%s\"><b>stuntman-client</"
+"b></a> first"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:516
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:552
+msgid "Tokens"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:123
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:608
+msgid "UDP"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:107
+msgid "UDP STUN"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:458
+msgid "URI Scheme"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:475
+msgid "Username"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:333
+msgid "Via natmap"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:467
+msgid "Web UI Port"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:629
+msgid "Weight"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:118
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:123
+msgid "keep-alive interval (seconds)"
+msgstr ""
+
+#: applications/luci-app-natmapt/htdocs/luci-static/resources/view/natmap.js:130
+msgid "luci check may not detect all conflicts."
+msgstr ""
+
+#~ msgid "Notify script"
+#~ msgstr "Įspėti skriptą"
+
+#~ msgid "IPv4 and IPv6"
+#~ msgstr "„IPv4“ ir „IPv6“"
+
+#~ msgid "IPv4 only"
+#~ msgstr "Tik „IPv4“"
+
+#~ msgid "IPv6 only"
+#~ msgstr "Tik „IPv6“"

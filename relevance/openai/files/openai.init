@@ -1,0 +1,76 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+USE_PROCD=1
+PROG=/usr/bin/openai
+
+get_config() {
+	config_load openai
+	config_get "enabled" "config" "enabled" "0"
+	config_get "port" "config" "port" "5052"
+	config_get "log" "config" "log" "0"
+	config_get "allow_wan" "config" "allow_wan" "0"
+	config_get "disable_gpt4" "config" "disable_gpt4" "0"
+	config_get "base_url" "config" "base_url" "https://api.openai.com"
+	config_get "openai_api_key" "config" "openai_api_key" ""
+	config_get "user_code" "config" "user_code" ""
+}
+
+set_firewall() {
+	if [ "$set_type" = "allow" ]; then
+		uci -q delete firewall.openai
+		uci set firewall.openai=rule
+		uci set firewall.openai.name="openai"
+		uci set firewall.openai.target="ACCEPT"
+		uci set firewall.openai.src="wan"
+		uci set firewall.openai.proto="tcp"
+		uci set firewall.openai.dest_port="$port"
+		uci set firewall.openai.enabled="1"
+		uci commit firewall
+		/etc/init.d/firewall reload >/dev/null 2>&1
+	elif [ "$set_type" = "deny" ]; then
+		uci -q delete firewall.openai
+		uci commit firewall
+		/etc/init.d/firewall reload >/dev/null 2>&1
+	fi
+}
+
+start_service() {
+	get_config
+	[ "$enabled" -ne "1" ] && return 1
+	if [ "$allow_wan" -eq "1" ]; then
+		set_type="allow"
+	else
+		set_type="deny"
+	fi
+	set_firewall
+	[ $log -eq "1" ] && LOG="/var/openai.log" || LOG="/dev/null"
+	[ $disable_gpt4 -eq 1 ] && GPT4="DISABLE_GPT4=1" || GPT4=""
+	[ ! -z $user_code ] && USER_CODE=$(echo "CODE=$user_code") || USER_CODE=""
+	ARG="HIDE_USER_API_KEY=1 PORT=$port BASE_URL=$base_url OPENAI_API_KEY=$openai_api_key $USER_CODE $GPT4"
+	true > $LOG
+	procd_open_instance openai
+	procd_set_param env $ARG
+	procd_set_param command /bin/sh -c "$PROG >> $LOG 2>&1"
+	procd_set_param stdout 0
+	procd_set_param stderr 0
+	procd_set_param respawn
+	procd_close_instance openai
+}
+
+service_triggers() {
+	procd_add_reload_trigger "openai"
+}
+
+reload_service() {
+	stop
+	sleep 1
+	start
+}
+
+stop_service() {
+	get_config
+	pgrep -f /usr/bin/openai | xargs kill -9 >/dev/null 2>&1
+	set_type="deny"
+	set_firewall
+}

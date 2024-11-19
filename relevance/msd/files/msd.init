@@ -1,0 +1,70 @@
+#!/bin/ash /etc/rc.common
+
+START=50
+USE_PROCD=1
+
+conf_path="/var/run/msd.conf"
+sample_conf_path="/etc/msd/msd.conf.sample"
+
+start_service() {
+    config_load msd
+
+    local enabled
+    config_get_bool enabled "config" "enabled" 0
+
+    if [ "$enabled" == 0 ]; then
+      return
+    fi
+
+    local thread_count thread_bind_cpu
+    local bind_address bind_interface
+    local hub_drop_slow_client hub_use_polling_for_send hub_zero_copy_on_send hub_persist_when_no_source hub_persist_when_no_client hub_destroy_when_no_client_timeout hub_wait_precache hub_precache_size
+    local source_interface source_ring_buffer_size source_multicast_rejoin_interval
+    config_get thread_count "config" "thread_count" "0"
+    config_get_bool thread_bind_cpu "config" "thread_bind_cpu" 0
+    config_get bind_address "config" "bind_address" "0.0.0.0:7088"
+    config_get bind_interface "config" "bind_interface"
+    config_get_bool hub_drop_slow_client "config" "hub_drop_slow_client" 0
+    config_get_bool hub_use_polling_for_send "config" "hub_use_polling_for_send" 0
+    config_get_bool hub_zero_copy_on_send "config" "hub_zero_copy_on_send" 0
+    config_get_bool hub_persist_when_no_source "config" hub_persist_when_no_source 0
+    config_get_bool hub_persist_when_no_client "config" hub_persist_when_no_client 0
+    config_get hub_destroy_when_no_client_timeout "config" hub_destroy_when_no_client_timeout 60
+    config_get_bool hub_wait_precache "config" "hub_wait_precache" 0
+    config_get hub_precache_size "config" "hub_precache_size" "2048"
+    config_get source_interface "config" "source_interface"
+    config_get source_ring_buffer_size "config" "source_ring_buffer_size" "8192"
+    config_get source_multicast_rejoin_interval "config" "source_multicast_rejoin_interval" "180"
+
+    sed \
+    -e "s,%thread_count%,$thread_count,g" \
+    -e "s,%thread_bind_cpu%,$thread_bind_cpu,g" \
+    -e "s,%bind_address%,$bind_address,g" \
+    -e "s,%bind_interface%,$bind_interface,g" \
+    -e "s,%hub_drop_slow_client%,$hub_drop_slow_client,g" \
+    -e "s,%hub_use_polling_for_send%,$hub_use_polling_for_send,g" \
+    -e "s,%hub_zero_copy_on_send%,$hub_zero_copy_on_send,g" \
+    -e "s,%hub_persist_when_no_source%,$hub_persist_when_no_source,g" \
+    -e "s,%hub_persist_when_no_client%,$hub_persist_when_no_client,g" \
+    -e "s,%hub_destroy_when_no_client_timeout%,$hub_destroy_when_no_client_timeout,g" \
+    -e "s,%hub_wait_precache%,$hub_wait_precache,g" \
+    -e "s,%hub_precache_size%,$hub_precache_size,g" \
+    -e "s,%source_interface%,$source_interface,g" \
+    -e "s,%source_ring_buffer_size%,$source_ring_buffer_size,g" \
+    -e "s,%source_multicast_rejoin_interval%,$source_multicast_rejoin_interval,g" \
+    "$sample_conf_path" > "$conf_path"
+
+    if [ -z "$bind_interface" ]; then
+      sed -i '/<ifName><\/ifName>/d' "$conf_path"
+    fi
+
+    procd_open_instance
+    procd_set_param command /usr/bin/msd -c "$conf_path"
+    procd_set_param file "$conf_path"
+    procd_set_param respawn
+    procd_close_instance
+}
+
+service_triggers() {
+    procd_add_reload_trigger "msd"
+}

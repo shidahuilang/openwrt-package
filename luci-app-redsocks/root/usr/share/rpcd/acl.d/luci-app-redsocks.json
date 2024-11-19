@@ -1,0 +1,25 @@
+{
+	"luci-app-redsocks": {
+		"description": "Grant access to LuCI app redsocks",
+		"read": {
+			"file": {
+				"/etc/redsocks.conf": [ "read" ],
+				"/usr/sbin/redsocks": [ "exec" ]
+			},
+			"ubus": {
+				"file": [ "read" ],
+				"luci": [ "getInitList" ]
+			}
+		},
+		"write": {
+			"file": {
+				"/etc/redsocks.conf": [ "write" ]
+			},
+			"ubus": {
+				"file": [ "write" ],
+				"luci": [ "setInitAction" ]
+			}
+		}
+	}
+}
+

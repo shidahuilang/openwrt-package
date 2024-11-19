@@ -1,0 +1,14 @@
+#!/bin/sh
+
+[ -n "$(uci -q get alwaysonline.global)" ] || sed -i "s|^config alwaysonline|config alwaysonline 'global'|" /etc/config/alwaysonline
+
+tun_name="$(uci -q get alwaysonline.global.tun_name)"
+tun_addr4="$(uci -q get alwaysonline.global.tun_addr4)"
+tun_addr6="$(uci -q get alwaysonline.global.tun_addr6)"
+port="$(uci -q get alwaysonline.global.port)"
+[ -n "$tun_name" ] || uci set alwaysonline.global.tun_name='awoltun0'
+[ -n "$tun_addr4" ] || uci set alwaysonline.global.tun_addr4='172.25.26.1/30'
+[ -n "$tun_addr6" ] || uci set alwaysonline.global.tun_addr6='fdfe:aead:2526::1/126'
+[ -n "$port" ] || uci set alwaysonline.global.port='8083'
+
+[ -z "$(uci changes alwaysonline)" ] || uci commit alwaysonline

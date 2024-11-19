@@ -1,0 +1,13 @@
+{
+	"admin/services/redsocks": {
+		"title": "Redsocks",
+		"action": {
+			"type": "view",
+			"path": "redsocks"
+		},
+		"depends": {
+			"acl": [ "luci-app-redsocks" ]
+		}
+	}
+}
+

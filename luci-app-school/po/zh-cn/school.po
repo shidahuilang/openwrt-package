@@ -1,0 +1,5 @@
+msgid "Campus network detection bypass"
+msgstr "绕过校园网检测"
+
+msgid "Bypass campus network device detection"
+msgstr "绕过校园网设备检测"

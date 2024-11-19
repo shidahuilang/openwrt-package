@@ -1,0 +1,9 @@
+[ "$ACTION" = "add" ] && {
+  [ "$(uci -q get partexp.global.target_disk)" ] || {
+    target_disk="$(lsblk -o NAME | grep sd | grep -v "[0-9]" | tail -n 1)"
+    [ "$(block info | grep "$target_disk" | grep "kernel")" ] || {
+      uci -q set partexp.global.target_disk="$target_disk"
+      uci commit partexp
+    }
+  }
+}

@@ -1,0 +1,31 @@
+<script type="text/javascript">
+    // 更新日志内容的函数
+    function updateLogContent() {
+        // 使用fetch API发送请求到LuCI后端获取日志内容
+        fetch('/cgi-bin/luci/admin/services/campusnet/fetch_log')
+        .then(response => response.text()) // 将响应转换为文本
+        .then(data => {
+            // 更新页面上ID为'log_content'的元素的内容
+            document.getElementById('log_content').value = data;
+        })
+        .catch(error => console.error('Error fetching log:', error));
+    }
+    
+    // 设置定时器，每5000毫秒（即5秒）执行一次updateLogContent函数
+    setInterval(updateLogContent, 1000);
+</script>
+
+<style>
+    .mar-10 {
+        margin-left: 50px;
+        margin-right: 10px;
+    }
+
+    #log_content {
+        width: 100%;
+    }
+</style>
+
+<fieldset class="cbi-section">
+    <textarea id="log_content" rows="10" readonly></textarea>
+</fieldset>

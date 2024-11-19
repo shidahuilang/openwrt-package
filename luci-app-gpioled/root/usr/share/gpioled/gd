@@ -1,0 +1,55 @@
+#!/bin/bash
+
+# Environment GPIOLED
+source /usr/share/gpioled/env
+
+function create_gpio() {
+    echo "$TIMESTAMP [$a] $a1" >>$LOG_FILE
+    printf "$TIMESTAMP [$a] $a1\n"
+    echo "$TIMESTAMP [$a] $a2" >>$LOG_FILE
+    printf "$TIMESTAMP [$a] $a2\n"
+    echo $GPWR1 >$GPIOBASE/export
+    echo out >$GPIOBASE/gpio$GPWR1/direction
+    echo $GPWR2 >$GPIOBASE/export
+    echo out >$GPIOBASE/gpio$GPWR2/direction
+    echo $GETH1 >$GPIOBASE/export
+    echo out >$GPIOBASE/gpio$GETH1/direction
+    echo $GETH2 >$GPIOBASE/export
+    echo out >$GPIOBASE/gpio$GETH2/direction
+    echo $GIRB >$GPIOBASE/export
+    echo out >$GPIOBASE/gpio$GIRB/direction
+    echo "$TIMESTAMP [$a] $a3" >>$LOG_FILE
+    printf "$TIMESTAMP [$a] $a3\n"
+}
+
+function remove_gpio() {
+    echo "$TIMESTAMP [$b] $b1" >>$LOG_FILE
+    printf "$TIMESTAMP [$b] $b1\n"
+    echo "$TIMESTAMP [$b] $b2" >>$LOG_FILE
+    printf "$TIMESTAMP [$b] $b2\n"
+    echo $GPWR1 >$GPIOBASE/unexport
+    echo $GPWR2 >$GPIOBASE/unexport
+    echo $GETH1 >$GPIOBASE/unexport
+    echo $GETH2 >$GPIOBASE/unexport
+    echo $GIRB >$GPIOBASE/unexport
+    echo "$TIMESTAMP [$b] $b3" >>$LOG_FILE
+    printf "$TIMESTAMP [$b] $b3\n"
+}
+
+function usage() {
+    printf "Use start to run $a service\n"
+    printf "Use stop to run $b service\n"
+}
+
+case "${1}" in
+start)
+    create_gpio
+    ;;
+stop)
+    remove_gpio
+    ;;
+*)
+    usage
+    ;;
+esac
+

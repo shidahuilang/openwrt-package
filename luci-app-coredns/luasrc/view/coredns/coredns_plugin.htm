@@ -1,0 +1,28 @@
+<script type="text/javascript">
+    //<![CDATA[
+    XHR.poll(3, '<%=url([[admin]], [[services]], [[coredns]], [[plugins]])%>', null,
+        function(x, data) {
+            var tb = document.getElementById('coredns_plugins');
+            if (data && tb) {
+                if (data.running) {
+                    var links = data;
+                    tb.innerHTML = links;
+                } else {
+                    tb.innerHTML = data;
+                }
+            }
+        }
+    );
+    //]]>
+</script>
+<style>
+    .mar-10 {
+        margin-left: 50px;
+        margin-right: 10px;
+    }
+</style>
+<fieldset class="cbi-section">
+    <p id="coredns_plugins">
+        <em><%:Collecting data%></em>
+    </p>
+</fieldset>

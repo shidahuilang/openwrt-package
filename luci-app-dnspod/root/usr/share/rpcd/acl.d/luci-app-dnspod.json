@@ -1,0 +1,11 @@
+{
+	"luci-app-dnspod": {
+		"description": "Grant UCI access for luci-app-dnspod",
+		"read": {
+			"uci": [ "dnspod" ]
+		},
+		"write": {
+			"uci": [ "dnspod" ]
+		}
+	}
+}

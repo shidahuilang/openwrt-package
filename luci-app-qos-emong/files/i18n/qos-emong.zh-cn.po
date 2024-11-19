@@ -1,0 +1,64 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2009-06-10 03:40+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Easy to use qos, <font color=\"red\">do not open with other qos at the same time.</font>"
+msgstr "简单易用的qos，<font color=\"red\">不要和其它qos同时开启。</font>"
+
+msgid "QOS Goble Setting"
+msgstr "QOS全局配置"
+
+msgid "QOS Enable"
+msgstr "开启QOS"
+
+msgid "Total Download Speed(Kbps)"
+msgstr "总下载带宽(Kbps)"
+
+msgid "Total Upload Speed(Kbps)"
+msgstr "总上传带宽(Kbps)"
+
+msgid "Single IP or IP Segment Speed Limit"
+msgstr "单IP或者IP段限速"
+
+msgid "For example: 192.168.1.100 192.168.1.100/25, Please do not use 192.168.1.100-192.168.1.150, unit Kbps,1Mbps=1024Kbps"
+msgstr "内部IP地址可写成192.168.1.100或192.168.1.100/25，但不要使用192.168.1.100-192.168.1.150,单位Kbps,1Mbps=1024Kbps"
+
+msgid "Maximum Download Speed"
+msgstr "最大下载速度"
+
+msgid "Guarantee Download Speed"
+msgstr "下载保证速度"
+
+msgid "Maximum Upload Speed"
+msgstr "最大上传速度"
+
+msgid "Guarantee Upload Speed"
+msgstr "上传保证速度"
+
+msgid "Number of Connections"
+msgstr "连接数限制"
+
+msgid "Allows the maximum number of connections for tcp and udp"
+msgstr "允许客户端TCP和UDP最大连接数限制"
+
+msgid "TCP Maximum Number Connections"
+msgstr "最大TCP连接数"
+
+msgid "UDP Maximum Number Connections"
+msgstr "最大UDP连接数"
+
+msgid "Port Priority"
+msgstr "端口优先设置"
+
+msgid "Priority port will not be marked into the queue, You can put the application of high delay requirements here."
+msgstr "优先端口不会被打上标记进入队列，可将对延时要求高的应用加入这里。"

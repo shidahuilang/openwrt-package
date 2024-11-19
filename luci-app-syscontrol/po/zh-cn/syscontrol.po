@@ -1,0 +1,53 @@
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2024-04-10 09:38+0000\n"
+"Last-Translator: MkQtS <MkQtS@users.noreply.hosted.weblate.org>\n"
+"Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
+"openwrt/luciapplicationsacl/zh_Hans/>\n"
+"Language: zh_Hans\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.5-dev\n"
+
+msgid "System control"
+msgstr "系统控制"
+
+msgid "RAM Status"
+msgstr "内存状态"
+
+msgid "Total RAM"
+msgstr "总内存"
+
+msgid "Used RAM"
+msgstr "已使用内存"
+
+msgid "Cached RAM"
+msgstr "已缓存内存"
+
+msgid "Free RAM"
+msgstr "空闲内存"
+
+msgid "Release RAM"
+msgstr "释放内存"
+
+msgid "Shutdown"
+msgstr "关机"
+
+msgid "Shutdown System"
+msgstr "关机"
+
+msgid "System shutdown"
+msgstr "关机"
+
+msgid "RAM Release Schedule"
+msgstr "定期释放内存"
+
+msgid "Schedule Settings"
+msgstr "计划设置"
+
+msgid "RAM Release Log"
+msgstr "内存释放日志"
+
+msgid "Clear Log"
+msgstr "清除日志"

@@ -1,0 +1,11 @@
+{
+	"luci-app-dynv6": {
+		"description": "Grant UCI access for luci-app-dynv6",
+		"read": {
+			"uci": [ "dynv6" ]
+		},
+		"write": {
+			"uci": [ "dynv6" ]
+		}
+	}
+}

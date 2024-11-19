@@ -1,0 +1,20 @@
+<script type="text/javascript">
+	//<![CDATA[
+	XHR.poll(3, '<%=url([[admin]], [[system]], [[gpioled]], [[ad_status]])%>', null,
+		function (x, data) {
+			var tb = document.getElementById('ad_status');
+			if (data && tb) {
+				if (data.running) {
+					var links = '<b><font color=green><%:Running%></font></b>';
+					tb.innerHTML = links;
+				} else {
+					tb.innerHTML = '<b><font color=red><%:Stopped%></font></b>';
+				}
+			}
+		}
+	);
+	//]]>
+</script>
+<%+cbi/valueheader%>
+<font id="ad_status"><%=pcdata(self:cfgvalue(section) or self.default or "")%></font>
+<%+cbi/valuefooter%>

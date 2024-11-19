@@ -1,0 +1,16 @@
+{
+	"luci-mod-listening-ports": {
+		"description": "Grant permissions for the Network Ports LuCI app",
+		"read": {
+			"file": {
+				"/bin/netstat": [
+					"stat",
+					"exec"
+				],
+				"/bin/netstat -peanut": [
+					"exec"
+				]
+			}
+		},
+	}
+}

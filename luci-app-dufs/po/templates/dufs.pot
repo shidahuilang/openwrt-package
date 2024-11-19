@@ -1,0 +1,119 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+#: applications/luci-app-dufs/htdocs/luci-static/resources/view/dufs.js:92
+msgid "Add auth roles, e.g. %s."
+msgstr ""
+
+#: applications/luci-app-dufs/htdocs/luci-static/resources/view/dufs.js:83
+msgid "Allow access from Internet"
+msgstr ""
+
+#: applications/luci-app-dufs/htdocs/luci-static/resources/view/dufs.js:94
+msgid "Allow all operations"
+msgstr ""
+
+#: applications/luci-app-dufs/htdocs/luci-static/resources/view/dufs.js:99
+msgid "Allow delete files/folders"
+msgstr ""
+
+#: applications/luci-app-dufs/htdocs/luci-static/resources/view/dufs.js:102
+msgid "Allow search files/folders"
+msgstr ""
+
+#: applications/luci-app-dufs/htdocs/luci-static/resources/view/dufs.js:105
+msgid "Allow symlink to files/folders outside root directory"
+msgstr ""
+
+#: applications/luci-app-dufs/htdocs/luci-static/resources/view/dufs.js:96
+msgid "Allow upload files/folders"
+msgstr ""
+
+#: applications/luci-app-dufs/htdocs/luci-static/resources/view/dufs.js:108
+msgid "Allow zip archive generation"
+msgstr ""
+
+#: applications/luci-app-dufs/htdocs/luci-static/resources/view/dufs.js:91
+msgid "Auth roles"
+msgstr ""
+
+#: applications/luci-app-dufs/htdocs/luci-static/resources/view/dufs.js:64
+msgid "Collecting data…"
+msgstr ""
+
+#: applications/luci-app-dufs/htdocs/luci-static/resources/view/dufs.js:31
+#: applications/luci-app-dufs/htdocs/luci-static/resources/view/dufs.js:33
+#: applications/luci-app-dufs/htdocs/luci-static/resources/view/dufs.js:50
+#: applications/luci-app-dufs/root/usr/share/luci/menu.d/luci-app-dufs.json:3
+msgid "Dufs"
+msgstr ""
+
+#: applications/luci-app-dufs/htdocs/luci-static/resources/view/dufs.js:51
+msgid ""
+"Dufs is a distinctive utility file server that supports static serving, "
+"uploading, searching, accessing control, webdav..."
+msgstr ""
+
+#: applications/luci-app-dufs/htdocs/luci-static/resources/view/dufs.js:70
+msgid "Enable"
+msgstr ""
+
+#: applications/luci-app-dufs/htdocs/luci-static/resources/view/dufs.js:81
+msgid "Enable CORS"
+msgstr ""
+
+#: applications/luci-app-dufs/root/usr/share/rpcd/acl.d/luci-app-dufs.json:3
+msgid "Grant access to Dufs configuration"
+msgstr ""
+
+#: applications/luci-app-dufs/htdocs/luci-static/resources/view/dufs.js:88
+msgid "Hidden path"
+msgstr ""
+
+#: applications/luci-app-dufs/htdocs/luci-static/resources/view/dufs.js:89
+msgid "Hide paths from directory listings, e.g. %s."
+msgstr ""
+
+#: applications/luci-app-dufs/htdocs/luci-static/resources/view/dufs.js:115
+msgid "High"
+msgstr ""
+
+#: applications/luci-app-dufs/htdocs/luci-static/resources/view/dufs.js:74
+msgid "Listen address"
+msgstr ""
+
+#: applications/luci-app-dufs/htdocs/luci-static/resources/view/dufs.js:77
+msgid "Listen port"
+msgstr ""
+
+#: applications/luci-app-dufs/htdocs/luci-static/resources/view/dufs.js:113
+msgid "Low"
+msgstr ""
+
+#: applications/luci-app-dufs/htdocs/luci-static/resources/view/dufs.js:114
+msgid "Medium"
+msgstr ""
+
+#: applications/luci-app-dufs/htdocs/luci-static/resources/view/dufs.js:33
+msgid "NOT RUNNING"
+msgstr ""
+
+#: applications/luci-app-dufs/htdocs/luci-static/resources/view/dufs.js:112
+msgid "None"
+msgstr ""
+
+#: applications/luci-app-dufs/htdocs/luci-static/resources/view/dufs.js:30
+msgid "Open Web Interface"
+msgstr ""
+
+#: applications/luci-app-dufs/htdocs/luci-static/resources/view/dufs.js:31
+msgid "RUNNING"
+msgstr ""
+
+#: applications/luci-app-dufs/htdocs/luci-static/resources/view/dufs.js:85
+msgid "Serve path"
+msgstr ""
+
+#: applications/luci-app-dufs/htdocs/luci-static/resources/view/dufs.js:111
+msgid "Zip compression level"
+msgstr ""

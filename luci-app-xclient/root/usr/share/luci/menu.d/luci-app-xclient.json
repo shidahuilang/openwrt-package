@@ -1,0 +1,17 @@
+{
+    "admin/services/xclient/overview": {
+        "title": "XClient",
+        "action": {
+            "type": "view",
+            "path": "xclient"
+        },
+        "depends": {
+            "acl": [
+                "luci-app-xclient"
+            ],
+            "uci": {
+                "xclient": true
+            }
+        }
+    }
+}

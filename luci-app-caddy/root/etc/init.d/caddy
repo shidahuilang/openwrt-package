@@ -1,0 +1,198 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+USE_PROCD=1
+PROG="$(uci -q get caddy.@caddy[0].bin_dir)"
+
+get_config() {
+	config_get_bool enabled $1 enabled 0
+	config_get cmd $1 cmd "默认"
+	config_get_bool webdav $1 webdav 0
+	config_get port $1 port 12311
+	config_get webdav_port $1 webdav_port 12322
+	config_get log $1 log 1
+	config_get data_dir $1 data_dir "/mnt"
+	config_get webdav_data_dir $1 webdav_data_dir "/mnt"
+	config_get log_dir $1 log_dir "/tmp/caddy/requests.log"
+	config_get caddy_file $1 caddy_file "/etc/caddy/Caddyfile"
+        config_get caddyfile $1 caddyfile
+	config_get file_pass $1 file_pass 0
+	config_get file_username $1 file_username "admin"
+	config_get file_password $1 file_password "123456"
+        config_get webdav_pass $1 webdav_pass 0
+	config_get webdav_username $1 webdav_username "admin"
+	config_get webdav_password $1 webdav_password "123456"
+	config_get api $1 api 0
+        config_get filezip $1 filezip 0
+        config_get webzip $1 webzip 0
+	config_get allow_wan $1 allow_wan 0
+
+
+}
+
+set_firewall() {
+	if [ "$external_access" = "allow" ]; then
+		uci -q delete firewall.caddy
+		uci set firewall.caddy=rule
+		uci set firewall.caddy.name="caddy"
+		uci set firewall.caddy.target="ACCEPT"
+		uci set firewall.caddy.src="wan"
+		uci set firewall.caddy.proto="tcp"
+		uci set firewall.caddy.dest_port="$port"
+		[ ! -z "$webdav_port" ] && uci set firewall.caddy.dest_port="$webdav_port"
+		uci set firewall.caddy.enabled="1"
+		uci commit firewall
+		/etc/init.d/firewall reload >/dev/null 2>&1
+	elif [ "$external_access" = "deny" ]; then
+		uci -q delete firewall.caddy
+		uci commit firewall
+		/etc/init.d/firewall reload >/dev/null 2>&1
+	fi
+}
+
+start_service() {
+	config_load caddy
+	config_foreach get_config caddy
+	[ $enabled -ne 1 ] && return 1
+        log_path="$(dirname $log_dir)"
+	mkdir -p $log_path
+	if [ ! -f "$PROG" ] ;then
+	   uci -q set caddy.@caddy[0].enabled=0 
+	   uci commit caddy
+	   echo "$(TZ=UTC-8 date -R +%Y年%m月%d日\ %X) : $PROG 未找到，无法启动!请确认已上传程序" >>$log_dir 2>&1
+	   exit 1
+	else
+	   chmod +x $PROG
+	   if [ $(($($PROG -h | wc -l))) -lt 3 ] ;then
+	      uci -q set caddy.@caddy[0].enabled=0 
+	      uci commit caddy 
+	      echo "$(TZ=UTC-8 date -R +%Y年%m月%d日\ %X) : $PROG 程序不完整或CPU架构不支持的程序，无法启动!" >>$log_dir 2>&1
+	      exit 1
+	   fi
+	fi
+  if [ "$cmd" = "默认" ] ;then
+	mkdir -p $data_dir 
+	if [ "$log" -eq 1 ] ;then
+	   
+	   logs="log {
+ output file $log_dir {
+ roll_size     1MiB
+ roll_local_time
+ roll_keep     5
+ roll_keep_for 120h
+  }
+}"
+	fi
+        if [ "$file_pass" -eq 1 ] ;then
+	      filepassword="$($PROG hash-password --plaintext $file_password)"
+	      filebasicauth="basicauth {
+$file_username $filepassword
+}"
+	fi
+	if [ "$webdav" -eq 1 ] ;then
+	   mkdir -p $webdav_data_dir
+	   if [ "$webdav_pass" -eq 1 ] ;then
+	      password="$($PROG hash-password --plaintext $webdav_password)"
+	      basicauth="basicauth {
+$webdav_username $password
+}"
+	   fi
+	   webdavs=":$webdav_port {
+$basicauth
+webdav * {
+prefix /dav
+root $webdav_data_dir
+  }
+}"
+          orderweb="order webdav before file_server # 启动 webdav 模块"
+	fi
+	if [ "$filezip" -eq 1 ] ;then
+	   filezips="encode gzip"
+	fi
+	if [ "$webzip" -eq 1 ] ;then
+	   webzips="encode gzip"
+	fi
+	if [ "$api" != "1" ] ;then
+	   apis="admin off # 关闭 API 端口"
+	fi
+	if [ "$allow_wan" -eq "1" ]; then
+		external_access="allow"
+	else
+		external_access="deny"
+	fi
+	if [ "$webdav" -eq 1 ] || [ "$api" != "1" ] ;then
+	   order="{ # 全局配置
+$orderweb
+$apis
+} "
+	fi
+	set_firewall
+	
+	cat > $caddy_file <<EOF
+# 此配置文件路径：/etc/caddy/Caddyfile
+
+$order
+
+:$port {
+$filezips
+$filebasicauth
+ root * $data_dir
+ file_server browse
+ 
+header {
+                Content-Type "text/plain; charset=utf-8"
+        }
+        
+ $logs
+ 
+}
+
+$webdavs
+EOF
+
+uci -q set caddy.@caddy[0].caddyfile="$(cat $caddy_file)"
+uci commit caddy
+else
+caddyf="$(uci -q get caddy.@caddy[0].caddyfile)"
+logpath="$(echo $caddyf | grep "output file" | awk -F 'output file' '{print $2}' | tr -d '{ ')"
+[ ! -z "$logpath" ] && uci -q set caddy.@caddy[0].log_dir=$logpath && uci commit caddy
+ if [ ! -z "$caddyf" ] ;then
+   echo "$caddyf" >$caddy_file 2>&1
+ else
+   uci -q set caddy.@caddy[0].enabled=0 
+   uci commit caddy 
+   echo "$(TZ=UTC-8 date -R +%Y年%m月%d日\ %X) : $caddy_file 配置文件Caddyfile为空，无法启动!" >>$log_dir 2>&1
+   exit 1
+ fi
+fi
+        $PROG  fmt --overwrite $caddy_file
+	procd_open_instance caddy
+	procd_set_param command $PROG
+	procd_append_param command run 
+	procd_append_param command --config $caddy_file
+	procd_append_param command --adapter caddyfile
+
+	procd_set_param stdout 0
+	procd_set_param stderr 0
+	procd_set_param respawn
+	procd_close_instance caddy
+
+	echo `date +%s` > /tmp/caddy_time
+}
+
+service_triggers() {
+	procd_add_reload_trigger "caddy"
+}
+
+stop_service() {
+	external_access="deny"
+	set_firewall
+  rm -rf /tmp/caddy.tag /tmp/caddynew.tag
+  rm -rf $(uci -q get caddy.@caddy[0].log_dir)
+}
+
+reload_service() {
+	stop
+	sleep 1
+	start
+}

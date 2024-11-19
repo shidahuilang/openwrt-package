@@ -1,0 +1,41 @@
+{
+	"admin/modem": {
+		"title": "Modem",
+		"order": 30,
+		"action": {
+			"type": "firstchild",
+			"recurse": true
+		}
+	},
+	
+	"admin/modem/atsocat": {
+		"title": "AT Commands",
+		"order": 10,
+		"action": {
+			"type": "alias",
+			"path": "admin/modem/atsocat/atsocatcommands"
+		},
+		"depends": {
+			"acl": [ "luci-app-at-socat" ]
+		}
+	},
+	
+	"admin/modem/atsocat/atsocatcommands": {
+		"title": "AT Commands",
+		"order": 10,
+		"action": {
+			"type": "view",
+			"path": "modem/atsocatcommands"
+		}
+	},
+
+	"admin/modem/atsocat/atsocatconfig": {
+		"title": "Configuration",
+		"order": 20,
+		"action": {
+			"type": "view",
+			"path": "modem/atsocatconfig"
+		}
+	}
+
+}

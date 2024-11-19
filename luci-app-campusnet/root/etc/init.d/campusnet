@@ -1,0 +1,77 @@
+#!/bin/sh /etc/rc.common
+# Author: nicholas9698 <nicholas9698@outlook.com>
+
+START=99
+
+LOGFILE="/var/campusnet/campusnet.log"
+
+get_date() {
+	local log=$1
+	echo $(date +%Y/%m/%d\ %X): "$log" >> $LOGFILE
+}
+
+Reduce_Log(){
+	local log=$1
+	[ ! -f "$log" ] && return
+	:>$log
+}
+
+boot() {
+	sleep 10
+	start
+}
+
+start() {
+	enabled=$(uci get campusnet.@campusnet[0].enabled)
+	[ $enabled -eq 0 ] && exit 0
+	
+	mkdir -p /var/campusnet
+
+	user_phone=$(uci get campusnet.@campusnet[0].user_phone)
+	passwd=$(uci get campusnet.@campusnet[0].passwd)
+	school_id=$(uci get campusnet.@campusnet[0].school_id)
+	base_ip=$(uci get campusnet.@campusnet[0].base_ip)
+
+	# routerIP=$(route -n |awk 'NR==3{print}'| awk '{ print $2; }')
+	# get_date "当前路由器IP地址为：$routerIP"
+    Cookies=$(python /usr/share/campusnet/getSessionId.py)
+    JSESSIONID=""
+    route=""
+	routerIP=""
+    # eval $(echo $Cookies | awk '{printf("JSESSIONID=%s;route=%s",$1,$2)}')
+	eval $(echo $Cookies | awk '{printf("JSESSIONID=%s;route=%s;routerIP=%s",$1,$2,$3)}')
+	get_date "当前路由器IP地址为：$routerIP"
+	sleep 3
+	cmd=$(curl $'http://139.198.3.98/sdjd/protalAction!portalAuth.action' \
+    -H 'Accept: application/json, text/javascript, */*; q=0.01' \
+    -H 'Accept-Language: zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6' \
+    -H 'Connection: keep-alive' \
+    -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
+    -H 'Cookie: JSESSIONID='${JSESSIONID}'; lt=1; route='${route}'' \
+    -H 'Origin: http://139.198.3.98' \
+    -H $'Referer: http://139.198.3.98/sdjd/protalAction!loginInit.action?wlanuserip='${routerIP}'&basip='$base_ip'' \
+    -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 Edg/123.0.0.0' \
+    -H 'X-Requested-With: XMLHttpRequest' \
+    --data-raw 'wlanuserip='${routerIP}'&localIp=&basip='$base_ip'&lt=1&lpsUserName='$user_phone'&lpsPwd='$passwd'&schoolId='$school_id'&rmbUser=on' \
+  --insecure )
+	
+	get_date "JSESSIONID：$JSESSIONID"
+	get_date "route：$route"
+	get_date "登录结果：$cmd"
+	
+	label=$(curl -o /dev/null -s -w %{http_code} www.baidu.com)
+	if label==200
+	then
+		get_date "网络连接成功！"
+		return 0
+	else
+		get_date "网络连接失败！"
+		return 1
+	fi
+
+}
+
+stop() {
+	Reduce_Log $LOGFILE
+	return 0
+}

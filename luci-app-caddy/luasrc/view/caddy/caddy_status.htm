@@ -1,0 +1,35 @@
+<%
+	local uci = require 'luci.model.uci'.cursor()
+	ssl = uci:get_first('caddy', 'caddy', 'ssl')
+	if ssl == '1' then
+		protocol="http://"
+	else
+		protocol="http://"
+	end
+%>
+
+<script type="text/javascript">//<![CDATA[
+	XHR.poll(5, '<%=url("admin/nas/caddy/caddy_status")%>', null,
+		function(x, st) {
+			var tb = document.getElementById('caddy_status');
+			if (st && tb)  {
+		
+		       var caddyStatus = st.running ? "<span style='color:green;'> 运行中</span><img src='https://www.right.com.cn/forum/data/attachment/album/202401/30/073058is17bcmu7z3nmn2b.gif' width='30px' alt=''>" : "<span style='color:red;'> 未运行</span>";
+                       var caddystaContent = st.running ? "已运行：" + "<span style='color:#DA70D6;'>" + st.caddysta + "</span>" : "";    
+                       var caddycpuContent = st.running ? "<br>" + "CPU占用：" + "<span style='color:#6A5ACD;'>" + st.caddycpu + "</span>" : "";  
+                       var caddyramContent = st.running ? "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + "&nbsp;内存占用：" + "<span style='color:#0000CD;'>" + st.caddyram + "</span>" : ""; 
+                       var caddytagContent = st.running ? "<br>" + "当前版本：" + "<span style='color:#CD853F;'>" + st.caddytag + "</span>" : ""; 
+                       var caddynewtagContent = st.running ? "&nbsp;&nbsp;&nbsp;" + "最新版本：" + "<span style='color:#FFA500;'>" + st.caddynewtag + "</span>" : "";
+                       var caddywebContent = st.running ? "<input class=\"cbi-button cbi-button-reload mar-10\" type=\"button\" value=\" <%:Web 界面%> \" onclick=\"window.open('<%=protocol%>" + window.location.hostname + ":" + st.port + "/')\"/>" : "";
+                       tb.innerHTML = "<b><em>Caddy " + caddyStatus + caddystaContent + caddycpuContent + caddyramContent + caddytagContent + caddynewtagContent + caddywebContent + "</b></em>";
+			}
+		}
+	);
+//]]></script>
+
+<style>.mar-10 {margin-left: 50px; margin-right: 10px;}</style>
+<fieldset class="cbi-section">
+	<p id="caddy_status">
+		<em><b><%:Collecting data...%></b></em>
+	</p>
+</fieldset>

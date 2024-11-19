@@ -1,0 +1,332 @@
+#!/bin/sh
+source /usr/share/cpe/cpedebug
+#source /usr/share/cpe/SIMCOM
+source /usr/share/cpe/Quectel
+#source /usr/share/cpe/Fibocom
+
+#初值化数据结构
+InitData()
+{
+    Date=''
+	CHANNEL="-" 
+	ECIO="-"
+	RSCP="-"
+	ECIO1=" "
+	RSCP1=" "
+	NETMODE="-"
+	LBAND="-"
+	PCI="-"
+	CTEMP="-"
+	MODE="-"
+	SINR="-"
+	IMEI='-'
+	IMSI='-'
+	ICCID='-'
+	phone='-'
+	conntype=''
+	Model=''
+
+
+}
+#写数据
+SETData()
+{
+    {
+        echo $Model #'RM520N-GL'
+        echo $conntype #'conntype'
+        echo $quectel_device_id
+        echo $COPS #运营商
+        echo 'ttyUSB2' #端口
+        echo $CTEMP #温度
+        echo 'QMI' #协议 
+        echo '---------------------------------'
+        echo $IMEI #imei
+        echo $IMSI #imsi
+        echo $ICCID #iccid
+        echo $phone #phone
+        echo '---------------------------------'
+        
+        echo $MODE
+        echo $CSQ
+        echo $CSQ_PER
+        echo $CSQ_RSSI
+        echo $ECIO #参考信号接收质量 RSRQ ecio
+        echo $ECIO1 #参考信号接收质量 RSRQ ecio1
+        echo $RSCP #参考信号接收功率 RSRP rscp0
+        echo $RSCP1 #参考信号接收功率 RSRP rscp1
+        echo $SINR #信噪比 SINR  rv["sinr"]
+        echo $NETMODE #连接状态监控 rv["netmode"]
+        echo '---------------------------------'
+
+
+        echo $COPS_MCC #MCC
+        echo $$COPS_MNC #MNC
+        echo $LAC  #eNB ID
+        echo ''  #LAC_NUM
+        echo $RNC #TAC
+        echo '' #RNC_NUM
+        echo $CID
+        echo ''  #CID_NUM
+        echo $LBAND
+        echo $CHANNEL
+        echo $PCI
+
+        echo $Date
+
+
+        
+        echo $MODTYPE
+        echo $QTEMP
+    
+    } > /tmp/cpe_cell.file
+}
+
+
+
+ATPORT=2
+
+# 自动处理模块信号
+AUTO_CPE() {
+    Debug "------------------------------端口$ATPORT---------------------------"
+    Debug "AUTO_CPE"
+    Date=$(date "+%Y-%m-%d %H:%M:%S")
+    quectel_device_id=$(lsusb | grep -i "Quectel" | awk '{print $6}')
+    Debug "Quectel 设备 ID: $quectel_device_id"
+    # 检测设备是否准备好
+    if sendat $ATPORT "AT" 500 | grep -q "OK"; then
+        sleep 1s
+    else
+        Debug "设备未准备好"
+        sleep 5s
+        return
+    fi
+
+    Debug "读取模块信息 计算模块"
+    ATATI=$(sendat $ATPORT "ATI")
+    Getconntype=$(echo "$ATATI" | sed -n '2p')
+
+    if [ -z "$Getconntype" ]; then
+        Debug "无法获取模块类型"
+        sleep 5s
+        return
+    fi
+
+    conntype=$Getconntype
+    Model=$(echo "$ATATI" | sed -n '3p')
+
+    # 检查 SIM 卡状态
+    cpin=$(sendat $ATPORT "at+cpin?")
+    if echo "$cpin" | grep -q "ERROR"; then
+        Debug "No SIM or SIM Error"
+        sleep 5s
+        return
+    elif ! echo "$cpin" | grep -q "READY"; then
+        Debug "SIM Locked or Not Ready"
+        sleep 5s
+        return
+    else
+        Debug "SIM Ready"
+    fi
+
+    # 根据模块类型执行相应命令或设置不支持的模块消息
+    if echo $conntype | grep -qi "Quectel"; then
+        Quectel_AT
+    else
+        Debug "$Model"
+    fi
+}
+
+#重新联网
+modem_reset() {
+    echo "Abnormal network restart"
+
+    # 停止 modem 服务
+    /etc/init.d/modem stop || echo "Failed to stop modem service."
+    killall quectel-CM
+    # 发送 AT 命令重置 modem
+    sendat $ATPORT "AT+CFUN=1,1" || echo "Failed to send AT+CFUN=1,1 command."
+
+    # 等待 modem 重置
+    sleep 10s
+
+    # 无限循环，直到检测到 Quectel 设备
+    while true; do
+        if lsusb | grep -qi "Quectel"; then
+            echo "Quectel device detected."
+            # 启动 modem 服务
+            sleep 8s
+            /etc/init.d/modem start || echo "Failed to start modem service."
+            break  # 检测到设备后跳出循环
+        else
+            echo "Waiting for Quectel device..."
+            sleep 1s  # 等待 1 秒后再次检测
+        fi
+    done
+}
+
+#检测SIM卡是否插入,10次检测不到则重启模块
+check_sim() {
+    while true; do
+        enabled=$(uci -q get modem.@ndis[0].enabled)
+        if [ "$enabled" -eq 1 ]; then
+            echo "Check the sim"
+            rec=$(sendat 2 "AT+CPIN?")
+            rec1=$(echo "$rec" | grep -c "READY")
+            if [ $rec1 -eq 1 ]; then
+                x=0
+                echo "SIM is READY"
+            else
+                x=$((x + 1))
+                if [ $x -eq 10 ]; then
+                    echo "SIM abnormal restart" 
+                    modem_reset || echo "Failed to reset modem after SIM abnormality."
+                    x=0
+                fi
+            fi
+        fi
+        sleep 6s
+    done
+}
+
+
+#检测网络状态第一次开机
+check_firstdns() {
+    while true; do
+        enabled=$(uci -q get modem.@ndis[0].enabled)
+        en1=$(uci -q get modem.@ndis[0].en)
+        if [ "$enabled" -eq 1 ] && [ "$en1" -eq 1 ]; then
+            echo "------------------------------开启任务---------------------------"
+            urls="http://wifi.vivo.com.cn/generate_204 http://www.gstatic.com/generate_204"
+            success=0
+            for url in $urls; do
+                if curl -4 --interface wwan0 -I "$url" 2>/dev/null | grep -q "HTTP/.* 204"; then
+                    echo "网络连接正常"
+                    success=1
+                    break
+                fi
+            done
+
+            if [ $success -eq 1 ]; then
+                echo "网络连接正常"
+                xx=0
+                return
+            else
+                echo "网络连接异常"
+                xx=$((xx + 1))
+                if [ $xx -eq 5 ]; then
+                    echo "Attempting to reset modem due to network connection issue."
+                    modem_reset || echo "Failed to reset modem."
+                    xx=0
+                fi
+            fi
+
+            echo "------------------------------结束任务---------------------------"
+        fi
+        sleep 1s
+    done
+}
+
+
+
+#检测网络状态
+check_dns() {
+    en1=$(uci -q get modem.@ndis[0].en)
+    if [ "$en1" = '1' ]; then
+        echo "------------------------------开启任务---------------------------"
+        # 使用 curl 检查 HTTP 状态码
+        urls="http://wifi.vivo.com.cn/generate_204 http://www.gstatic.com/generate_204"
+        success=0
+        for url in $urls; do
+            if curl -4 --interface wwan0 -I "$url" 2>/dev/null | grep -q "HTTP/.* 204"; then
+                echo "网络连接正常"
+                success=1
+                break
+            fi
+        done
+
+        if [ $success -eq 0 ]; then
+            echo "网络连接异常"
+            xx=$((xx + 1))
+            if [ $xx -eq $(uci -q get modem.@ndis[0].an) ]; then
+                xx=0
+                modem_reset || echo "Modem reset failed."
+            fi
+        fi
+        echo "------------------------------结束任务---------------------------"
+    fi
+}
+
+check_Task() {
+    while true; do
+        enabled=$(uci -q get modem.@ndis[0].enabled)
+        if [ "$enabled" = '1' ]; then
+            Debug "------------------------------开启任务---------------------------"
+            ATPORT || Debug "Failed to execute ATPORT."
+            AUTO_CPE || Debug "Failed to execute AUTO_CPE."
+            SETData || Debug "Failed to execute SETData."
+            check_dns || Debug "Failed to execute check_dns."
+            Debug "------------------------------结束任务---------------------------"
+        fi
+        sleep 5s
+    done
+}
+
+
+#注册网卡
+RegisterNetwork()
+{
+    Debug "RegisterNetwork 注册网卡 $MODEMNAME"
+
+    # 设置 wwan5g 网络
+    if [ "$(uci -q get network.wwan5g.interface)" != "interface" ]; then
+        uci set network.wwan5g=interface
+        uci set network.wwan5g.device='wwan0'
+        uci set network.wwan5g.proto=dhcp
+        uci commit network
+        uci set firewall.@zone[1].network="wan wan6 wwan5g wwan5g6 wlan"
+        uci commit firewall
+        /etc/init.d/network reload
+    fi
+
+    # 设置 wwan5g6 网络
+    if [ "$(uci -q get network.wwan5g6.interface)" != "interface" ]; then
+        uci set network.wwan5g6=interface
+        uci set network.wwan5g6.device='wwan0'
+        uci set network.wwan5g6.proto='dhcpv6'
+        uci set network.wwan5g6.reqaddress='try'
+        uci set network.wwan5g6.reqprefix='auto'
+        uci set network.wwan5g6._orig_bridge='false'
+	    uci set network.wwan5g6.extendprefix='1'
+        uci commit network
+        uci set firewall.@zone[1].network="wan wan6 wwan wwan5g wwan5g6 wlan"
+        uci commit firewall
+        /etc/init.d/network reload
+    fi
+
+    # 更新 wwan5g 和 wwan5g6 接口名称
+    for iface in wwan5g wwan5g6; do
+        if [ "$(uci -q get network.$iface.device)" != "wwan0" ]; then
+            uci set network.$iface.device='wwan0'
+            uci commit network
+            /etc/init.d/network reload
+        fi
+    done
+}
+
+
+
+first() {
+    Debug "开启RSSI服务"
+    InitData
+    Debug "初始化数据完成"
+    sleep 1s
+    ATPORT
+    RegisterNetwork
+    AUTO_CPE
+    SETData
+    modem_reset
+    check_firstdns
+    check_Task
+}
+
+first

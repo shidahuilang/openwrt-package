@@ -1,0 +1,91 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:91
+msgid ""
+"Assign a random MAC address to the designated interface on every time boot"
+msgstr ""
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:130
+msgid "Change MAC now"
+msgstr ""
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:131
+msgid "Change now"
+msgstr ""
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:106
+msgid "Disorderly"
+msgstr ""
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:96
+msgid "Enable MAC randomization"
+msgstr ""
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:99
+msgid "Enabled interfaces"
+msgstr ""
+
+#: applications/luci-app-change-mac/root/usr/share/rpcd/acl.d/applications/luci-app-change-mac.json:3
+msgid "Grant access to change-mac procedures"
+msgstr ""
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:165
+msgid "List available"
+msgstr ""
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:113
+msgid "Locally administered address"
+msgstr ""
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:90
+#: applications/luci-app-change-mac/root/usr/share/luci/menu.d/applications/luci-app-change-mac.json:3
+msgid "MAC address randomizer"
+msgstr ""
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:111
+msgid "MAC address type"
+msgstr ""
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:105
+msgid "Multi-interface MAC random mode"
+msgstr ""
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:157
+msgid "Query OUI vendor"
+msgstr ""
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:137
+msgid "Restore"
+msgstr ""
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:136
+msgid "Restore selected interfaces"
+msgstr ""
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:107
+msgid "Sequence"
+msgstr ""
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:114
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:119
+msgid "Specify OUI"
+msgstr ""
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:112
+msgid "Use command 'rgmac --help' to get more information"
+msgstr ""
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:125
+msgid "Use command 'rgmac -lrouter' to get valid vendor name"
+msgstr ""
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:145
+msgid "Utilities"
+msgstr ""
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:115
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:124
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:165
+msgid "Vendor name"
+msgstr ""

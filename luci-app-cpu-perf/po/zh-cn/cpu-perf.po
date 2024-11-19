@@ -1,0 +1,125 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+msgid "An error has occurred"
+msgstr "发生错误"
+
+msgid "CPU"
+msgstr "CPU"
+
+msgid "CPU Performance"
+msgstr "CPU 性能"
+
+msgid "CPU performance management."
+msgstr "CPU性能管理"
+
+msgid "CPU performance scaling not available..."
+msgstr "CPU 性能扩展不可用.."
+
+msgid "Command failed"
+msgstr "命令失败"
+
+msgid "Conservative governor"
+msgstr "Conservative调控器"
+
+msgid "Conservative tunables"
+msgstr "保守的可调参数"
+
+msgid "Current frequency"
+msgstr "当前频率"
+
+msgid "Disabled"
+msgstr "已禁用"
+
+msgid "Enable"
+msgstr "启用"
+
+msgid "Enabled"
+msgstr "已启用"
+
+msgid "Failed to get %s init status: %s"
+msgstr "获取初始状态失败%s：%s"
+
+msgid "Frequency decrease deferral factor."
+msgstr "频率降低延迟因数。"
+
+msgid "Frequency step in percent of the maximum frequency the governor is allowed to set."
+msgstr "频率步进，单位为调速器允许设置的最大频率的百分比。"
+
+msgid "Frequency value must not be"
+msgstr "频率值不得超过"
+
+msgid "GHz"
+msgstr "GHz"
+
+msgid "If checked, it will cause the CPU load estimation code to treat the CPU time spent on executing tasks with \"nice\" levels greater than 0 as CPU idle time."
+msgstr "如果启用，CPU 使用率估计代码会将执行高于 0 的“nice”级别的任务所花费的 CPU 时间视为 CPU 空闲时间。"
+
+msgid "If the estimated CPU load is above this value (in percent), the governor will set the frequency to the maximum value."
+msgstr "如果估计的 CPU 负载高于此值（百分比），调节器将把频率设置为最大值。"
+
+msgid "KHz"
+msgstr "KHz"
+
+msgid "MHz"
+msgstr "MHz"
+
+msgid "Maximum frequency"
+msgstr "最高频率"
+
+msgid "Maximum frequency the CPU is allowed to be running."
+msgstr "允许 CPU 运行的最高频率。"
+
+msgid "Maximum scaling frequency"
+msgstr "最大扩展频率"
+
+msgid "Minimum frequency"
+msgstr "最低频率"
+
+msgid "Minimum frequency the CPU is allowed to be running."
+msgstr "允许CPU运行的最低频率。"
+
+msgid "Minimum scaling frequency"
+msgstr "最小扩展频率"
+
+msgid "No performance data..."
+msgstr "没有性能数据..."
+
+msgid "Ondemand governor"
+msgstr "按需调节器"
+
+msgid "Ondemand tunables"
+msgstr "按需调节参数"
+
+msgid "Performance managment"
+msgstr "性能管理"
+
+msgid "Performance scaling not available for this CPU..."
+msgstr "性能缩放不适用于该CPU..."
+
+msgid "Run at startup"
+msgstr "在系统启动时运行"
+
+msgid "Scaling governor"
+msgstr "缩放控制"
+
+msgid "Scaling governors implement algorithms to estimate the required CPU capacity."
+msgstr "缩放调节器实现算法来估计所需的 CPU 容量。"
+
+msgid "Service action failed \"%s %s\": %s"
+msgstr "服务操作失败 \"%s %s\": %s"
+
+msgid "Threshold value (in percent) used to determine the frequency change direction."
+msgstr "用于确定频率变化方向的阈值（以百分比表示）。"
+
+msgid "default value:"
+msgstr "默认值："
+
+msgid "higher"
+msgstr "更高"
+
+msgid "lower"
+msgstr "降低"
+
+msgid "than the"
+msgstr "比"
