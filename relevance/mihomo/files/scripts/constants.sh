@@ -27,8 +27,6 @@ LOG_DIR="/var/log/mihomo"
 APP_LOG_PATH="$LOG_DIR/app.log"
 CORE_LOG_PATH="$LOG_DIR/core.log"
 
-mkdir -p $PROFILES_DIR $SUBSCRIPTIONS_DIR $RUN_UI_DIR
-
 # scripts
 SH_DIR="$HOME_DIR/scripts"
 TUN_SH="$SH_DIR/tun.sh"

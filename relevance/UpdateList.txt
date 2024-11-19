@@ -1,5 +1,6 @@
 3ginfo
 OpenAppFilter
+OpenWrt-mihomo
 Rclone-OpenWrt
 Wiwiz-PinPinWiFi
 adguardhome
@@ -112,6 +113,7 @@ luci-lib-iform
 luci-nginxer
 lucky
 mentohust
+mihomo
 mosdns
 mosdnszz
 msd_lite
