@@ -1,0 +1,187 @@
+#!/bin/bash
+
+# Environment GPIOLED
+source /usr/share/gpioled/env
+
+function internet() {
+    echo "$TIMESTAMP [$e] $e1" >>$LOG_FILE
+    echo "$TIMESTAMP [$e] $e2" >>$LOG_FILE
+    while :; do
+        CONNECTION=$(ping -q -c 1 -W 1 8.8.8.8 >/dev/null 2>&1 && echo "OK" || echo "Fail")
+        if [ "$CONNECTION" = "OK" ]; then
+            if [ "$INET_SUCCESS" = false ]; then
+                echo "$TIMESTAMP [$e] $e4" >>$LOG_FILE
+                INET_SUCCESS=true
+                INET_FAIL=false
+            fi
+            if [ "$INETON" = false ]; then
+                INETON=true
+            fi
+        elif [ "$CONNECTION" = "Fail" ]; then
+            if [ "$INET_FAIL" = false ]; then
+                echo "$TIMESTAMP [$e] $e3" >>$LOG_FILE
+                INET_SUCCESS=false
+                INET_FAIL=true
+            fi
+            if [ "$INETOFF" = false ]; then
+                INETOFF=true
+            fi
+        fi
+        if [ "$INETON" = true ]; then
+            if [ "$CIDL" = "red" ]; then
+                if [ "$MID" = "0" ]; then
+                    echo "1" >/sys/class/gpio/gpio$GETH1/value && echo "0" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    INETON=false
+                elif [ "$MID" = "0.1" ]; then
+                    echo "1" >/sys/class/gpio/gpio$GETH1/value && echo "0" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    echo "0" >/sys/class/gpio/gpio$GETH1/value && echo "0" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    INETON=false
+                elif [ "$MID" = "1" ]; then
+                    echo "1" >/sys/class/gpio/gpio$GETH1/value && echo "0" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    echo "0" >/sys/class/gpio/gpio$GETH1/value && echo "0" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    INETON=false
+                elif [ "$MID" = "2" ]; then
+                    echo "1" >/sys/class/gpio/gpio$GETH1/value && echo "0" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    echo "0" >/sys/class/gpio/gpio$GETH1/value && echo "0" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    INETON=false
+                fi
+            elif [ "$CIDL" = "yellow" ]; then
+                if [ "$MID" = "0" ]; then
+                    echo "1" >/sys/class/gpio/gpio$GETH1/value && echo "1" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    INETON=false
+                elif [ "$MID" = "0.1" ]; then
+                    echo "1" >/sys/class/gpio/gpio$GETH1/value && echo "1" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    echo "0" >/sys/class/gpio/gpio$GETH1/value && echo "0" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    INETON=false
+                elif [ "$MID" = "1" ]; then
+                    echo "1" >/sys/class/gpio/gpio$GETH1/value && echo "1" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    echo "0" >/sys/class/gpio/gpio$GETH1/value && echo "0" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    INETON=false
+                elif [ "$MID" = "2" ]; then
+                    echo "1" >/sys/class/gpio/gpio$GETH1/value && echo "1" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    echo "0" >/sys/class/gpio/gpio$GETH1/value && echo "0" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    INETON=false
+                fi
+            elif [ "$CIDL" = "green" ]; then
+                if [ "$MID" = "0" ]; then
+                    echo "0" >/sys/class/gpio/gpio$GETH1/value && echo "1" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    INETON=false
+                elif [ "$MID" = "0.1" ]; then
+                    echo "0" >/sys/class/gpio/gpio$GETH1/value && echo "1" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    echo "0" >/sys/class/gpio/gpio$GETH1/value && echo "0" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    INETON=false
+                elif [ "$MID" = "1" ]; then
+                    echo "0" >/sys/class/gpio/gpio$GETH1/value && echo "1" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    echo "0" >/sys/class/gpio/gpio$GETH1/value && echo "0" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    INETON=false
+                elif [ "$MID" = "2" ]; then
+                    echo "0" >/sys/class/gpio/gpio$GETH1/value && echo "1" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    echo "0" >/sys/class/gpio/gpio$GETH1/value && echo "0" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    INETON=false
+                fi
+            fi
+        fi
+        if [ "$INETOFF" = true ]; then
+            if [ "$CIDO" = "red" ]; then
+                if [ "$MID" = "0" ]; then
+                    echo "1" >/sys/class/gpio/gpio$GETH1/value && echo "0" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    INETOFF=false
+                elif [ "$MID" = "0.1" ]; then
+                    echo "1" >/sys/class/gpio/gpio$GETH1/value && echo "0" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    echo "0" >/sys/class/gpio/gpio$GETH1/value && echo "0" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    INETOFF=false
+                elif [ "$MID" = "1" ]; then
+                    echo "1" >/sys/class/gpio/gpio$GETH1/value && echo "0" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    echo "0" >/sys/class/gpio/gpio$GETH1/value && echo "0" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    INETOFF=false
+                elif [ "$MID" = "2" ]; then
+                    echo "1" >/sys/class/gpio/gpio$GETH1/value && echo "0" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    echo "0" >/sys/class/gpio/gpio$GETH1/value && echo "0" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    INETOFF=false
+                fi
+            elif [ "$CIDO" = "yellow" ]; then
+                if [ "$MID" = "0" ]; then
+                    echo "1" >/sys/class/gpio/gpio$GETH1/value && echo "1" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    INETOFF=false
+                elif [ "$MID" = "0.1" ]; then
+                    echo "1" >/sys/class/gpio/gpio$GETH1/value && echo "1" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    echo "0" >/sys/class/gpio/gpio$GETH1/value && echo "0" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    INETOFF=false
+                elif [ "$MID" = "1" ]; then
+                    echo "1" >/sys/class/gpio/gpio$GETH1/value && echo "1" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    echo "0" >/sys/class/gpio/gpio$GETH1/value && echo "0" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    INETOFF=false
+                elif [ "$MID" = "2" ]; then
+                    echo "1" >/sys/class/gpio/gpio$GETH1/value && echo "1" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    echo "0" >/sys/class/gpio/gpio$GETH1/value && echo "0" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    INETOFF=false
+                fi
+            elif [ "$CIDO" = "green" ]; then
+                if [ "$MID" = "0" ]; then
+                    echo "0" >/sys/class/gpio/gpio$GETH1/value && echo "1" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    INETOFF=false
+                elif [ "$MID" = "0.1" ]; then
+                    echo "0" >/sys/class/gpio/gpio$GETH1/value && echo "1" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    echo "0" >/sys/class/gpio/gpio$GETH1/value && echo "0" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    INETOFF=false
+                elif [ "$MID" = "1" ]; then
+                    echo "0" >/sys/class/gpio/gpio$GETH1/value && echo "1" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    echo "0" >/sys/class/gpio/gpio$GETH1/value && echo "0" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    INETOFF=false
+                elif [ "$MID" = "2" ]; then
+                    echo "0" >/sys/class/gpio/gpio$GETH1/value && echo "1" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    echo "0" >/sys/class/gpio/gpio$GETH1/value && echo "0" >/sys/class/gpio/gpio$GETH2/value
+                    sleep $MID
+                    INETOFF=false
+                fi
+            fi
+        fi
+    done
+}
+
+case "${1}" in
+*)
+    internet
+    ;;
+esac

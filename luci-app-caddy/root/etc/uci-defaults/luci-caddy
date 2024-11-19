@@ -1,0 +1,12 @@
+#!/bin/sh
+
+uci -q batch <<-EOF >/dev/null
+	delete ucitrack.@caddy[-1]
+	add ucitrack caddy
+	set ucitrack.@caddy[-1].init=caddy
+	commit ucitrack
+EOF
+
+rm -rf /tmp/luci-*
+chmod 755 /etc/init.d/caddy
+exit 0

@@ -1,0 +1,4 @@
+{
+	"config": "softethervpn",
+	"init": [ "softethervpn" ]
+}

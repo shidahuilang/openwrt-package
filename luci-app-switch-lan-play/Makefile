@@ -8,7 +8,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-switch-lan-play
 PKG_VERSION:=0.0.3
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
@@ -41,6 +41,8 @@ endef
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)$(LUCI_LIBRARYDIR)
 	cp -pR $(PKG_BUILD_DIR)/luasrc/* $(1)$(LUCI_LIBRARYDIR)/
+	$(INSTALL_DIR) $(1)/usr/share/rpcd/acl.d/
+	cp -pR $(PKG_BUILD_DIR)/files/luci-app-switch-lan-play.json $(1)/usr/share/rpcd/acl.d/luci-app-switch-lan-play.json
 endef
 
 define Package/$(PKG_NAME)/postinst

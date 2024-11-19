@@ -1,0 +1,13 @@
+{
+  "admin/services/alwaysonline": {
+    "title": "AlwaysOnline",
+    "action": {
+      "type": "view",
+      "path": "alwaysonline"
+    },
+    "depends": {
+      "acl": [ "luci-app-alwaysonline" ],
+      "uci": { "alwaysonline": true }
+    }
+  }
+}

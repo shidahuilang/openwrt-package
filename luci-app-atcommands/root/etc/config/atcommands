@@ -1,0 +1,4 @@
+
+config atcommands
+	option set_port ''
+

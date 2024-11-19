@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# 默认设置文件，更新的时候，不要覆盖它
+if [ ! -f /etc/config/ipv6clientfilter ];then
+	mv /etc/config/ipv6clientfilter.default /etc/config/ipv6clientfilter
+else
+	rm /etc/config/ipv6clientfilter.default 
+fi
+
+chmod +x /etc/init.d/ipv6clientfilter
+service ipv6clientfilter enable
+
+
+return 0
+
+

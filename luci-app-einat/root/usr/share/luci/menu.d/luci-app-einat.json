@@ -1,0 +1,13 @@
+{
+	"admin/network/einat": {
+		"title": "einat-ebpf",
+		"order": 60,
+		"action": {
+			"type": "view",
+			"path": "einat"
+		},
+		"depends": {
+			"acl": [ "luci-app-einat" ]
+		}
+	}
+}

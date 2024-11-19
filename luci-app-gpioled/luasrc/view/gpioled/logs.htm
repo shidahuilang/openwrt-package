@@ -1,0 +1,14 @@
+<%+cbi/valueheader%>
+<textarea id="cbid.logview.1.conf" class="cbi-input-textarea" style="width: 100%;display:inline" data-update="change" rows="32" cols="60" readonly="readonly"></textarea>
+<script type="text/javascript">
+    //<![CDATA[
+    XHR.poll(3, '<%=url([[admin]], [[system]], [[gpioled]], [[get_log]])%>', null,
+        function (x, data) {
+            var tb = document.getElementById('cbid.logview.1.conf');
+            if (x.responseText && tb) {
+                tb.value = x.responseText;
+            }
+        }
+    );
+    //]]>
+</script>

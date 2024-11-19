@@ -1,0 +1,11 @@
+config general 'general'
+	list server 'nil'
+	option client_file '/usr/bin/tinyvpn'
+	option daemon_user 'root'
+	option log '1'
+
+config servers 'default'
+	option server_addr ''
+	option server_port '8080'
+	option log_level '4'
+	option key ''

@@ -1,0 +1,13 @@
+#!/bin/sh
+
+uci -q batch <<-EOF >/dev/null
+  delete ucitrack.@cqustdotnet[-1]
+  add ucitrack cqustdotnet
+  set ucitrack.@cqustdotnet[-1].init=cqustdotnet
+  commit ucitrack
+EOF
+
+[ ! -s '/etc/config/cqustdotnet' ] && cp -f /usr/share/cqustdotnet/0_default_config /etc/config/cqustdotnet
+rm -f /tmp/luci-indexcache
+rm -rf /tmp/luci-modulecache/
+exit 0

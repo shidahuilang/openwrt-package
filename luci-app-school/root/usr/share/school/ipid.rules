@@ -1,0 +1,23 @@
+#!/usr/sbin/nft -f
+
+table ip ipid {
+    chain FORWARD {
+		type filter hook forward priority mangle; policy accept;
+		counter packets 0 bytes 0 jump IPID_MOD
+	}
+
+	chain OUTPUT {
+		type route hook output priority mangle; policy accept;
+		counter packets 0 bytes 0 jump IPID_MOD
+	}
+    
+    chain IPID_MOD {
+		ip daddr 0.0.0.0/8 counter packets 0 bytes 0 return
+		ip daddr 127.0.0.0/8 counter packets 0 bytes 0 return
+		ip daddr 10.0.0.0/8 counter packets 0 bytes 0 return
+		ip daddr 172.16.0.0/12 counter packets 0 bytes 0 return
+		ip daddr 192.168.0.0/16 counter packets 0 bytes 0 return
+		ip daddr 255.0.0.0/8 counter packets 0 bytes 0 return
+		counter packets 0 bytes 0 meta mark set mark or 0x10 
+	}
+}

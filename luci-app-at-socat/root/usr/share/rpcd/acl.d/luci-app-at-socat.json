@@ -1,0 +1,20 @@
+{
+	"luci-app-at-socat": {
+		"description": "Grant access to sending at commands using socat",
+		"read": {
+   			"cgi-io": [ "exec" ],
+    			"file": {
+				"/usr/bin/socat": [ "exec" ],
+				"/usr/bin/luci-app-at-socat": [ "exec" ],
+				"/etc/modem/atsocatcommands.user": [ "read" ]
+			},
+			"uci": [ "atsocat" ]
+		},
+		"write": {
+			"file": {
+				"/etc/modem/atsocatcommands.user": [ "write" ]
+			},
+			"uci": [ "atsocat" ]
+		}
+	}
+}

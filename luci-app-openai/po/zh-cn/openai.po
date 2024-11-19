@@ -1,0 +1,56 @@
+msgid "ChatGPT"
+msgstr "ChatGPT"
+
+msgid "ChatGPT is an AI assistant that is exclusively yours."
+msgstr "ChatGPT 一个属于您自己的 AI 助手。"
+
+msgid "Open Web Interface"
+msgstr "打开 Web 界面"
+
+msgid "Basic Setting"
+msgstr "基本设置"
+
+msgid "Logs"
+msgstr "日志"
+
+msgid "Enabled"
+msgstr "启用"
+
+msgid "Port"
+msgstr "端口"
+
+msgid "Enable Logs"
+msgstr "启用日志"
+
+msgid "Clear logs"
+msgstr "清空日志"
+
+msgid "Allow Access From WAN"
+msgstr "允许从 WAN 访问"
+
+msgid "Disable GPT-4 Model"
+msgstr "禁用 GPT-4 模型"
+
+msgid "OpenAI API URL"
+msgstr "OpenAI 接口地址"
+
+msgid "https://api.openai.com (official)"
+msgstr "https://api.openai.com（官方）"
+
+msgid "https://chatgpt1.nextweb.fun/api/proxy (anti-proxy)"
+msgstr "https://chatgpt1.nextweb.fun/api/proxy（反代理）"
+
+msgid "OpenAI API URL, you can customize a reverse proxy endpoint that is suitable for the current network."
+msgstr "OpenAI 接口地址，您可以自定义一个适用于当前网络的 OpenAI API 反代理接口。"
+
+msgid "OpenAI API Keys"
+msgstr "OpenAI API 令牌"
+
+msgid "Please Enter your OpenAI API Keys."
+msgstr "请输入您的 OpenAI API 令牌。"
+
+msgid "Get OpenAI API Keys"
+msgstr "获取 OpenAI API Keys"
+
+msgid "Access Password"
+msgstr "访问密码"

@@ -1,0 +1,29 @@
+#!/bin/sh /etc/rc.common
+
+START=50
+
+boot() {
+	exit 0;
+}
+
+run_reboot()
+{
+    if [ -e "/usr/bin/dorboot" ]; then
+        chmod +x /usr/bin/dorboot
+        /usr/bin/dorboot 2 &
+    else
+        logger "Timed Reboot: file missing, please reinstall.Settings don't work."
+        sed -i '/dorboot/d' /etc/crontabs/root >/dev/null 2>&1 || exit 1
+    fi
+}
+
+start()
+{
+	run_reboot
+}
+
+stop()
+{
+    logger "Timed Reboot has stoped, but do nothing. if you need to clear settings, goto system -> timedreboot and make it disable."
+	echo "Timed Reboot has stoped, but do nothing. if you need to clear settings, goto system -> timedreboot and make it disable." > /tmp/timedreboot.log
+}

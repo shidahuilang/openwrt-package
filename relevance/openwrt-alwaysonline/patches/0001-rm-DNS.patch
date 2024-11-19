@@ -1,0 +1,387 @@
+From e5aebf79788f2ac791221ffc4331562b4ba2c572 Mon Sep 17 00:00:00 2001
+From: muink <hukk1996@gmail.com>
+Date: Tue, 17 Jan 2023 12:41:00 +0100
+Subject: [PATCH] rm DNS
+
+---
+ dns_server.go          | 98 ------------------------------------------
+ dns_server_a.go        | 41 ------------------
+ dns_server_aaaa.go     | 41 ------------------
+ dns_server_fallback.go | 22 ----------
+ dns_server_soa.go      | 42 ------------------
+ dns_server_txt.go      | 13 ------
+ exceptions.go          | 20 ---------
+ go.mod                 |  2 -
+ main.go                | 11 -----
+ 9 files changed, 290 deletions(-)
+ delete mode 100644 dns_server.go
+ delete mode 100644 dns_server_a.go
+ delete mode 100644 dns_server_aaaa.go
+ delete mode 100644 dns_server_fallback.go
+ delete mode 100644 dns_server_soa.go
+ delete mode 100644 dns_server_txt.go
+ delete mode 100644 exceptions.go
+
+diff --git a/dns_server.go b/dns_server.go
+deleted file mode 100644
+index b68d106..0000000
+--- a/dns_server.go
++++ /dev/null
+@@ -1,98 +0,0 @@
+-package main
+-
+-import (
+-	"fmt"
+-	"github.com/miekg/dns"
+-	"strings"
+-)
+-
+-const DNSDefaultTTL = 1
+-type dnsRequestHandler struct{}
+-
+-func newDNSReplyMsg() *dns.Msg {
+-	msg := dns.Msg{}
+-
+-	msg.Compress = true
+-
+-	// this is an authoritative DNS server
+-	msg.Authoritative = true
+-	msg.RecursionAvailable = false
+-
+-	// DNSSEC disabled for now
+-	// TODO: fix DNSSEC
+-	msg.AuthenticatedData = false
+-	msg.CheckingDisabled = true
+-
+-	return &msg
+-}
+-
+-// send out the generated answer, and if the answer is not correct, send out a SERVFAIL
+-func finishAnswer(w *dns.ResponseWriter, r *dns.Msg) {
+-	err := (*w).WriteMsg(r)
+-	if err != nil {
+-		softFailIf(err)
+-
+-		// if answer sanity check (miekg/dns automatically does this) fails, reply with SERVFAIL
+-		msg := newDNSReplyMsg()
+-		msg.SetReply(r)
+-		msg.Rcode = dns.RcodeServerFailure
+-		err = (*w).WriteMsg(msg)
+-		softFailIf(err)
+-	}
+-
+-	// access log to stdout
+-	fmt.Printf("[DNS] C=%d Q=%d R=%d DOMAIN=%s %s => %s\n", r.Question[0].Qclass, r.Question[0].Qtype, r.Rcode, r.Question[0].Name, (*w).RemoteAddr(), (*w).LocalAddr())
+-}
+-
+-// TODO: force TCP for 1) clients which requests too fast; 2) non-existent answers
+-// See: https://labs.apnic.net/?p=382
+-func (this *dnsRequestHandler) ServeDNS(w dns.ResponseWriter, r *dns.Msg) {
+-	msg := newDNSReplyMsg()
+-	msg.SetReply(r)
+-
+-	// on function return, we send out the current answer
+-	defer finishAnswer(&w, msg)
+-
+-	// sanity check
+-	if len(r.Question) != 1 {
+-		msg.Rcode = dns.RcodeRefused
+-		return
+-	}
+-
+-	switch r.Question[0].Qclass {
+-	case dns.ClassINET:
+-		switch r.Question[0].Qtype {
+-		case dns.TypeA:
+-			handleA(this, r, msg)
+-			return
+-
+-		case dns.TypeAAAA:
+-			handleAAAA(this, r, msg)
+-			return
+-
+-		case dns.TypeSOA:
+-			handleSOA(this, r, msg)
+-			return
+-
+-		default:
+-			handleDefault(this, r, msg)
+-			return
+-		}
+-	case dns.ClassCHAOS:
+-		switch r.Question[0].Qtype {
+-		case dns.TypeTXT:
+-			if strings.EqualFold(r.Question[0].Name, "version.bind.") {
+-				// we need to reply our software version
+-				// https://serverfault.com/questions/517087/dns-how-to-find-out-which-software-a-remote-dns-server-is-running
+-				handleTXTVersionRequest(this, r, msg)
+-			} else {
+-				handleDefault(this, r, msg)
+-			}
+-			return
+-
+-		default:
+-			handleDefault(this, r, msg)
+-			return
+-		}
+-	}
+-}
+\ No newline at end of file
+diff --git a/dns_server_a.go b/dns_server_a.go
+deleted file mode 100644
+index a50e1b0..0000000
+--- a/dns_server_a.go
++++ /dev/null
+@@ -1,41 +0,0 @@
+-package main
+-
+-import (
+-	"github.com/miekg/dns"
+-	"net"
+-	"strings"
+-)
+-
+-func handleA(this *dnsRequestHandler, r, msg *dns.Msg) {
+-	switch strings.ToLower(msg.Question[0].Name) {
+-	case "dns.msftncsi.com.":
+-		msg.Answer = append(msg.Answer, &dns.A{
+-			Hdr: dns.RR_Header{Name: msg.Question[0].Name, Rrtype: r.Question[0].Qtype, Class: r.Question[0].Qclass, Ttl: DNSDefaultTTL},
+-			A:   net.IPv4(131, 107, 255, 255),
+-		})
+-		return
+-
+-	case "resolver1.opendns.com.":
+-		// for https://github.com/crazy-max/WindowsSpyBlocker/blob/0e48685cf8c2b3f263f4ada9065188d6c9966cac/app/settings.json#L119
+-		msg.Answer = append(msg.Answer, &dns.A{
+-			Hdr: dns.RR_Header{Name: msg.Question[0].Name, Rrtype: r.Question[0].Qtype, Class: r.Question[0].Qclass, Ttl: DNSDefaultTTL},
+-			A:   net.IPv4(208, 67, 222, 222),
+-		})
+-		return
+-
+-	default:
+-		if localResolveIp4Enabled {
+-			// for everything else, resolve to our own IP address
+-			msg.Answer = append(msg.Answer, &dns.A{
+-				Hdr: dns.RR_Header{Name: msg.Question[0].Name, Rrtype: r.Question[0].Qtype, Class: r.Question[0].Qclass, Ttl: DNSDefaultTTL},
+-				A:   localResolveIp4Address,
+-			})
+-		} else {
+-			// IPv4 not configured, reply empty answer
+-			msg.Answer = append(msg.Answer, &dns.A{
+-				Hdr: dns.RR_Header{Name: msg.Question[0].Name, Rrtype: r.Question[0].Qtype, Class: r.Question[0].Qclass, Ttl: DNSDefaultTTL},
+-			})
+-		}
+-		return
+-	}
+-}
+diff --git a/dns_server_aaaa.go b/dns_server_aaaa.go
+deleted file mode 100644
+index 3db81b9..0000000
+--- a/dns_server_aaaa.go
++++ /dev/null
+@@ -1,41 +0,0 @@
+-package main
+-
+-import (
+-	"github.com/miekg/dns"
+-	"net"
+-	"strings"
+-)
+-
+-func handleAAAA(this *dnsRequestHandler, r, msg *dns.Msg) {
+-	switch strings.ToLower(msg.Question[0].Name) {
+-	case "dns.msftncsi.com.":
+-		msg.Answer = append(msg.Answer, &dns.AAAA{
+-			Hdr:  dns.RR_Header{Name: msg.Question[0].Name, Rrtype: r.Question[0].Qtype, Class: r.Question[0].Qclass, Ttl: DNSDefaultTTL},
+-			AAAA: net.ParseIP("fd3e:4f5a:5b81::1"),
+-		})
+-		return
+-
+-	case "resolver1.opendns.com.":
+-		// for https://github.com/crazy-max/WindowsSpyBlocker/blob/0e48685cf8c2b3f263f4ada9065188d6c9966cac/app/settings.json#L119
+-		msg.Answer = append(msg.Answer, &dns.AAAA{
+-			Hdr:  dns.RR_Header{Name: msg.Question[0].Name, Rrtype: r.Question[0].Qtype, Class: r.Question[0].Qclass, Ttl: DNSDefaultTTL},
+-			AAAA: net.ParseIP("2620:119:35::35"),
+-		})
+-		return
+-
+-	default:
+-		if localResolveIp6Enabled {
+-			// for everything else, resolve to our own IP address
+-			msg.Answer = append(msg.Answer, &dns.AAAA{
+-				Hdr:  dns.RR_Header{Name: msg.Question[0].Name, Rrtype: r.Question[0].Qtype, Class: r.Question[0].Qclass, Ttl: DNSDefaultTTL},
+-				AAAA: localResolveIp6Address,
+-			})
+-		} else {
+-			// IPv6 not configured, reply empty answer
+-			msg.Answer = append(msg.Answer, &dns.AAAA{
+-				Hdr: dns.RR_Header{Name: msg.Question[0].Name, Rrtype: r.Question[0].Qtype, Class: r.Question[0].Qclass, Ttl: DNSDefaultTTL},
+-			})
+-		}
+-		return
+-	}
+-}
+diff --git a/dns_server_fallback.go b/dns_server_fallback.go
+deleted file mode 100644
+index 605ce89..0000000
+--- a/dns_server_fallback.go
++++ /dev/null
+@@ -1,22 +0,0 @@
+-package main
+-
+-import (
+-	"github.com/miekg/dns"
+-	"log"
+-)
+-
+-// all unknown DNS requests are processed here
+-func handleDefault(this *dnsRequestHandler, r, msg *dns.Msg) {
+-	if msg.RecursionDesired {
+-		// Refused
+-		msg.RecursionAvailable = false
+-		msg.Rcode = dns.RcodeRefused
+-
+-		log.Printf("[DNS] %d %s refused: recursion requested but not available\n", msg.Question[0].Qtype, msg.Question[0].Name)
+-	} else {
+-		// NotImp
+-		msg.Rcode = dns.RcodeNotImplemented
+-
+-		log.Printf("[DNS] %d %s refused: not implemented\n", msg.Question[0].Qtype, msg.Question[0].Name)
+-	}
+-}
+diff --git a/dns_server_soa.go b/dns_server_soa.go
+deleted file mode 100644
+index 7abc8c7..0000000
+--- a/dns_server_soa.go
++++ /dev/null
+@@ -1,42 +0,0 @@
+-package main
+-
+-import (
+-	"github.com/miekg/dns"
+-	"strings"
+-)
+-
+-func handleSOA(this *dnsRequestHandler, r, msg *dns.Msg) {
+-	switch strings.ToLower(msg.Question[0].Name) {
+-	case ".":
+-		// When adding an upstream in Windows Server's DNS server, a SOA question to `.` will be generated to probe if the upstream is alive
+-		// Reply this hardcoded answer to pass the test
+-		msg.Answer = append(msg.Answer, &dns.SOA{
+-			Hdr:     dns.RR_Header{Name: msg.Question[0].Name, Rrtype: r.Question[0].Qtype, Class: r.Question[0].Qclass, Ttl: DNSDefaultTTL},
+-			Ns:      "a.root-servers.net.",
+-			Mbox:    "nstld.verisign-grs.com.",
+-			Serial:  114514,
+-			Refresh: 60,
+-			Retry:   10,
+-			Expire:  3600000,
+-			Minttl:  DNSDefaultTTL,
+-		})
+-		return
+-
+-	case "dns.msftncsi.com.":
+-		// in one unknown case, SOA record to dns.msftncsi.com is requested
+-		msg.Answer = append(msg.Answer, &dns.SOA{
+-			Hdr:     dns.RR_Header{Name: msg.Question[0].Name, Rrtype: r.Question[0].Qtype, Class: r.Question[0].Qclass, Ttl: DNSDefaultTTL},
+-			Ns:      "ns1-205.azure-dns.com.",
+-			Mbox:    "azuredns-hostmaster.microsoft.com.",
+-			Serial:  1,
+-			Refresh: 60,
+-			Retry:   10,
+-			Expire:  3600000,
+-			Minttl:  DNSDefaultTTL,
+-		})
+-		return
+-
+-	default:
+-		handleDefault(this, r, msg)
+-	}
+-}
+diff --git a/dns_server_txt.go b/dns_server_txt.go
+deleted file mode 100644
+index c9a38a4..0000000
+--- a/dns_server_txt.go
++++ /dev/null
+@@ -1,13 +0,0 @@
+-package main
+-
+-import (
+-	"github.com/miekg/dns"
+-)
+-
+-// replies a TXT record containing server name and version
+-func handleTXTVersionRequest(this *dnsRequestHandler, r, msg *dns.Msg) {
+-	msg.Answer = append(msg.Answer, &dns.TXT{
+-		Hdr: dns.RR_Header{Name: msg.Question[0].Name, Rrtype: r.Question[0].Qtype, Class: r.Question[0].Qclass, Ttl: DNSDefaultTTL},
+-		Txt: []string{"bind-⑨"},
+-	})
+-}
+diff --git a/exceptions.go b/exceptions.go
+deleted file mode 100644
+index fe55d47..0000000
+--- a/exceptions.go
++++ /dev/null
+@@ -1,20 +0,0 @@
+-package main
+-
+-import "log"
+-
+-var softErrorCount uint64
+-
+-// if QuitOnError is true, then panic;
+-// else go on
+-func softFailIf(e error) {
+-	if e != nil {
+-		softErrorCount++
+-		log.Printf("[ERROR] %s", e)
+-	}
+-}
+-
+-func hardFailIf(e error) {
+-	if e != nil {
+-		panic(e)
+-	}
+-}
+\ No newline at end of file
+diff --git a/go.mod b/go.mod
+index aeecc29..946f21d 100644
+--- a/go.mod
++++ b/go.mod
+@@ -1,5 +1,3 @@
+ module github.com/jamesits/alwaysonline/v2
+ 
+ go 1.14
+-
+-require github.com/miekg/dns v1.1.34
+diff --git a/main.go b/main.go
+index 2c4e790..c8c1891 100644
+--- a/main.go
++++ b/main.go
+@@ -3,7 +3,6 @@ package main
+ import (
+ 	"flag"
+ 	"fmt"
+-	"github.com/miekg/dns"
+ 	"log"
+ 	"net"
+ 	"net/http"
+@@ -111,16 +110,6 @@ func main() {
+ 	// }
+ 	// go tlsHttpServer.ListenAndServe()
+ 
+-	// DNS TCP server setup
+-	dnsTcp1 := &dns.Server{Addr: ":53", Net: "tcp"}
+-	dnsTcp1.Handler = &dnsRequestHandler{}
+-	go dnsTcp1.ListenAndServe()
+-
+-	// DNS UDP server setup
+-	dnsUdp1 := &dns.Server{Addr: ":53", Net: "udp"}
+-	dnsUdp1.Handler = &dnsRequestHandler{}
+-	go dnsUdp1.ListenAndServe()
+-
+ 	// done
+ 	log.Println("[MAIN] Server started.")
+ 
+-- 
+2.45.2
+

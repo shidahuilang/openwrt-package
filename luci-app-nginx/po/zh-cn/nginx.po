@@ -1,0 +1,152 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+""
+
+#: luci-app-nginx/root/usr/share/luci/menu.d/luci-app-nginx.json:16
+# msgid "Status"
+# msgstr ""
+
+#: luci-app-nginx/root/usr/share/luci/menu.d/luci-app-nginx.json:34
+msgid "Locations"
+msgstr "路径"
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/locations.js:38
+msgid "Location files"
+msgstr "路径文件"
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/locations.js:39
+msgid "All <code>.locations</code> files under <code>/etc/nginx/conf.d</code>"
+msgstr "所有位于 <code>/etc/nginx/conf.d</code> 的 <code>.locations</code> 文件"
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/locations.js:43
+msgid "Known location files"
+msgstr "已知的路径文件"
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/locations.js:44
+msgid "We found those <code>.locations</code> files under <code>/etc/nginx/conf.d</code>"
+msgstr "我们在 <code>/etc/nginx/conf.d</code> 下找到了这些 <code>.locations</code> 文件"
+
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/servers.js:24
+msgid "Nginx Servers"
+msgstr "Nginx 服务器"
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/servers.js:25
+msgid "Servers Configuration for Nginx"
+msgstr "Nginx 的服务器配置"
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/servers.js:29
+msgid "All Servers"
+msgstr "所有服务器"
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/servers.js:30
+msgid "All of the known Nginx servers."
+msgstr "所有已知的 Nginx 服务器"
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/servers.js:36
+msgid "Listening on:"
+msgstr "监听："
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/servers.js:40
+msgid "Server Name:"
+msgstr "服务器名称："
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/servers.js:46
+msgid "SSL Managed By UCI:"
+msgstr "让 UCI 管理 SSL 证书："
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/servers.js:47
+msgid "Set to any value other than self-signed to manage it yourself."
+msgstr "设置为 self-signed 以外的任意值以自行管理。"
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/servers.js:51
+msgid "SSL Certificate:"
+msgstr "SSL 证书："
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/servers.js:55
+msgid "SSL Certificate Key:"
+msgstr "SSL 证书私钥："
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/servers.js:59
+msgid "SSL Session Cache Option:"
+msgstr "SSL 会话缓存选项："
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/servers.js:64
+msgid "SSL Session Timeout:"
+msgstr "SSL 会话超时："
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/servers.js:70
+msgid "Return:"
+msgstr "返回响应："
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/servers.js:75
+msgid "Access Log:"
+msgstr "访问日志："
+
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:72
+# msgid "Running"
+# msgstr ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:76
+# msgid "Stopped"
+# msgstr ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:80
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:121
+# msgid "Unknown"
+# msgstr ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:119
+msgid "Nginx status:"
+msgstr "Nginx 状态："
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:128
+# msgid "System"
+# msgid ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:128
+# msgid "Startup"
+# msgstr ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:143
+msgid "LuCI on Nginx:"
+msgstr "LuCI 运行在 Nginx 上："
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:147
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:177
+# msgid "Yes"
+# msgstr ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:147
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:177
+# msgid "No"
+# msgstr ""
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:150
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:180
+msgid "Install <code>curl</code> for this info."
+msgstr "安装 <code>curl</code> 以获取这个信息。"
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:158
+# msgid "Services"
+# msgstr ""
+
+#: luci-app-nginx/root/usr/share/luci/menu.d/luci-app-nginx.json:3
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:158
+msgid "Nginx"
+msgstr "Nginx"
+
+#: luci-app-nginx/root/usr/share/luci/menu.d/luci-app-nginx.json:25
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:158
+msgid "Servers"
+msgstr "服务器"
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:173
+msgid "Https Redirect Enabled:"
+msgstr "已启用 Https 重定向："
+
+#: luci-app-nginx/htdocs/luci-static/resources/view/nginx/status.js:190
+msgid "Running Servers Count:"
+msgstr "正在运行的服务器数量："

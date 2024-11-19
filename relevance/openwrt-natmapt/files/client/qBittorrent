@@ -1,0 +1,31 @@
+#!/bin/sh
+# Copyright (C) 2023 muink https://github.com/muink
+#
+# Client listen port refresh script
+#
+# depends 
+
+. /usr/lib/natmap/common.sh
+
+start() {
+	local retry='--connect-timeout 1 --retry 0'
+	local self_signed='-k'
+	local cookie="$($CURL $retry $self_signed -L -i \
+		-H "Referer: ${scheme}://${ip}:${web_port}" \
+		-d "username=${username}&password=${password}" \
+		--url ${scheme}://${ip}:${web_port}/api/v2/auth/login \
+		| grep -i set-cookie | sed -En 's|^.*(SID=\S+);.*|\1|p')"
+	$CURL $retry $self_signed -L -X POST \
+		-b "$cookie" \
+		-d 'json={"listen_port":"'"${port}"'"}' \
+		--url ${scheme}://${ip}:${web_port}/api/v2/app/setPreferences
+	$CURL $retry $self_signed -L -I \
+		--cookie "$cookie" \
+		--url ${scheme}://${ip}:${web_port}/api/v2/auth/logout
+}
+
+
+# All external parameters required
+ALL_PARAMS="ip port scheme web_port username password"
+eval "$(JSON_EXPORT "$1")"; shift
+start "$@"

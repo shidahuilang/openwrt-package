@@ -1,0 +1,29 @@
+msgid "Download Video"
+msgstr "短视频下载"
+
+msgid "Download Video Details"
+msgstr "下载视频详情"
+
+msgid "Download video from Youtube, Facebook, Twitter, etc."
+msgstr "从各大网站下载视频，支持B站，Youtube, Twitter等"
+
+msgid "Yt-dlp Online"
+msgstr "下载视频"
+
+msgid "Please enter a valid URL"
+msgstr "请输入有效的URL"
+
+msgid "yt-dlp"
+msgstr "短视频下载"
+
+msgid "Action"
+msgstr "操作"
+
+msgid "Download"
+msgstr "下载到本地"
+
+msgid "Clear Input"
+msgstr "清空输入"
+
+msgid "Enter video URL"
+msgstr "输入视频URL"

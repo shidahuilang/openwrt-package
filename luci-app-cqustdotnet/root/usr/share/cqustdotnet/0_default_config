@@ -1,0 +1,5 @@
+
+config cqustdotnet 'config'
+	option enabled '0'
+	option network_detection_interval '5'
+

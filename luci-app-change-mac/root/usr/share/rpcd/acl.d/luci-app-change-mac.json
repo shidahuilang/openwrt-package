@@ -1,0 +1,15 @@
+{
+  "luci-app-change-mac": {
+    "description": "Grant access to change-mac procedures",
+    "read": {
+      "file": {
+        "/usr/bin/rgmac": [ "exec" ],
+        "/etc/init.d/change-mac": [ "exec" ]
+      },
+      "uci": [ "change-mac" ]
+    },
+    "write": {
+      "uci": [ "change-mac" ]
+    }
+  }
+}

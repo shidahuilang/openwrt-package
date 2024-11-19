@@ -1,0 +1,15 @@
+#!/bin/sh
+
+printf "Band  128-bit bandmask\n"
+
+# 生成 1 到 48 的频段掩码
+for LBAND in $(seq 1 48); do
+    BBAND=$((1 << (LBAND - 1)))
+    printf "%-6s%016X%016X\n" "$LBAND" "0" "$BBAND"
+done
+
+# 生成 65 到 85 的频段掩码
+for LBAND in $(seq 65 85); do
+    BBAND=$((1 << (LBAND - 65)))
+    printf "%-6s%016X%016X\n" "$LBAND" "$BBAND" "0"
+done

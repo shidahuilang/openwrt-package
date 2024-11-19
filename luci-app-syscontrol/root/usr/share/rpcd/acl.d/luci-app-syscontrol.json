@@ -1,0 +1,32 @@
+{
+	"luci-app-syscontrol": {
+	  "description": "Grant access to system control functions",
+	  "read": {
+		"ubus": {
+		  "system": [ "info" ],
+		  "file": [ "read" ],
+		  "service": [ "list" ]
+		},
+		"uci": [ "system", "77_syscontrol" ],
+		"file": {
+		  "/sbin/poweroff": [ "exec" ],
+		  "/usr/bin/ram_release.sh": [ "exec" ],
+		  "/var/log/ram_release.log": [ "read" ],
+		  "/etc/init.d/ram_release": [ "exec" ]
+		}
+	  },
+	  "write": {
+		"ubus": {
+		  "system": [ "drop_caches", "reboot" ],
+		  "file": [ "exec", "write" ],
+		  "service": [ "start", "stop" ]
+		},
+		"uci": [ "77_syscontrol" ],
+		"file": {
+		  "/usr/bin/ram_release.sh": [ "exec" ],
+		  "/var/log/ram_release.log": [ "write" ],
+		  "/etc/init.d/ram_release": [ "exec" ]
+		}
+	  }
+	}
+}

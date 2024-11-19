@@ -1,0 +1,247 @@
+﻿body {
+	font-family: Carlito,Lato,proxima-nova,Helvetica Neue,Arial,sans-serif;
+}
+
+div.wy-nav-content {
+	max-width: none;
+}
+
+.rst-content h1,
+.rst-content h2,
+.rst-content h3,
+.rst-content h4,
+.rst-content h5,
+.rst-content h6 {
+	margin-top: revert;
+}
+
+.rst-content img.with-shadow {
+	box-shadow: 3px 3px 6px rgba(0,0,0,0.4);
+}
+
+.rst-content img.with-border {
+	border: 1px solid #d0d0d0;
+}
+
+.rst-content table td p {
+	font-size: inherit;
+}
+
+
+.rst-content div.figure {
+	margin-top: 24px;
+}
+
+.rst-content .section > a > img,
+.rst-content .section > img {
+	margin-top: 12px;
+}
+
+.rst-content .document dl,
+.rst-content .document ol,
+.rst-content .document ul {
+	margin-bottom: 12px;
+}
+
+.rst-content .document ul {
+/*	padding-left: 2.5em;*/
+}
+
+.rst-content .document ul > li > ul {
+	margin-bottom: 0;
+	margin-top: 0;
+}
+
+.rst-content li {
+	list-style: disc;
+}
+
+.rst-content .toctree-wrapper ul {
+	padding-left: 0;
+}
+
+.rst-content .toctree-wrapper li {
+	list-style: none;
+}
+
+.rst-content .section ul,
+.rst-content .toctree-wrapper ul,
+.rst-content .wy-plain-list-disc,
+.rst-content article ul,
+.rst-content .admonition,
+.rst-content .admonition-todo,
+.rst-content .attention,
+.rst-content .caution,
+.rst-content .danger,
+.rst-content .error,
+.rst-content .hint,
+.rst-content .important,
+.rst-content .note,
+.rst-content .seealso,
+.rst-content .tip,
+.rst-content .warning,
+.rst-content .wy-alert,
+.rst-content div[class^=highlight],
+.rst-content pre.literal-block,
+.rst-content p {
+	margin-bottom: 12px;
+}
+
+.rst-content .wy-table-responsive {
+	margin-top: 24px;
+	margin-bottom: 24px;
+}
+
+.rst-content .figure p.caption {
+	text-align: center;
+	margin-top: 6px;
+}
+
+.rst-content a.reference.external:not(.image-reference):after {
+	content: "";
+	padding-left: 16px;
+	background: url(icon-external-link.png);
+	background-size: 12px;
+	background-repeat: no-repeat;
+	background-position: right center;
+}
+
+.rst-content table > caption {
+	text-align: left !important;
+}
+
+.rst-content div.center,
+.rst-content p.center {
+	text-align: center;
+}
+
+.wy-menu-vertical header,
+.wy-menu-vertical p.caption {
+	height: auto;
+	line-height: 20px;
+	margin: 12px 0 12px;
+	white-space: normal;
+}
+
+.rst-content section ol li>p:only-child,
+.rst-content section ol li>p:only-child:last-child,
+.rst-content section ul li>p:only-child,
+.rst-content section ul li>p:only-child:last-child {
+	margin-bottom: 0;
+}
+
+.rst-content .highlight {
+/*	background: #f1f1f1;*/
+/*	background: #eaedfa;*/
+	background: #fafaea;
+/*	background: #effaea;*/
+/*	background: #eaf4fa;*/
+}
+
+.rst-content div.admonition {
+	border-radius: 8px;
+	box-shadow: 0 2px 5px 1px rgb(64 60 67 / 16%);
+}
+
+.rst-content .admonition-title {
+	border-top-left-radius: 8px;
+	border-top-right-radius: 8px;
+	padding: 8px 12px;
+}
+
+.rst-content .admonition-title:before {
+	margin-right: 8px;
+}
+
+.rst-content code.literal,
+.rst-content tt.literal {
+	color: #2980b9;
+	border-radius: 4px;
+}
+
+.rst-content table.docutils td,
+.rst-content table.field-list td {
+	vertical-align: top;
+}
+
+.rst-content ul.wy-breadcrumbs {
+	display: flex;
+	flex-flow: row;
+	flex-wrap: wrap;
+	align-items: center;
+}
+
+.rst-content .wy-breadcrumbs li {
+	padding-right: 5px;
+}
+
+.rst-content .wy-breadcrumbs li a {
+	padding-right: 0;
+}
+
+.rst-content .wy-breadcrumbs li.wy-breadcrumbs-aside {
+	margin-left: auto;
+	padding-left: 32px;
+	padding-right: 0;
+}
+
+.rst-content table.docutils caption,
+.rst-content table.field-list caption,
+.wy-table caption {
+	padding-top: 0;
+}
+
+.wy-table-responsive table td,
+.wy-table-responsive table th {
+	white-space: normal;
+	vertical-align: top;
+}
+
+.rst-content table.docutils td:first-child,
+.rst-content table.docutils th:first-child,
+.rst-content table.field-list td:first-child,
+.rst-content table.field-list th:first-child,
+.wy-table td:first-child,
+.wy-table th:first-child {
+	border-left-width: 1px;
+}
+
+.rst-content .admonition-todo p:last-child,
+.rst-content .admonition p:last-child,
+.rst-content .attention p:last-child,
+.rst-content .caution p:last-child,
+.rst-content .danger p:last-child,
+.rst-content .error p:last-child,
+.rst-content .hint p:last-child,
+.rst-content .important p:last-child,
+.rst-content .note p:last-child,
+.rst-content .seealso p:last-child,
+.rst-content .tip p:last-child,
+.rst-content .warning p:last-child,
+.wy-alert p:last-child {
+	line-height: 1.4;
+}
+
+.rst-content .figure p.caption,
+.rst-content .figure.align-default p.caption {
+	text-align: left;
+}
+
+.rst-content .figure.align-center p.caption {
+	text-align: center;
+}
+
+.rst-content table.docutils td .admonition,
+.rst-content table.docutils td .admonition-todo,
+.rst-content table.docutils td .attention,
+.rst-content table.docutils td .caution,
+.rst-content table.docutils td .danger,
+.rst-content table.docutils td .error,
+.rst-content table.docutils td .hint,
+.rst-content table.docutils td .important,
+.rst-content table.docutils td .note,
+.rst-content table.docutils td .seealso,
+.rst-content table.docutils td .tip,
+.rst-content table.docutils td .warning {
+	margin-top: 12px;
+}

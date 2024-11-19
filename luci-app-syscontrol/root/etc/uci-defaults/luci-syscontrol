@@ -1,0 +1,5 @@
+#!/bin/sh
+
+chmod +x /etc/init.d/ram_release /usr/bin/ram_release.sh
+
+exit 0

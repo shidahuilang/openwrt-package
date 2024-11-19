@@ -1,0 +1,50 @@
+<%+cbi/valueheader%>
+<script type="text/javascript">//<![CDATA[
+	function vnt_cmd(btn)
+	{
+		btn.disabled = true;
+		btn.value = '<%:Collecting data...%>';
+		XHR.get('<%=luci.dispatcher.build_url("admin", "vpn", "vnt", "vnt_cmd")%>',
+			null,
+			function(x,rv)
+			{
+			var tb = document.getElementById('<%=self.option%>-status');
+			if (tb) {
+  rv.cmd = rv.cmd.replace(/-k/g, "<font color='#0000FF'><em><b>-k&nbsp;</em></b></font>")
+                  .replace(/-d/g, "<font color='#0000FF'><em><b>-d&nbsp;</em></b></font>")
+	          .replace(/dns服务/g, "<font color='#0000FF'><em><b>--dns&nbsp;</em></b></font>")
+                  .replace(/-n/g, "<font color='#0000FF'><em><b>-n</em></b></font>")
+                  .replace(/-s/g, "<font color='#0000FF'><em><b>-s</em></b></font>")
+                 .replace(/-不/g, "<font color='#0000FF'><em><b>--no</b></em></font>")
+                 .replace(/-o/g, "<font color='#0000FF'><em><b>-o&nbsp;</b></em></font>")
+                 .replace(/-i/g, "<font color='#0000FF'><em><b>-i&nbsp;</b></em></font>")
+                 .replace(/-a/g, "<font color='#0000FF'><em><b>-a&nbsp;</b></em></font>")
+                 .replace(/-w/g, "<font color='#0000FF'><em><b>-w&nbsp;</b></em></font>")
+                 .replace(/-W/g, "<font color='#0000FF'><em><b>-W&nbsp;</b></em></font>")
+                 .replace(/--tcp/g, "<font color='#0000FF'><em><b>--tcp&nbsp;</b></em></font>")
+                 .replace(/--finger/g, "<font color='#0000FF'><em><b>--finger&nbsp;</b></em></font>")
+                 .replace(/--punch/g, "<font color='#0000FF'><em><b>--punch&nbsp;</b></em></font>")
+                 .replace(/--ports/g, "<font color='#0000FF'><em><b>--ports&nbsp;</b></em></font>")
+                 .replace(/--model/g, "<font color='#0000FF'><em><b>--model&nbsp;</b></em></font>")
+                 .replace(/-u/g, "<font color='#0000FF'><em><b>-u&nbsp;</b></em></font>")
+                 .replace(/-m/g, "<font color='#0000FF'><em><b>-m&nbsp;</b></em></font>")
+                 .replace(/--par/g, "<font color='#0000FF'><em><b>--par&nbsp;</b></em></font>")
+                 .replace(/-e/g, "<font color='#0000FF'><em><b>-e&nbsp;</b></em></font>")
+                 .replace(/--first-latency/g, "<font color='#0000FF'><em><b>--first-latency&nbsp;</b></em></font>")
+                 .replace(/--relay/g, "<font color='#0000FF'><em><b>--relay&nbsp;</b></em></font>")
+	         .replace(/--地址/g, "<font color='#0000FF'><em><b>--ip</em></b></font>")
+	         .replace(/网卡名/g, "<font color='#0000FF'><em><b>--nic&nbsp;</em></b></font>")
+                 .replace(/直连方式/g, "<font color='#0000FF'><em><b>--use-channel&nbsp;</em></b></font>")
+                 .replace(/-proxy/g, "<font color='#0000FF'><em><b>-proxy</em></b></font>");
+  tb.innerHTML = "<br><font color='#FF00FF'>&nbsp;&nbsp;&nbsp;<b><%:当前启动参数： %></b></font><br>" + "<font color='#000066'>" + rv.cmd + "</font>";
+}
+				btn.disabled = false;
+				btn.value = '<%:vnt-cli启动参数%>';
+			}
+		);
+		return false;
+	}
+//]]></script>
+<input type="button" class="btn cbi-button cbi-button-apply" value="<%:vnt-cli启动参数%>" onclick="return vnt_cmd(this)" />
+<span id="<%=self.option%>-status"><em><%=self.value%></em></span>
+<%+cbi/valuefooter%>

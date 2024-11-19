@@ -1,0 +1,12 @@
+{
+  "admin/services/domain-proxy": {
+    "title": "Domain Proxy",
+    "action": {
+      "type": "view",
+      "path": "domain-proxy"
+    },
+    "depends": {
+      "acl": ["luci-app-domain-proxy"]
+    }
+  }
+}

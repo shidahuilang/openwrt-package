@@ -1,0 +1,8 @@
+#!/usr/sbin/nft -f
+
+table ip ittl {
+    chain POSTROUTING {
+		type filter hook postrouting priority mangle; policy accept;
+		counter packets 0 bytes 0 # TTL set to 64
+	}
+}

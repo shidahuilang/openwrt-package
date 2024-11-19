@@ -1,0 +1,25 @@
+{
+    "luci-app-jederproxy": {
+        "description": "Grant access to jederproxy configurations",
+        "read": {
+            "ubus": {
+                "luci": [
+                    "getInitList",
+                    "setInitAction"
+                ]
+            },
+            "uci": [
+                "jederproxy"
+            ],
+            "file": {
+                "/etc/init.d/jederproxy": [ "exec" ],
+                "/var/run/jederproxy.pid": [ "read" ]
+            }
+        },
+        "write": {
+            "uci": [
+                "jederproxy"
+            ]
+        }
+    }
+}

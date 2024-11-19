@@ -1,0 +1,125 @@
+#!/bin/bash
+
+# [K] (C)2020
+# http://github.com/kongfl888/luci-app-timedreboot
+
+if [ ! -e "/etc/config/timedreboot" ]; then
+    echo "timedreboot cfg is not exit" >> /tmp/timedreboot.log
+    logger "timedreboot cfg is not exit. Stop!"
+    exit 1
+fi
+
+renable=1
+
+# --------function--------
+
+get_cfg_value(){
+
+    v=`uci get timedreboot.@main[0].$1 2>/dev/null`
+
+    if [ ! -z "$v" ]; then
+        echo "$v"
+    else
+        echo "1"
+    fi
+}
+
+get_cron_timestr() {
+    str1=`cat /etc/crontabs/root | grep "dorboot"`
+    m1=`echo "$str1" | cut -d " " -f 1`
+    h2=`echo "$str1" | cut -d " " -f 2`
+    w5=`echo "$str1" | cut -d " " -f 5`
+    echo "$m1 $h2 * * $w5"
+}
+
+get_cron_parameter() {
+    str=`cat /etc/crontabs/root | grep "dorboot" | cut -d " " -f 7`
+    echo "$str"
+}
+
+
+clear_cron(){
+    sed -i '/dorboot/d' /etc/crontabs/root >/dev/null 2>&1
+    /etc/init.d/cron restart
+}
+
+set_cron() {
+    echo "Timed Reboot is set." > /tmp/timedreboot.log
+    clear_cron
+    echo "${1} /usr/bin/dorboot ${2}" >> /etc/crontabs/root
+}
+
+rebootsys() {
+    if [ "${1}" = "1" ]; then
+        uci set timedreboot.@main[0].enable="0"
+        uci set timedreboot.@main[0].once="0"
+        uci commit timedreboot
+        clear_cron
+    fi
+    sleep 5s
+    touch /etc/banner
+    reboot
+}
+
+justcfg() {
+    local minute=`get_cfg_value "minute"`
+    local hour=`get_cfg_value "hour"`
+    local week=`get_cfg_value "week"`
+    local sday=`get_cfg_value "sday"`
+    local once=`get_cfg_value "once"`
+    
+    if [ $minute = 0 ] ; then
+        minute="00"
+    fi
+    if [ $week != 8 ] ; then
+        sday="*"
+    else
+        sday=`echo $sday | grep -owE "^[0-9]+\-[0-9]+|^[0-9]+(,[0-9]+)*"`
+		[ -z $sday ] && sday=15
+    fi
+    if [ $week -gt 6 ] ; then
+        week="*"
+    fi
+
+    renable=`get_cfg_value "enable"`
+    
+    param=`get_cron_parameter`
+
+    cfgstr="$minute $hour $sday * $week"
+    cronstr=`get_cron_timestr`
+
+    if [ "$renable" == "0" ]; then
+        clear_cron
+        echo "Timed Reboot has been cleared." > /tmp/timedreboot.log
+    elif [ "$cfgstr" == "$cronstr" ]; then
+        if [ -z "$param" ]; then
+        echo "1"
+            set_cron "$cfgstr" "$once"
+        elif [ "$param" != "$once" ]; then
+        echo "2"
+            set_cron "$cfgstr" "$once"
+        else
+        echo  "3"
+            echo "Timed Reboot is set." > /tmp/timedreboot.log
+            exit 0
+        fi
+    else
+        echo "4"
+        set_cron "$cfgstr" "$once"
+    fi
+}
+
+# ------------main-------------
+
+renable=`get_cfg_value "enable"`
+if [ "$renable" != "0" ]; then
+        /etc/init.d/timedreboot enable
+fi
+
+if [ "${1}" = "0" -o "${1}" = "1" ]; then
+    rebootsys
+else
+    justcfg
+fi
+
+exit 0

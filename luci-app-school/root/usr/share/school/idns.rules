@@ -1,0 +1,9 @@
+#!/usr/sbin/nft -f
+
+table ip idns {
+    chain PREROUTING {
+		type nat hook prerouting priority dstnat; policy accept;
+		meta l4proto udp udp dport 53 counter packets 0 bytes 0 redirect to :53
+		meta l4proto tcp tcp dport 53 counter packets 0 bytes 0 redirect to :53
+	}
+}

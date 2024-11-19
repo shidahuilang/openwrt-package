@@ -1,0 +1,25 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+STOP=10
+USE_PROCD=1
+
+start_service() {
+    procd_open_instance
+    procd_set_param command /bin/sh -c "/usr/bin/ram_release.sh start && sleep infinity"
+    procd_set_param respawn
+    procd_close_instance
+}
+
+stop_service() {
+    /usr/bin/ram_release.sh stop
+}
+
+service_triggers() {
+    procd_add_reload_trigger "77_syscontrol"
+}
+
+reload_service() {
+    stop
+    start
+}

@@ -1,0 +1,59 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+msgid "timedreboot"
+msgstr "自动重启"
+
+msgid "Timed Reboot"
+msgstr "定时重启"
+
+msgid "Timed Reboot Setting. <a href=\"https://github.com/kongfl888/luci-app-timedreboot\">Github</a>"
+msgstr "开启自动重启功能将在指定时间重启路由器，以获取更好的体验。| <a href=\"https://github.com/kongfl888/luci-app-timedreboot\">Github</a>"
+
+msgid "Week Day"
+msgstr "星期"
+
+msgid "Everyday"
+msgstr "每天"
+
+msgid "Day"
+msgstr "天"
+
+msgid "Hour"
+msgstr "小时"
+
+msgid "Minute"
+msgstr "分钟"
+
+msgid "Monday"
+msgstr "星期一"
+
+msgid "Tuesday"
+msgstr "星期二"
+
+msgid "Wednesday"
+msgstr "星期三"
+
+msgid "Thursday"
+msgstr "星期四"
+
+msgid "Friday"
+msgstr "星期五"
+
+msgid "Saturday"
+msgstr "星期六"
+
+msgid "Sunday"
+msgstr "星期天"
+
+msgid "Someday"
+msgstr "哪天"
+
+msgid "Days of month"
+msgstr "具体哪号"
+
+msgid "You also can use like this: 2,8,16 or 5-15."
+msgstr "你还可以这样：2,8,16或者5-15，但得是英文标点。默认15号"
+
+msgid "Only once"
+msgstr "仅执行一次"

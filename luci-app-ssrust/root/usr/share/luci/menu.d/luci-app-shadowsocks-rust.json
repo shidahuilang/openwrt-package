@@ -1,0 +1,39 @@
+{
+	"admin/services/shadowsocks-rust": {
+		"title": "Shadowsocks-rust",
+		"order": 59,
+		"action": {
+			"type": "firstchild"
+		},
+		"depends": {
+			"acl": [ "luci-app-shadowsocks-rust" ]
+		}
+	},
+
+	"admin/services/shadowsocks-rust/instances": {
+		"title": "Local Instances",
+		"order": 10,
+		"action": {
+			"type": "view",
+			"path": "shadowsocks-rust/instances"
+		}
+	},
+
+	"admin/services/shadowsocks-rust/servers": {
+		"title": "Remote Servers",
+		"order": 20,
+		"action": {
+			"type": "view",
+			"path": "shadowsocks-rust/servers"
+		}
+	},
+
+	"admin/services/shadowsocks-rust/rules": {
+		"title": "Redir Rules",
+		"order": 30,
+		"action": {
+			"type": "view",
+			"path": "shadowsocks-rust/rules"
+		}
+	}
+}

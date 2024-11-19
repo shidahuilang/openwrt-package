@@ -1,0 +1,105 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"PO-Revision-Date: 2022-10-06 10:20+0000\n"
+"Last-Translator: muink <hukk1996@gmail.com>\n"
+"Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
+"openwrt/luciapplicationschange-mac/zh_Hans/>\n"
+"Language: zh_Hans\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 4.12.1-dev\n"
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:91
+msgid ""
+"Assign a random MAC address to the designated interface on every time boot"
+msgstr "每次启动时, 将随机 MAC 地址分配给指定的接口"
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:130
+msgid "Change MAC now"
+msgstr "立即更换 MAC"
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:131
+msgid "Change now"
+msgstr "立即更换"
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:106
+msgid "Disorderly"
+msgstr "无序随机"
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:96
+msgid "Enable MAC randomization"
+msgstr "启用 MAC 随机化"
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:99
+msgid "Enabled interfaces"
+msgstr "已启用的接口"
+
+#: applications/luci-app-change-mac/root/usr/share/rpcd/acl.d/applications/luci-app-change-mac.json:3
+msgid "Grant access to change-mac procedures"
+msgstr "授予访问 LuCI 应用 change-mac 的权限"
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:165
+msgid "List available"
+msgstr "列出可用"
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:113
+msgid "Locally administered address"
+msgstr "本地管理地址"
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:90
+#: applications/luci-app-change-mac/root/usr/share/luci/menu.d/applications/luci-app-change-mac.json:3
+msgid "MAC address randomizer"
+msgstr "MAC 地址随机化"
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:111
+msgid "MAC address type"
+msgstr "MAC 地址类型"
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:105
+msgid "Multi-interface MAC random mode"
+msgstr "多接口 MAC 随机模式"
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:157
+msgid "Query OUI vendor"
+msgstr "查询 OUI 供应商"
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:137
+msgid "Restore"
+msgstr "恢复"
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:136
+msgid "Restore selected interfaces"
+msgstr "恢复选中的接口"
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:107
+msgid "Sequence"
+msgstr "顺序随机"
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:114
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:119
+msgid "Specify OUI"
+msgstr "指定 OUI"
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:112
+msgid "Use command 'rgmac --help' to get more information"
+msgstr "使用命令 'rgmac --help' 获取更多信息"
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:125
+msgid "Use command 'rgmac -lrouter' to get valid vendor name"
+msgstr "使用命令 'rgmac -lrouter' 获取有效的厂商名称"
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:145
+msgid "Utilities"
+msgstr "工具"
+
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:115
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:124
+#: applications/luci-app-change-mac/htdocs/luci-static/resources/view/change-mac.js:165
+msgid "Vendor name"
+msgstr "厂商名称"
+
+#~ msgid "Merge the same physical interface"
+#~ msgstr "合并相同的物理接口"

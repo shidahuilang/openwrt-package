@@ -1,0 +1,11 @@
+{
+	"luci-app-cns": {
+		"description": "Grant UCI access for luci-app-cns-server",
+		"read": {
+			"uci": [ "cns_server" ]
+		},
+		"write": {
+			"uci": [ "cns_server" ]
+		}
+	}
+}

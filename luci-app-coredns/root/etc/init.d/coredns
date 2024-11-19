@@ -1,0 +1,159 @@
+#!/bin/sh /etc/rc.common
+#
+# Copyright (C) 2023, tracemouse
+
+
+START=99
+USE_PROCD=1
+
+PROG=/usr/share/coredns/coredns
+CONF=$(uci -q get coredns.config.configfile)
+CRON_FILE=/etc/crontabs/root
+DEFAULT_CONF=/usr/share/coredns/Corefile
+RULE_UPDATE_SCRIPT="lua /usr/share/coredns/update_rule.lua > /dev/null"
+GEN_COREFILE_SCRIPT=/usr/share/coredns/gen_corefile.sh
+
+get_config() {
+    config_get enabled $1 enabled 0
+    config_get enabled_custom $1 enabled_custom 0
+    config_get redirect $1 redirect 0
+    config_get listen_port $1 listen_port 5336
+}
+
+service_triggers() {
+    procd_add_reload_trigger "coredns"
+}
+
+restore_setting() {
+    echo "开始重置 dnsmasq 设置..." >> /tmp/coredns.log
+    rm -rf /usr/share/coredns/redirect.lock
+    sed -i "/list server/d" /etc/config/dhcp
+    uci set dhcp.@dnsmasq[0].noresolv='0'
+    uci del dhcp.@dnsmasq[0].cachesize
+    uci commit dhcp
+}
+
+redirect_setting() {
+    echo "开始设置 dnsmasq 转发..." >> /tmp/coredns.log
+    sed -i "/list server/d" /etc/config/dhcp
+    uci add_list dhcp.@dnsmasq[0].server="127.0.0.1#$listen_port"
+    uci set dhcp.@dnsmasq[0].rebind_protection='0'
+    uci set dhcp.@dnsmasq[0].noresolv="1"
+    uci set dhcp.@dnsmasq[0].cachesize='0'
+    uci commit dhcp
+    touch /usr/share/coredns/redirect.lock
+}
+
+reload_dnsmasq() {
+    echo "开始重启 dnsmasq 服务..." >> /tmp/coredns.log
+    /etc/init.d/dnsmasq reload
+}
+
+reload_service() {
+    echo "开始重启 coredns 服务..." >> /tmp/coredns.log
+    stop
+    sleep 1
+    start
+    echo "已完成重启 coredns 服务..." >> /tmp/coredns.log
+}
+
+setcron() {
+    echo "设置定时脚本..." >> /tmp/coredns.log
+    sed -i '/\/usr\/share\/coredns/d' $CRON_FILE 2>/dev/null
+    rule_auto_update=$(uci -q get coredns.rule_update.rule_auto_update)
+    rule_update_week_time=$(uci -q get coredns.rule_update.rule_update_week_time)
+    rule_update_day_time=$(uci -q get coredns.rule_update.rule_update_day_time)
+    
+    if [ "$rule_auto_update" -eq 1 ] 
+    then 
+        echo "开始设置转发规则自动更新" >> /tmp/coredns.log
+        task="0 $rule_update_day_time * * $rule_update_week_time $RULE_UPDATE_SCRIPT"
+        echo "添加定时规则 ${task}" >> /tmp/coredns.log
+        echo "${task}"  >> $CRON_FILE
+        echo "已完成添加"
+    else
+        echo "未启用转发规则自动更新" >> /tmp/coredns.log
+    fi
+
+    log_auto_clear=$(uci -q get coredns.clear_log.log_auto_clear)
+    log_clear_hour=$(uci -q get coredns.clear_log.log_clear_hour)
+
+    if [ "$log_auto_clear" -eq 1 ] 
+    then
+        echo "开始设置自动清空日志" >> /tmp/coredns.log
+        task="0 */${log_clear_hour} * * * /usr/share/coredns/clear_log.sh"
+        echo "添加定时规则 ${task}" >> /tmp/coredns.log
+        echo "${task}"  >> $CRON_FILE
+        echo "已完成添加"
+    else
+        echo "未启用自动清空日志" >> /tmp/coredns.log
+        echo "为防止占用过多内存将强制设置为每天0点清空日志" >> /tmp/coredns.log
+        task="0 0 * * * /usr/share/coredns/clear_log.sh"
+        echo "添加定时规则 ${task}" >> /tmp/coredns.log
+        echo "${task}"  >> $CRON_FILE
+        echo "已完成添加"
+    fi
+
+    echo "开始重载定时任务配置文件"
+    crontab $CRON_FILE
+
+    echo "完成设置定时脚本" >> /tmp/coredns.log
+}
+
+delcron() {
+    echo "删除定时脚本..." >> /tmp/coredns.log
+    sed -i '/\/usr\/share\/coredns/d' $CRON_FILE 2>/dev/null
+    crontab $CRON_FILE
+}
+
+start_service() {
+    echo "开始启动 coredns 服务..." >> /tmp/coredns.log
+    config_load "coredns"
+    config_foreach get_config "coredns"
+    if [ $enabled -ne 1 ]
+    then
+        echo "未设置启用 coredns ，服务将不会启动" >> /tmp/coredns.log
+        return 1
+    fi
+    
+    delcron ; setcron
+
+    if [ "${CONF}" = "/usr/share/coredns/Corefile" ]
+    then
+        # $(GEN_COREFILE_SCRIPT)
+        sh /usr/share/coredns/gen_corefile.sh
+    fi
+
+    #LOG_FILE=$(uci -q get coredns.global.logfile)
+    #rm -rf ${LOG_FILE}
+
+    procd_open_instance coredns
+    # procd_set_param command $PROG -conf="$CONF" > /tmp/coredns.log
+    # procd_set_param command $PROG -conf="$CONF"
+    procd_set_param command /usr/share/coredns/start_coredns.sh
+    procd_set_param user root
+    procd_set_param stdout 1
+    procd_set_param stderr 1
+    procd_set_param respawn "${respawn_threshold:-3600}" "${respawn_timeout:-5}" "${respawn_retry:-5}"
+    procd_close_instance coredns
+
+    [ "$redirect" -ne 1 ] && [ -f "/usr/share/coredns/redirect.lock" ] && restore_setting
+    [ "$redirect" -eq 1 ] && redirect_setting
+    reload_dnsmasq
+    echo "已完成启动 coredns 服务..." >> /tmp/coredns.log
+}
+
+stop_service() {
+    echo "停止 coredns 服务..." >> /tmp/coredns.log
+    # killall -3 coredns >> /tmp/coredns.log
+    pgrep -f /usr/share/coredns/coredns | xargs kill >> /tmp/coredns.log
+    echo "已停止 coredns 服务..." >> /tmp/coredns.log
+
+    config_load "coredns"
+    config_foreach get_config "coredns"
+    # [ "$enabled" -eq "0" ] && [ -f "/usr/share/coredns/redirect.lock" ] && restore_setting
+    [ -f "/usr/share/coredns/redirect.lock" ] && restore_setting
+    # restore_setting
+    reload_dnsmasq
+    delcron
+}

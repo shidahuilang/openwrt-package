@@ -1,0 +1,11 @@
+{
+  "luci-app-msd": {
+    "description": "Grant access to msd procedures",
+    "read": {
+      "uci": [ "msd" ]
+    },
+    "write": {
+      "uci": [ "msd" ]
+    }
+  }
+}

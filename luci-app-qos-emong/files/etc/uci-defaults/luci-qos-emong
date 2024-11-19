@@ -1,0 +1,10 @@
+#!/bin/sh 
+
+uci -q batch <<-EOF >/dev/null
+          delete ucitrack.@qos-emong[-1]
+          add ucitrack qos-emong
+          set ucitrack.@qos-emong[-1].init=qos-emong
+          commit ucitrack
+EOF
+rm -f /tmp/luci-indexcahe
+exit 0

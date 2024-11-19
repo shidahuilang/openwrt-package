@@ -1,0 +1,31 @@
+#!/usr/bin/lua
+
+local MAX_BAND = 128
+local BIT_WIDTH = 4
+local mtab = {}
+local vtab = {1, 2, 4, 8}
+
+-- 初始化 mtab
+for i = 1, 32 do
+    mtab[i] = 0
+end
+
+-- 检查和处理每个参数
+for _, band in ipairs(arg) do
+    local band_num = tonumber(band)
+    if band_num and band_num <= MAX_BAND then
+        local idx = math.floor((band_num - 1) / BIT_WIDTH) + 1
+        local idxr = 33 - idx
+        local val = vtab[(band_num - ((idx - 1) * BIT_WIDTH))]
+        mtab[idxr] = mtab[idxr] + val
+    else
+        print("Invalid input: " .. band)
+    end
+end
+
+-- 转换 mtab 到十六进制字符串
+for i = 1, 32 do
+    mtab[i] = string.format("%X", mtab[i])
+end
+
+print(table.concat(mtab))

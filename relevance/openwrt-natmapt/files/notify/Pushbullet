@@ -1,0 +1,26 @@
+#!/bin/sh
+# Copyright (C) 2023 muink https://github.com/muink
+#
+# Port update notify script
+#
+# depends 
+
+. /usr/lib/natmap/common.sh
+
+start() {
+	local retry='--connect-timeout 3 --retry 3'
+	$CURL $retry -L -o /dev/null -X POST \
+		-H "Access-Token: ${TOKEN}" \
+		-H 'Content-Type: application/json' \
+		-d '{"type":"note","body":"'"${text}"'","title":"'"${TITLE}"'"}' \
+		--url "https://${custom_domain:-api.pushbullet.com}/v2/pushes"
+}
+
+
+# All external parameters required
+ALL_PARAMS="custom_domain text tokens"
+eval "$(JSON_EXPORT "$1")"; shift
+# All external tokens required
+INIT_GLOBAL_VAR TOKEN TITLE
+eval "$tokens"
+start "$@"

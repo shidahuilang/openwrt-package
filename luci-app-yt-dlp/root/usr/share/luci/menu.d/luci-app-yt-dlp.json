@@ -1,0 +1,12 @@
+{
+	"admin/services/yt-dlp": {
+		"title": "yt-dlp",
+		"action": {
+			"type": "view",
+			"path": "yt-dlp"
+		},
+		"depends": {
+			"acl": [ "luci-app-yt-dlp" ]
+		}
+	}
+}

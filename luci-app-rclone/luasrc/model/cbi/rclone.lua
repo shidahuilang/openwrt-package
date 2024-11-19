@@ -25,6 +25,14 @@ else
     trip = '[ip]'
 end
 
+if type(trip) == 'table' then
+    require('luci.ip')
+    trip = trip[1]
+    trip = luci.ip.new(trip)
+    trip = trip:host()
+    trip = trip:string()
+end
+
 if running then
     state_msg = '<b><font color="green">' .. translate('rclone running') .. '</font></b>'
     address_msg = translate('rclone address') .. ' : http://' .. trip .. ':' .. trport .. '<br/> <br/>'
@@ -42,10 +50,10 @@ m =
         ' <br/> <br/> ' .. translate('rclone state') .. ' : ' .. state_msg .. '<br/> <br/>'
         .. address_msg ..
         translate('Installed Web Interface') ..                                                                                                                     
-        '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" class="cbi-button" style="margin: 0 5px;" value=" ' ..                                            
+        '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" class="btn cbi-button" style="margin: 0 5px;" value=" ' ..                                            
         translate('Webui React') ..                                                                                                                                 
         " \" onclick=\"window.open('http://'+window.location.hostname+'/rclone-webui-react')\"/>" ..                                                                
-        '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" class="cbi-button" style="margin: 0 5px;" value=" ' ..                                            
+        '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" class="btn cbi-button" style="margin: 0 5px;" value=" ' ..                                            
         translate('RcloneNg') ..                                                                                                                                    
         " \" onclick=\"window.open('http://'+window.location.hostname+'/RcloneNg')\"/> <br/><br/>"  
 )
@@ -59,7 +67,7 @@ m =
         .. address_msg ..
         translate('Installed Web Interface') ..   
 	
-        '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" class="cbi-button" style="margin: 0 5px;" value=" ' ..                                            
+        '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" class="btn cbi-button" style="margin: 0 5px;" value=" ' ..                                            
         translate('Webui React') ..                                                                                                                                 
         " \" onclick=\"window.open('http://'+window.location.hostname+'/rclone-webui-react')\"/>" 
 )
@@ -73,7 +81,7 @@ m =
         .. address_msg ..
         translate('Installed Web Interface') ..     
 	
-        '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" class="cbi-button" style="margin: 0 5px;" value=" ' ..                                            
+        '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" class="btn cbi-button" style="margin: 0 5px;" value=" ' ..                                            
         translate('RcloneNg') ..                                                                                                                                    
         " \" onclick=\"window.open('http://'+window.location.hostname+'/RcloneNg')\"/> <br/><br/>"  
 )

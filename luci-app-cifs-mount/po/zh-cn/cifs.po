@@ -19,9 +19,6 @@ msgstr "共享文件夹"
 msgid "Mount Path"
 msgstr "挂载路径"
 
-msgid "Owner UID"
-msgstr "所属用户"
-
 msgid "SMB Version"
 msgstr "SMB 版本"
 
@@ -42,3 +39,4 @@ msgstr "只读"
 
 msgid "Read/Write"
 msgstr "可读/写"
+

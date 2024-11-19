@@ -1,0 +1,36 @@
+#!/usr/bin/lua
+
+-- 参数验证
+if #arg < 2 then
+    print("Usage: script <rsrp> <bw>")
+    os.exit(1)
+end
+
+rsrp = tonumber(arg[1])
+bw = tonumber(arg[2])
+
+-- 检查参数是否正确转换为数字
+if rsrp == nil or bw == nil then
+    print("Error: Invalid input. Both rsrp and bw should be numbers.")
+    os.exit(1)
+end
+
+-- 根据带宽计算 n 的值
+local n
+if bw == 1.4 then
+    n = 6
+else
+    n = bw * 5
+end
+
+-- 计算 RSSI
+local rssi = rsrp + (10 * math.log10(n * 12))
+
+-- 限制 RSSI 的范围
+if rssi < -113 then
+    rssi = -113
+elseif rssi > -51 then
+    rssi = -51
+end
+
+print(math.floor(rssi))

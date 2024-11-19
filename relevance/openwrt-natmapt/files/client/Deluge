@@ -1,0 +1,37 @@
+#!/bin/sh
+# Copyright (C) 2023 muink https://github.com/muink
+#
+# Client listen port refresh script
+#
+# depends jsonfilter
+
+. /usr/lib/natmap/common.sh
+
+# http_request <cookie> <data>
+http_request() {
+	$CURL $retry --compressed -L -X POST \
+		-b "$1" -H "Content-Type: application/json" \
+		-d "$2" \
+		--url ${scheme}://${ip}:${web_port}/json
+}
+
+start() {
+	local retry='--connect-timeout 1 --retry 0'
+	local cookie="$($CURL $retry --compressed -L -i \
+		-H "Content-Type: application/json" \
+		-d '{"method": "auth.login", "params": ["'"${password}"'"], "id": 1}' \
+		--url ${scheme}://${ip}:${web_port}/json \
+		| grep -i set-cookie | sed -En 's|^.*(_session_id=\S+);.*|\1|p')"
+	local connected="$(http_request "$cookie" '{"method": "web.connected", "params": [], "id": 1}' | jsonfilter -qe '@.result')"
+	if [ "$connected" = "true" ]; then
+		http_request "$cookie" '{"method": "core.set_config", "params": [{"random_port": false}], "id": 1}'
+		http_request "$cookie" '{"method": "core.set_config", "params": [{"listen_ports": ["'"${port}"'","'"${port}"'"]}], "id": 1}'
+	fi
+	http_request "$cookie" '{"method": "auth.delete_session", "params": [], "id": 1}'
+}
+
+
+# All external parameters required
+ALL_PARAMS="ip port scheme web_port username password"
+eval "$(JSON_EXPORT "$1")"; shift
+start "$@"

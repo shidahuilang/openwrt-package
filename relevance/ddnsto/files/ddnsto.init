@@ -12,8 +12,8 @@ get_config() {
 }
 
 ddnsto_prepare() {
-        killall ddnstod 2>/dev/null
-        killall ddwebdav 2>/dev/null
+        killall -3 ddnstod 2>/dev/null
+        killall -3 ddwebdav 2>/dev/null
 }
 
 stop_service() {
