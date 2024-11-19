@@ -18,6 +18,7 @@ eqos-master-wiwiz
 ffmpeg-remux
 filebrowser
 firewall4
+frp
 go-aliyundrive-webdav
 gost
 internet-detector-mod-email
@@ -78,6 +79,7 @@ luci-app-pppoe-server
 luci-app-pushbot
 luci-app-quickstart
 luci-app-rclone
+luci-app-sakurafrp
 luci-app-shutdown
 luci-app-smartdns
 luci-app-smartinfo
@@ -102,6 +104,7 @@ luci-app-webd
 luci-app-wifidog
 luci-app-wolplus
 luci-app-wxedge
+luci-app-xfrpc
 luci-app-xunlei
 luci-app-xunyou
 luci-app-zerotier

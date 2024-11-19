@@ -1,0 +1,100 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+
+PROG=sakurafrp
+LOCK_FILE_DIR=/var/lock
+LOCK_FILE=${LOCK_FILE_DIR}/${PROG}.lock
+PROFILE_DIR=/usr/share/sakurafrp
+FRPC_FILE="${PROFILE_DIR}/frpc"
+FRPC_CONFIG="${PROFILE_DIR}/frpc.ini"
+LASTRUN=""
+LASTRUN_FILE=${PROFILE_DIR}/lastrun
+
+TOKEN=""
+TUNNELS=""
+
+output() {
+  time="$(date +%Y/%m/%d) $(date +%H:%M:%S)"
+  echo "$time $1"
+}
+
+set_lock() {
+  if [ -f "$LOCK_FILE" ]; then
+    exit 0
+  fi
+
+	[ ! -d "$LOCK_FILE_DIR" ] && mkdir -p $LOCK_FILE_DIR
+	exec 999>"$LOCK_FILE"
+	flock -xn 999
+}
+
+unset_lock() {
+	flock -u 999
+	rm -rf "$LOCK_FILE"
+}
+
+read_config() {
+  enable=$(uci -q get sakurafrp.config.enable)
+  if [ "$enable" != "1" ]; then
+    exit 0
+  fi
+
+  TOKEN=$(uci -q get sakurafrp.config.token)
+  LASTRUN="$([ -f ${LASTRUN_FILE} ] && cat ${LASTRUN_FILE})"
+}
+
+read_tunnel() {
+  enable=false
+  config_get_bool enable $1 enable false
+
+  if [ "$enable" == "1" ]; then
+    id=""
+    config_get id $1 id
+    if [ "$TUNNELS" == "" ]; then
+      TUNNELS=$id
+    else
+      TUNNELS="${TUNNELS},${id}"
+    fi
+  fi
+}
+
+start() {
+  output "Starting sakurafrp..."
+	set_lock
+
+	config_load "sakurafrp"
+	read_config
+	config_foreach read_tunnel "tunnel"
+
+  ARG="${TOKEN}:${TUNNELS}"
+  echo "$ARG" > $LASTRUN_FILE
+
+  CMD=""
+  CMD_NO_OVERWRITE="${FRPC_FILE} --update -c ${FRPC_CONFIG}"
+  CMD_OVERWRITE="${FRPC_FILE} --update -f ${ARG}  -c ${FRPC_CONFIG} -w"
+  if [ "$ARG" == "$LASTRUN" ]; then
+    CMD=$CMD_NO_OVERWRITE
+  else
+    CMD=$CMD_OVERWRITE
+  fi
+
+  export LANG=zh_CN.UTF-8
+  export LANGUAGE=zh_CN.UTF-8
+	output "Running ${CMD}"
+	$CMD
+
+	unset_lock
+}
+
+stop() {
+  output "Stopping sakurafrp..."
+  kill -15 "$(pidof ${FRPC_FILE})"
+	unset_lock
+}
+
+restart() {
+  output "Restarting..."
+	stop
+	start
+}
