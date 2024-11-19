@@ -1,5 +1,6 @@
 3ginfo
 OpenAppFilter
+OpenWrt-mihomo
 Rclone-OpenWrt
 UnblockNeteaseMusic-Go
 UnblockNeteaseMusic
@@ -118,6 +119,7 @@ luci-lib-iform
 luci-nginxer
 lucky
 mentohust
+mihomo
 mosdns
 mosdnszz
 msd_lite
