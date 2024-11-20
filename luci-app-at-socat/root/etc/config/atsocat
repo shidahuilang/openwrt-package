@@ -1,0 +1,4 @@
+
+config atsocat 'general'
+	option set_port ''
+

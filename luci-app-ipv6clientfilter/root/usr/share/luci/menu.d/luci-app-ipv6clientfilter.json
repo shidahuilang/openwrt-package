@@ -1,0 +1,13 @@
+{
+	"admin/services/ipv6clientfilter/": {
+		"title": "ipv6 client filter",
+		"order": 99,
+		"action": {
+			"type": "view",
+			"path": "ipv6clientfilter/ipv6clientfilter"
+		},
+		"depends": {
+			
+		},
+	},
+}

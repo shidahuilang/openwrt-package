@@ -1,0 +1,897 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+STOP=99
+
+USE_PROCD=1
+
+EXTRA_COMMANDS="check_version update auto_setup expand_config auto_setup_noninteractive validate_custom_rules"
+EXTRA_HELP="        check_version   Check for updates
+        update          Update qosmate
+        auto_setup      Automatically configure qosmate
+        expand_config   Expand the configuration with all possible options
+        auto_setup_noninteractive   Automatically configure qosmate with no interaction
+        validate_custom_rules    Validate custom rules"
+
+REQUIRED_PACKAGES="kmod-sched ip-full kmod-veth tc-full kmod-netem kmod-sched-ctinfo kmod-ifb kmod-sched-cake kmod-sched-red luci-lib-jsonc lua"
+SCRIPT_URL="https://raw.githubusercontent.com/hudra0/qosmate/main/etc/qosmate.sh"
+HOTPLUG_SCRIPT_URL="https://raw.githubusercontent.com/hudra0/qosmate/main/etc/hotplug.d/iface/13-qosmateHotplug"
+
+load_config() {
+    config_load 'qosmate'
+    config_get WAN settings 'WAN' 'eth1'
+}
+
+validate_custom_rules() {
+    local tmp_file="/tmp/qosmate_custom_rules_validation.txt"
+    local rules_file="/etc/qosmate.d/custom_rules.nft"
+
+    if [ ! -f "$rules_file" ]; then
+        echo "Custom rules file not found." | tee "$tmp_file"
+        return 1
+    fi
+
+    nft_output=$(nft --check --file "$rules_file" 2>&1)
+    nft_exit_code=$?
+
+    echo "$nft_output" | tee "$tmp_file"
+
+    if [ $nft_exit_code -eq 0 ]; then
+        echo "Custom rules validation successful." | tee -a "$tmp_file"
+        return 0
+    else
+        echo "Custom rules validation failed." | tee -a "$tmp_file"
+        return 1
+    fi
+}
+
+install_packages() {
+    # Flag to indicate if opkg update is needed
+    need_update=0
+
+    # Check if any packages are missing
+    for pkg in $REQUIRED_PACKAGES; do
+        if ! opkg list-installed | grep -q "^$pkg "; then
+            echo "$pkg is not installed."
+            need_update=1
+            break
+        fi
+    done
+
+    # Run opkg update if at least one package is missing
+    if [ "$need_update" -eq 1 ]; then
+        echo "Updating opkg list..."
+        opkg update
+    fi
+
+    # Install missing packages
+    for pkg in $REQUIRED_PACKAGES; do
+        if ! opkg list-installed | grep -q "^$pkg "; then
+            echo "Installing $pkg..."
+            logger -t qosmate "Installing $pkg..."
+            opkg install "$pkg" || {
+                echo "Failed to install $pkg."
+                logger -t qosmate "Failed to install $pkg."
+                return 1 # Abort if the installation fails
+            }
+        fi
+    done
+}
+
+check_package_status() {
+    local missing_packages=""
+    for pkg in $REQUIRED_PACKAGES; do
+        if ! opkg list-installed | grep -q "^$pkg "; then
+            missing_packages="$missing_packages $pkg"
+        fi
+    done
+    
+    if [ -n "$missing_packages" ]; then
+        echo "Missing required packages:$missing_packages"
+        logger -t qosmate "Missing required packages:$missing_packages"
+        return 1
+    fi
+    return 0
+}
+
+download_scripts() {
+    [ ! -f /etc/qosmate.sh ] && wget -O /etc/qosmate.sh $SCRIPT_URL && chmod a+x /etc/qosmate.sh
+    
+    # Create the directory for tc-Netem distributions if it does not exist
+    mkdir -p /usr/lib/tc
+
+    # Base URL for the repository
+    DIST_URL="https://raw.githubusercontent.com/hudra0/qosmate/main/usr/lib/tc"
+
+    # List of files
+    DIST_FILES="experimental.dist normal.dist normmix20-64.dist pareto.dist paretonormal.dist"
+
+    # Iterate through the list and download each file
+    for FILE in $DIST_FILES; do
+        if [ ! -f "/usr/lib/tc/$FILE" ]; then
+            echo "Downloading $FILE..."
+            wget -O "/usr/lib/tc/$FILE" "$DIST_URL/$FILE" || echo "Error downloading $FILE"
+        fi
+    done
+}
+
+create_hotplug_script() {
+    cat > /etc/hotplug.d/iface/13-qosmateHotplug << 'EOF'
+#!/bin/sh
+
+[ -n "$DEVICE" ] || exit 0
+[ "$ACTION" = ifup ] && {
+    enabled=$(uci get qosmate.global.enabled 2>/dev/null)
+    if [ "$enabled" = "1" ]; then
+        /etc/init.d/qosmate enable
+        /etc/init.d/qosmate restart
+        logger -t qosmate "Reloading qosmate.sh due to $ACTION of $INTERFACE ($DEVICE)"
+    else
+        logger -t qosmate "qosmate is disabled in the configuration. Not executing the script."
+    fi
+}
+EOF
+}
+
+check_and_download_config() {
+    local config_path="/etc/config/qosmate"
+    if [ ! -f "$config_path" ]; then
+        echo "Configuration file not found, downloading the latest version..."
+        wget -O $config_path "https://raw.githubusercontent.com/hudra0/qosmate/main/etc/config/qosmate" || {
+            echo "Error downloading configuration. Please check your internet connection and try again."
+            return 1
+        }
+        echo "Configuration file downloaded successfully."
+    else
+        echo "Configuration file already exists."
+    fi
+}
+
+migrate_config() {
+    CONFIG_FILE="/etc/config/qosmate"
+
+    # Function to add the global enabled option if it does not exist
+    if ! grep -q "config global 'global'" $CONFIG_FILE; then
+        echo "Adding global configuration section..."
+        sed -i '1i\
+config global '\''global'\''\n    option enabled '\''1'\''\n' $CONFIG_FILE
+        echo "Global configuration section added."
+    else
+        echo "Global configuration section already exists."
+    fi
+
+    # Ensure the enabled option is present in the global section
+    if ! grep -q "option enabled" $CONFIG_FILE; then
+        echo "Adding enabled option to global section..."
+        sed -i "/config global 'global'/a\\
+    option enabled '1'
+" $CONFIG_FILE
+        echo "Enabled option added."
+    else
+        echo "Enabled option already exists."
+    fi
+
+    # Check for and correct the custom_rules section
+    if grep -q "config qosmate 'custom_rules'" $CONFIG_FILE; then
+        echo "Incorrect custom_rules section found. Correcting..."
+        sed -i "s/config qosmate 'custom_rules'/config custom_rules 'custom_rules'/" $CONFIG_FILE
+        echo "custom_rules section corrected."
+    fi
+
+    # Remove duplicate custom_rules sections if both incorrect and correct versions exist
+    if grep -q "config qosmate 'custom_rules'" $CONFIG_FILE && grep -q "config custom_rules 'custom_rules'" $CONFIG_FILE; then
+        echo "Both incorrect and correct custom_rules sections found. Removing the incorrect one..."
+        sed -i "/config qosmate 'custom_rules'/d" $CONFIG_FILE
+        echo "Incorrect custom_rules section removed."
+    fi
+}
+
+manage_custom_rules_file() {
+    local action="$1"
+    
+    case "$action" in
+        create)
+            # Ensure the directory exists
+            [ ! -d "/etc/qosmate.d" ] && mkdir -p "/etc/qosmate.d"
+            
+            # Create the file if it doesn't exist
+            [ ! -f "/etc/qosmate.d/custom_rules.nft" ] && touch "/etc/qosmate.d/custom_rules.nft"
+
+            ;;
+        delete)
+            # Not used at the moment...
+            rm -f "/etc/qosmate.d/custom_rules.nft"
+            ;;
+    esac
+}
+
+start_service() {
+    install_packages
+    download_scripts
+    create_hotplug_script  # Create the hotplug script instead of downloading it    
+    check_and_download_config || return 1    
+    migrate_config 
+
+    # Enable the global option
+    uci set qosmate.global.enabled='1'
+    uci commit qosmate    
+
+    # Save the current WAN interface to a temporary file
+    load_config
+    echo "$WAN" > /tmp/qosmate_wan
+
+    # Create custom rules file if it doesn't exist
+    manage_custom_rules_file create
+    nft -f /etc/qosmate.d/custom_rules.nft    
+
+    /etc/qosmate.sh    
+    /etc/init.d/firewall reload
+    echo "Service started" | logger -t qosmate    
+    /etc/init.d/qosmate enable     
+}
+
+stop_service() {
+    # Read the old WAN interface from the temporary file
+    OLD_WAN=$(cat /tmp/qosmate_wan 2>/dev/null)
+    if [ -z "$OLD_WAN" ]; then
+        # If the temporary file doesn't exist, fall back to WAN from config
+        load_config
+        OLD_WAN="$WAN"
+    fi
+
+    echo "Stopping service qosmate..."
+    
+    # Only disable if not in restart
+    if [ "$DISABLE_ON_STOP" != "0" ]; then
+        /etc/init.d/qosmate disable
+        uci set qosmate.global.enabled='0'
+        uci commit qosmate
+    fi
+
+    # Remove custom rules table
+    nft delete table inet qosmate_custom 2>/dev/null
+
+    ## Delete files
+    rm -f /etc/hotplug.d/iface/13-qosmateHotplug
+    rm -f /usr/share/nftables.d/ruleset-post/dscptag.nft
+
+    ## Delete the old qdiscs and IFB associated with the old WAN interface
+    tc qdisc del dev $OLD_WAN root > /dev/null 2>&1
+    tc qdisc del dev ifb-$OLD_WAN root > /dev/null 2>&1
+    tc qdisc del dev $OLD_WAN ingress > /dev/null 2>&1 
+
+    # Remove IFB interface
+    ip link del ifb-$OLD_WAN 2>/dev/null
+
+    nft delete table inet dscptag
+
+    # Remove the temporary file
+    rm -f /tmp/qosmate_wan
+
+    echo "Reloading network service..."
+    /etc/init.d/network reload
+    /etc/init.d/firewall reload
+    echo "Service stopped" | logger -t qosmate     
+    exit 0
+}
+
+status_service() {
+    # Load configuration
+    . /lib/functions.sh
+    config_load 'qosmate'
+
+    # Function to extract default values from the main script
+    get_default_value() {
+        local var_name=$1
+        local default_value=$(grep "^$var_name=" /etc/qosmate.sh | cut -d'=' -f2- | tr -d '"')
+        echo "$default_value"
+    }
+
+    # Function to get current value or default
+    get_current_or_default() {
+        local uci_path=$1
+        local default_value=$2
+        local value=$(uci -q get $uci_path)
+        if [ -z "$value" ]; then
+            echo "$default_value (Default value)"
+        else
+            echo "$value"
+        fi
+    }
+
+    # Extract default values
+    DEFAULT_WAN=$(get_default_value "DEFAULT_WAN")
+    DEFAULT_DOWNRATE=$(get_default_value "DEFAULT_DOWNRATE")
+    DEFAULT_UPRATE=$(get_default_value "DEFAULT_UPRATE")
+    DEFAULT_GAMEQDISC=$(get_default_value "gameqdisc")
+
+    echo "==== qosmate Status ===="
+    
+    # Check if the service is enabled
+    if /etc/init.d/qosmate enabled; then
+        echo "qosmate service is enabled."
+    else
+        echo "qosmate service is not enabled."
+    fi
+
+    # Check if traffic shaping is active
+    WAN=$(uci -q get qosmate.settings.WAN || echo "$DEFAULT_WAN")
+    IFB="ifb-$WAN"
+    
+    if tc qdisc show dev $WAN 2>/dev/null | grep -q "qdisc cake"; then
+        if /etc/init.d/qosmate enabled; then
+            echo "Traffic shaping is active on the egress interface ($WAN)."
+        else
+            echo "Default CAKE qdisc is active on the egress interface ($WAN), but qosmate is not managing it."
+        fi
+    elif tc qdisc show dev $WAN 2>/dev/null | grep -q "qdisc hfsc"; then
+        echo "Traffic shaping (HFSC) is active on the egress interface ($WAN)."
+    else
+        echo "No qosmate traffic shaping is active on the egress interface ($WAN)."
+    fi
+
+    if tc qdisc show dev $IFB 2>/dev/null | grep -q "qdisc cake\|qdisc hfsc"; then
+        echo "Traffic shaping is active on the ingress interface ($IFB)."
+    else
+        echo "Traffic shaping is not active on the ingress interface ($IFB)."
+    fi
+
+    echo "==== Overall Status ===="
+    # Determine if the service is actually running
+    if /etc/init.d/qosmate enabled && { tc qdisc show dev $WAN 2>/dev/null | grep -q "qdisc hfsc" || tc qdisc show dev $IFB 2>/dev/null | grep -q "qdisc cake\|qdisc hfsc"; }; then
+        echo "qosmate is currently active and managing traffic shaping."
+    else
+        echo "qosmate is not currently active or managing traffic shaping."
+    fi
+
+    echo "==== Current Settings ===="
+    # Show summary of current settings
+    echo "Upload rate: $(get_current_or_default qosmate.settings.UPRATE "$DEFAULT_UPRATE") kbps"
+    echo "Download rate: $(get_current_or_default qosmate.settings.DOWNRATE "$DEFAULT_DOWNRATE") kbps"
+    
+    # For GAMEUP and GAMEDOWN, we need to evaluate the expressions
+    UPRATE=$(uci -q get qosmate.settings.UPRATE || echo "$DEFAULT_UPRATE")
+    DOWNRATE=$(uci -q get qosmate.settings.DOWNRATE || echo "$DEFAULT_DOWNRATE")
+    DEFAULT_GAMEUP=$((UPRATE*15/100+400))
+    DEFAULT_GAMEDOWN=$((DOWNRATE*15/100+400))
+    
+    echo "Game traffic upload: $(get_current_or_default qosmate.hfsc.GAMEUP "$DEFAULT_GAMEUP") kbps"
+    echo "Game traffic download: $(get_current_or_default qosmate.hfsc.GAMEDOWN "$DEFAULT_GAMEDOWN") kbps"
+    if [ "$(get_current_or_default qosmate.settings.ROOT_QDISC "hfsc")" = "cake" ]; then
+        echo "Queue discipline: CAKE (Root qdisc)"
+    else
+        echo "Queue discipline: $(get_current_or_default qosmate.hfsc.gameqdisc "$DEFAULT_GAMEQDISC") (for game traffic in HFSC)"
+    fi
+
+    echo "==== Package Status ===="
+    if check_package_status; then
+        echo "All required packages are installed."
+    else
+        echo "Some required packages are missing. QoSmate may not function correctly."
+    fi
+
+    echo
+    echo "==== Detailed Technical Information ===="
+    echo "Traffic Control (tc) Queues:"
+    tc -s qdisc
+
+    echo
+    echo "==== Nftables Ruleset (dscptag) ===="
+    nft list ruleset | grep 'chain dscptag' -A 100
+
+
+    echo
+    echo "==== Custom Rules Table Status ===="
+    if nft list table inet qosmate_custom &>/dev/null; then
+        echo "Custom rules table (qosmate_custom) is active."
+        echo "Current custom rules:"
+        nft list table inet qosmate_custom
+    else
+        echo "Custom rules table (qosmate_custom) is not active or doesn't exist."
+    fi
+
+}
+
+restart() {
+    DISABLE_ON_STOP=0 /etc/init.d/qosmate stop
+    sleep 1 # Ensure all processes have been properly terminated
+    /etc/init.d/qosmate start    
+}
+
+reload_service() {
+    restart
+}
+
+check_version() {
+    local current_backend_version=$(grep '^VERSION=' /etc/qosmate.sh | cut -d'"' -f2)
+    local latest_backend_version=$(wget -qO- https://raw.githubusercontent.com/hudra0/qosmate/main/etc/qosmate.sh | grep '^VERSION=' | cut -d'"' -f2)
+    
+    local current_frontend_version=$(grep '^const UI_VERSION' /www/luci-static/resources/view/qosmate/settings.js | cut -d"'" -f2)
+    local latest_frontend_version=$(wget -qO- https://raw.githubusercontent.com/hudra0/luci-app-qosmate/main/htdocs/luci-static/resources/view/settings.js | grep '^const UI_VERSION' | cut -d"'" -f2)
+    
+    if [ -z "$latest_backend_version" ] || [ -z "$latest_frontend_version" ]; then
+        echo "Error: Could not retrieve the latest versions."
+        return 1
+    fi
+    
+    echo "Backend versions:"
+    echo "  Current version: $current_backend_version"
+    echo "  Latest version:  $latest_backend_version"
+    echo
+    echo "Frontend versions:"
+    echo "  Current version: $current_frontend_version"
+    echo "  Latest version:  $latest_frontend_version"
+    
+    if [ "$current_backend_version" != "$latest_backend_version" ] || [ "$current_frontend_version" != "$latest_frontend_version" ]; then
+        echo
+        echo "A new version of QoSmate is available."
+        echo "To update, run: /etc/init.d/qosmate update"
+    else
+        echo
+        echo "QoSmate is up to date."
+    fi
+}
+
+update() {
+    local force_update=0
+
+    if [ "$QOSMATE_FORCE" = "1" ]; then
+        force_update=1
+    fi
+
+    local current_backend_version=$(grep '^VERSION=' /etc/qosmate.sh | cut -d'"' -f2)
+    local latest_backend_version=$(wget -qO- https://raw.githubusercontent.com/hudra0/qosmate/main/etc/qosmate.sh | grep '^VERSION=' | cut -d'"' -f2)
+    
+    local current_frontend_version=$(grep '^const UI_VERSION' /www/luci-static/resources/view/qosmate/settings.js | cut -d"'" -f2)
+    local latest_frontend_version=$(wget -qO- https://raw.githubusercontent.com/hudra0/luci-app-qosmate/main/htdocs/luci-static/resources/view/settings.js | grep '^const UI_VERSION' | cut -d"'" -f2)
+    
+    if [ -z "$latest_backend_version" ] || [ -z "$latest_frontend_version" ]; then
+        echo "Error: Could not retrieve the latest versions."
+        return 1
+    fi
+    
+    echo "Current backend version: $current_backend_version"
+    echo "Latest backend version: $latest_backend_version"
+    echo "Current frontend version: $current_frontend_version"
+    echo "Latest frontend version: $latest_frontend_version"
+    
+    if [ "$force_update" -eq 0 ]; then
+        if [ "$current_backend_version" = "$latest_backend_version" ] && [ "$current_frontend_version" = "$latest_frontend_version" ]; then
+            echo "Both backend and frontend are up to date."
+            return 0
+        fi
+    else
+        echo "Force update enabled. Proceeding with update even if versions are identical."
+    fi
+    
+    echo "Updates available. Do you want to update? [y/N] "
+    read answer
+    if [ "$answer" != "y" ] && [ "$answer" != "Y" ]; then
+        echo "Update cancelled."
+        return 0
+    fi
+    
+    echo "Updating QoSmate..."
+    
+    # Update backend
+    if [ "$force_update" -eq 1 ] || [ "$current_backend_version" != "$latest_backend_version" ]; then
+        echo "Updating backend..."
+        if wget -O /etc/qosmate.sh https://raw.githubusercontent.com/hudra0/qosmate/main/etc/qosmate.sh && \
+           wget -O /etc/init.d/qosmate https://raw.githubusercontent.com/hudra0/qosmate/main/etc/init.d/qosmate && \
+           wget -O /etc/hotplug.d/iface/13-qosmateHotplug https://raw.githubusercontent.com/hudra0/qosmate/main/etc/hotplug.d/iface/13-qosmateHotplug; then
+            chmod +x /etc/qosmate.sh /etc/init.d/qosmate
+            echo "Backend update complete."
+        else
+            echo "Backend update failed."
+            return 1
+        fi
+    fi
+    
+    # Update frontend
+    if [ "$force_update" -eq 1 ] || [ "$current_frontend_version" != "$latest_frontend_version" ]; then
+        echo "Updating frontend..."
+        if  wget -O /www/luci-static/resources/view/qosmate/settings.js https://raw.githubusercontent.com/hudra0/luci-app-qosmate/main/htdocs/luci-static/resources/view/settings.js && \
+            wget -O /www/luci-static/resources/view/qosmate/hfsc.js https://raw.githubusercontent.com/hudra0/luci-app-qosmate/main/htdocs/luci-static/resources/view/hfsc.js && \
+            wget -O /www/luci-static/resources/view/qosmate/cake.js https://raw.githubusercontent.com/hudra0/luci-app-qosmate/main/htdocs/luci-static/resources/view/cake.js && \
+            wget -O /www/luci-static/resources/view/qosmate/advanced.js https://raw.githubusercontent.com/hudra0/luci-app-qosmate/main/htdocs/luci-static/resources/view/advanced.js && \
+            wget -O /www/luci-static/resources/view/qosmate/rules.js https://raw.githubusercontent.com/hudra0/luci-app-qosmate/main/htdocs/luci-static/resources/view/rules.js && \
+            wget -O /www/luci-static/resources/view/qosmate/connections.js https://raw.githubusercontent.com/hudra0/luci-app-qosmate/main/htdocs/luci-static/resources/view/connections.js && \
+            wget -O /www/luci-static/resources/view/qosmate/custom_rules.js https://raw.githubusercontent.com/hudra0/luci-app-qosmate/main/htdocs/luci-static/resources/view/custom_rules.js && \
+            wget -O /usr/share/luci/menu.d/luci-app-qosmate.json https://raw.githubusercontent.com/hudra0/luci-app-qosmate/main/root/usr/share/luci/menu.d/luci-app-qosmate.json && \
+            wget -O /usr/share/rpcd/acl.d/luci-app-qosmate.json https://raw.githubusercontent.com/hudra0/luci-app-qosmate/main/root/usr/share/rpcd/acl.d/luci-app-qosmate.json && \
+            wget -O /usr/libexec/rpcd/luci.qosmate https://raw.githubusercontent.com/hudra0/luci-app-qosmate/main/root/usr/libexec/rpcd/luci.qosmate; then
+            chmod +x /usr/libexec/rpcd/luci.qosmate
+            echo "Frontend update complete."
+            /etc/init.d/rpcd restart
+            /etc/init.d/uhttpd restart
+        else
+            echo "Frontend update failed."
+            return 1
+        fi
+    fi
+    expand_config
+    
+    echo "Update complete. Please restart QoSmate."
+    /etc/init.d/qosmate restart
+}
+
+auto_setup() {
+    echo "Starting qosmate auto-setup..."
+
+    # Stop qosmate if it's running
+    if /etc/init.d/qosmate status > /dev/null; then
+        echo "Stopping qosmate for accurate speed test results..."
+        /etc/init.d/qosmate stop
+        sleep 5  # Give some time for the network to stabilize
+    fi
+
+    # Detect WAN interface
+    WAN_INTERFACE=$(ifstatus wan | grep -e '"device"' | cut -d'"' -f4)
+    L3_DEVICE=$(ifstatus wan | grep -e '"l3_device"' | cut -d'"' -f4)
+    
+    if [ -z "$WAN_INTERFACE" ] && [ -z "$L3_DEVICE" ]; then
+        echo "Error: Unable to detect WAN interface. Please set it manually in the configuration."
+        return 1
+    fi
+
+    FINAL_INTERFACE=${L3_DEVICE:-$WAN_INTERFACE}
+    echo "Detected WAN interface: $FINAL_INTERFACE"
+
+    sed -i "/option WAN/c\    option WAN '$FINAL_INTERFACE'" /etc/config/qosmate
+
+    if [ $? -ne 0 ]; then
+        echo "Error: Failed to update WAN interface in configuration. Please check the file /etc/config/qosmate"
+        return 1
+    fi
+
+    echo "Do you want to run a speed test or enter speeds manually? [test/manual]"
+    read -r speed_choice
+
+    if [[ "$speed_choice" =~ ^[Mm]anual$ ]]; then
+        echo "Please enter your download speed in Mbit/s:"
+        read -r DOWNLOAD_SPEED
+        echo "Please enter your upload speed in Mbit/s:"
+        read -r UPLOAD_SPEED
+    else
+        echo "This will run a speed test to configure qosmate. Do you want to continue? [y/N]"
+        read -r response
+        if [[ ! "$response" =~ ^[Yy]$ ]]; then
+            echo "Auto-setup cancelled."
+            return 0
+        fi
+
+        # Check for speedtest-go first
+        if command -v speedtest-go &> /dev/null; then
+            echo "speedtest-go is already installed. Using it for the speed test."
+            SPEEDTEST_CMD="speedtest-go"
+        else
+            echo "speedtest-go is not found. Checking for python3-speedtest-cli..."
+            if command -v speedtest &> /dev/null; then
+                echo "python3-speedtest-cli is already installed. Using it for the speed test."
+                SPEEDTEST_CMD="speedtest --simple"
+            else
+                echo "Neither speedtest-go nor python3-speedtest-cli is installed. Attempting to install speedtest-go..."
+                
+                # Check for sufficient space (adjust the required space as needed)
+                FREE_SPACE=$(df /overlay | awk 'NR==2 {print $4}')
+                if [ "$FREE_SPACE" -lt 15360 ]; then  # Assuming 15MB for speedtest-go
+                    echo "Not enough space for speedtest-go. Attempting to install python3-speedtest-cli instead..."
+                else
+                    opkg update && opkg install speedtest-go
+                    if [ $? -eq 0 ]; then
+                        SPEEDTEST_CMD="speedtest-go"
+                    else
+                        echo "Failed to install speedtest-go. Attempting to install python3-speedtest-cli instead..."
+                    fi
+                fi
+
+                # If speedtest-go installation failed or there wasn't enough space, try python3-speedtest-cli
+                if [ -z "$SPEEDTEST_CMD" ]; then
+                    if [ "$FREE_SPACE" -lt 1024 ]; then  # 1MB for python3-speedtest-cli
+                        echo "Error: Not enough free space to install any speedtest tool."
+                        echo "Auto-setup cannot continue. Please free up some space and try again."
+                        return 1
+                    fi
+                    opkg update && opkg install python3-speedtest-cli python3-speedtest-cli-src
+                    if [ $? -eq 0 ]; then
+                        SPEEDTEST_CMD="speedtest --simple"
+                    else
+                        echo "Failed to install python3-speedtest-cli. Auto-setup cannot continue."
+                        return 1
+                    fi
+                fi
+            fi
+        fi
+
+        echo "Running speed test... This may take a few minutes."
+        SPEED_RESULT=$($SPEEDTEST_CMD)
+        
+        if [ "$SPEEDTEST_CMD" = "speedtest-go" ]; then
+            DOWNLOAD_SPEED=$(echo "$SPEED_RESULT" | grep "Download:" | grep -oE '[0-9]+\.[0-9]+' | head -n1)
+            UPLOAD_SPEED=$(echo "$SPEED_RESULT" | grep "Upload:" | grep -oE '[0-9]+\.[0-9]+' | head -n1)
+        else
+            DOWNLOAD_SPEED=$(echo "$SPEED_RESULT" | grep "Download:" | awk '{print $2}')
+            UPLOAD_SPEED=$(echo "$SPEED_RESULT" | grep "Upload:" | awk '{print $2}')
+        fi
+    fi
+
+    echo "Speed test results:"
+    echo "Download speed: $DOWNLOAD_SPEED Mbit/s"
+    echo "Upload speed: $UPLOAD_SPEED Mbit/s"
+
+    # Convert speeds to kbps and apply 90% rule
+    DOWNRATE=$(awk -v speed="$DOWNLOAD_SPEED" 'BEGIN {print int(speed * 1000 * 0.9)}')
+    UPRATE=$(awk -v speed="$UPLOAD_SPEED" 'BEGIN {print int(speed * 1000 * 0.9)}')
+
+    echo "QoS configuration:"
+    echo "DOWNRATE: $DOWNRATE kbps (90% of measured download speed)"
+    echo "UPRATE: $UPRATE kbps (90% of measured upload speed)"
+    
+    sed -i "/option WAN/c\    option WAN '$FINAL_INTERFACE'" /etc/config/qosmate
+    sed -i "/option DOWNRATE/c\    option DOWNRATE '$DOWNRATE'" /etc/config/qosmate
+    sed -i "/option UPRATE/c\    option UPRATE '$UPRATE'" /etc/config/qosmate
+
+    echo "Configuration updated. New settings:"
+    grep -E "option (WAN|DOWNRATE|UPRATE)" /etc/config/qosmate
+
+    # Section for gaming device IP
+    echo "Would you like to add a gaming device IP for prioritization? [y/N]"
+    read -r response
+    if [[ "$response" =~ ^[Yy]$ ]]; then
+        echo "Please enter the IP address of your gaming device:"
+        read -r gaming_ip
+
+        # Validate IP address format
+        if [[ $gaming_ip =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+            # Check if rules for this IP already exist
+            if grep -q "option src_ip '$gaming_ip'" /etc/config/qosmate || grep -q "option dest_ip '$gaming_ip'" /etc/config/qosmate; then
+                echo "Rules for IP $gaming_ip already exist. Skipping addition of new rules."
+            else
+                # Add the rules to the configuration file
+                cat << EOF >> /etc/config/qosmate
+
+config rule
+    option name 'Game_Console_Outbound'
+    option proto 'udp'
+    option src_ip '$gaming_ip'
+    list dest_port '!=80'
+    list dest_port '!=443'
+    option class 'cs5'
+    option counter '1'
+
+config rule
+    option name 'Game_Console_Inbound'
+    option proto 'udp'
+    option dest_ip '$gaming_ip'
+    list src_port '!=80'
+    list src_port '!=443'
+    option class 'cs5'
+    option counter '1'
+EOF
+                echo "Gaming device rules added for IP: $gaming_ip"
+            fi
+        else
+            echo "Invalid IP address format. No gaming device rules added."
+        fi
+    else
+        echo "No gaming device IP added."
+    fi
+
+    echo "Auto-setup complete. qosmate has been configured with detected settings."
+    echo "To apply these changes, please restart qosmate by running: /etc/init.d/qosmate restart"
+}
+
+auto_setup_noninteractive() {
+    local gaming_ip="$1"
+    local output_file="/tmp/qosmate_auto_setup_output.txt"
+    {
+    echo "Starting qosmate non-interactive auto-setup..."
+
+    # Stop qosmate if it's running
+    if /etc/init.d/qosmate status > /dev/null; then
+        echo "Stopping qosmate for accurate speed test results..."
+        /etc/init.d/qosmate stop
+        sleep 5  # Give some time for the network to stabilize
+    fi
+
+    # Detect WAN interface
+    WAN_INTERFACE=$(ifstatus wan | grep -e '"device"' | cut -d'"' -f4)
+    L3_DEVICE=$(ifstatus wan | grep -e '"l3_device"' | cut -d'"' -f4)
+    
+    if [ -z "$WAN_INTERFACE" ] && [ -z "$L3_DEVICE" ]; then
+        echo "Error: Unable to detect WAN interface. Please set it manually in the configuration."
+        return 1
+    fi
+
+    FINAL_INTERFACE=${L3_DEVICE:-$WAN_INTERFACE}
+    echo "Detected WAN interface: $FINAL_INTERFACE"
+
+    sed -i "/option WAN/c\    option WAN '$FINAL_INTERFACE'" /etc/config/qosmate
+
+    if [ $? -ne 0 ]; then
+        echo "Error: Failed to update WAN interface in configuration. Please check the file /etc/config/qosmate"
+        return 1
+    fi
+
+    # Check for speedtest-go first
+    if command -v speedtest-go &> /dev/null; then
+        echo "speedtest-go is already installed. Using it for the speed test."
+        SPEEDTEST_CMD="speedtest-go"
+    else
+        echo "speedtest-go is not found. Checking for python3-speedtest-cli..."
+        if command -v speedtest &> /dev/null; then
+            echo "python3-speedtest-cli is already installed. Using it for the speed test."
+            SPEEDTEST_CMD="speedtest --simple"
+        else
+            echo "Neither speedtest-go nor python3-speedtest-cli is installed. Attempting to install speedtest-go..."
+            
+            # Check for sufficient space (adjust the required space as needed)
+            FREE_SPACE=$(df /overlay | awk 'NR==2 {print $4}')
+            if [ "$FREE_SPACE" -lt 15360 ]; then  # Assuming 15MB for speedtest-go
+                echo "Not enough space for speedtest-go. Attempting to install python3-speedtest-cli instead..."
+            else
+                opkg update && opkg install speedtest-go
+                if [ $? -eq 0 ]; then
+                    SPEEDTEST_CMD="speedtest-go"
+                else
+                    echo "Failed to install speedtest-go. Attempting to install python3-speedtest-cli instead..."
+                fi
+            fi
+
+            # If speedtest-go installation failed or there wasn't enough space, try python3-speedtest-cli
+            if [ -z "$SPEEDTEST_CMD" ]; then
+                if [ "$FREE_SPACE" -lt 1024 ]; then  # 1MB for python3-speedtest-cli
+                    echo "Error: Not enough free space to install any speedtest tool."
+                    echo "Auto-setup cannot continue. Please free up some space and try again."
+                    return 1
+                fi
+                opkg update && opkg install python3-speedtest-cli python3-speedtest-cli-src
+                if [ $? -eq 0 ]; then
+                    SPEEDTEST_CMD="speedtest --simple"
+                else
+                    echo "Failed to install python3-speedtest-cli. Auto-setup cannot continue."
+                    return 1
+                fi
+            fi
+        fi
+    fi
+
+    echo "Running speed test... This may take a few minutes."
+    SPEED_RESULT=$($SPEEDTEST_CMD)
+    
+    if [ "$SPEEDTEST_CMD" = "speedtest-go" ]; then
+        DOWNLOAD_SPEED=$(echo "$SPEED_RESULT" | grep "Download:" | grep -oE '[0-9]+\.[0-9]+' | head -n1)
+        UPLOAD_SPEED=$(echo "$SPEED_RESULT" | grep "Upload:" | grep -oE '[0-9]+\.[0-9]+' | head -n1)
+    else
+        DOWNLOAD_SPEED=$(echo "$SPEED_RESULT" | grep "Download:" | awk '{print $2}')
+        UPLOAD_SPEED=$(echo "$SPEED_RESULT" | grep "Upload:" | awk '{print $2}')
+    fi
+
+    echo "Speed test results:"
+    echo "Download speed: $DOWNLOAD_SPEED Mbit/s"
+    echo "Upload speed: $UPLOAD_SPEED Mbit/s"
+
+    # Convert speeds to kbps and apply 90% rule
+    DOWNRATE=$(awk -v speed="$DOWNLOAD_SPEED" 'BEGIN {print int(speed * 1000 * 0.9)}')
+    UPRATE=$(awk -v speed="$UPLOAD_SPEED" 'BEGIN {print int(speed * 1000 * 0.9)}')
+
+    echo "QoS configuration:"
+    echo "DOWNRATE: $DOWNRATE kbps (90% of measured download speed)"
+    echo "UPRATE: $UPRATE kbps (90% of measured upload speed)"
+    
+    sed -i "/option DOWNRATE/c\    option DOWNRATE '$DOWNRATE'" /etc/config/qosmate
+    sed -i "/option UPRATE/c\    option UPRATE '$UPRATE'" /etc/config/qosmate
+
+    echo "Configuration updated. New settings:"
+    grep -E "option (WAN|DOWNRATE|UPRATE)" /etc/config/qosmate
+
+    # Add gaming device IP if provided
+    if [ -n "$gaming_ip" ]; then
+        if [[ $gaming_ip =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+            # Check if rules for this IP already exist
+            if grep -q "option src_ip '$gaming_ip'" /etc/config/qosmate || grep -q "option dest_ip '$gaming_ip'" /etc/config/qosmate; then
+                echo "Rules for IP $gaming_ip already exist. Skipping addition of new rules."
+            else
+                # Add the rules to the configuration file
+                cat << EOF >> /etc/config/qosmate
+
+config rule
+    option name 'Game_Console_Outbound'
+    option proto 'udp'
+    option src_ip '$gaming_ip'
+    list dest_port '!=80'
+    list dest_port '!=443'
+    option class 'cs5'
+    option counter '1'
+
+config rule
+    option name 'Game_Console_Inbound'
+    option proto 'udp'
+    option dest_ip '$gaming_ip'
+    list src_port '!=80'
+    list src_port '!=443'
+    option class 'cs5'
+    option counter '1'
+EOF
+                echo "Gaming device rules added for IP: $gaming_ip"
+            fi
+        else
+            echo "Invalid IP address format. No gaming device rules added."
+        fi
+    fi
+
+    echo "Auto-setup complete. qosmate has been configured with detected settings."
+    echo "To apply these changes, please restart qosmate by running: /etc/init.d/qosmate restart"
+    
+    } > "$output_file" 2>&1
+    echo "$output_file"        
+}
+
+expand_config() {
+    local config_file="/etc/config/qosmate"
+    local main_script="/etc/qosmate.sh"
+    
+    echo "Expanding qosmate configuration with all possible options..."
+
+    # Ensure all sections exist
+    for section in global settings advanced hfsc cake custom_rules; do
+        if ! grep -q "config $section '$section'" "$config_file"; then
+            echo >> "$config_file"  # Add a newline before the new section
+            echo "config $section '$section'" >> "$config_file"
+            echo "Added section: $section"
+        fi
+    done
+
+    # Function to get default value from main script
+    get_default_value() {
+        local option="$1"
+        local default_value
+
+        # Map options to their DEFAULT_ counterparts
+        case "$option" in
+            OH) option="DEFAULT_OH" ;;
+            WAN) option="DEFAULT_WAN" ;;
+            DOWNRATE) option="DEFAULT_DOWNRATE" ;;
+            UPRATE) option="DEFAULT_UPRATE" ;;
+        esac
+
+        # First, try to find a direct assignment
+        default_value=$(grep "^${option}=" "$main_script" | cut -d'=' -f2- | tr -d '"')
+
+        # If not found, look for it in the load_config function
+        if [ -z "$default_value" ]; then
+            default_value=$(sed -n "/load_config()/,/}/p" "$main_script" | grep "\<${option}=" | sed 's/.*|| echo "\(.*\)".*/\1/')
+        fi
+
+        # Remove any remaining shell expansions and trim whitespace
+        default_value=$(echo "$default_value" | sed -e 's/\$([^)]*)//g' -e 's/^ *//g' -e 's/ *$//g' -e 's/\${{.*}}//g')
+
+        # Check for dynamic calculations and return empty string if found
+        if echo "$default_value" | grep -qE '[[($]|\)$'; then
+            echo ""
+        else
+            echo "$default_value"
+        fi
+    }
+    # Define options for each section
+    add_options() {
+        local section="$1"
+        shift
+        for option in "$@"; do
+            if ! grep -q "option $option" "$config_file"; then
+                default_value=$(get_default_value "$option")
+                sed -i "/config $section/a\\    option $option '$default_value'" "$config_file"
+                echo "Added option $option to section $section with value: $default_value"
+            fi
+        done
+    }
+
+    # Add options for each section
+    add_options global enabled
+    add_options settings WAN DOWNRATE UPRATE ROOT_QDISC
+    add_options advanced PRESERVE_CONFIG_FILES WASHDSCPUP WASHDSCPDOWN BWMAXRATIO ACKRATE UDP_RATE_LIMIT_ENABLED UDPBULKPORT TCPBULKPORT VIDCONFPORTS REALTIME4 REALTIME6 LOWPRIOLAN4 LOWPRIOLAN6 TCP_UPGRADE_ENABLED MSS NFT_HOOK NFT_PRIORITY
+    add_options hfsc LINKTYPE OH gameqdisc GAMEUP GAMEDOWN nongameqdisc nongameqdiscoptions MAXDEL PFIFOMIN PACKETSIZE netemdelayms netemjitterms netemdist pktlossp
+    add_options cake COMMON_LINK_PRESETS OVERHEAD MPU LINK_COMPENSATION ETHER_VLAN_KEYWORD PRIORITY_QUEUE_INGRESS PRIORITY_QUEUE_EGRESS HOST_ISOLATION NAT_INGRESS NAT_EGRESS ACK_FILTER_EGRESS RTT AUTORATE_INGRESS EXTRA_PARAMETERS_INGRESS EXTRA_PARAMETERS_EGRESS
+
+    echo "Configuration expanded successfully. You can now edit all available options in $config_file"
+}

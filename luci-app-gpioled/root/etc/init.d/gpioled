@@ -1,0 +1,48 @@
+#!/bin/sh /etc/rc.common
+
+USE_PROCD=1
+START=99
+STOP=10
+CONF=gpioled
+GD=/usr/share/gpioled/gd
+PWR=/usr/share/gpioled/pwr
+ID=/usr/share/gpioled/id
+AD=/usr/share/gpioled/ad
+
+service_triggers() {
+	procd_add_reload_trigger $CONF
+}
+
+start_service() {
+	config_load $CONF
+	config_get enable global enable
+	procd_open_instance
+	$GD start
+	screen -dmS gpio_pwr $PWR
+	if [ "$enable" == "id" ]; then
+		screen -dmS gpio_id $ID
+	fi
+
+	if [ "$enable" == "ad" ]; then
+		screen -dmS gpio_ad $AD
+	fi
+
+	if [ "$enable" == "id ad" ]; then
+		screen -dmS gpio_id $ID
+		screen -dmS gpio_ad $AD
+	fi
+}
+
+stop_service() {
+	session_list=$(screen -ls | awk '/[0-9]+\./ {print $1}')
+	for session in $session_list; do
+		screen -X -S $session quit
+	done
+	$GD stop
+	procd_close_instance
+}
+
+restart_service() {
+	stop_service
+	start_service
+}

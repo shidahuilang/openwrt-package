@@ -1,0 +1,10 @@
+{
+	"luci-app-cellularstatus": {
+		"description": "Grant access to cellularstatus",
+		"read": {
+			"file": {
+				"/sbin/uqmi": [ "exec" ]
+			}
+		}
+	}
+}

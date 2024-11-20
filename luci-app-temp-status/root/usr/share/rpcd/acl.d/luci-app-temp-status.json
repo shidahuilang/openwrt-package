@@ -1,0 +1,10 @@
+{
+	"luci-app-temp-status": {
+		"description": "Grant access to temp-status procedures",
+		"read": {
+			"ubus": {
+				"luci.temp-status": [ "getTempStatus" ]
+			}
+		}
+	}
+}

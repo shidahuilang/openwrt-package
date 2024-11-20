@@ -1,26 +1,27 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=mihomo
-PKG_RELEASE:=1
+PKG_VERSION:=1.18.10
+PKG_RELEASE:=10
 
-PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://github.com/MetaCubeX/mihomo.git
-PKG_SOURCE_DATE:=2024-11-14
-PKG_SOURCE_VERSION:=de19f927e86573a7a97159e3b9925049f06d4563
-PKG_MIRROR_HASH:=931d397995b2da9e97f3f050d4650fa9013980d6c523df40bca3b58822a42409
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=https://codeload.github.com/metacubex/mihomo/tar.gz/v$(PKG_VERSION)?
+PKG_HASH:=skip
 
-PKG_LICENSE:=MIT
-PKG_MAINTAINER:=Joseph Mory <morytyann@gmail.com>
+PKG_MAINTAINER:=Anya Lin <hukk1996@gmail.com>
+PKG_LICENSE:=GPL-2.0
+PKG_LICENSE_FILES:=LICENSE
 
 PKG_BUILD_DEPENDS:=golang/host
 PKG_BUILD_PARALLEL:=1
 PKG_BUILD_FLAGS:=no-mips16
 
-PKG_BUILD_VERSION:=alpha-de19f92
-PKG_BUILD_TIME:=$(shell date -u -Iseconds)
-
 GO_PKG:=github.com/metacubex/mihomo
-GO_PKG_LDFLAGS_X:=$(GO_PKG)/constant.Version=$(PKG_BUILD_VERSION) $(GO_PKG)/constant.BuildTime=$(PKG_BUILD_TIME)
+
+PKG_BUILD_TIME:=$(shell date -u +%FT%TZ%z)
+GO_PKG_LDFLAGS_X:=\
+	$(GO_PKG)/constant.Version=v$(PKG_VERSION) \
+	$(GO_PKG)/constant.BuildTime=$(PKG_BUILD_TIME)
 GO_PKG_TAGS:=with_gvisor
 
 include $(INCLUDE_DIR)/package.mk
@@ -29,73 +30,24 @@ include $(TOPDIR)/feeds/packages/lang/golang/golang-package.mk
 define Package/mihomo
   SECTION:=net
   CATEGORY:=Network
-  TITLE:=A rule based proxy in Go.
+  TITLE:=Another Mihomo Kernel.
   URL:=https://wiki.metacubex.one
-  DEPENDS:=$(GO_ARCH_DEPENDS) +ca-bundle +curl +yq firewall4 +ip-full +kmod-inet-diag +kmod-nft-tproxy +kmod-tun
-  USERID:=root:mihomo=7890
-endef
-
-define Package/mihomo/description
-  A rule based proxy in Go.
-endef
-
-define Package/mihomo/conffiles
-/etc/config/mihomo
-/etc/mihomo/mixin.yaml
-/etc/mihomo/nftables/reserved_ip.nft
-/etc/mihomo/nftables/reserved_ip6.nft
-endef
-
-define Package/mihomo/install
-	$(call GoPackage/Package/Install/Bin,$(1))
-
-	$(INSTALL_DIR) $(1)/etc/mihomo
-	$(INSTALL_DIR) $(1)/etc/mihomo/scripts
-	$(INSTALL_DIR) $(1)/etc/mihomo/nftables
-	$(INSTALL_DIR) $(1)/etc/mihomo/profiles
-	$(INSTALL_DIR) $(1)/etc/mihomo/subscriptions
-	$(INSTALL_DIR) $(1)/etc/mihomo/run
-	$(INSTALL_DIR) $(1)/etc/mihomo/run/ui
-
-	$(INSTALL_DATA) $(CURDIR)/files/mixin.yaml $(1)/etc/mihomo/mixin.yaml
-
-	$(INSTALL_BIN) $(CURDIR)/files/scripts/constants.sh $(1)/etc/mihomo/scripts/constants.sh
-	$(INSTALL_BIN) $(CURDIR)/files/scripts/tun.sh $(1)/etc/mihomo/scripts/tun.sh
-
-	$(INSTALL_BIN) $(CURDIR)/files/nftables/hijack.nft $(1)/etc/mihomo/nftables/hijack.nft
-	$(INSTALL_BIN) $(CURDIR)/files/nftables/reserved_ip.nft $(1)/etc/mihomo/nftables/reserved_ip.nft
-	$(INSTALL_BIN) $(CURDIR)/files/nftables/reserved_ip6.nft $(1)/etc/mihomo/nftables/reserved_ip6.nft
-	$(INSTALL_BIN) $(CURDIR)/files/nftables/geoip_cn.nft $(1)/etc/mihomo/nftables/geoip_cn.nft
-	$(INSTALL_BIN) $(CURDIR)/files/nftables/geoip6_cn.nft $(1)/etc/mihomo/nftables/geoip6_cn.nft
-
-	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_CONF) $(CURDIR)/files/mihomo.conf $(1)/etc/config/mihomo
-
-	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) $(CURDIR)/files/mihomo.init $(1)/etc/init.d/mihomo
-
-	$(INSTALL_DIR) $(1)/etc/uci-defaults
-	$(INSTALL_BIN) $(CURDIR)/files/uci-defaults/firewall.sh $(1)/etc/uci-defaults/99_firewall_mihomo
-	$(INSTALL_BIN) $(CURDIR)/files/uci-defaults/init.sh $(1)/etc/uci-defaults/99_init_mihomo
-	$(INSTALL_BIN) $(CURDIR)/files/uci-defaults/migrate.sh $(1)/etc/uci-defaults/99_migrate_mihomo
-
-	$(INSTALL_DIR) $(1)/lib/upgrade/keep.d
-	$(INSTALL_DATA) $(CURDIR)/files/mihomo.upgrade $(1)/lib/upgrade/keep.d/mihomo
-endef
-
-define Package/mihomo/postrm
-#!/bin/sh
-if [ -z $${IPKG_INSTROOT} ]; then
-	uci -q batch <<-EOF > /dev/null
-		del firewall.mihomo
-		commit firewall
-	EOF
-fi
+  DEPENDS:=$(GO_ARCH_DEPENDS)
+  USERID:=mihomo=7890:mihomo=7890
 endef
 
 define Build/Prepare
 	$(Build/Prepare/Default)
-	$(RM) -r $(PKG_BUILD_DIR)/rules/logic_test
+	# rm unit test
+	rm -f $(PKG_BUILD_DIR)/rules/logic_test/logic_test.go
+endef
+
+define Package/mihomo/install
+	$(call GoPackage/Package/Install/Bin,$(PKG_INSTALL_DIR))
+	$(CURDIR)/.prepare.sh $(VERSION) $(CURDIR) $(PKG_INSTALL_DIR)/usr/bin/$(PKG_NAME)
+
+	$(INSTALL_DIR) $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/$(PKG_NAME) $(1)/usr/bin/
 endef
 
 $(eval $(call GoBinPackage,mihomo))

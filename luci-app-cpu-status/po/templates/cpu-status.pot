@@ -1,0 +1,29 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+msgid "All CPUs"
+msgstr ""
+
+msgid "Calculating"
+msgstr ""
+
+msgid "CPU"
+msgstr ""
+
+msgid "CPU Load"
+msgstr ""
+
+msgid "Detailed load"
+msgstr ""
+
+msgid "Detailed load of each CPU"
+msgstr ""
+
+msgid "Load"
+msgstr ""
+
+msgid "Load of each CPU"
+msgstr ""
+
+msgid "Total load"
+msgstr ""

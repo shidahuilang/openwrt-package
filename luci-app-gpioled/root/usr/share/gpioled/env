@@ -1,0 +1,71 @@
+#!/bin/bash
+
+# Global environment
+GPIOBASE=/sys/class/gpio
+DEVICE=$(uci get gpioled.global.device)
+LOG_FILE=/tmp/gpioled.log
+TIMESTAMP=$(date +'%d-%m-%Y %H:%M:%S')
+if [ "$DEVICE" = "HG680PR1" ]; then
+    GPWR1=483
+    GPWR2=484
+    GETH1=481
+    GETH2=482
+    GIRB=480
+elif [ "$DEVICE" = "HG680PR2" ]; then
+    GPWR1=425
+    GPWR2=426
+    GETH1=506
+    GETH2=510
+    GIRB=507
+fi
+
+# Info GPIO Device service
+a="GPIO Export"
+a1="Start $a..."
+a2="Device $DEVICE"
+a3="Export GPIO $DEVICE successfully"
+b="GPIO Unexport"
+b1="Start $b..."
+b2="Device $DEVICE"
+b3="Unexport GPIO $DEVICE successfully"
+
+# Power LED service
+c="Power LED"
+c1="Start $c..."
+c2="Service started successfully"
+CPWR=$(uci get gpioled.service.pwr_color)
+MPWR=$(uci get gpioled.service.pwr_mode)
+
+# Application Detector service
+AAD=$(uci get gpioled.service.ad_app)
+MAD=$(uci get gpioled.service.ad_mode)
+APP_FOUND=false
+APP_NOT_FOUND=false
+APP_INVALID=false
+APP_SUCCESS=false
+APP_FAIL=false
+APPON=false
+APPOFF=false
+d="Application Detector"
+d1="Start $d..."
+d2="Check application availability..."
+d3="Application not found. Is it installed?"
+d4="Application installed. Start service..."
+d5="Service started successfully"
+d6="Status application [Stopped]"
+d7="Status application [Running]"
+
+# Internet Detector service
+CIDL=$(uci get gpioled.service.id_il)
+CIDO=$(uci get gpioled.service.id_io)
+MID=$(uci get gpioled.service.id_mode)
+INET_SUCCESS=false
+INET_FAIL=false
+INETON=false
+INETOFF=false
+e="Internet Detector"
+e1="Start $e..."
+e2="Service started successfully"
+e3="Status internet [Disconnected]"
+e4="Status internet [Connected]"
+

@@ -1,0 +1,11 @@
+#!/bin/sh
+
+uci -q batch <<-EOF >/dev/null
+	delete ucitrack.@vnt[-1]
+	add ucitrack vnt
+	set ucitrack.@vnt[-1].init=vnt
+	commit ucitrack
+EOF
+chmod +x /etc/init.d/vnt
+rm -rf /tmp/luci-indexcache /tmp/luci-modulecache
+exit 0

@@ -1,0 +1,25 @@
+<%+cbi/valueheader%>
+<script type="text/javascript">//<![CDATA[
+	function admin_info(btn)
+	{
+		btn.disabled = true;
+		btn.value = '<%:Collecting data...%>';
+		XHR.get('<%=luci.dispatcher.build_url("admin", "nas", "caddy", "admin_info")%>',
+			null,
+			function(x,rv)
+			{
+			var tb = document.getElementById('<%=self.option%>-status');
+			if (tb) {
+    rv.validate = rv.validate.replace(/{"level":/g, '<br>{"level":').replace(/Error/g, "<br>Error").replace(/Valid configuration/g, "<br><strong><font color='#008000'>当前配置文件正确！</font></strong>").replace(/warn/g, "<font color='#800080'>警告</font>").replace(/level/g, "<font color='#1E90FF'>等级</font>").replace(/info/g, "<font color='#00BFFF'>普通</font>").replace(/msg/g, "<font color='#FFA500'>信息</font>").replace(/error/g, "<font color='#DB7093'>错误</font>").replace(/Error:/g, "<font color='red'><strong>当前配置文件错误!</strong><br>错误位置信息：</font>");
+    tb.innerHTML = "<br><font color='#FF00FF'><%:状态：%></font>" + "<font color='#2F4F4F'>" + rv.validate + "</font>";
+  } 	
+				btn.disabled = false;
+				btn.value = '<%:检测%>';
+			}
+		);
+		return false;
+	}
+//]]></script>
+<input type="button" class="btn cbi-button cbi-button-apply" value="<%:检测%>" onclick="return admin_info(this)" />
+<span id="<%=self.option%>-status"><em><%=self.value%></em></span>
+<%+cbi/valuefooter%>

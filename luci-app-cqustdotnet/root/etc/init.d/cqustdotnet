@@ -1,0 +1,95 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+STOP=10
+
+CONFIG=cqustdotnet
+APP_FILE=/usr/share/${CONFIG}/app.lua
+LOCK_FILE_DIR=/var/lock
+LOCK_FILE=${LOCK_FILE_DIR}/${CONFIG}.lock
+
+set_lock() {
+  if [ ! -d "$LOCK_FILE_DIR" ]; then
+    mkdir -p "$LOCK_FILE_DIR"
+  fi
+  exec 789>"$LOCK_FILE"
+  flock -xn 789
+}
+
+unset_lock() {
+  flock -u 789
+  rm -rf "$LOCK_FILE"
+}
+
+unlock() {
+  local fail_count=1
+  while [ "$fail_count" -le 10 ]; do
+    if [ -f "$LOCK_FILE" ]; then
+      let "fail_count++"
+      sleep 1s
+      if [ "$fail_count" -ge 10 ]; then
+        unset_lock
+      fi
+    else
+      break
+    fi
+  done
+}
+
+boot() {
+  $APP_FILE boot
+}
+
+start() {
+  set_lock
+  if [ $? == 1 ]; then
+    $APP_FILE log '脚本已在运行，不再重复运行，退出'
+    exit 0
+  fi
+  $APP_FILE start
+  unset_lock
+}
+
+stop() {
+  unlock
+  set_lock
+  if [ $? == 1 ]; then
+    $APP_FILE log '停止脚本等待超时，不重复运行，退出'
+    exit 0
+  fi
+  $APP_FILE stop
+  unset_lock
+}
+
+restart() {
+  set_lock
+  if [ $? == 1 ]; then
+    $APP_FILE log '脚本已在运行，不重复运行，退出'
+    exit 0
+  fi
+  $APP_FILE stop
+  $APP_FILE start
+  unset_lock
+}
+
+disable() {
+  rm -f "$IPKG_INSTROOT"/etc/rc.d/S??${CONFIG}
+  rm -f "$IPKG_INSTROOT"/etc/rc.d/K??${CONFIG}
+}
+
+enable() {
+  err=1
+  if [ "$START" ]; then
+    ln -sf "../init.d/${CONFIG}" "$IPKG_INSTROOT/etc/rc.d/S${START}${CONFIG}"
+    err=0
+  fi
+  if [ "$STOP" ]; then
+    ln -sf "../init.d/${CONFIG}" "$IPKG_INSTROOT/etc/rc.d/K${STOP}${CONFIG}"
+    err=0
+  fi
+  return $err
+}
+
+enabled() {
+  [ -x "$IPKG_INSTROOT/etc/rc.d/S${START}${CONFIG}" ]
+}

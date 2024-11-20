@@ -1,0 +1,13 @@
+{
+	"admin/network/interfaces-statistics": {
+		"title": "Interfaces Statistics",
+		"order": 70,
+		"action": {
+			"type": "view",
+			"path": "interfaces-statistics"
+		},
+		"depends": {
+			"acl": [ "luci-app-interfaces-statistics" ]
+		}
+	}
+}

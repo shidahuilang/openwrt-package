@@ -1,0 +1,35 @@
+<%
+  local m = require "luci.model.tinyfecvpn"
+  local client_file = m.get_config_option("client_file")
+  local version, build = m.get_version(client_file)
+-%>
+
+<fieldset class="cbi-section">
+	<legend><%:Running Status%></legend>
+	<table width="100%" cellspacing="10" id="_udp2raw_status_table">
+		<tr>
+			<td width="33%"><%:Git Version%></td>
+			<td>
+				<% if version == "" then -%>
+				<em><%:Invalid Binary File.%></em>
+				<% else -%>
+				<%=pcdata(version)%>
+				<%- end %>
+			</td>
+		</tr>
+		<% if build ~= "" then -%>
+		<tr><td width="33%"><%:Build Time%></td><td><%=pcdata(build)%></td></tr>
+		<% end -%>
+		<tr><td width="33%"><%:Running Status%></td><td id="_udp2raw_status"><em><%:Collecting data...%></em></td></tr>
+	</table>
+</fieldset>
+
+<script type="text/javascript">//<![CDATA[
+	var udp2raw_status = document.getElementById('_udp2raw_status');
+	XHR.poll(5, '<%=luci.dispatcher.build_url("admin", "vpn", "tinyfecvpn", "status")%>', null, function(x, status) {
+		if ( x && x.status == 200 ) {
+			udp2raw_status.innerHTML = status.running ? '<%:RUNNING%>' : '<%:NOT RUNNING%>';
+		}
+	});
+  //]]>
+</script>

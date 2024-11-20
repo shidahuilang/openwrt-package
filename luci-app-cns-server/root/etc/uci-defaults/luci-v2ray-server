@@ -1,0 +1,20 @@
+#!/bin/sh
+
+uci -q batch <<-EOF >/dev/null
+	delete firewall.cns_server
+	set firewall.cns_server=include
+	set firewall.cns_server.type=script
+	set firewall.cns_server.path=/var/etc/cns_server.include
+	set firewall.cns_server.reload=1
+	commit firewall
+EOF
+
+uci -q batch <<-EOF >/dev/null
+	delete ucitrack.@cns_server[-1]
+	add ucitrack cns_server
+	set ucitrack.@cns_server[-1].init=cns_server
+	commit ucitrack
+EOF
+
+rm -rf /tmp/luci-*cache
+exit 0

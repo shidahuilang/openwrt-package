@@ -1,0 +1,2 @@
+config workmode 'settings'
+        option mode '1'

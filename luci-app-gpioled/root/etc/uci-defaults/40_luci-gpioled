@@ -1,0 +1,9 @@
+#!/bin/sh
+uci -q batch <<-EOF >/dev/null
+        delete ucitrack.@gpioled[-1]
+        add ucitrack gpioled
+        set ucitrack.@gpioled[-1].init=gpioled
+        commit ucitrack
+EOF
+rm -rf /tmp/luci*
+exit 0

@@ -1,0 +1,322 @@
+#: apfree-wifidog package 
+msgid "apfree-wifidog"
+msgstr "门户认证"
+
+msgid "ApFree-WiFiDog"
+msgstr "门户认证"
+
+msgid "apfree-wifidog offers a stable and secure captive portal solution."
+msgstr "apfree-wifidog 提供了一个稳定安全的门户认证解决方案"
+
+msgid "Enable apfree-wifidog service."
+msgstr "启用apfree-wifidog门户认证服务"
+
+msgid "Gateway ID"
+msgstr "网关 ID"
+
+msgid "The ID of the gateway."
+msgstr "网关的ID（一般为设备的MAC地址）"
+
+msgid "Channel Path"
+msgstr "用户渠道"
+
+msgid "The channel path of the gateway."
+msgstr "网关的用户渠道"
+
+msgid "Auth Server Hostname"
+msgstr "认证服务器主机名"
+
+msgid "The domain or IP address of the authentication server."
+msgstr "认证服务器的域名或 IP 地址"
+
+msgid "Auth Server Port"
+msgstr "认证服务器端口"
+
+msgid "The port of the authentication server."
+msgstr "认证服务器的端口"
+
+msgid "Auth Server URI path"
+msgstr "认证服务器 URI 路径"
+
+msgid "The URI path of the authentication server."
+msgstr "认证服务器的 URI 路径"
+
+msgid "Trusted Domains"
+msgstr "域名白名单"
+
+msgid "The trusted domains of the gateway, for example: \"www.baidu.com,www.qq.com,...\"."
+msgstr "域名白名单（多域名用逗号分隔），例如：\"www.baidu.com,www.qq.com,...\""
+
+msgid "Trusted MACs"
+msgstr "MAC 地址白名单"
+
+msgid "The trusted MAC addresses of the gateway, for example: \"00:11:22:33:44:55,66:77:88:99:00:11,...\"."
+msgstr "MAC 地址白名单（多 MAC 地址用逗号分隔），例如：\"00:11:22:33:44:55,66:77:88:99:00:11,...\""
+
+msgid "running..."
+msgstr "运行中"
+
+msgid "not running..."
+msgstr "未运行"
+
+msgid "The trusted domains of the gateway"
+msgstr "网关的域名白名单"
+
+msgid "The trusted MAC addresses of the gateway"
+msgstr "网关的 MAC 地址白名单"
+
+msgid "Value"
+msgstr "值"
+
+msgid "Internet Connectivity"
+msgstr "互联网连接"
+
+msgid "Auth server reachable"
+msgstr "认证服务器可达"
+
+msgid "Authentication servers"
+msgstr "认证服务器"
+
+msgid "App White List"
+msgstr "域名组白名单"
+
+msgid "The app white list of the gateway."
+msgstr "网关的域名组白名单, 由下面的组资源对象定义"
+
+msgid "MAC White List"
+msgstr "MAC 地址组白名单"
+
+msgid "The MAC white list of the gateway."
+msgstr "网关的 MAC 地址组白名单, 由下面的组资源对象定义"
+
+msgid "Group Define"
+msgstr "组资源定义"
+
+msgid "Group Type"
+msgstr "组类型"
+
+msgid "The type of the group."
+msgstr "组的类型"
+
+msgid "Group Description"
+msgstr "组资源描述"
+
+msgid "Domain Group"
+msgstr "域名组"
+
+msgid "MAC Group"
+msgstr "MAC 地址组"
+
+msgid "The MAC address of the group."
+msgstr "组的 MAC 地址"
+
+msgid "Group Description"
+msgstr "组资源描述"
+
+msgid "The description of the group."
+msgstr "组的描述"
+
+msgid "Domain Name"
+msgstr "域名"
+
+msgid "The domain name of the group."
+msgstr "组的域名"
+
+msgid "The log level of the apfree-wifidog."
+msgstr "apfree-wifidog 的日志级别"
+
+msgid "Rule Settings"
+msgstr "规则设置"
+
+msgid "Check Interval"
+msgstr "检查间隔"
+
+msgid "The interval of the check(s)."
+msgstr "检查的间隔，单位为秒"
+
+msgid "Check Timeout"
+msgstr "检查超时"
+
+msgid "The timeout of the client."
+msgstr "客户端的超时次数，超过未响应将被被下线"
+
+msgid "Wired Passed"
+msgstr "有线免认证"
+
+msgid "Wired users do not need to authenticate to access the internet."
+msgstr "有线用户无需认证即可访问互联网"
+
+msgid "Apple CNA"
+msgstr "苹果 CNA"
+
+msgid "Enable Apple Captive Network Assistant."
+msgstr "启用苹果CNA机制（不建议启用）"
+
+msgid "JS Filter"
+msgstr "JS 过滤"
+
+msgid "Enable JS redirect."
+msgstr "通过启用 JS 重定向的机制降低服务器段的压力"
+
+msgid "Enable WebSocket"
+msgstr "启用 Websocket"
+
+msgid "Enable websocket support."
+msgstr "启用 Websocket 支持, 用于实现认证服务器端放行功能"
+
+msgid "Client Timeout"
+msgstr "客户端超时"
+
+msgid "Enable Wildcard Domain"
+msgstr "启用通配符域名"
+
+msgid "Enable wildcard domain support."
+msgstr "支持通配符域名白名单，例如：.baidu.com，前面要加点"
+
+msgid "Trusted Wildcard Domains"
+msgstr "通配符域名白名单"
+
+msgid "The trusted wildcard domains of the gateway."
+msgstr "网关的通配符域名白名单"
+
+msgid "Wildcard White List"
+msgstr "通配符域名组白名单"
+
+msgid "The wildcard domain white list of the gateway."
+msgstr "网关的通配符域名组白名单, 由下面的组资源对象定义"
+
+msgid "Wildcard Domain Group"
+msgstr "通配符域名组"
+
+msgid "Wildcard Domain"
+msgstr "通配符域名"
+
+msgid "The wildcard domain of the group."
+msgstr "组的通配符域名"
+
+msgid "Basic Settings"
+msgstr "基本设置"
+
+msgid "Device ID"
+msgstr "设备 ID"
+
+msgid "The ID of the device."
+msgstr "设备的 ID，每个设备都必须有一个唯一的 ID"
+
+msgid "Gateway Channel"
+msgstr "网关渠道"
+
+msgid "The channel of the gateway."
+msgstr "网关的渠道"
+
+msgid "Gateway Name"
+msgstr "网关名称"
+
+msgid "The name of the gateway."
+msgstr "开启认证的网关所属网络区域"
+
+
+msgid "Gateway Settings"
+msgstr "网关设置"
+
+msgid "Log Level"
+msgstr "日志级别"
+
+msgid "No Auth Server"
+msgstr "无认证服务器"
+
+msgid "Do not use authentication server."
+msgstr "不使用认证服务器"
+
+msgid "The offline page of the authentication server."
+msgstr "认证服务器离线用户展示页面"
+
+msgid "Upload offline Page"
+msgstr "上传离线页面"
+
+msgid "Offline Page Full Path"
+msgstr "离线页面完整路径"
+
+msgid "The full path of the uploaded offline page."
+msgstr "上传的离线页面的完整路径"
+
+msgid "Local Portal"
+msgstr "本地门户"
+
+msgid "The local portal url."
+msgstr "本地门户跳转URL"
+
+msgid "WebSocket Hostname"
+msgstr "Websocket 主机名"
+
+msgid "The hostname of the websocket, if the field is left empty, automatically use the same hostname as the auth server."
+msgstr "Websocket 的主机名，如果留空则自动使用与认证服务器相同的主机名"
+
+msgid "WebSocket Port"
+msgstr "Websocket 端口"
+
+msgid "The port of the websocket, if the field is left empty, automatically use the same port as the auth server."
+msgstr "Websocket 的端口，如果留空则自动使用与认证服务器相同的端口"
+
+msgid "WebSocket URI path"
+msgstr "Websocket URI 路径"
+
+msgid "The URI path of the websocket."
+msgstr "Websocket 的 URI 路径"
+
+msgid "Auth Server Mode"
+msgstr "认证服务器模式"
+
+msgid "The mode of the authentication server."
+msgstr "认证服务器是云认证还是本地认证"
+
+msgid "Cloud Auth"
+msgstr "云认证"
+
+msgid "Local Auth"
+msgstr "本地认证"
+
+msgid "Persistent Connection Mode"
+msgstr "持久连接模式"
+
+msgid "The persistent connection mode of the device to auth server."
+msgstr "设备到认证服务器的持久连接模式"
+
+msgid "WebSocket Connection Mode"
+msgstr "Websocket 连接模式"
+
+msgid "WebSocket Secure Connection Mode"
+msgstr "Websocket 安全连接模式"
+
+msgid "MQTT Connection Mode"
+msgstr "MQTT 连接模式"
+
+msgid "MQTT Hostname"
+msgstr "MQTT 主机名"
+
+msgid "The hostname of the mqtt."
+msgstr "mqtt 的主机名"
+
+msgid "MQTT Port"
+msgstr "MQTT 端口"
+
+msgid "The port of the mqtt."
+msgstr "mqtt 的端口"
+
+msgid "MQTT Username"
+msgstr "MQTT 用户名"
+
+msgid "The username of the mqtt."
+msgstr "mqtt 的用户名"
+
+msgid "MQTT Password"
+msgstr "MQTT 密码"
+
+msgid "The password of the mqtt."
+msgstr "mqtt 的密码"
+
+msgid "The external interface of the device, if bypass mode, do not choose."
+msgstr "设备的外部接口，如果是旁路模式，不要选择"
+
+msgid "External Interface"
+msgstr "外部接口"

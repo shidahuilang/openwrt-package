@@ -1,0 +1,263 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+msgid "ATA Version is"
+msgstr ""
+
+msgid "Apply"
+msgstr ""
+
+msgid "Attribute name"
+msgstr ""
+
+msgid "Available"
+msgstr ""
+
+msgid "Boot"
+msgstr ""
+
+msgid "Collecting data..."
+msgstr ""
+
+msgid "Current"
+msgstr ""
+
+msgid "Description"
+msgstr ""
+
+msgid "Device"
+msgstr ""
+
+msgid "Device is"
+msgstr ""
+
+msgid "Device Model"
+msgstr ""
+
+msgid "Device statistics"
+msgstr ""
+
+msgid "Disk model"
+msgstr ""
+
+msgid "Disk identifier"
+msgstr ""
+
+msgid "Disklabel type"
+msgstr ""
+
+msgid "Disk Devices"
+msgstr ""
+
+msgid "End"
+msgstr ""
+
+msgid "Error number"
+msgstr ""
+
+msgid "Estimated time"
+msgstr ""
+
+msgid "File systems"
+msgstr ""
+
+msgid "Filesystem"
+msgstr ""
+
+msgid "Firmware Version"
+msgstr ""
+
+msgid "Form Factor"
+msgstr ""
+
+msgid "Free-Fall Statistics"
+msgstr ""
+
+msgid "Gb"
+msgstr ""
+
+msgid "General Statistics"
+msgstr ""
+
+msgid "General Errors Statistics"
+msgstr ""
+
+msgid "Id"
+msgstr ""
+
+msgid "In smartctl database [for details use: -P show]"
+msgstr ""
+
+msgid "Index"
+msgstr ""
+
+msgid "Information about the connected disk devices."
+msgstr ""
+
+msgid "LU WWN Device Id"
+msgstr ""
+
+msgid "Lifetime hours"
+msgstr ""
+
+msgid "Lifetime max"
+msgstr ""
+
+msgid "Lifetime min"
+msgstr ""
+
+msgid "Limit max"
+msgstr ""
+
+msgid "Limit min"
+msgstr ""
+
+msgid "Local Time is"
+msgstr ""
+
+msgid "May not be supported by some devices..."
+msgstr ""
+
+msgid "Model Family"
+msgstr ""
+
+msgid "Mounted on"
+msgstr ""
+
+msgid "No devices detected"
+msgstr ""
+
+msgid "No mounted file systems"
+msgstr ""
+
+msgid "No partitions available"
+msgstr ""
+
+msgid "Not in smartctl database [for details use: -P showall]"
+msgstr ""
+
+msgid "Partitions"
+msgstr ""
+
+msgid "Percentage Used Endurance Indicator"
+msgstr ""
+
+msgid "Preserve across power cycles"
+msgstr ""
+
+msgid "RAW"
+msgstr ""
+
+msgid "Recommended max"
+msgstr ""
+
+msgid "Recommended min"
+msgstr ""
+
+msgid "Refresh devices"
+msgstr ""
+
+msgid "Rotating Media Statistics"
+msgstr ""
+
+msgid "Rotation Rate"
+msgstr ""
+
+msgid "S.M.A.R.T."
+msgstr ""
+
+msgid "S.M.A.R.T. error log"
+msgstr ""
+
+msgid "SATA Version is"
+msgstr ""
+
+msgid "SCT temperature history"
+msgstr ""
+
+msgid "SMART overall-health self-assessment test result:"
+msgstr ""
+
+msgid "Set logging interval"
+msgstr ""
+
+msgid "Sector Size"
+msgstr ""
+
+msgid "Sector size (logical/physical)"
+msgstr ""
+
+msgid "Sectors"
+msgstr ""
+
+msgid "Serial Number"
+msgstr ""
+
+msgid "Size"
+msgstr ""
+
+msgid "Solid State Device Statistics"
+msgstr ""
+
+msgid "Start"
+msgstr ""
+
+msgid "Temperature"
+msgstr ""
+
+msgid "Temperature Statistics"
+msgstr ""
+
+msgid "THRESH"
+msgstr ""
+
+msgid "Transport Statistics"
+msgstr ""
+
+msgid "Type"
+msgstr ""
+
+msgid "Units"
+msgstr ""
+
+msgid "Use"
+msgstr ""
+
+msgid "Used"
+msgstr ""
+
+msgid "User Capacity"
+msgstr ""
+
+msgid "VALUE"
+msgstr ""
+
+msgid "WHEN FAILED"
+msgstr ""
+
+msgid "WORST"
+msgstr ""
+
+msgid "Write to device memory"
+msgstr ""
+
+msgid "blocks"
+msgstr ""
+
+msgid "bytes"
+msgstr ""
+
+msgid "failed"
+msgstr ""
+
+msgid "interval"
+msgstr ""
+
+msgid "logical/physical"
+msgstr ""
+
+msgid "min"
+msgstr ""
+
+msgid "passed"
+msgstr ""

@@ -1,0 +1,11 @@
+#!/bin/sh
+
+uci -q batch <<-EOF >/dev/null
+	delete ucitrack.@openai[-1]
+	add ucitrack openai
+	set ucitrack.@openai[-1].init=openai
+	commit ucitrack
+EOF
+
+rm -rf /tmp/luci-*
+exit 0

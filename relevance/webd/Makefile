@@ -5,7 +5,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=webd
 PKG_VERSION:=20240223
-PKG_RELEASE:=$(AUTORELESE)
+PKG_RELEASE:=4
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -78,7 +78,7 @@ ifeq ($(ARCH),aarch64)
 endif
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(TARGET_ARCH)-openwrt-linux-$(TARGET_BOARD).tar.gz
-PKG_SOURCE_URL:=https://webd.cf/webd/$(PKG_VERSION)/
+PKG_SOURCE_URL:=https://webd.cf/webd/webd_dl/$(PKG_VERSION)/
 PKG_HASH:=skip
 
 UNTAR_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)

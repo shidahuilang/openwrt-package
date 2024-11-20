@@ -43,11 +43,7 @@ case "$action" in
 	version)
 		case "$1" in
 			app)
-				if [ -x "/bin/opkg" ]; then
-					opkg list-installed "luci-app-mihomo" | cut -d " " -f 3
-				elif [ -x "/usr/bin/apk" ]; then
-					apk list -I "luci-app-mihomo" | cut -d ' ' -f 1 | cut -d '-' -f 4
-				fi
+				opkg list-installed | grep "luci-app-mihomo" | cut -d " " -f 3
 			;;
 			core)
 				mihomo -v | grep "Mihomo" | cut -d " " -f 3

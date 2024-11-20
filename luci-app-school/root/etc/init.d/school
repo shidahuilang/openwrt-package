@@ -1,0 +1,102 @@
+#!/bin/sh /etc/rc.common
+
+START=90
+STOP=10
+
+restart_utils="true"
+
+start_ipid() {
+    /usr/share/school/ipid.rules
+}
+
+start_ua() {
+    /usr/share/school/iac.rules
+}
+
+start_ntp() {
+    /usr/share/school/intp.rules
+}
+
+start_ttl() {
+    /usr/share/school/ittl.rules
+}
+
+start_ac() {
+    /usr/share/school/iac.rules
+}
+
+stop_ipid() {
+    nft flush table ipid
+}
+
+stop_ua() {
+    nft flush table iua2f
+}
+
+stop_ntp() {
+    nft flush table intp
+}
+
+stop_ttl() {
+    nft flush table ittl
+}
+
+stop_ac() {
+    nft flush table iac
+}
+
+init_conf() {
+    config_load "school"
+    config_get "IPID" "config" "IPID" "0"
+    config_get "IUA" "config" "IUA" "0"
+    config_get "INTP" "config" "INTP" "0"
+    config_get "ITTL" "config" "ITTL" "0"
+    config_get "IACFlash" "config" "IACFlash" "0"
+}
+
+
+start() {
+    init_conf
+
+    if [ "${IPID}" -eq "1" ];  then
+		start_ipid
+	fi
+    if [ "${IUA}" -eq "1" ];  then
+		start_ua
+	fi
+    if [ "${INTP}" -eq "1" ];  then
+		start_ntp
+	fi
+    if [ "${ITTL}" -eq "1" ];  then
+		start_ttl
+	fi
+    if [ "${IACFlash}" -eq "1" ];  then
+		start_ac
+	fi
+
+}
+
+stop() {
+    init_conf
+
+    if [ "${IPID}" -eq "0" ];  then
+		stop_ipid
+	fi
+    if [ "${IUA}" -eq "0" ];  then
+		stop_ua
+	fi
+    if [ "${INTP}" -eq "0" ];  then
+		stop_ntp
+	fi
+    if [ "${ITTL}" -eq "0" ];  then
+		stop_ttl
+	fi
+    if [ "${IACFlash}" -eq "0" ];  then
+		stop_ac
+	fi
+}
+
+restart(){
+	stop
+	start
+}

@@ -1,0 +1,58 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8\n"
+
+#: package/nlf/luci-app-ipv6clientfilter/htdocs/luci-static/resources/view/ipv6clientfilter/ipv6clientfilter.js:9
+msgid "Allow or deny specific clients from accessing ipv6 networks"
+msgstr "仅允许或阻止特定客户端获访问ipv6网络"
+
+#: package/nlf/luci-app-ipv6clientfilter/htdocs/luci-static/resources/view/ipv6clientfilter/ipv6clientfilter.js:11
+msgid "basic settings"
+msgstr "基本设置"
+
+#: package/nlf/luci-app-ipv6clientfilter/htdocs/luci-static/resources/view/ipv6clientfilter/ipv6clientfilter.js:18
+msgid "blacklist"
+msgstr "黑名单"
+
+#: package/nlf/luci-app-ipv6clientfilter/htdocs/luci-static/resources/view/ipv6clientfilter/ipv6clientfilter.js:17
+msgid ""
+"blacklist: block clients in the list; whitelist: only allow clients in the "
+"list are allowed"
+msgstr "黑名单: 阻止列表客户端; 白名单: 仅允许列表客户端"
+
+#: package/nlf/luci-app-ipv6clientfilter/htdocs/luci-static/resources/view/ipv6clientfilter/ipv6clientfilter.js:22
+msgid "clients"
+msgstr "客户端"
+
+#: package/nlf/luci-app-ipv6clientfilter/htdocs/luci-static/resources/view/ipv6clientfilter/ipv6clientfilter.js:41
+msgid "comments"
+msgstr "注释"
+
+#: package/nlf/luci-app-ipv6clientfilter/htdocs/luci-static/resources/view/ipv6clientfilter/ipv6clientfilter.js:13
+#: package/nlf/luci-app-ipv6clientfilter/htdocs/luci-static/resources/view/ipv6clientfilter/ipv6clientfilter.js:26
+msgid "enable"
+msgstr "启用"
+
+#: package/nlf/luci-app-ipv6clientfilter/htdocs/luci-static/resources/view/ipv6clientfilter/ipv6clientfilter.js:36
+msgid "format"
+msgstr "格式"
+
+#: package/nlf/luci-app-ipv6clientfilter/htdocs/luci-static/resources/view/ipv6clientfilter/ipv6clientfilter.js:9
+#: package/nlf/luci-app-ipv6clientfilter/root/usr/share/luci/menu.d/luci-app-ipv6clientfilter.json:3
+msgid "ipv6 client filter"
+msgstr "ipv6客户端过滤"
+
+#: package/nlf/luci-app-ipv6clientfilter/htdocs/luci-static/resources/view/ipv6clientfilter/ipv6clientfilter.js:31
+msgid "mac"
+msgstr "mac"
+
+#: package/nlf/luci-app-ipv6clientfilter/htdocs/luci-static/resources/view/ipv6clientfilter/ipv6clientfilter.js:17
+msgid "mode"
+msgstr "模式"
+
+#: package/nlf/luci-app-ipv6clientfilter/htdocs/luci-static/resources/view/ipv6clientfilter/ipv6clientfilter.js:22
+msgid "please add some clients"
+msgstr "请添加客户端"
+
+#: package/nlf/luci-app-ipv6clientfilter/htdocs/luci-static/resources/view/ipv6clientfilter/ipv6clientfilter.js:19
+msgid "whitelist"
+msgstr "白名单"

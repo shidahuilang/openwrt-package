@@ -1,0 +1,4 @@
+{
+	"config": "verysync",
+	"init": [ "verysync" ]
+}

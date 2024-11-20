@@ -1,0 +1,11 @@
+{
+	"luci-app-hypercpe": {
+		"description": "Grant UCI access for luci-app-hypercpe",
+		"read": {
+			"uci": [ "modem" ]
+		},
+		"write": {
+			"uci": [ "modem" ]
+		}
+	}
+}

@@ -1,0 +1,11 @@
+{
+	"luci-app-sakurafrp": {
+		"description": "Grant UCI access for luci-app-sakurafrp",
+		"read": {
+			"uci": [ "sakurafrp" ]
+		},
+		"write": {
+			"uci": [ "sakurafrp" ]
+		}
+	}
+}

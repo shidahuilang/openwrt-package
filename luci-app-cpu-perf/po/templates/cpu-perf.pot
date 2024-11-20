@@ -1,0 +1,125 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+msgid "An error has occurred"
+msgstr ""
+
+msgid "CPU"
+msgstr ""
+
+msgid "CPU Performance"
+msgstr ""
+
+msgid "CPU performance management."
+msgstr ""
+
+msgid "CPU performance scaling not available..."
+msgstr ""
+
+msgid "Command failed"
+msgstr ""
+
+msgid "Conservative governor"
+msgstr ""
+
+msgid "Conservative tunables"
+msgstr ""
+
+msgid "Current frequency"
+msgstr ""
+
+msgid "Disabled"
+msgstr ""
+
+msgid "Enable"
+msgstr ""
+
+msgid "Enabled"
+msgstr ""
+
+msgid "Failed to get %s init status: %s"
+msgstr ""
+
+msgid "Frequency decrease deferral factor."
+msgstr ""
+
+msgid "Frequency step in percent of the maximum frequency the governor is allowed to set."
+msgstr ""
+
+msgid "Frequency value must not be"
+msgstr ""
+
+msgid "GHz"
+msgstr ""
+
+msgid "If checked, it will cause the CPU load estimation code to treat the CPU time spent on executing tasks with \"nice\" levels greater than 0 as CPU idle time."
+msgstr ""
+
+msgid "If the estimated CPU load is above this value (in percent), the governor will set the frequency to the maximum value."
+msgstr ""
+
+msgid "KHz"
+msgstr ""
+
+msgid "MHz"
+msgstr ""
+
+msgid "Maximum frequency"
+msgstr ""
+
+msgid "Maximum frequency the CPU is allowed to be running."
+msgstr ""
+
+msgid "Maximum scaling frequency"
+msgstr ""
+
+msgid "Minimum frequency"
+msgstr ""
+
+msgid "Minimum frequency the CPU is allowed to be running."
+msgstr ""
+
+msgid "Minimum scaling frequency"
+msgstr ""
+
+msgid "No performance data..."
+msgstr ""
+
+msgid "Ondemand governor"
+msgstr ""
+
+msgid "Ondemand tunables"
+msgstr ""
+
+msgid "Performance managment"
+msgstr ""
+
+msgid "Performance scaling not available for this CPU..."
+msgstr ""
+
+msgid "Run at startup"
+msgstr ""
+
+msgid "Scaling governor"
+msgstr ""
+
+msgid "Scaling governors implement algorithms to estimate the required CPU capacity."
+msgstr ""
+
+msgid "Service action failed \"%s %s\": %s"
+msgstr ""
+
+msgid "Threshold value (in percent) used to determine the frequency change direction."
+msgstr ""
+
+msgid "default value:"
+msgstr ""
+
+msgid "higher"
+msgstr ""
+
+msgid "lower"
+msgstr ""
+
+msgid "than the"
+msgstr ""

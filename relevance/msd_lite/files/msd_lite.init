@@ -26,6 +26,7 @@ validate_msd_lite_section() {
 		'address:string' \
 		'interface:string' \
 		'network:string' \
+		'loglevel:uinteger:0' \
 		'threads:uinteger:0' \
 		'bind_to_cpu:bool:0' \
 		'drop_slow_clients:bool:0' \
@@ -69,7 +70,8 @@ start_instance() {
 	[ "$drop_slow_clients" = "1" ] && drop_slow_clients="yes" || drop_slow_clients="no"
 
 	mkdir -p "$CONFDIR"
-	sed -e "s,@threadsCountMax@,$threads,g" \
+	sed -e "s,@logLevel@,$loglevel,g" \
+	    -e "s,@threadsCountMax@,$threads,g" \
 	    -e "s,@fBindToCPU@,$bind_to_cpu,g" \
 	    -e "s,@bindList@,$bindlist,g" \
 	    -e "s,@ifName@,$interface,g" \

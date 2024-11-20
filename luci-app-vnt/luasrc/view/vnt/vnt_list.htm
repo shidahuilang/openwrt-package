@@ -1,0 +1,34 @@
+<%+cbi/valueheader%>
+<script type="text/javascript">//<![CDATA[
+	function vnt_list(btn)
+	{
+		btn.disabled = true;
+		btn.value = '<%:Collecting data...%>';
+		XHR.get('<%=luci.dispatcher.build_url("admin", "vpn", "vnt", "vnt_list")%>',
+			null,
+			function(x,rv)
+			{
+			var tb = document.getElementById('<%=self.option%>-status');
+			if (tb) {
+  rv.list = rv.list.replace(/Name/g, "<em><b>设备名称</em></b>")
+                   .replace(/虚拟IP/g, "<em><b>虚拟IP</em></b>")
+                   .replace(/Status/g, "<em><b>状态</em></b>")
+                   .replace(/P2P\/Relay/g, "<em><b>直连/转发</em></b>")
+                   .replace(/Rt/g, "<em><b>延迟（ms）</em></b>")
+                   .replace(/Online/g, "<font color='#008000'>在线</font>")
+                   .replace(/p2p/g, "<font color='#008000'>直连</font>")
+                   .replace(/server-relay/g, "<font color='#FF3300'>服务器转发</font>")
+                   .replace(/client-relay/g, "<font color='#CC3300'>客户端转发</font>")
+                   .replace(/Offline/g, "<font color='#CC0000'>离线</font>");
+  tb.innerHTML = "<br><font color='#FF00FF'>&nbsp;&nbsp;&nbsp;<b><%:vnt-cli --list %></b></font><br>" + rv.list ;
+}
+				btn.disabled = false;
+				btn.value = '<%:所有设备列表%>';
+			}
+		);
+		return false;
+	}
+//]]></script>
+<input type="button" class="btn cbi-button cbi-button-apply" value="<%:所有设备列表%>" onclick="return vnt_list(this)" />
+<span id="<%=self.option%>-status"><em><%=self.value%></em></span>
+<%+cbi/valuefooter%>

@@ -1,0 +1,36 @@
+<script>
+    function activeOverlay() {
+        console.log("Activated overlay");
+        document.body.classList.add("modal-overlay-active");
+    }
+
+    function exitOverlay() {
+        console.log("Exiting overlay")
+        document.body.classList.remove("modal-overlay-active")
+        let overlay = document.getElementById("modal_overlay");
+        overlay.remove()
+    }
+</script>
+
+<body>
+<div id="modal_overlay" style="z-index: 9001;align-items: center">
+    <div class="modal" role="dialog" aria-modal="true" id="upload-cert-container">
+        <div class="cbi-section" style="width: 60%">
+            <div class="cbi-section-node">
+                <h2>上传SSL证书</h2>
+                <form name="upload-cert" method="post"
+                      action='<%=luci.dispatcher.build_url("sakurafrp/upload_cert")%>'
+                      enctype="multipart/form-data">
+                    <label>
+                        <%:Domain%>: <input name="domain" type="text" required><br>
+                        <%:Cert File%>: <input name="cert" type="file" required><br>
+                        <%:Key File%>: <input name="key" type="file" required><br>
+                    </label>
+                    <input type="submit" class="cbi-button-action" value="<%:Upload%>" />
+                    <input type="button" class="cbi-button-reset" value="<%:Cancel%>" onclick="exitOverlay()">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>

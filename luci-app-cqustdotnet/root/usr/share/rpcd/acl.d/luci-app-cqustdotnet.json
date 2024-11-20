@@ -1,0 +1,11 @@
+{
+  "luci-app-cqustdotnet": {
+    "description": "Grant UCI access for luci-app-cqustdotnet",
+    "read": {
+      "uci": [ "cqustdotnet" ]
+    },
+    "write": {
+      "uci": [ "cqustdotnet" ]
+    }
+  }
+}

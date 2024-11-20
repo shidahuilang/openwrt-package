@@ -1,0 +1,19 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2011 OpenWrt.org
+
+START=99
+
+start(){
+/usr/bin/qos-emong start
+}
+
+stop(){
+/usr/bin/qos-emong stop
+}
+restart(){
+/usr/bin/qos-emong stop
+/usr/bin/qos-emong start
+}
+
+
+

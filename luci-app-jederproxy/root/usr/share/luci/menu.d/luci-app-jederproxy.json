@@ -1,0 +1,17 @@
+{
+    "admin/services/jederproxy": {
+        "title": "Jederproxy",
+        "action": {
+            "type": "view",
+            "path": "jederproxy"
+        },
+        "depends": {
+            "acl": [
+                "luci-app-jederproxy"
+            ],
+            "uci": {
+                "jederproxy": true
+            }
+        }
+    }
+}

@@ -1,0 +1,46 @@
+#!/bin/sh
+# Copyright (C) 2023 muink https://github.com/muink
+#
+# Port update notify script
+#
+# depends 
+
+. /usr/lib/natmap/common.sh
+. /usr/share/libubox/jshn.sh
+
+# http_request <data>
+http_request() {
+	local data="$1"
+	$CURL $retry -L -o /dev/null -X POST \
+		-H 'Content-Type: application/json' \
+		-d "$data" \
+		--url https://${custom_domain:-ntfy.sh}/
+}
+
+start() {
+	local retry='--connect-timeout 3 --retry 3'
+	json_init
+	json_add_string topic "${TOPIC}"
+	json_add_string message "${text}"
+	json_add_string title "${TITLE}"
+	[ -n "${WACTION}" ] && {
+		json_add_array actions
+			json_add_object
+				json_add_string action "view"
+				json_add_string label "Open page"
+				json_add_string url "http${HTTPS:+s}://${ip}:${port}"
+				json_add_boolean clear true
+			json_close_object
+		json_close_array
+	}
+	http_request "$(json_dump)"
+}
+
+
+# All external parameters required
+ALL_PARAMS="custom_domain text tokens"
+eval "$(JSON_EXPORT "$1")"; shift
+# All external tokens required
+INIT_GLOBAL_VAR TOPIC TITLE WACTION HTTPS
+eval "$tokens"
+start "$@"

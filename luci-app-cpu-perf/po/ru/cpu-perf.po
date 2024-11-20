@@ -1,0 +1,136 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.0\n"
+"Last-Translator: \n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
+"Language: ru\n"
+
+msgid "An error has occurred"
+msgstr "Произошла ошибка"
+
+msgid "CPU"
+msgstr "ЦПУ"
+
+msgid "CPU Performance"
+msgstr "Производительность ЦПУ"
+
+msgid "CPU performance management."
+msgstr "Управление производительностью процессора."
+
+msgid "CPU performance scaling not available..."
+msgstr "Масштабирование производительности ЦПУ недоступно..."
+
+msgid "Command failed"
+msgstr "Команда не выполнена"
+
+msgid "Conservative governor"
+msgstr "Регулятор conservative"
+
+msgid "Conservative tunables"
+msgstr "Настройки conservative"
+
+msgid "Current frequency"
+msgstr "Текущая частота"
+
+msgid "Disabled"
+msgstr "Отключено"
+
+msgid "Enable"
+msgstr "Включить"
+
+msgid "Enabled"
+msgstr "Включено"
+
+msgid "Failed to get %s init status: %s"
+msgstr "Не удалось получить статус инициализации %s: %s"
+
+msgid "Frequency decrease deferral factor."
+msgstr "Коэффициент отсрочки уменьшения частоты."
+
+msgid "Frequency step in percent of the maximum frequency the governor is allowed to set."
+msgstr "Шаг частоты в процентах от максимальной частоты, которую может установить регулятор."
+
+msgid "Frequency value must not be"
+msgstr "Значение частоты не должно быть"
+
+msgid "GHz"
+msgstr "ГГц"
+
+msgid "If checked, it will cause the CPU load estimation code to treat the CPU time spent on executing tasks with \"nice\" levels greater than 0 as CPU idle time."
+msgstr "Если включено, код оценки загрузки ЦПУ будет рассматривать время ЦПУ, затрачиваемое на выполнение задач с уровнями \"nice\" выше 0, как время простоя ЦПУ."
+
+msgid "If the estimated CPU load is above this value (in percent), the governor will set the frequency to the maximum value."
+msgstr "Если расчетная загрузка ЦПУ выше этого значения (в процентах), регулятор установит максимальное значение частоты."
+
+msgid "KHz"
+msgstr "КГц"
+
+msgid "MHz"
+msgstr "МГц"
+
+msgid "Maximum frequency"
+msgstr "Максимальная частота"
+
+msgid "Maximum frequency the CPU is allowed to be running."
+msgstr "Максимальная частота, на которой может работать ЦПУ."
+
+msgid "Maximum scaling frequency"
+msgstr "Максимальное масштабирование частоты"
+
+msgid "Minimum frequency"
+msgstr "Минимальная частота"
+
+msgid "Minimum frequency the CPU is allowed to be running."
+msgstr "Минимальная частота, на которой может работать ЦПУ."
+
+msgid "Minimum scaling frequency"
+msgstr "Минимальное масштабирование частоты"
+
+msgid "No performance data..."
+msgstr "Нет данных о производительности..."
+
+msgid "Ondemand governor"
+msgstr "Регулятор ondemand"
+
+msgid "Ondemand tunables"
+msgstr "Настройки ondemand"
+
+msgid "Performance managment"
+msgstr "Управление производительностью"
+
+msgid "Performance scaling not available for this CPU..."
+msgstr "Масштабирование производительности недоступно для этого процессора..."
+
+msgid "Run at startup"
+msgstr "Запуск при старте системы"
+
+msgid "Scaling governor"
+msgstr "Регулятор масштабирования"
+
+msgid "Scaling governors implement algorithms to estimate the required CPU capacity."
+msgstr "Регуляторы масштабирования реализуют алгоритмы для оценки требуемой мощности ЦПУ."
+
+msgid "Service action failed \"%s %s\": %s"
+msgstr "Не удалось выполнить действие службы \"%s %s\": %s"
+
+msgid "Threshold value (in percent) used to determine the frequency change direction."
+msgstr "Пороговое значение (в процентах), используемое для определения направления изменения частоты."
+
+msgid "default value:"
+msgstr "стандартное значение:"
+
+msgid "higher"
+msgstr "выше"
+
+msgid "lower"
+msgstr "ниже"
+
+msgid "than the"
+msgstr "чем"

@@ -1,0 +1,9 @@
+#!/bin/sh
+uci -q batch <<-EOF >/dev/null
+	delete ucitrack.@gxu-webconnect[-1]
+	add ucitrack gxu-webconnect
+	set ucitrack.@gxu-webconnect[-1].init=gxu-webconnect
+	commit ucitrack
+EOF
+rm -f /tmp/luci-indexcache
+exit 0

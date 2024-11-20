@@ -1,0 +1,167 @@
+#: applications/luci-app-dawn/luasrc/controller/dawn.lua:8
+msgid "Configure DAWN"
+msgstr "配置 DAWN"
+
+#: applications/luci-app-dawn/luasrc/controller/dawn.lua:9
+msgid "View Network Overview"
+msgstr "查看网络概览"
+
+#: applications/luci-app-dawn/luasrc/controller/dawn.lua:10
+msgid "View Hearing Map"
+msgstr "查看发现地图"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:1
+msgid "Dawn Configuration"
+msgstr "Dawn 配置"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:2
+msgid "Metric"
+msgstr "基本"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:3
+msgid "High Throughput Support"
+msgstr "HT/WiFi4 支持"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:4
+msgid "No High Throughput Support"
+msgstr "取消 HT/WiFi4 支持"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:5
+msgid "Very High Throughput Support"
+msgstr "VHT/WiFi5 支持"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:6
+msgid "No Very High Throughput Support"
+msgstr "取消 VHT/WiFi5 支持"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:8
+msgid "Low RSSI"
+msgstr "低 RSSI"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:10
+msgid "Channel Utilization"
+msgstr "信道利用率"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:11
+msgid "Above Maximum Channel Utilization"
+msgstr "高于最大信道利用率"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:13
+msgid "Threshold"
+msgstr "阈值"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:13
+msgid "Thresholds"
+msgstr "阈值设置"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:14
+msgid "Bandwidth Threshold"
+msgstr "带宽阈值"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:15
+msgid "RSSI Threshold"
+msgstr "RSSI 阈值"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:16
+msgid "Low RSSI Threshold"
+msgstr "低 RSSI 阈值"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:17
+msgid "Channel Utilization Threshold"
+msgstr "信道利用率阈值"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:18
+msgid "Maximum Channel Utilization Threshold"
+msgstr "最高信道利用率阈值"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:19
+msgid "Minimum Probe Count"
+msgstr "最小探测数量"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:20
+msgid "Minimum Number After Kicking Client"
+msgstr "移除客户端后的最小数量"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:22
+msgid "Evaluate"
+msgstr "评估标准"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:22
+msgid "What should be evaluated?"
+msgstr "什么要被用来判断？"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:23
+msgid "Activate Kicking"
+msgstr "触发移除客户端"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:24
+msgid "Evaluate Probe Requests"
+msgstr "评估探测请求"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:25
+msgid "Evaluate Authentication Requests"
+msgstr "评估身份认证请求"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:26
+msgid "Evaluate Association Requests"
+msgstr "评估关联性请求"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:27
+msgid "Use Station Count"
+msgstr "使用 Station 统计"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:29
+msgid "Reasons for denying"
+msgstr "拒绝原因"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:30
+msgid "Denying Authentication"
+msgstr "拒绝认证"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:31
+msgid "Denying Association"
+msgstr "拒绝关联"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:33
+msgid "Time Configuration"
+msgstr "时间相关配置"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:33
+msgid "Time Configs"
+msgstr "时间配置"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:34
+msgid "Update Client Information Interval"
+msgstr "更新客户端时间间隔"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:35
+msgid "Checking if client is connected"
+msgstr "检测客户端是否连接"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:36
+msgid "Remove Client Information"
+msgstr "移除客户端信息"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:37
+msgid "Remove Hearing Map Information"
+msgstr "移除发现地图信息"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:38
+msgid "Check for new Hostapd Sockets"
+msgstr "检测新 Hostapd Sockets"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:39
+msgid "Check for new Routers"
+msgstr "检测新路由"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_config.lua:40
+msgid "Update Channel Utilization Interval"
+msgstr "更新信道使用率间隔"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_network.lua:1
+msgid "Network Overview"
+msgstr "网络概览"
+
+#: applications/luci-app-dawn/luasrc/model/cbi/dawn/dawn_hearing_map.lua:1
+msgid "Hearing Map"
+msgstr "发现地图"

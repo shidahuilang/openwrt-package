@@ -3,12 +3,11 @@
 uci -q batch <<-EOF >/dev/null
 	delete ucitrack.@wifidog[-1]
 	add ucitrack wifidog
-	set ucitrack.wifidog="wifidog"
-	set ucitrack.wifidog.init='wifidog'
+	set ucitrack.@wifidog[-1].init=wifidog
+	#delete ucitrack.@firewall[0].affects
+	add_list ucitrack.@firewall[0].affects=wifidog	
 	commit ucitrack
 EOF
-	chmod 755 /etc/init.d/wifidog >/dev/null 2>&1
-	/etc/init.d/wifidog enable >/dev/null 2>&1
-	 rm -f /etc/uci-defaults/luci-wifidog
+
 rm -f /tmp/luci-indexcache
 exit 0

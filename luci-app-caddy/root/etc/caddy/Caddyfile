@@ -1,0 +1,54 @@
+# 此配置文件路径：/etc/caddy/Caddyfile
+  
+{ # 全局配置
+# 启动 cgi 模块
+order cgi before respond
+# 启动 webdav 模块
+order webdav before file_server
+# 关闭 API 端口 
+admin off 
+} 
+
+:12311 {
+#启用压缩
+encode gzip
+#认证，账号admin 密码123456
+basicauth {
+admin $2a$14$RdbOHzJhf5BaapSdlYTCbe.yWY9cEZjyDpfgwStY28K/qsM1tX8tu
+}
+#路径 /mnt
+ root * /mnt
+#文件服务器 端口12311
+ file_server browse
+ 
+header {
+#中文字符显示
+                Content-Type "text/plain; charset=utf-8"
+        }
+        
+ log {
+#日志 路径/tmp/caddy/requests.log
+  output file /tmp/caddy/requests.log {
+   roll_size     1MiB
+   roll_local_time
+   roll_keep     5
+   roll_keep_for 120h
+  }
+ }
+ 
+}
+
+:12322 {
+#启用压缩
+encode gzip
+#认证，账号admin 密码123456
+basicauth {
+admin $2a$14$RdbOHzJhf5BaapSdlYTCbe.yWY9cEZjyDpfgwStY28K/qsM1tX8tu
+}
+
+# webdav 路径根目录 端口12322
+ webdav /dav/* {
+   prefix /dav
+   root /
+  }
+}

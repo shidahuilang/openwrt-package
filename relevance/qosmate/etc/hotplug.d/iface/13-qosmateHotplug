@@ -1,0 +1,13 @@
+#!/bin/sh
+
+[ -n "$DEVICE" ] || exit 0
+[ "$ACTION" = ifup ] && {
+    enabled=$(uci get qosmate.global.enabled 2>/dev/null)
+    if [ "$enabled" = "1" ]; then
+        /etc/init.d/qosmate enable
+        /etc/init.d/qosmate restart
+        logger -t qosmate "Reloading qosmate.sh due to $ACTION of $INTERFACE ($DEVICE)"
+    else
+        logger -t qosmate "qosmate is disabled in the configuration. Not executing the script."
+    fi
+}

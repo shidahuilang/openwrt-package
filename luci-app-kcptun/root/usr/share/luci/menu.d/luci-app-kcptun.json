@@ -1,0 +1,12 @@
+{
+	"admin/vpn/kcptun": {
+		"title": "kcptun",
+		"action": {
+			"type": "view",
+			"path": "kcptun"
+		},
+		"depends": {
+			"acl": [ "luci-app-kcptun" ]
+		}
+	}
+}

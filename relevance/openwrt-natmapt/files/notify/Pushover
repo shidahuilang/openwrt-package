@@ -1,0 +1,25 @@
+#!/bin/sh
+# Copyright (C) 2023 muink https://github.com/muink
+#
+# Port update notify script
+#
+# depends 
+
+. /usr/lib/natmap/common.sh
+
+start() {
+	local retry='--connect-timeout 3 --retry 3'
+	$CURL $retry -L -o /dev/null -X POST \
+		-H 'Content-Type: application/json' \
+		-d '{"token":"'"${TOKEN}"'","user":"'"${TO_ID}"'","device":"'"${DEVICE}"'","message":"'"${text}"'","title":"'"${TITLE}"'","html":"'"${HTML}"'"}' \
+		--url https://${custom_domain:-api.pushover.net}/1/messages.json
+}
+
+
+# All external parameters required
+ALL_PARAMS="custom_domain text tokens"
+eval "$(JSON_EXPORT "$1")"; shift
+# All external tokens required
+INIT_GLOBAL_VAR TOKEN TO_ID DEVICE TITLE HTML
+eval "$tokens"
+start "$@"

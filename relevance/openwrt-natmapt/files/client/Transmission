@@ -1,0 +1,27 @@
+#!/bin/sh
+# Copyright (C) 2023 muink https://github.com/muink
+#
+# Client listen port refresh script
+#
+# depends 
+
+. /usr/lib/natmap/common.sh
+
+start() {
+	local retry='--connect-timeout 1 --retry 0'
+	scheme='http' # only supports http
+	local sid="$($CURL $retry -L \
+		-u ${username}:${password} \
+		--url ${scheme}://${ip}:${web_port}/transmission/rpc \
+		| sed 's|.*<code>||g;s|</code>.*||g')"
+	$CURL $retry -L -X POST \
+		-H "$sid" -u ${username}:${password} \
+		-d '{"method":"session-set","arguments":{"peer-port":"'"${port}"'"}}' \
+		--url ${scheme}://${ip}:${web_port}/transmission/rpc
+}
+
+
+# All external parameters required
+ALL_PARAMS="ip port scheme web_port username password"
+eval "$(JSON_EXPORT "$1")"; shift
+start "$@"

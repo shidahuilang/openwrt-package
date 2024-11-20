@@ -1,0 +1,59 @@
+msgid "MSD"
+msgstr "MSD"
+
+msgid "MSD is a program for organizing IPTV streaming on the network via HTTP."
+msgstr "MSD 是一个通过 HTTP 在网络上组织 IPTV 流媒体的程序。"
+
+msgid "Basic Config"
+msgstr "基础配置"
+
+msgid "Enable"
+msgstr "启用"
+
+msgid "Bind Address"
+msgstr "绑定地址"
+
+msgid "Bind Interface"
+msgstr "绑定接口"
+
+msgid "Source Interface"
+msgstr "源接口"
+
+msgid "Advanced Config"
+msgstr "进阶配置"
+
+msgid "Thread Count"
+msgstr "线程数量"
+
+msgid "Thread Bind CPU"
+msgstr "线程绑定CPU"
+
+msgid "Drop Slow Client"
+msgstr "丢弃低速的客户端"
+
+msgid "Use Polling For Send"
+msgstr "轮询发送"
+
+msgid "Zero Copy On Send"
+msgstr "零拷贝发送"
+
+msgid "Persist Hub When No Avalible Source"
+msgstr "即使没有有效的源也保留Hub"
+
+msgid "Persist Hub When No Conectted Client"
+msgstr "即使没有连接的客户端也保留Hub"
+
+msgid "Destroy Hub Timeout(No Connectted Client)"
+msgstr "销毁Hub的延迟时间（没有连接的客户端时）"
+
+msgid "Wait Precache"
+msgstr "等待预缓存"
+
+msgid "Precache Size"
+msgstr "预缓存大小"
+
+msgid "Ring Buffer Size"
+msgstr "环形缓冲区大小"
+
+msgid "Multicast Rejoin Interval"
+msgstr "重新加入组播的时间间隔"

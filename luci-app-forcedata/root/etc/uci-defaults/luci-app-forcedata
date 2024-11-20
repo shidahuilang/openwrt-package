@@ -1,0 +1,13 @@
+#!/bin/sh
+
+uci -q batch <<-EOF >/dev/null
+    command_to_run="sh /usr/libexec/istorec/forcedata.sh install"
+    if crontab -l | grep -q "$command_to_run"; then
+      echo "Cron job already exists"
+    else
+      (crontab -l ; echo "* * * * * $command_to_run") | crontab -
+      echo "Cron job added"
+    fi
+EOF
+
+exit 0

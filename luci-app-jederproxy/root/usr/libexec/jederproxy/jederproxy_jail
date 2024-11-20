@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# mihomo/clash search for geoip.dat in $HOME/.config/mihomo
+export HOME="$JP_TARGET_WD"
+# xray search for geoip.dat in $PWD
+cd "$JP_TARGET_WD"
+
+# $HOME is unset by procd and $PWD is reset to / by procd,
+# that's why we need this mini "jail"
+exec "$@"

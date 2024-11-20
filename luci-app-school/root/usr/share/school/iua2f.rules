@@ -1,0 +1,17 @@
+#!/usr/sbin/nft -f
+
+table ip iua2f {
+    chain wan_patch {
+		type filter hook postrouting priority mangle; policy accept;
+		oif "wan" meta nfproto ipv4 counter mark set mark or 0x10 ip ttl set 64 jump ua2f
+		oif "wan6" meta nfproto ipv6 counter ip6 hoplimit set 64 jump ua2f
+	}
+
+	chain ua2f {
+		tcp flags syn tcp option timestamp exists counter queue num 10010-10013 fanout
+		ct mark 43 counter return
+		meta l4proto != tcp counter return
+		tcp dport { ssh, https } counter return
+		counter queue num 10010-10013 fanout
+	}
+}

@@ -1,0 +1,22 @@
+#!/bin/sh /etc/rc.common
+
+## specify the log path for debugging
+exec > /root/dynv6.log 2>&1
+
+START=299
+
+
+
+
+stop(){
+	for id in  `pgrep -f dynv6-update.sh`;do
+		kill -9 $id
+	done
+	return 0
+}
+
+start(){
+	# avoid other service being blocked by the waiting ipv6 casuing deadlock
+	/usr/bin/dynv6-update.sh &
+	return 0
+}

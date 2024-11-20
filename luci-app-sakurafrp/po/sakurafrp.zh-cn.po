@@ -1,0 +1,86 @@
+msgid "User Config"
+msgstr "用户信息"
+
+msgid "Run SakuraFrp"
+msgstr "运行SakuraFrp"
+
+msgid "Access Token"
+msgstr "访问密钥"
+
+msgid "Invalid Token!"
+msgstr "访问密钥无效！"
+
+msgid "View Log"
+msgstr "查看日志"
+
+msgid "Manual Edit frpc.ini"
+msgstr "手动修改frpc.ini"
+
+msgid "Please note. frpc.ini will be overwritten once you changed tunnel config and then run frpc!"
+msgstr "请注意，frpc.ini会在您修改隧道配置并且运行frpc后被覆写！"
+
+msgid "Frpc Not Installed (Will be automatically installed when run.)"
+msgstr "Frpc 未安装 (运行时会自动安装)"
+
+msgid "Frpc Running"
+msgstr "Frpc 正在运行"
+
+msgid "Frpc Not Running"
+msgstr "Frpc 未运行"
+
+msgid "Tunnels"
+msgstr "隧道"
+
+msgid "Tunnel List"
+msgstr "隧道列表"
+
+msgid "Tunnel Config"
+msgstr "隧道配置"
+
+msgid "Not yet implemented."
+msgstr "尚未完成"
+
+msgid "Enable"
+msgstr "启用"
+
+msgid "Tunnel Name"
+msgstr "隧道名称"
+
+msgid "Tunnel Type"
+msgstr "隧道类型"
+
+msgid "Local"
+msgstr "本地"
+
+msgid "Node"
+msgstr "远程"
+
+msgid "Note"
+msgstr "备注"
+
+msgid "Advanced Config"
+msgstr "高级设置"
+
+msgid "Refresh Tunnels"
+msgstr "刷新隧道列表"
+
+msgid "Restart Frpc"
+msgstr "重启Frpc"
+
+msgid "Stop Frpc"
+msgstr "关闭Frpc"
+
+msgid "Force Stop Frpc"
+msgstr "强制关闭Frpc"
+
+msgid "Manual Edit"
+msgstr "手动修改"
+
+msgid "Uninstall Frpc"
+msgstr "卸载Frpc"
+
+msgid "Clear Log"
+msgstr "清除日志"
+
+msgid "Refresh"
+msgstr "刷新"

@@ -1,0 +1,11 @@
+{
+	"luci-app-caddy": {
+		"description": "Grant UCI access for luci-app-caddy",
+		"read": {
+			"uci": [ "caddy" ]
+		},
+		"write": {
+			"uci": [ "caddy" ]
+		}
+	}
+}

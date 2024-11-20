@@ -1,0 +1,11 @@
+listen_addrs_ipv6 = ["::1"]
+
+[[zones]]
+zone = "."
+
+zone_type = "Forward"
+stores = { type = "forward", name_servers = [
+        { socket_addr = "[2400:3200:baba::1]:853", protocol = "quic", trust_negative_responses = false, tls_dns_name = "dns.alidns.com" },
+        { socket_addr = "[2400:3200::1]:853", protocol = "quic", trust_negative_responses = false, tls_dns_name = "dns.alidns.com" },
+    ], options = { rotate = true, edns0 = true, ip_strategy = "Ipv4AndIpv6", cache_size = 0, use_hosts_file = "Never", num_concurrent_reqs = 1, server_ordering_strategy = "RoundRobin", shuffle_dns_servers = false }}
+

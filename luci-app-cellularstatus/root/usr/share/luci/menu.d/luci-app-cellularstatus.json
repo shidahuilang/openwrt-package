@@ -1,0 +1,13 @@
+{
+	"admin/status/cellular": {
+		"title": "Cellular Network",
+		"order": 62,
+		"action": {
+			"type": "view",
+			"path": "status/cellularstatus"
+		},
+		"depends": {
+			"acl": [ "luci-app-cellularstatus" ]
+		}
+	}
+}

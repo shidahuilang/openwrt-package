@@ -1,0 +1,89 @@
+#!/bin/bash
+
+# Environment GPIOLED
+source /usr/share/gpioled/env
+
+function application() {
+    echo "$TIMESTAMP [$d] $d1" >>$LOG_FILE
+    while :; do
+        MONITORING=$(uci get $AAD 2>/dev/null)
+        if [ "$MONITORING" == "uci: Entry not found" ]; then
+            if [ "$APP_NOT_FOUND" = false ]; then
+                APP_NOT_FOUND=true
+            fi
+            MONITORING=2
+        elif [[ "$MONITORING" =~ ^[0-9]+$ ]]; then
+            if [ "$APP_FOUND" = false ]; then
+                echo "$TIMESTAMP [$d] $d2" >>$LOG_FILE
+                echo "$TIMESTAMP [$d] $d4" >>$LOG_FILE
+                echo "$TIMESTAMP [$d] $d5" >>$LOG_FILE
+                APP_FOUND=true
+            fi
+            MONITORING=$(uci get $AAD)
+        else
+            if [ "$APP_INVALID" = false ]; then
+                echo "$TIMESTAMP [$d] $d2" >>$LOG_FILE
+                echo "$TIMESTAMP [$d] $d3" >>$LOG_FILE
+                APP_INVALID=true
+                break
+            fi
+            MONITORING=2
+        fi
+        if [ "$MONITORING" -eq 1 ]; then
+            if [ "$APP_SUCCESS" = false ]; then
+                echo "$TIMESTAMP [$d] $d7" >>$LOG_FILE
+                APP_SUCCESS=true
+                APP_FAIL=false
+            fi
+            if [ "$APPON" = false ]; then
+                APPON=true
+            fi
+        elif [ "$MONITORING" -eq 0 ]; then
+            if [ "$APP_FAIL" = false ]; then
+                echo "$TIMESTAMP [$d] $d6" >>$LOG_FILE
+                APP_SUCCESS=false
+                APP_FAIL=true
+            fi
+            if [ "$APPOFF" = false ]; then
+                APPOFF=true
+            fi
+        fi
+        if [ "$APPON" = true ]; then
+            if [ "$MAD" = "0" ]; then
+                echo "1" >/sys/class/gpio/gpio$GIRB/value
+                sleep $MAD
+                APPON=false
+            elif [ "$MAD" = "0.1" ]; then
+                echo "1" >/sys/class/gpio/gpio$GIRB/value
+                sleep $MAD
+                echo "0" >/sys/class/gpio/gpio$GIRB/value
+                sleep $MAD
+                APPON=false
+            elif [ "$MAD" = "1" ]; then
+                echo "1" >/sys/class/gpio/gpio$GIRB/value
+                sleep $MAD
+                echo "0" >/sys/class/gpio/gpio$GIRB/value
+                sleep $MAD
+                APPON=false
+            elif [ "$MAD" = "2" ]; then
+                echo "1" >/sys/class/gpio/gpio$GIRB/value
+                sleep $MAD
+                echo "0" >/sys/class/gpio/gpio$GIRB/value
+                sleep $MAD
+                APPON=false
+            fi
+        fi
+        if [ "$APPOFF" = true ]; then
+            echo "0" >/sys/class/gpio/gpio$GIRB/value
+            sleep $MAD
+            APPOFF=false
+        fi
+    done
+}
+
+case "${1}" in
+*)
+    application
+    ;;
+esac
+

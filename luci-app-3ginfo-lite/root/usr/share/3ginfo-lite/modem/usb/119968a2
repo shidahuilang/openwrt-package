@@ -1,0 +1,39 @@
+# Sierra Wireless MC7710
+
+O=$(sms_tool -d $DEVICE at "at!gstatus?")
+
+T=$(echo "$O" | awk -F: '/Temperature:/ {print $3}' | xargs)
+[ -n "$T" ] && TEMP="$T &deg;C"
+
+if [ "$REGOK" = "1" ]; then
+
+if [ "x$MODE_NUM" = "x7" ]; then
+	T=$(echo "$O" | awk '/.*TAC:/ {print $5}')
+	if [ -n "$T" ]; then
+		T_DEC=$(printf "%d" "0x$T")
+		TAC="${T_DEC} ($T)"
+	fi
+
+	T=$(echo "$O" | awk '/^RSSI/ {print $3}')
+	[ -n "$T" ] && RSSI="$T"
+	T=$(echo "$O" | awk '/^RSRP/ {print $3}')
+	[ -n "$T" ] && RSRP="$T"
+	T=$(echo "$O" | awk '/^RSRQ/ {print $3}')
+	[ -n "$T" ] && RSRQ="$T"
+	T=$(echo "$O" | awk '/^SINR/ {print $3}')
+	[ -n "$T" ] && SINR="$T"
+
+	T=$(echo "$O" | awk '/^LTE band:/ {print $3}')
+	if [ -n "$T" ]; then
+		T1=$(echo "$O" | awk '/^LTE band:/ {print $6}')
+		PBAND="$(band4g ${T/B/}) @${T1} MHz"
+		MODE="LTE $(band4g ${T/B/})"
+	fi
+	T=$(echo "$O" | awk '/^LTE Rx chan:/ {print $4}')
+#	[ -n "$T" ] && addon 34 "EARFCN DL" "$T"
+	T=$(echo "$O" | awk '/^LTE Rx chan:/ {print $8}')
+#	[ -n "$T" ] && addon 34 "EARFCN UL" "$T"
+fi
+
+fi
+

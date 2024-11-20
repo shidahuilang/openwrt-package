@@ -1,0 +1,21 @@
+{
+    "luci-app-nginx": {
+        "description": "Grant UCI/init/file access of nginx to luci-app-nginx",
+        "read": {
+            "ubus": {
+                "service": ["list"]
+            },
+            "uci": ["nginx"],
+            "file": {
+                "/etc/nginx/conf.d/*.locations": ["read"],
+                "/usr/bin/curl": ["exec"]
+            }
+        },
+        "write": {
+            "uci": ["nginx"],
+            "file": {
+                "/etc/nginx/conf.d/*.locations": ["write"]
+            }
+        }
+    }
+}

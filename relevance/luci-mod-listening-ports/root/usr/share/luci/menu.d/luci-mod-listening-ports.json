@@ -1,0 +1,12 @@
+{
+		"admin/status/ports": {
+				"title": "Listening Ports",
+				"action": {
+						"type": "view",
+						"path": "listening-ports"
+				},
+				"depends": {
+						"acl": [ "luci-mod-listening-ports" ]
+				}
+		}
+}

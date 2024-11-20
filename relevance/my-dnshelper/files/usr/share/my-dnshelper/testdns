@@ -1,0 +1,25 @@
+#!/bin/sh
+
+# [K]2022
+# https://github.com/kongfl888
+
+Logfile="/tmp/my-dnshelper.log"
+
+T=`dnsmasq --test 2>&1 | grep "OK" -c`
+B=baidu.com
+Q=qq.com
+DC=0
+
+D=`ping -c 1 $B 2>&1 | grep 'bad' -c`
+C="ping -c 1 $Q 2>&1 | grep 'bad' -c"
+[ $D -gt 0 ] && DC=`eval $C`
+ping -c 1 "114.114.114.114" >/dev/null 2>&1 ||  DC=0
+
+if [ $T -eq 0 -o $DC -gt 0 ]; then
+	# no ok
+	echo "1"
+	exit 1
+else
+	echo "0"
+	exit 0
+fi

@@ -1,0 +1,27 @@
+
+<script type="text/javascript">//<![CDATA[
+	XHR.poll(5, '<%=url("admin/services/openai/openai_status")%>', null,
+		function(x, st)
+		{
+			var tb = document.getElementById('openai_status');
+			if (st && tb)
+			{
+				if (st.running)
+				{
+					tb.innerHTML = '<em style=\"color:green\"><b>OpenAI <%:RUNNING%></b></em>' + "<input class=\"cbi-button cbi-button-reload mar-10\" type=\"button\" value=\" <%:Open Web Interface%> \" onclick=\"window.open('//" + window.location.hostname + ":" + st.port + "/')\"/>";
+				}
+				else
+				{
+					tb.innerHTML = '<em style=\"color:red\"><b>OpenAI <%:NOT RUNNING%></b></em>';
+				}
+			}
+		}
+	);
+//]]></script>
+
+<style>.mar-10 {margin-left: 50px; margin-right: 10px;}</style>
+<fieldset class="cbi-section">
+	<p id="openai_status">
+		<em><b><%:Collecting data...%></b></em>
+	</p>
+</fieldset>

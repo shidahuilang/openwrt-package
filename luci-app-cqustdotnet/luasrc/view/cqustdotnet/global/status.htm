@@ -1,0 +1,111 @@
+<%
+local api = require('luci.model.cbi.cqustdotnet.api.api')
+%>
+
+<style>
+    .status-section {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-evenly;
+        flex-wrap: wrap;
+        padding: 8px;
+    }
+
+    .status-card {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 20px;
+        margin: 8px;
+        background-color: #fff;
+        border-radius: 4px;
+        min-width: 240px;
+    }
+
+    .status-card > .icon {
+        width: 50px;
+        height: 50px;
+        margin-right: 10px;
+    }
+
+    .status-card > .icon path {
+        fill: #666;
+    }
+
+    .status-card > .texts {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .status-card > .texts > .title {
+        font-size: 1em;
+        padding: 0;
+        color: #555;
+    }
+
+    .status-card > .texts > .content {
+        font-size: 1em;
+        padding: 0;
+        color: #777;
+    }
+
+    @media (prefers-color-scheme: light) {
+        .status-section {
+            background-color: rgba(0, 0, 0, .05);
+        }
+    }
+
+    @media (prefers-color-scheme: dark) {
+        .status-card {
+            background-color: #000;
+        }
+
+        .status-card > .icon path {
+            fill: #999;
+        }
+
+        .status-card > .texts > .title {
+            color: #888;
+        }
+    }
+</style>
+
+<fieldset class="cbi-section">
+    <legend>状态</legend>
+    <div class="status-section">
+        <div class="status-card">
+            <svg class="icon" viewBox="0 0 1024 1024">
+                <path d="M832 106.666667H192C145.066667 106.666667 106.666667 145.066667 106.666667 192v128h810.666666V192c0-46.933333-38.4-85.333333-85.333333-85.333333zM202.666667 256c-17.066667 0-32-14.933333-32-32S185.6 192 202.666667 192s32 14.933333 32 32-14.933333 32-32 32z m106.666666 0c-17.066667 0-32-14.933333-32-32S292.266667 192 309.333333 192s32 14.933333 32 32-14.933333 32-32 32z m106.666667 0c-17.066667 0-32-14.933333-32-32S398.933333 192 416 192s32 14.933333 32 32-14.933333 32-32 32zM106.666667 832c0 46.933333 38.4 85.333333 85.333333 85.333333h640c46.933333 0 85.333333-38.4 85.333333-85.333333V384H106.666667v448z m266.666666-64h-106.666666c-17.066667 0-32-14.933333-32-32s14.933333-32 32-32h106.666666c17.066667 0 32 14.933333 32 32s-14.933333 32-32 32z m170.666667-277.333333h213.333333c17.066667 0 32 14.933333 32 32s-14.933333 32-32 32h-213.333333c-17.066667 0-32-14.933333-32-32s14.933333-32 32-32z m0 106.666666h213.333333c17.066667 0 32 14.933333 32 32s-14.933333 32-32 32h-213.333333c-17.066667 0-32-14.933333-32-32s14.933333-32 32-32z m0 106.666667h213.333333c17.066667 0 32 14.933333 32 32s-14.933333 32-32 32h-213.333333c-17.066667 0-32-14.933333-32-32s14.933333-32 32-32z m-307.2-160c12.8-12.8 32-12.8 44.8 0l38.4 38.4 83.2-83.2c12.8-12.8 32-12.8 44.8 0 12.8 12.8 12.8 32 0 44.8l-106.666667 104.533333c-12.8 12.8-32 12.8-44.8 0l-59.733333-59.733333c-12.8-12.8-12.8-32 0-44.8z"/>
+            </svg>
+            <div class="texts">
+                <h4 class="title">网络守护进程</h4>
+                <p id="connector_status" class="content">-</p>
+            </div>
+        </div>
+        <div class="status-card">
+            <svg class="icon" viewBox="0 0 1024 1024">
+                <path d="M702.1 521.7l132.1 99.2c31.1 23.4 49.6 60.4 49.6 99.3v124.2c0 45.6-37.1 82.6-82.6 82.6H222.8c-45.6 0-82.6-37.1-82.6-82.7V720.1c0-41.8 20.3-77.4 62.3-108.8l122.3-92c-39.9-53.1-60.6-111.5-60.6-174C264.1 196.8 363.8 97 512 97s247.9 99.8 247.9 248.3c0 66-19.8 125.6-58.8 177.2M553.3 636.2c0-22.9-18.5-41.4-41.3-41.4-22.8 0-41.3 18.5-41.3 41.4v165.6h82.6V636.2z m0 0"/>
+            </svg>
+            <div class="texts">
+                <h4 class="title">当前账号</h4>
+                <p id="current_account" class="content">-</p>
+            </div>
+        </div>
+    </div>
+</fieldset>
+
+<script type="text/javascript">//<![CDATA[
+const connector_status = document.getElementById('connector_status')
+const current_account = document.getElementById('current_account')
+
+XHR.poll(5, '<%=api.url("status")%>', null, function (x, status) {
+    if (!x || x.status !== 200 || !status) return
+    connector_status.innerHTML = status.connector ? '<b style="color: green">运行中</b>' : '<b style="color: red">未运行</b>'
+    if (status.connector)
+        current_account.innerText = status.account ? status.account : '未知'
+    else
+        current_account.innerText = '-'
+})
+//]]></script>

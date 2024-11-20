@@ -1,0 +1,36 @@
+<%
+	local uci = require 'luci.model.uci'.cursor()
+	protocol="http://"
+%>
+<script type="text/javascript">//<![CDATA[
+XHR.poll(3, '<%=url([[admin]], [[vpn]], [[vnt]], [[status]])%>', null,
+    function(x, data) {
+        var st = document.getElementById('vnt_status');
+        if (data && st) {
+            var clientStatus = data.crunning ? "<span style='color:green;'> 运行中</span><img src='https://www.right.com.cn/forum/data/attachment/album/202401/30/081238k459q2d5klacs8rk.gif' width='30px' alt=''>" : "<span style='color:red;'> 未运行</span>";
+            var serverStatus = data.srunning ? "<span style='color:green;'> 运行中</span><img src='https://www.right.com.cn/forum/data/attachment/album/202401/30/081238k459q2d5klacs8rk.gif' width='30px' alt=''>" : "<span style='color:red;'> 未运行</span>";
+            var vntstaContent = data.crunning ? "已运行：" + "<span style='color:#DA70D6;'>" + data.vntsta + "</span>" : "";    
+            var vntcpuContent = data.crunning ? "<br>" + "CPU占用：" + "<span style='color:#6A5ACD;'>" + data.vntcpu + "</span>" : "";  
+            var vntramContent = data.crunning ? "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + "&nbsp;&nbsp;&nbsp;&nbsp;内存占用：" + "<span style='color:#0000CD;'>" + data.vntram + "</span>" : ""; 
+            var vntsta2Content = data.srunning ? "&nbsp;&nbsp;&nbsp;&nbsp;" + "&nbsp;&nbsp;已&nbsp;运&nbsp;行&nbsp;：" + "<span style='color:#DA70D6;'>" + data.vntsta2 + "</span>" : "";    
+            var vntscpuContent = data.srunning ? "<br>" + "CPU占用：" + "<span style='color:#6A5ACD;'>" + data.vntscpu + "</span>" : "";  
+            var vntsramContent = data.srunning ? "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + "&nbsp;&nbsp;&nbsp;内存占用：" + "<span style='color:#0000CD;'>" + data.vntsram + "</span>" : "";
+            var vnttagContent = data.crunning ? "<br>" + "当前版本：" + "<span style='color:#CD853F;'>" + data.vnttag + "</span>" : ""; 
+            var vntnewtagContent = data.crunning ? "&nbsp;&nbsp;&nbsp;&nbsp;" + "&nbsp;&nbsp;&nbsp;最新版本：" + "<span style='color:#FFA500;'>" + data.vntnewtag + "</span>" : "";    
+            var vntstagContent = data.srunning ? "<br>" + "当前版本：" + "<span style='color:#CD853F;'>" + data.vntstag + "</span>" : "";  
+            var vntsnewtagContent = data.srunning ? "&nbsp;&nbsp;&nbsp;" + "最新版本：" + "<span style='color:#FFA500;'>" + data.vntsnewtag + "</span>" : "";
+            var vntswebContent = "";
+            if (data.web !== 0 && data.srunning) {
+                vntswebContent = "&nbsp;&nbsp;&nbsp;" + "<input class=\"cbi-button cbi-button-reload mar-10\" type=\"button\" value=\" <%:Web 界面%> \" onclick=\"window.open('<%=protocol%>" + window.location.hostname + ":" + data.port + "/')\"/>";
+            }
+            st.innerHTML = "<em><b>vnt-cli " + clientStatus + vntstaContent + vntcpuContent + vntramContent + vnttagContent + vntnewtagContent + "</b></em><br><br><em><b>vnts " + serverStatus + vntsta2Content + vntscpuContent + vntsramContent + vntstagContent + vntsnewtagContent + vntswebContent + "</b></em>";          
+        }
+    }
+);
+//]]>
+</script>
+<fieldset class="cbi-section">
+    <p id="vnt_status">
+        <em><%:Collecting data...%></em>
+    </p>
+</fieldset>
