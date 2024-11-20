@@ -1,6 +1,7 @@
 local fs = require "nixio.fs"
 
-m = Map("cifs", translate("Mount SMB/CIFS Netshare"))
+m = Map("cifs")
+m.title = translate("Mount SMB/CIFS Netshare")
 m.description = translate("Mount SMB/CIFS Netshare for OpenWrt")
 
 s = m:section(TypedSection, "cifs")
@@ -27,16 +28,21 @@ name.size = 8
 
 pth = s:option(Value, "natpath", translate("Mount Path"))
 if nixio.fs.access("/etc/config/fstab") then
-		pth.titleref = luci.dispatcher.build_url("admin", "system", "mounts")
+        pth.titleref = luci.dispatcher.build_url("admin", "system", "fstab")
 end
 pth.rmempty = false
 pth.size = 10
 
+uid = s:option(Value, "uid", translate("Owner UID"))
+uid.size = 6
+uid.default = "0"
+uid.rmempty = false
+
 smbver = s:option(Value, "smbver", translate("SMB Version"))
 smbver.rmempty = false
-smbver:value("1.0","SMB v1")
-smbver:value("2.0","SMB v2")
-smbver:value("3.0","SMB v3")
+smbver:value("1.0", "SMB v1")
+smbver:value("2.0", "SMB v2")
+smbver:value("3.0", "SMB v3")
 smbver.default = "2.0"
 smbver.size = 3
 

@@ -1,3 +1,0 @@
-config dogcom 'config'
-    option enabled '1'
-    option version 'dhcp'

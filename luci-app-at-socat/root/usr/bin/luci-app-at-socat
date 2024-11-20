@@ -1,7 +1,0 @@
-#!/bin/sh
-
-ARGS=$1
-DEVPORT=$2
-
-echo "${ARGS}" | socat - ${DEVPORT},,crnl
-

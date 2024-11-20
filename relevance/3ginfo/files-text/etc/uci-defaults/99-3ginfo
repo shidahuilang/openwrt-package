@@ -1,0 +1,4 @@
+#!/bin/sh
+#chmod +x /usr/share/3ginfo/cgi-bin/3ginfo.sh
+#ln -s /usr/share/3ginfo/cgi-bin/3ginfo.sh /usr/bin/3ginfo
+exit 0

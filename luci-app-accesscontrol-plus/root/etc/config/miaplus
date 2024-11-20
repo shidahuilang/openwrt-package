@@ -1,8 +1,0 @@
-
-config basic
-	option enable '0'
-	option strict '0'
-
-config templates
-    option enable '0'
-    option title 'default'

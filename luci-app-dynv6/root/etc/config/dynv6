@@ -1,3 +1,0 @@
-config site 'default'
-	option enabled '0'
-	option interval '60'

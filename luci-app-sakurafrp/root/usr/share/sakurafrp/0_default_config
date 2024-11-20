@@ -1,4 +1,0 @@
-config global 'config'
-        option token ''
-
-config global 'other'

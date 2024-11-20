@@ -7,7 +7,6 @@ binpath="/tmp/AdGuardHome/AdGuardHome"
 fi
 mkdir -p ${binpath%/*}
 upxflag=$(uci get AdGuardHome.AdGuardHome.upxflag 2>/dev/null)
-tagname=$(uci get AdGuardHome.AdGuardHome.tagname 2>/dev/null)
 
 check_if_already_running(){
 	running_tasks="$(ps |grep "AdGuardHome" |grep "update_core" |grep -v "grep" |awk '{print $1}' |wc -l)"
@@ -16,7 +15,7 @@ check_if_already_running(){
 
 check_wgetcurl(){
 	which curl && downloader="curl -L -k --retry 2 --connect-timeout 20 -o" && return
-	which wget-ssl && downloader="wget-ssl --no-check-certificate -t 2 -T 20 -O" && return
+	which wget && downloader="wget --no-check-certificate -t 2 -T 20 -O" && return
 	[ -z "$1" ] && opkg update || (echo error opkg && EXIT 1)
 	[ -z "$1" ] && (opkg remove wget wget-nossl --force-depends ; opkg install wget ; check_wgetcurl 1 ;return)
 	[ "$1" == "1" ] && (opkg install curl ; check_wgetcurl 2 ; return)
@@ -24,18 +23,13 @@ check_wgetcurl(){
 }
 check_latest_version(){
 	check_wgetcurl
-	echo -e "Check for update..."
-	if [ "$tagname" = "beta" ]; then
-		latest_ver="$(echo `$downloader - https://api.github.com/repos/AdguardTeam/AdGuardHome/releases 2>/dev/null|grep -E '(tag_name|prerelease)'`|sed 's#"tag#\n"tag#g'|grep "true"|head -n1|cut -d '"' -f4 2>/dev/null)"
-	else
-		latest_ver="$($downloader - https://api.github.com/repos/AdguardTeam/AdGuardHome/releases/latest 2>/dev/null|grep -E 'tag_name'|head -n1|cut -d '"' -f4 2>/dev/null)"
-	fi
+	latest_ver="$($downloader - https://api.github.com/repos/AdguardTeam/AdGuardHome/releases/latest 2>/dev/null|grep -E 'tag_name' |grep -E 'v[0-9.]+' -o 2>/dev/null)"
 	if [ -z "${latest_ver}" ]; then
 		echo -e "\nFailed to check latest version, please try again later."  && EXIT 1
 	fi
-	now_ver="$($binpath --version 2>/dev/null | grep -m 1 -oE '[v]{0,1}[0-9]+[.][Bbeta0-9\.\-]+')"
+	now_ver="$($binpath -c /dev/null --check-config 2>&1| grep -m 1 -E 'v[0-9.]+' -o)"
 	if [ "${latest_ver}"x != "${now_ver}"x ] || [ "$1" == "force" ]; then
-		echo -e "Local version: ${now_ver}. Cloud version: ${latest_ver}."
+		echo -e "Local version: ${now_ver}., cloud version: ${latest_ver}." 
 		doupdate_core
 	else
 			echo -e "\nLocal version: ${now_ver}, cloud version: ${latest_ver}." 
@@ -124,60 +118,58 @@ doupdate_core(){
 	echo -e "Updating core..." 
 	mkdir -p "/tmp/AdGuardHomeupdate"
 	rm -rf /tmp/AdGuardHomeupdate/* >/dev/null 2>&1
-	Arch=$(uci -q get AdGuardHome.AdGuardHome.arch)
-	if [ -z "$Arch" ]; then
-		Archt="$(opkg info kernel | grep Architecture | awk -F "[ _]" '{print($2)}')"
-		case $Archt in
-		"i386"|"i486"|"i686"|"i786")
-		Arch="386"
-		;;
-		"x86")
-		Arch="amd64"
-		;;
-		"mipsel")
-		Arch="mipsle_softfloat"
-		;;
-		"mips64el")
-		Arch="mips64le_softfloat"
-		;;
-		"mips")
-		Arch="mips_softfloat"
-		;;
-		"mips64")
-		Arch="mips64_softfloat"
-		;;
-		"arm")
-		um=`uname -m`
-		if [ $um = "armv8l" ]; then
-			Arch="armv7"
-		elif [ $um = "armv6l" ]; then
-			Arch="armv6"
-		else
-			Arch="armv5"
-		fi
-		;;
-		"aarch64")
-		Arch="arm64"
-		;;
-		"powerpc")
-		Arch="ppc"
-		echo -e "error not support $Archt"
-		EXIT 1
-		;;
-		"powerpc64")
-		Arch="ppc64le"
-		;;
-		*)
-		echo -e "error not support $Archt if you can use offical release please issue a bug" 
-		EXIT 1
-		;;
-		esac
-	fi
+	Archt="$(opkg info kernel | grep Architecture | awk -F "[ _]" '{print($2)}')"
+	case $Archt in
+	"i386")
+	Arch="386"
+	;;
+	"i686")
+	Arch="386"
+	;;
+	"x86")
+	Arch="amd64"
+	;;
+	"mipsel")
+	Arch="mipsle"
+	;;
+	"mips64el")
+	Arch="mips64le"
+	Arch="mipsle"
+	echo -e "mips64el use $Arch may have bug" 
+	;;
+	"mips")
+	Arch="mips"
+	;;
+	"mips64")
+	Arch="mips64"
+	Arch="mips"
+	echo -e "mips64 use $Arch may have bug" 
+	;;
+	"arm")
+	Arch="arm"
+	;;
+	"aarch64")
+	Arch="arm64"
+	;;
+	"powerpc")
+	Arch="ppc"
+	echo -e "error not support $Archt" 
+	EXIT 1
+	;;
+	"powerpc64")
+	Arch="ppc64"
+	echo -e "error not support $Archt" 
+	EXIT 1
+	;;
+	*)
+	echo -e "error not support $Archt if you can use offical release please issue a bug" 
+	EXIT 1
+	;;
+	esac
 	echo -e "start download" 
 	grep -v "^#" /usr/share/AdGuardHome/links.txt >/tmp/run/AdHlinks.txt
 	while read link
 	do
-		[ -n "$link" ] || continue
 		eval link="$link"
 		$downloader /tmp/AdGuardHomeupdate/${link##*/} "$link" 2>&1
 		if [ "$?" != "0" ]; then
@@ -211,7 +203,7 @@ doupdate_core(){
 	fi
 	echo -e "start copy" 
 	/etc/init.d/AdGuardHome stop nobackup
-	rm -f "$binpath"
+	rm "$binpath"
 	mv -f "$downloadbin" "$binpath"
 	if [ "$?" == "1" ]; then
 		echo "mv failed maybe not enough space please use upx or change bin to /tmp/AdGuardHome" 

@@ -1,2 +1,0 @@
-#netxxx.xxx.xxx.xxxyy
-#domain

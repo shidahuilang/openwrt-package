@@ -1,9 +1,0 @@
-#!/bin/sh
-
-[ "$ACTION" = ifup ] || exit 0
-
-enable=$(uci get dnspod.base_arg.enabled 2>/dev/null)
-if [ $enable -eq 1 ]; then
-	sleep 30
-	/etc/init.d/dnspod restart
-fi

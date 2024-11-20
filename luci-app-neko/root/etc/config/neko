@@ -1,7 +1,0 @@
-config neko 'cfg'
-	option enabled '0'
-	option php_server '0'
-	option new_interface '1'
-	option delay '2'
-	option theme 'darkpink.css'
-	option selected_config '/etc/neko/config/nosignal2.yaml'

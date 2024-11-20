@@ -13,8 +13,7 @@ available.
 -->
 <msd>
 	<log>
-		<!-- syslog Severity level: 0=emerg - 7=debug. -->
-		<level>@logLevel@</level>
+		<file>/dev/null</file>
 	</log>
 	<threadPool>
 		<threadsCountMax>@threadsCountMax@</threadsCountMax>

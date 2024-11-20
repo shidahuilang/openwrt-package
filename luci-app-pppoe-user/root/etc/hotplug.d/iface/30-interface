@@ -1,9 +1,0 @@
-#!/bin/sh
-
-. /lib/functions.sh
-
-PPPOE_TIME="$(date "+%Y-%m-%d_%H:%M:%S")"
-GATEWAY="$(uci get network."$INTERFACE".gateway)"
-PING="$(ping "$GATEWAY" -I "$DEVICE" -c 5 | awk '{ print strftime("%Y-%m-%d %H:%M:%S",systime())"\t" $0; fflush() }' | grep -E 'rtt|round-trip' | cut -d "=" -f2)"
-
-echo "$PPPOE_TIME Track Device=$DEVICE, Interface=$INTERFACE, Gateway=$GATEWAY, Ping=$PING, Action=$ACTION" >> /var/pppoe-user/log/interface.log

@@ -3,9 +3,8 @@ local http = require "luci.http"
 module("luci.controller.quickstart", package.seeall)
 
 function index()
-	entry({"admin", "nas"}, firstchild(), _("NAS") , 45).dependent = false
     if luci.sys.call("pgrep quickstart >/dev/null") == 0 then
-        entry({"admin", "quickstart"}, template("quickstart/home")).leaf = true
+        entry({"admin", "quickstart"}, template("quickstart/home"), _("QuickStart"), 1).leaf = true
         entry({"admin", "network_guide"}, call("networkguide_index"), _("NetworkGuide"), 2)
         entry({"admin", "network_guide", "pages"}, call("quickstart_index", {index={"admin", "network_guide", "pages"}})).leaf = true
         if nixio.fs.access("/usr/lib/lua/luci/view/quickstart/main_dev.htm") then

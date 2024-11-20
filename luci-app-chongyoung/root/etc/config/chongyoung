@@ -1,5 +1,0 @@
-
-config chongyoung 'config'
-	option time '30'
-	option user ''
-

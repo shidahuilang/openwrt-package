@@ -1,7 +1,0 @@
-
-config main 'config'
-	option enabled '1'
-
-config governor 'ondemand'
-
-config governor 'conservative'

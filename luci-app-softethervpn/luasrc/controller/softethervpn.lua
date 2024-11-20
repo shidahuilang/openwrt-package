@@ -1,14 +1,12 @@
-module("luci.controller.softethervpn",package.seeall)
+module("luci.controller.softethervpn", package.seeall)
 
 function index()
 	if not nixio.fs.access("/etc/config/softethervpn") then
 		return
 	end
-	
+
 	entry({"admin", "vpn"}, firstchild(), "VPN", 45).dependent = false
-	local page = entry({"admin", "vpn", "softethervpn"}, cbi("softethervpn"), _("SoftEther VPN Service"), 50)
-	page.dependent = true
-	page.acl_depends = { "luci-app-softethervpn" }
+	entry({"admin", "vpn", "softethervpn"}, cbi("softethervpn"), _("SoftEther VPN Service"), 50).dependent = true
 	entry({"admin", "vpn", "softethervpn", "status"}, call("act_status")).leaf = true
 end
 

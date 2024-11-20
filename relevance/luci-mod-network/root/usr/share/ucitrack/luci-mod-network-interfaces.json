@@ -1,7 +1,0 @@
-{
-	"config": "network",
-	"init": "network",
-	"affects": [
-		"dhcp"
-	]
-}

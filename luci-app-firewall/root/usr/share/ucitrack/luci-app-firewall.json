@@ -1,9 +1,0 @@
-{
-	"config": "firewall",
-	"init": "firewall",
-	"affects": [
-		"luci-splash",
-		"qos",
-		"miniupnpd"
-	]
-}

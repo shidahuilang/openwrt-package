@@ -73,7 +73,7 @@ start()
 
 stop()
 {
-    killall -3 mentohust
+    killall mentohust
 }
 
 restart()

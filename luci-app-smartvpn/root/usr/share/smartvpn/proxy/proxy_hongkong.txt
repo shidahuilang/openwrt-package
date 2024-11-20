@@ -1,2 +1,0 @@
-# net 网段格式: xxx.xxx.xxx.xxx/yy
-# domain 域名格式: 必须以点开头
