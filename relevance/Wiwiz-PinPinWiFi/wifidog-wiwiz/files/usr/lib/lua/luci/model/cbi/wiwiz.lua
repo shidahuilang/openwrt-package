@@ -3,11 +3,11 @@ m = Map("wiwiz", translate("Wiwiz"),
 
 portal = m:section(TypedSection, "wiwiz", "")
 
-enabled = portal:option(Flag, "enabled", "启用");
+enabled = portal:option(Flag, "enabled", translate("Enable"));
 enabled.optional = false 
 enabled.rmempty = false
 
-hotspotid = portal:option(Value, "hotspotid", "Hotspot ID", "注意区分大小写，不要有空格");
+hotspotid = portal:option(Value, "hotspotid", "Hotspot ID", translate("case sensitivity, no spaces"));
 hotspotid.optional = false 
 hotspotid.rmempty = false
 
@@ -15,17 +15,17 @@ hotspotid.rmempty = false
 --username.optional = false 
 --username.rmempty = false
 
-server = portal:option(Value, "server", "服务器地址与端口"); 
+server = portal:option(Value, "server", translate("Server Address and Port")); 
 server.optional = false 
 server.rmempty = false
 server.default = "cp.wiwiz.com:80"
 
-lan = portal:option(Value, "lan", "网络接口"); 
+lan = portal:option(Value, "lan", translate("Network interface")); 
 lan.optional = false 
 lan.rmempty = false
 lan.addremove = false
 lan.default = "br-lan"
 
-ver = portal:option(DummyValue, "ver", "Wiwiz插件版本", "<a href='http://www.wiwiz.com/pinpinwifi/wiwiz-ipk.htm' target='_blank'>使用说明</a>");
+ver = portal:option(DummyValue, "ver", translate("Plugin Version"), translate("<a href='http://www.wiwiz.com/pinpinwifi/wiwiz-ipk.htm' target='_blank'>Readme</a>"));
 
 return m

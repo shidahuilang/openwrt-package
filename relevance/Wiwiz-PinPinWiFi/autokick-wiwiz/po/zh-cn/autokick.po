@@ -1,0 +1,23 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: LuCi Chinese Translation\n"
+"Report-Msgid-Bugs-To: \n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Pootle 2.0.6\n"
+
+msgid "AutoKick"
+msgstr "自动断开无线终端"
+
+msgid "Enable"
+msgstr "启用"
+
+msgid "Enabling this feature will automatically disconnect the wireless client after portal authentication expires"
+msgstr "开启本功能后可使终端设备在Portal认证到期后自动断开无线连接"
+
+msgid "Portal Gateway Address"
+msgstr "Portal认证设备地址"
+
