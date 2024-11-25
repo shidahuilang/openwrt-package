@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=dcc2-wiwiz
-PKG_VERSION:=20241103
+PKG_VERSION:=20241125
 PKG_RELEASE:=1
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
@@ -65,6 +65,9 @@ define Package/dcc2-wiwiz-$(BUILD_VARIANT)/install
 
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(INSTALL_BIN) ./files/uci-defaults-rtty $(1)/etc/uci-defaults/rtty
+
+	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/i18n
+	po2lmo ./po/zh-cn/dcc2-wiwiz.po $(1)/usr/lib/lua/luci/i18n/dcc2-wiwiz.zh-cn.lmo
 endef
 
 define Package/dcc2-wiwiz-$(BUILD_VARIANT)/postinst

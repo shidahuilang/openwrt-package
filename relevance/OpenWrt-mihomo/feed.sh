@@ -29,7 +29,7 @@ if [ -x "/bin/opkg" ]; then
 	# add key
 	echo "add key"
 	key_build_pub_file="key-build.pub"
-	curl -s -L -o "$key_build_pub_file" "https://mirror.ghproxy.com/https://github.com/morytyann/OpenWrt-mihomo/raw/refs/heads/main/key-build.pub"
+	curl -s -L -o "$key_build_pub_file" "https://ghp.ci/https://github.com/morytyann/OpenWrt-mihomo/raw/refs/heads/main/key-build.pub"
 	opkg-key add "$key_build_pub_file"
 	rm -f "$key_build_pub_file"
 	# add feed
@@ -46,8 +46,8 @@ elif [ -x "/usr/bin/apk" ]; then
 	# todo: implement add key for apk
 	# add feed
 	echo "add feed"
-	if (grep -q mihomo /etc/apk/repositories); then
-		sed -i '/mihomo/d' /etc/apk/repositories
+	if (grep -q mihomo /etc/apk/repositories.d/customfeeds.list); then
+		sed -i '/mihomo/d' /etc/apk/repositories.d/customfeeds.list
 	fi
 	echo "https://morytyann.github.io/OpenWrt-mihomo/$branch/$arch/mihomo/packages.adb" >> /etc/apk/repositories.d/customfeeds.list
 	# update feeds
