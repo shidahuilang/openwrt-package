@@ -8,9 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=wifidog-wiwiz
-PKG_VERSION:=20241103
+PKG_VERSION:=20241125
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
-
 
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
@@ -87,7 +86,9 @@ define Package/wifidog-wiwiz/install
 	$(INSTALL_DATA) ./files/www/error.html.wiwiz $(1)/www/error.html.wiwiz
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(INSTALL_BIN) ./files/etc/uci-defaults/199-noredir $(1)/etc/uci-defaults/199-noredir
-	
+
+	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/i18n
+	po2lmo ./po/zh-cn/wifidog-wiwiz.po $(1)/usr/lib/lua/luci/i18n/wifidog-wiwiz.zh-cn.lmo	
 ifeq ($(CONFIG_NO_PORTAL),y)
 	$(INSTALL_BIN) ./files/etc/uci-defaults/299-noportal $(1)/etc/uci-defaults/299-noportal
 endif

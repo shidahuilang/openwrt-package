@@ -1,31 +1,31 @@
 m = Map("rtty", translate("Wiwiz"),
-translate("DCC2远程管理 Ver 1.2.2 <a href='http://www.wiwiz.com/pinpinwifi/wiwiz-ipk.htm' target='_blank'>使用说明</a>")) 
+translate("DCC2 Ver 1.2.2 <a href='http://www.wiwiz.com/pinpinwifi/wiwiz-ipk.htm' target='_blank'>Readme</a>")) 
 
 rtty = m:section(TypedSection, "rtty", "")
 
-enabled = rtty:option(Flag, "enabled", "启用");
+enabled = rtty:option(Flag, "enabled", translate("Enable"));
 enabled.optional = false 
 enabled.rmempty = false
 
-id = rtty:option(Value, "id", "设备ID", "若为空则使用设备的mac地址作为设备ID");
+id = rtty:option(Value, "id", "设备ID", translate("mac address will be Device ID if empty"));
 id.optional = true 
 id.rmempty = false
 id.addremove = false
 
-token = rtty:option(Value, "token", "用户Token");
+token = rtty:option(Value, "token", translate("Token"));
 token.optional = false 
 token.rmempty = false
 
-description = rtty:option(Value, "description", "备注"); 
+description = rtty:option(Value, "description", translate("Description")); 
 description.optional = true 
 description.rmempty = false
 description.addremove = false
 
-host = rtty:option(Value, "host", "服务器地址"); 
+host = rtty:option(Value, "host", translate("Server Address")); 
 host.optional = false 
 host.rmempty = false
 
-port = rtty:option(Value, "port", "服务器端口"); 
+port = rtty:option(Value, "port", translate("Server Port")); 
 port.optional = false 
 port.rmempty = false
 port.default = "5912"
