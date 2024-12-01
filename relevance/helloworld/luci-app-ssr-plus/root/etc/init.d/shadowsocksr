@@ -69,7 +69,7 @@ uci_get_by_name() {
 
 uci_get_by_type() {
 	local ret=$(uci get $NAME.@$1[0].$2 2>/dev/null)
-	echo ${ret:=$3}
+	echo "${ret:=$3}"
 }
 
 uci_set_by_name() {
@@ -123,7 +123,7 @@ echolog() {
 add_cron() {
 	touch $CRON_FILE
 	sed -i '/ssrplus.log/d' $CRON_FILE
-	[ $(uci_get_by_type server_subscribe auto_update 0) -eq 1 ] && echo "0 $(uci_get_by_type server_subscribe auto_update_time) * * * /usr/share/shadowsocksr/ssrplusupdate.sh >$LOG_FILE" >>$CRON_FILE
+	[ $(uci_get_by_type server_subscribe auto_update 0) -eq 1 ] && echo "$(uci_get_by_type server_subscribe auto_update_min_time) $(uci_get_by_type server_subscribe auto_update_day_time) * * $(uci_get_by_type server_subscribe auto_update_week_time) /usr/share/shadowsocksr/ssrplusupdate.sh >$LOG_FILE" >>$CRON_FILE
 	crontab $CRON_FILE
 }
 
@@ -258,6 +258,14 @@ start_dns() {
 	fi
 	
 	if [ "$(uci_get_by_type global apple_optimization 1)" == "1" ]; then
+		local new_appledns="$(uci_get_by_type global apple_dns)"
+		if [ -n "$new_appledns" ]; then		
+			sed -i 's/[[:space:]]//g' /etc/ssrplus/applechina.conf #去除所有空白字符
+			local old_appledns=$(grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' /etc/ssrplus/applechina.conf | sort -u)
+			if [ -n "$old_appledns" ] && [ "$old_appledns" != "$new_appledns" ]; then
+				sed -i "s,$(printf '%s' "$old_appledns"),$(printf '%s' "$new_appledns"),g" /etc/ssrplus/applechina.conf
+			fi
+		fi
 		echolog "Apple 域名中国大陆 CDN 的 优化规则正在加载。"
 		cp -f /etc/ssrplus/applechina.conf $TMP_DNSMASQ_PATH/
 		echolog "Apple 域名中国大陆 CDN 的 优化规则加载完毕。"

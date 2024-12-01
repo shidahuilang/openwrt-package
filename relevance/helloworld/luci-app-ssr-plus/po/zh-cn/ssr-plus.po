@@ -410,6 +410,9 @@ msgstr "【中国大陆 IP 段】数据库"
 msgid "Netflix IP Data"
 msgstr "【Netflix IP 段】数据库"
 
+msgid "Apple Domains Data"
+msgstr "【Apple 域名】数据库"
+
 msgid "Advertising Data"
 msgstr "【广告屏蔽】数据库"
 
@@ -469,6 +472,15 @@ msgstr "启用广告屏蔽"
 
 msgid "adblock_url"
 msgstr "广告屏蔽更新 URL"
+
+msgid "Apple Domains Update url"
+msgstr "Apple 域名更新 URL"
+
+msgid "Apple Domains DNS"
+msgstr "Apple 域名 DNS"
+
+msgid "If empty, Not change Apple domains parsing DNS (Default is empty)"
+msgstr "如果为空，则不更改 Apple 域名解析 DNS（默认为空）"
 
 msgid "gfwlist Update url"
 msgstr "GFW 列表更新 URL"
@@ -595,6 +607,36 @@ msgstr "格式为 IP:PORT（默认：禁用）"
 
 msgid "Update time (every day)"
 msgstr "更新时间（每天）"
+
+msgid "Update Time (Every Week)"
+msgstr "更新时间（每周）"
+
+msgid "Update Interval (min)"
+msgstr "更新间隔 (分钟)"
+
+msgid "Every Day"
+msgstr "每天"
+
+msgid "Every Monday"
+msgstr "每周一"
+
+msgid "Every Tuesday"
+msgstr "每周二"
+
+msgid "Every Wednesday"
+msgstr "每周三"
+
+msgid "Every Thursday"
+msgstr "每周四"
+
+msgid "Every Friday"
+msgstr "每周五"
+
+msgid "Every Saturday"
+msgstr "每周六"
+
+msgid "Every Sunday"
+msgstr "每周日"
 
 msgid "Auto Update Server subscription, GFW list and CHN route"
 msgstr "自动更新服务器订阅、GFW 列表和中国大陆 IP 段"
