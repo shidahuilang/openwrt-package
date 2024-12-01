@@ -1,5 +1,5 @@
 m = Map("wiwiz", translate("Wiwiz"),
-    translate("Portal认证")) 
+    translate("Portal")) 
 
 portal = m:section(TypedSection, "wiwiz", "")
 
