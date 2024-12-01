@@ -66,6 +66,11 @@ start_rtty() {
 	[ "$verbose" = "1" ] && procd_append_param command -v
 	procd_set_param respawn
 	procd_close_instance
+
+	# otherwise web in dcc2 will forward to https://dcc2.wiwiz.com
+	uci set uhttpd.main.redirect_https='0'
+	uci commit uhttpd
+	/etc/init.d/uhttpd restart
 }
 
 start_service() {
