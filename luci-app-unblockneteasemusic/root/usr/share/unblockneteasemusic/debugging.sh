@@ -78,11 +78,19 @@ echo -e "\n"
 	echo -e ""
 	nft list set inet fw4 "neteasemusic" 2>&1
 	echo -e ""
+	nft list set inet fw4 "neteasemusic6" 2>&1
+	echo -e ""
 	nft list chain inet fw4 "netease_cloud_music" 2>&1
 	echo -e ""
 	nft list chain inet fw4 "netease_cloud_music_redir" 2>&1
 	echo -e ""
-	cat "/tmp/dnsmasq.d/dnsmasq-$NAME.conf"
+	dnsmasq_uci_config="$(uci -q show "dhcp.@dnsmasq[0]" | awk 'NR==1 {split($0, conf, /[.=]/); print conf[2]}')"
+	if [ -f "/tmp/etc/dnsmasq.conf.$dnsmasq_uci_config" ]; then
+		dnsmasq_dir="$(awk -F '=' '/^conf-dir=/ {print $2}' "/tmp/etc/dnsmasq.conf.$dnsmasq_uci_config")"
+	else
+		dnsmasq_dir="/tmp/dnsmasq.d"
+	fi
+	cat "$dnsmasq_dir/dnsmasq-$NAME.conf"
 	echo -e "\n"
 
 	echo -e "Testing source replacing..."
