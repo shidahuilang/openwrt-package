@@ -426,7 +426,8 @@ do
 	
 	if [ "$ENVINFO_SENT" = "0" ]; then
 		MODEL=$(/usr/local/hsbuilder/getmodel.sh)
-		curl -m 5 --data "e2=$ENVINFO_$MY_VERSION|$MODEL" "http://$AS_HOSTNAME_X/as/s/readconf/?m=info&gw_id=$GW_ID&ver=$MY_VERSION" 1>/dev/null 2>/dev/null
+		curl -m 5 --data-urlencode "e2=$ENVINFO_$MY_VERSION|$MODEL" "http://$AS_HOSTNAME_X/as/s/readconf/?m=info&gw_id=$GW_ID&ver=$MY_VERSION" 1>/dev/null 2>/dev/null || \
+		curl -m 5 --data "e2=$ENVINFO_$MY_VERSION|$MODEL" "http://$AS_HOSTNAME_X/as/s/readconf/?m=info&gw_id=$GW_ID&ver=$MY_VERSION" 1>/dev/null 2>/dev/null 
 		ENVINFO_SENT=1
 	fi
 	
