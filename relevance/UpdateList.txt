@@ -52,6 +52,7 @@ luci-app-diskman
 luci-app-eqosplus
 luci-app-fileassistant
 luci-app-filebrowser
+luci-app-floatip
 luci-app-gost
 luci-app-ikoolproxy
 luci-app-istoreenhance

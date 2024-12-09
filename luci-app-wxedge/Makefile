@@ -11,6 +11,14 @@ define Package/luci-app-wxedge/conffiles
 /etc/config/wxedge
 endef
 
+# prerm
+# postrm
+define Package/luci-app-wxedge/prerm
+#!/bin/sh
+docker rm -f wxedge
+exit 0
+endef
+
 include $(TOPDIR)/feeds/luci/luci.mk
 
 # call BuildPackage - OpenWrt buildroot signature
