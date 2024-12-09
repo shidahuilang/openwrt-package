@@ -73,6 +73,7 @@ luci-app-dockerman
 luci-app-fileassistant
 luci-app-filebrowser
 luci-app-filetransfer
+luci-app-floatip
 luci-app-frpc
 luci-app-frps
 luci-app-gost
