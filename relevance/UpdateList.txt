@@ -59,7 +59,6 @@ luci-app-istoreenhance
 luci-app-istorex
 luci-app-linkease
 luci-app-lucky
-luci-app-mail
 luci-app-mentohust
 luci-app-mihomo
 luci-app-mosdns
@@ -106,7 +105,6 @@ luci-app-webd
 luci-app-wifidog
 luci-app-wolplus
 luci-app-wxedge
-luci-app-xfrpc
 luci-app-xunlei
 luci-app-xunyou
 luci-app-zerotier
