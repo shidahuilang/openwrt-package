@@ -223,9 +223,6 @@ msgstr "需要代理的分流规则域名使用 FakeDNS。"
 msgid "Redirect"
 msgstr "重定向"
 
-msgid "Force Router DNS server to all local devices."
-msgstr "强制所有本地设备使用路由器 DNS。"
-
 msgid "Clear IPSET"
 msgstr "清空 IPSET"
 
@@ -1732,8 +1729,5 @@ msgstr "为 sing-box 节点设置默认的域名解析策略。"
 msgid "Total Lines"
 msgstr "总行数："
 
-msgid "Displayed Lines"
-msgstr "展示行数："
-
-msgid "%d lines"
-msgstr "%d 行"
+msgid "Read List"
+msgstr "读取列表"

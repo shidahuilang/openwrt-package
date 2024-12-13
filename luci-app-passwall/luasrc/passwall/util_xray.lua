@@ -186,8 +186,7 @@ function gen_outbound(flag, node, tag, proxy_table)
 				} or nil,
 				wsSettings = (node.transport == "ws") and {
 					path = node.ws_path or "/",
-					headers = (node.ws_host ~= nil) and
-						{Host = node.ws_host} or nil,
+					host = node.ws_host or nil,
 					maxEarlyData = tonumber(node.ws_maxEarlyData) or nil,
 					earlyDataHeaderName = (node.ws_earlyDataHeaderName) and node.ws_earlyDataHeaderName or nil,
 					heartbeatPeriod = tonumber(node.ws_heartbeatPeriod) or nil
@@ -486,7 +485,7 @@ function gen_config_server(node)
 						header = {type = node.mkcp_guise}
 					} or nil,
 					wsSettings = (node.transport == "ws") and {
-						headers = (node.ws_host) and {Host = node.ws_host} or nil,
+						host = node.ws_host or nil,
 						path = node.ws_path
 					} or nil,
 					httpSettings = (node.transport == "h2") and {
@@ -1121,8 +1120,7 @@ function gen_config(var)
 
 		local _remote_dns = {
 			--_flag = "remote",
-			address = "tcp://" .. remote_dns_tcp_server,
-			port = tonumber(remote_dns_tcp_port)
+			address = "tcp://" .. remote_dns_tcp_server .. ":" .. tonumber(remote_dns_tcp_port) or 53
 		}
 
 		local _remote_dns_host
