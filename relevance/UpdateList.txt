@@ -19,7 +19,6 @@ ddnsto
 eqos-master-wiwiz
 ffmpeg-remux
 filebrowser
-firewall4
 go-aliyundrive-webdav
 gost
 homebox
