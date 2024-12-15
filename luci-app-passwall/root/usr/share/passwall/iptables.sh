@@ -2,6 +2,7 @@
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
 MY_PATH=$DIR/iptables.sh
+IPSET_LOCALLIST="passwall_locallist"
 IPSET_LANLIST="passwall_lanlist"
 IPSET_VPSLIST="passwall_vpslist"
 IPSET_SHUNTLIST="passwall_shuntlist"
@@ -11,6 +12,7 @@ IPSET_BLACKLIST="passwall_blacklist"
 IPSET_WHITELIST="passwall_whitelist"
 IPSET_BLOCKLIST="passwall_blocklist"
 
+IPSET_LOCALLIST6="passwall_locallist6"
 IPSET_LANLIST6="passwall_lanlist6"
 IPSET_VPSLIST6="passwall_vpslist6"
 IPSET_SHUNTLIST6="passwall_shuntlist6"
@@ -320,23 +322,23 @@ load_acl() {
 						echolog "     - ${msg}不代理所有 UDP 端口"
 					fi
 				}
-
+				
+				local dns_redirect
+				[ $(config_t_get global dns_redirect "1") = "1" ] && dns_redirect=53
 				if ([ -n "$tcp_port" ] && [ -n "${tcp_proxy_mode}" ]) || ([ -n "$udp_port" ] && [ -n "${udp_proxy_mode}" ]); then
-					[ -n "$dns_redirect_port" ] && {
-						$ipt_m -A PSW $(comment "$remarks") -p udp ${_ipt_source} --dport 53 -j RETURN
-						$ip6t_m -A PSW $(comment "$remarks") -p udp ${_ipt_source} --dport 53 -j RETURN 2>/dev/null
-						$ipt_m -A PSW $(comment "$remarks") -p tcp ${_ipt_source} --dport 53 -j RETURN
-						$ip6t_m -A PSW $(comment "$remarks") -p tcp ${_ipt_source} --dport 53 -j RETURN 2>/dev/null
-						$ipt_n -A PSW_REDIRECT $(comment "$remarks") -p udp ${_ipt_source} --dport 53 -j REDIRECT --to-ports $dns_redirect_port
-						$ip6t_n -A PSW_REDIRECT $(comment "$remarks") -p udp ${_ipt_source} --dport 53 -j REDIRECT --to-ports $dns_redirect_port 2>/dev/null
-						$ipt_n -A PSW_REDIRECT $(comment "$remarks") -p tcp ${_ipt_source} --dport 53 -j REDIRECT --to-ports $dns_redirect_port
-						$ip6t_n -A PSW_REDIRECT $(comment "$remarks") -p tcp ${_ipt_source} --dport 53 -j REDIRECT --to-ports $dns_redirect_port 2>/dev/null
-					}
+					[ -n "${dns_redirect_port}" ] && dns_redirect=${dns_redirect_port}
 				else
-					$ipt_n -A PSW_REDIRECT $(comment "$remarks") -p udp ${_ipt_source} --dport 53 -j RETURN
-					$ip6t_n -A PSW_REDIRECT $(comment "$remarks") -p udp ${_ipt_source} --dport 53 -j RETURN 2>/dev/null
-					$ipt_n -A PSW_REDIRECT $(comment "$remarks") -p tcp ${_ipt_source} --dport 53 -j RETURN
-					$ip6t_n -A PSW_REDIRECT $(comment "$remarks") -p tcp ${_ipt_source} --dport 53 -j RETURN 2>/dev/null
+					[ -n "${DIRECT_DNSMASQ_PORT}" ] && dns_redirect=${DIRECT_DNSMASQ_PORT}
+				fi
+				if [ -n "${dns_redirect}" ]; then
+					$ipt_m -A PSW $(comment "$remarks") -p udp ${_ipt_source} --dport 53 -j RETURN
+					$ip6t_m -A PSW $(comment "$remarks") -p udp ${_ipt_source} --dport 53 -j RETURN 2>/dev/null
+					$ipt_m -A PSW $(comment "$remarks") -p tcp ${_ipt_source} --dport 53 -j RETURN
+					$ip6t_m -A PSW $(comment "$remarks") -p tcp ${_ipt_source} --dport 53 -j RETURN 2>/dev/null
+					$ipt_n -A PSW_DNS $(comment "$remarks") -p udp ${_ipt_source} --dport 53 -j REDIRECT --to-ports ${dns_redirect}
+					$ip6t_n -A PSW_DNS $(comment "$remarks") -p udp ${_ipt_source} --dport 53 -j REDIRECT --to-ports ${dns_redirect} 2>/dev/null
+					$ipt_n -A PSW_DNS $(comment "$remarks") -p tcp ${_ipt_source} --dport 53 -j REDIRECT --to-ports ${dns_redirect}
+					$ip6t_n -A PSW_DNS $(comment "$remarks") -p tcp ${_ipt_source} --dport 53 -j REDIRECT --to-ports ${dns_redirect} 2>/dev/null
 				fi
 
 				[ -n "$tcp_port" -o -n "$udp_port" ] && {
@@ -468,7 +470,7 @@ load_acl() {
 				unset ipt_tmp ipt_j _ipt_source msg msg2
 			done
 			unset enabled sid remarks sources use_global_config use_direct_list use_proxy_list use_block_list use_gfw_list chn_list tcp_proxy_mode udp_proxy_mode dns_redirect_port tcp_no_redir_ports udp_no_redir_ports tcp_proxy_drop_ports udp_proxy_drop_ports tcp_redir_ports udp_redir_ports tcp_node udp_node interface
-			unset tcp_port udp_port tcp_node_remark udp_node_remark _acl_list use_shunt_tcp use_shunt_udp
+			unset tcp_port udp_port tcp_node_remark udp_node_remark _acl_list use_shunt_tcp use_shunt_udp dns_redirect
 		done
 	}
 	
@@ -498,18 +500,24 @@ load_acl() {
 				echolog "     - ${msg}不代理所有 UDP 端口"
 			fi
 		}
-
+		
+		local DNS_REDIRECT
+		[ $(config_t_get global dns_redirect "1") = "1" ] && DNS_REDIRECT=53
 		if ([ "$TCP_NODE" != "nil" ] && [ -n "${TCP_PROXY_MODE}" ]) || ([ "$UDP_NODE" != "nil" ] && [ -n "${UDP_PROXY_MODE}" ]); then
-			[ -n "$DNS_REDIRECT_PORT" ] && {
-				$ipt_m -A PSW $(comment "默认") -p udp --dport 53 -j RETURN
-				$ip6t_m -A PSW $(comment "默认") -p udp --dport 53 -j RETURN 2>/dev/null
-				$ipt_m -A PSW $(comment "默认") -p tcp --dport 53 -j RETURN
-				$ip6t_m -A PSW $(comment "默认") -p tcp --dport 53 -j RETURN 2>/dev/null
-				$ipt_n -A PSW_REDIRECT $(comment "默认") -p udp --dport 53 -j REDIRECT --to-ports $DNS_REDIRECT_PORT
-				$ip6t_n -A PSW_REDIRECT $(comment "默认") -p udp --dport 53 -j REDIRECT --to-ports $DNS_REDIRECT_PORT 2>/dev/null
-				$ipt_n -A PSW_REDIRECT $(comment "默认") -p tcp --dport 53 -j REDIRECT --to-ports $DNS_REDIRECT_PORT
-				$ip6t_n -A PSW_REDIRECT $(comment "默认") -p tcp --dport 53 -j REDIRECT --to-ports $DNS_REDIRECT_PORT 2>/dev/null
-			}
+			[ -n "${DNS_REDIRECT_PORT}" ] && DNS_REDIRECT=${DNS_REDIRECT_PORT}
+		else
+			[ -n "${DIRECT_DNSMASQ_PORT}" ] && DNS_REDIRECT=${DIRECT_DNSMASQ_PORT}
+		fi
+		
+		if [ -n "${DNS_REDIRECT}" ]; then
+			$ipt_m -A PSW $(comment "默认") -p udp --dport 53 -j RETURN
+			$ip6t_m -A PSW $(comment "默认") -p udp --dport 53 -j RETURN 2>/dev/null
+			$ipt_m -A PSW $(comment "默认") -p tcp --dport 53 -j RETURN
+			$ip6t_m -A PSW $(comment "默认") -p tcp --dport 53 -j RETURN 2>/dev/null
+			$ipt_n -A PSW_DNS $(comment "默认") -p udp --dport 53 -j REDIRECT --to-ports ${DNS_REDIRECT}
+			$ip6t_n -A PSW_DNS $(comment "默认") -p udp --dport 53 -j REDIRECT --to-ports ${DNS_REDIRECT} 2>/dev/null
+			$ipt_n -A PSW_DNS $(comment "默认") -p tcp --dport 53 -j REDIRECT --to-ports ${DNS_REDIRECT}
+			$ip6t_n -A PSW_DNS $(comment "默认") -p tcp --dport 53 -j REDIRECT --to-ports ${DNS_REDIRECT} 2>/dev/null
 		fi
 
 		[ -n "${TCP_PROXY_MODE}" -o -n "${UDP_PROXY_MODE}" ] && {
@@ -762,6 +770,7 @@ filter_node() {
 
 add_firewall_rule() {
 	echolog "开始加载防火墙规则..."
+	ipset -! create $IPSET_LOCALLIST nethash maxelem 1048576
 	ipset -! create $IPSET_LANLIST nethash maxelem 1048576
 	ipset -! create $IPSET_VPSLIST nethash maxelem 1048576
 	ipset -! create $IPSET_SHUNTLIST nethash maxelem 1048576 timeout 172800
@@ -771,6 +780,7 @@ add_firewall_rule() {
 	ipset -! create $IPSET_WHITELIST nethash maxelem 1048576 timeout 172800
 	ipset -! create $IPSET_BLOCKLIST nethash maxelem 1048576 timeout 172800
 
+	ipset -! create $IPSET_LOCALLIST6 nethash family inet6 maxelem 1048576
 	ipset -! create $IPSET_LANLIST6 nethash family inet6 maxelem 1048576
 	ipset -! create $IPSET_VPSLIST6 nethash family inet6 maxelem 1048576
 	ipset -! create $IPSET_SHUNTLIST6 nethash family inet6 maxelem 1048576 timeout 172800
@@ -869,6 +879,14 @@ add_firewall_rule() {
 			echolog "  - [$?]解析并加入[分流节点] GeoIP 到 IPSET 完成"
 		fi
 	}
+	
+	ipset -! -R <<-EOF
+		$(ip address show | grep -w "inet" | awk '{print $2}' | awk -F '/' '{print $1}' | sed -e "s/^/add $IPSET_LOCALLIST /")
+	EOF
+
+	ipset -! -R <<-EOF
+		$(ip address show | grep -w "inet6" | awk '{print $2}' | awk -F '/' '{print $1}' | sed -e "s/^/add $IPSET_LOCALLIST6 /")
+	EOF
 
 	#局域网IP列表
 	ipset -! -R <<-EOF
@@ -943,8 +961,13 @@ add_firewall_rule() {
 	[ "${USE_DIRECT_LIST}" = "1" ] && $ipt_n -A PSW_OUTPUT $(dst $IPSET_WHITELIST) -j RETURN
 	$ipt_n -A PSW_OUTPUT -m mark --mark 0xff -j RETURN
 
-	$ipt_n -N PSW_REDIRECT
-	$ipt_n -I PREROUTING 1 -j PSW_REDIRECT
+	$ipt_n -N PSW_DNS
+	if [ $(config_t_get global dns_redirect "1") = "0" ]; then
+		#Only hijack when dest address is local IP
+		$ipt_n -I PREROUTING $(dst $IPSET_LOCALLIST) -j PSW_DNS
+	else
+		$ipt_n -I PREROUTING 1 -j PSW_DNS
+	fi
 
 	$ipt_m -N PSW_DIVERT
 	$ipt_m -A PSW_DIVERT -j MARK --set-mark 1
@@ -1011,8 +1034,13 @@ add_firewall_rule() {
 		$ip6t_n -A PSW_OUTPUT -m mark --mark 0xff -j RETURN
 	}
 
-	$ip6t_n -N PSW_REDIRECT
-	$ip6t_n -I PREROUTING 1 -j PSW_REDIRECT
+	$ip6t_n -N PSW_DNS
+	if [ $(config_t_get global dns_redirect "1") = "0" ]; then
+		#Only hijack when dest address is local IP
+		$ip6t_n -I PREROUTING $(dst $IPSET_LOCALLIST6) -j PSW_DNS
+	else
+		$ip6t_n -I PREROUTING 1 -j PSW_DNS
+	fi
 
 	$ip6t_m -N PSW_DIVERT
 	$ip6t_m -A PSW_DIVERT -j MARK --set-mark 1
@@ -1316,7 +1344,7 @@ del_firewall_rule() {
 				$ipt -D $chain $index 2>/dev/null
 			done
 		done
-		for chain in "PSW" "PSW_OUTPUT" "PSW_DIVERT" "PSW_REDIRECT" "PSW_RULE"; do
+		for chain in "PSW" "PSW_OUTPUT" "PSW_DIVERT" "PSW_DNS" "PSW_RULE"; do
 			$ipt -F $chain 2>/dev/null
 			$ipt -X $chain 2>/dev/null
 		done
@@ -1328,6 +1356,7 @@ del_firewall_rule() {
 	ip -6 rule del fwmark 1 table 100 2>/dev/null
 	ip -6 route del local ::/0 dev lo table 100 2>/dev/null
 
+	destroy_ipset $IPSET_LOCALLIST
 	destroy_ipset $IPSET_LANLIST
 	destroy_ipset $IPSET_VPSLIST
 	destroy_ipset $IPSET_SHUNTLIST
@@ -1337,6 +1366,7 @@ del_firewall_rule() {
 	destroy_ipset $IPSET_BLOCKLIST
 	destroy_ipset $IPSET_WHITELIST
 
+	destroy_ipset $IPSET_LOCALLIST6
 	destroy_ipset $IPSET_LANLIST6
 	destroy_ipset $IPSET_VPSLIST6
 	destroy_ipset $IPSET_SHUNTLIST6

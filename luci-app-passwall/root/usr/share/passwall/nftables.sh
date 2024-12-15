@@ -3,6 +3,7 @@
 DIR="$(cd "$(dirname "$0")" && pwd)"
 MY_PATH=$DIR/nftables.sh
 NFTABLE_NAME="inet passwall"
+NFTSET_LOCALLIST="passwall_locallist"
 NFTSET_LANLIST="passwall_lanlist"
 NFTSET_VPSLIST="passwall_vpslist"
 NFTSET_SHUNTLIST="passwall_shuntlist"
@@ -12,6 +13,7 @@ NFTSET_BLACKLIST="passwall_blacklist"
 NFTSET_WHITELIST="passwall_whitelist"
 NFTSET_BLOCKLIST="passwall_blocklist"
 
+NFTSET_LOCALLIST6="passwall_locallist6"
 NFTSET_LANLIST6="passwall_lanlist6"
 NFTSET_VPSLIST6="passwall_vpslist6"
 NFTSET_SHUNTLIST6="passwall_shuntlist6"
@@ -371,22 +373,22 @@ load_acl() {
 					fi
 				}
 
+				local dns_redirect
+				[ $(config_t_get global dns_redirect "1") = "1" ] && dns_redirect=53
 				if ([ -n "$tcp_port" ] && [ -n "${tcp_proxy_mode}" ]) || ([ -n "$udp_port" ] && [ -n "${udp_proxy_mode}" ]); then
-					[ -n "$dns_redirect_port" ] && {
-						nft "add rule $NFTABLE_NAME PSW_MANGLE ip protocol udp ${_ipt_source} udp dport 53 counter return comment \"$remarks\""
-						nft "add rule $NFTABLE_NAME PSW_MANGLE_V6 meta l4proto udp ${_ipt_source} udp dport 53 counter return comment \"$remarks\""
-						nft "add rule $NFTABLE_NAME PSW_MANGLE ip protocol tcp ${_ipt_source} tcp dport 53 counter return comment \"$remarks\""
-						nft "add rule $NFTABLE_NAME PSW_MANGLE_V6 meta l4proto tcp ${_ipt_source} tcp dport 53 counter return comment \"$remarks\""
-						nft "add rule $NFTABLE_NAME PSW_REDIRECT ip protocol udp ${_ipt_source} udp dport 53 counter redirect to :$dns_redirect_port comment \"$remarks\""
-						nft "add rule $NFTABLE_NAME PSW_REDIRECT ip protocol tcp ${_ipt_source} tcp dport 53 counter redirect to :$dns_redirect_port comment \"$remarks\""
-						nft "add rule $NFTABLE_NAME PSW_REDIRECT meta l4proto udp ${_ipt_source} udp dport 53 counter redirect to :$dns_redirect_port comment \"$remarks\""
-						nft "add rule $NFTABLE_NAME PSW_REDIRECT meta l4proto tcp ${_ipt_source} tcp dport 53 counter redirect to :$dns_redirect_port comment \"$remarks\""
-					}
+					[ -n "${dns_redirect_port}" ] && dns_redirect=${dns_redirect_port}
 				else
-					nft "add rule $NFTABLE_NAME PSW_REDIRECT ip protocol udp ${_ipt_source} udp dport 53 counter return comment \"$remarks\""
-					nft "add rule $NFTABLE_NAME PSW_REDIRECT ip protocol tcp ${_ipt_source} tcp dport 53 counter return comment \"$remarks\""
-					nft "add rule $NFTABLE_NAME PSW_REDIRECT meta l4proto udp ${_ipt_source} udp dport 53 counter return comment \"$remarks\""
-					nft "add rule $NFTABLE_NAME PSW_REDIRECT meta l4proto tcp ${_ipt_source} tcp dport 53 counter return comment \"$remarks\""
+					[ -n "${DIRECT_DNSMASQ_PORT}" ] && dns_redirect=${DIRECT_DNSMASQ_PORT}
+				fi
+				if [ -n "${dns_redirect}" ]; then
+					nft "add rule $NFTABLE_NAME PSW_MANGLE ip protocol udp ${_ipt_source} udp dport 53 counter return comment \"$remarks\""
+					nft "add rule $NFTABLE_NAME PSW_MANGLE_V6 meta l4proto udp ${_ipt_source} udp dport 53 counter return comment \"$remarks\""
+					nft "add rule $NFTABLE_NAME PSW_MANGLE ip protocol tcp ${_ipt_source} tcp dport 53 counter return comment \"$remarks\""
+					nft "add rule $NFTABLE_NAME PSW_MANGLE_V6 meta l4proto tcp ${_ipt_source} tcp dport 53 counter return comment \"$remarks\""
+					nft "add rule $NFTABLE_NAME PSW_DNS ip protocol udp ${_ipt_source} udp dport 53 counter redirect to :${dns_redirect} comment \"$remarks\""
+					nft "add rule $NFTABLE_NAME PSW_DNS ip protocol tcp ${_ipt_source} tcp dport 53 counter redirect to :${dns_redirect} comment \"$remarks\""
+					nft "add rule $NFTABLE_NAME PSW_DNS meta l4proto udp ${_ipt_source} udp dport 53 counter redirect to :${dns_redirect} comment \"$remarks\""
+					nft "add rule $NFTABLE_NAME PSW_DNS meta l4proto tcp ${_ipt_source} tcp dport 53 counter redirect to :${dns_redirect} comment \"$remarks\""
 				fi
 
 				[ -n "$tcp_port" -o -n "$udp_port" ] && {
@@ -524,7 +526,7 @@ load_acl() {
 				unset nft_chain nft_j _ipt_source msg msg2
 			done
 			unset enabled sid remarks sources use_global_config use_direct_list use_proxy_list use_block_list use_gfw_list chn_list tcp_proxy_mode udp_proxy_mode dns_redirect_port tcp_no_redir_ports udp_no_redir_ports tcp_proxy_drop_ports udp_proxy_drop_ports tcp_redir_ports udp_redir_ports tcp_node udp_node interface
-			unset tcp_port udp_port tcp_node_remark udp_node_remark _acl_list use_shunt_tcp use_shunt_udp
+			unset tcp_port udp_port tcp_node_remark udp_node_remark _acl_list use_shunt_tcp use_shunt_udp dns_redirect
 		done
 	}
 
@@ -552,17 +554,23 @@ load_acl() {
 			fi
 		}
 
+		local DNS_REDIRECT
+		[ $(config_t_get global dns_redirect "1") = "1" ] && DNS_REDIRECT=53
 		if ([ "$TCP_NODE" != "nil" ] && [ -n "${TCP_PROXY_MODE}" ]) || ([ "$UDP_NODE" != "nil" ] && [ -n "${UDP_PROXY_MODE}" ]); then
-			[ -n "$DNS_REDIRECT_PORT" ] && {
-				nft "add rule $NFTABLE_NAME PSW_MANGLE ip protocol udp udp dport 53 counter return comment \"默认\""
-				nft "add rule $NFTABLE_NAME PSW_MANGLE_V6 meta l4proto udp udp dport 53 counter return comment \"默认\""
-				nft "add rule $NFTABLE_NAME PSW_MANGLE ip protocol tcp tcp dport 53 counter return comment \"默认\""
-				nft "add rule $NFTABLE_NAME PSW_MANGLE_V6 meta l4proto tcp tcp dport 53 counter return comment \"默认\""
-				nft "add rule $NFTABLE_NAME PSW_REDIRECT ip protocol udp udp dport 53 counter redirect to :$DNS_REDIRECT_PORT comment \"默认\""
-				nft "add rule $NFTABLE_NAME PSW_REDIRECT ip protocol tcp tcp dport 53 counter redirect to :$DNS_REDIRECT_PORT comment \"默认\""
-				nft "add rule $NFTABLE_NAME PSW_REDIRECT meta l4proto udp udp dport 53 counter redirect to :$DNS_REDIRECT_PORT comment \"默认\""
-				nft "add rule $NFTABLE_NAME PSW_REDIRECT meta l4proto tcp tcp dport 53 counter redirect to :$DNS_REDIRECT_PORT comment \"默认\""
-			}
+			[ -n "${DNS_REDIRECT_PORT}" ] && DNS_REDIRECT=${DNS_REDIRECT_PORT}
+		else
+			[ -n "${DIRECT_DNSMASQ_PORT}" ] && DNS_REDIRECT=${DIRECT_DNSMASQ_PORT}
+		fi
+
+		if [ -n "${DNS_REDIRECT}" ]; then
+			nft "add rule $NFTABLE_NAME PSW_MANGLE ip protocol udp udp dport 53 counter return comment \"默认\""
+			nft "add rule $NFTABLE_NAME PSW_MANGLE_V6 meta l4proto udp udp dport 53 counter return comment \"默认\""
+			nft "add rule $NFTABLE_NAME PSW_MANGLE ip protocol tcp tcp dport 53 counter return comment \"默认\""
+			nft "add rule $NFTABLE_NAME PSW_MANGLE_V6 meta l4proto tcp tcp dport 53 counter return comment \"默认\""
+			nft "add rule $NFTABLE_NAME PSW_DNS ip protocol udp udp dport 53 counter redirect to :${DNS_REDIRECT} comment \"默认\""
+			nft "add rule $NFTABLE_NAME PSW_DNS ip protocol tcp tcp dport 53 counter redirect to :${DNS_REDIRECT} comment \"默认\""
+			nft "add rule $NFTABLE_NAME PSW_DNS meta l4proto udp udp dport 53 counter redirect to :${DNS_REDIRECT} comment \"默认\""
+			nft "add rule $NFTABLE_NAME PSW_DNS meta l4proto tcp tcp dport 53 counter redirect to :${DNS_REDIRECT} comment \"默认\""
 		fi
 
 		[ -n "${TCP_PROXY_MODE}" -o -n "${UDP_PROXY_MODE}" ] && {
@@ -832,6 +840,7 @@ add_firewall_rule() {
 	gen_nft_tables
 	gen_nftset $NFTSET_VPSLIST ipv4_addr 0 0
 	gen_nftset $NFTSET_GFW ipv4_addr "2d" 0
+	gen_nftset $NFTSET_LOCALLIST ipv4_addr 0 "-1"
 	gen_nftset $NFTSET_LANLIST ipv4_addr 0 "-1" $(gen_lanlist)
 	if [ -f $RULES_PATH/chnroute.nft ] && [ -s $RULES_PATH/chnroute.nft ] && [ $(awk 'END{print NR}' $RULES_PATH/chnroute.nft) -ge 8 ]; then
 		#echolog "使用缓存加载chnroute..."
@@ -846,6 +855,7 @@ add_firewall_rule() {
 
 	gen_nftset $NFTSET_VPSLIST6 ipv6_addr 0 0
 	gen_nftset $NFTSET_GFW6 ipv6_addr "2d" 0
+	gen_nftset $NFTSET_LOCALLIST6 ipv6_addr 0 "-1"
 	gen_nftset $NFTSET_LANLIST6 ipv6_addr 0 "-1" $(gen_lanlist_6)
 	if [ -f $RULES_PATH/chnroute6.nft ] && [ -s $RULES_PATH/chnroute6.nft ] && [ $(awk 'END{print NR}' $RULES_PATH/chnroute6.nft) -ge 8 ]; then
 		#echolog "使用缓存加载chnroute6..."
@@ -945,6 +955,9 @@ add_firewall_rule() {
 		fi
 	}
 
+	insert_nftset $NFTSET_LOCALLIST "-1" $(ip address show | grep -w "inet" | awk '{print $2}' | awk -F '/' '{print $1}' | sed -e "s/ /\n/g")
+	insert_nftset $NFTSET_LOCALLIST6 "-1" $(ip address show | grep -w "inet6" | awk '{print $2}' | awk -F '/' '{print $1}' | sed -e "s/ /\n/g")
+
 	# 忽略特殊IP段
 	local lan_ifname lan_ip
 	lan_ifname=$(uci -q -p /tmp/state get network.lan.ifname)
@@ -999,9 +1012,15 @@ add_firewall_rule() {
 	nft "flush chain $NFTABLE_NAME PSW_DIVERT"
 	nft "add rule $NFTABLE_NAME PSW_DIVERT meta l4proto tcp socket transparent 1 mark set 1 counter accept"
 
-	nft "add chain $NFTABLE_NAME PSW_REDIRECT"
-	nft "flush chain $NFTABLE_NAME PSW_REDIRECT"
-	nft "add rule $NFTABLE_NAME dstnat jump PSW_REDIRECT"
+	nft "add chain $NFTABLE_NAME PSW_DNS"
+	nft "flush chain $NFTABLE_NAME PSW_DNS"
+	if [ $(config_t_get global dns_redirect "1") = "0" ]; then
+		#Only hijack when dest address is local IP
+		nft "insert rule $NFTABLE_NAME dstnat ip daddr @${NFTSET_LOCALLIST} jump PSW_DNS"
+		nft "insert rule $NFTABLE_NAME dstnat ip6 daddr @${NFTSET_LOCALLIST6} jump PSW_DNS"
+	else
+		nft "insert rule $NFTABLE_NAME dstnat jump PSW2_DNS"
+	fi
 
 	# for ipv4 ipv6 tproxy mark
 	nft "add chain $NFTABLE_NAME PSW_RULE"
@@ -1393,6 +1412,7 @@ del_firewall_rule() {
 	ip -6 rule del fwmark 1 table 100 2>/dev/null
 	ip -6 route del local ::/0 dev lo table 100 2>/dev/null
 
+	destroy_nftset $NFTSET_LOCALLIST
 	destroy_nftset $NFTSET_LANLIST
 	destroy_nftset $NFTSET_VPSLIST
 	destroy_nftset $NFTSET_SHUNTLIST
@@ -1402,6 +1422,7 @@ del_firewall_rule() {
 	destroy_nftset $NFTSET_BLOCKLIST
 	destroy_nftset $NFTSET_WHITELIST
 
+	destroy_nftset $NFTSET_LOCALLIST6
 	destroy_nftset $NFTSET_LANLIST6
 	destroy_nftset $NFTSET_VPSLIST6
 	destroy_nftset $NFTSET_SHUNTLIST6

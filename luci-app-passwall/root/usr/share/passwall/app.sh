@@ -1548,19 +1548,43 @@ start_dns() {
 		[ "$(expr $dnsmasq_version \>= 2.87)" == 0 ] && echolog "Dnsmasq版本低于2.87，有可能无法正常使用！！！"
 	}
 
-	GLOBAL_DNSMASQ_PORT=$(get_new_port 11400)
-	local GLOBAL_DNSMASQ_CONF=${GLOBAL_ACL_PATH}/dnsmasq.conf
-	local GLOBAL_DNSMASQ_CONF_PATH=${GLOBAL_ACL_PATH}/dnsmasq.d
-	source $APP_PATH/helper_dnsmasq.sh copy_instance listen_port=$GLOBAL_DNSMASQ_PORT dnsmasq_conf="${GLOBAL_DNSMASQ_CONF}" dnsmasq_conf_path="${GLOBAL_DNSMASQ_CONF_PATH}"
-	lua $APP_PATH/helper_dnsmasq_add.lua -FLAG "default" -TMP_DNSMASQ_PATH ${GLOBAL_DNSMASQ_CONF_PATH} \
-		-DNSMASQ_CONF_FILE ${GLOBAL_DNSMASQ_CONF} -DEFAULT_DNS ${DEFAULT_DNS} -LOCAL_DNS ${LOCAL_DNS} \
-		-TUN_DNS ${TUN_DNS} -REMOTE_FAKEDNS ${fakedns:-0} -USE_DEFAULT_DNS "${USE_DEFAULT_DNS:-direct}" -CHINADNS_DNS ${china_ng_listen:-0} \
-		-USE_DIRECT_LIST "${USE_DIRECT_LIST}" -USE_PROXY_LIST "${USE_PROXY_LIST}" -USE_BLOCK_LIST "${USE_BLOCK_LIST}" -USE_GFW_LIST "${USE_GFW_LIST}" -CHN_LIST "${CHN_LIST}" \
-		-TCP_NODE ${TCP_NODE} -DEFAULT_PROXY_MODE ${TCP_PROXY_MODE} -NO_PROXY_IPV6 ${DNSMASQ_FILTER_PROXY_IPV6:-0} -NFTFLAG ${nftflag:-0} \
-		-NO_LOGIC_LOG ${NO_LOGIC_LOG:-0}
-	ln_run "$(first_type dnsmasq)" "dnsmasq_default" "/dev/null" -C ${GLOBAL_DNSMASQ_CONF} -x ${GLOBAL_ACL_PATH}/dnsmasq.pid
-	echo "${GLOBAL_DNSMASQ_PORT}" > ${GLOBAL_ACL_PATH}/var_redirect_dns_port
-	DNS_REDIRECT_PORT=${GLOBAL_DNSMASQ_PORT}
+	local RUN_NEW_DNSMASQ=1
+	if [ "${RUN_NEW_DNSMASQ}" == "0" ]; then
+		#The old logic will be removed in the future.
+		#Run a copy dnsmasq instance, DNS hijack that don't need a proxy devices.
+		[ "1" = "0" ] && {
+			DIRECT_DNSMASQ_PORT=$(get_new_port 11400)
+			DIRECT_DNSMASQ_CONF=${GLOBAL_ACL_PATH}/direct_dnsmasq.conf
+			lua $APP_PATH/helper_dnsmasq.lua copy_instance -LISTEN_PORT ${DIRECT_DNSMASQ_PORT} -DNSMASQ_CONF ${DIRECT_DNSMASQ_CONF}
+			ln_run "$(first_type dnsmasq)" "dnsmasq_direct" "/dev/null" -C ${DIRECT_DNSMASQ_CONF} -x ${GLOBAL_ACL_PATH}/direct_dnsmasq.pid
+			echo "${DIRECT_DNSMASQ_PORT}" > ${GLOBAL_ACL_PATH}/direct_dnsmasq_port
+		}
+		
+		#Rewrite the default DNS service configuration
+		#Modify the default dnsmasq service
+		lua $APP_PATH/helper_dnsmasq.lua stretch
+		lua $APP_PATH/helper_dnsmasq.lua add_rule -FLAG "default" -TMP_DNSMASQ_PATH ${GLOBAL_DNSMASQ_CONF_PATH} -DNSMASQ_CONF_FILE ${GLOBAL_DNSMASQ_CONF} \
+			-DEFAULT_DNS ${DEFAULT_DNS} -LOCAL_DNS ${LOCAL_DNS} -TUN_DNS ${TUN_DNS} \
+			-REMOTE_FAKEDNS ${fakedns:-0} -USE_DEFAULT_DNS "${USE_DEFAULT_DNS:-direct}" -CHINADNS_DNS ${china_ng_listen:-0} \
+			-USE_DIRECT_LIST "${USE_DIRECT_LIST}" -USE_PROXY_LIST "${USE_PROXY_LIST}" -USE_BLOCK_LIST "${USE_BLOCK_LIST}" -USE_GFW_LIST "${USE_GFW_LIST}" -CHN_LIST "${CHN_LIST}" \
+			-TCP_NODE ${TCP_NODE} -DEFAULT_PROXY_MODE ${TCP_PROXY_MODE} -NO_PROXY_IPV6 ${DNSMASQ_FILTER_PROXY_IPV6:-0} -NFTFLAG ${nftflag:-0} \
+			-NO_LOGIC_LOG ${NO_LOGIC_LOG:-0}
+		/etc/init.d/dnsmasq restart >/dev/null 2>&1
+	else
+		#Run a copy dnsmasq instance, DNS hijack for that need proxy devices.
+		GLOBAL_DNSMASQ_PORT=$(get_new_port 11400)
+		GLOBAL_DNSMASQ_CONF=${GLOBAL_ACL_PATH}/dnsmasq.conf
+		GLOBAL_DNSMASQ_CONF_PATH=${GLOBAL_ACL_PATH}/dnsmasq.d
+		lua $APP_PATH/helper_dnsmasq.lua add_rule -FLAG "default" -TMP_DNSMASQ_PATH ${GLOBAL_DNSMASQ_CONF_PATH} -DNSMASQ_CONF_FILE ${GLOBAL_DNSMASQ_CONF} \
+			-LISTEN_PORT ${GLOBAL_DNSMASQ_PORT} -DEFAULT_DNS ${DEFAULT_DNS} -LOCAL_DNS ${LOCAL_DNS} -TUN_DNS ${TUN_DNS} \
+			-REMOTE_FAKEDNS ${fakedns:-0} -USE_DEFAULT_DNS "${USE_DEFAULT_DNS:-direct}" -CHINADNS_DNS ${china_ng_listen:-0} \
+			-USE_DIRECT_LIST "${USE_DIRECT_LIST}" -USE_PROXY_LIST "${USE_PROXY_LIST}" -USE_BLOCK_LIST "${USE_BLOCK_LIST}" -USE_GFW_LIST "${USE_GFW_LIST}" -CHN_LIST "${CHN_LIST}" \
+			-TCP_NODE ${TCP_NODE} -DEFAULT_PROXY_MODE ${TCP_PROXY_MODE} -NO_PROXY_IPV6 ${DNSMASQ_FILTER_PROXY_IPV6:-0} -NFTFLAG ${nftflag:-0} \
+			-NO_LOGIC_LOG ${NO_LOGIC_LOG:-0}
+		ln_run "$(first_type dnsmasq)" "dnsmasq_default" "/dev/null" -C ${GLOBAL_DNSMASQ_CONF} -x ${GLOBAL_ACL_PATH}/dnsmasq.pid
+		echo "${GLOBAL_DNSMASQ_PORT}" > ${GLOBAL_ACL_PATH}/var_redirect_dns_port
+		DNS_REDIRECT_PORT=${GLOBAL_DNSMASQ_PORT}
+	fi
 }
 
 add_ip2route() {
@@ -1751,9 +1775,8 @@ acl_app() {
 							dnsmasq_port=$(get_new_port $(expr $dnsmasq_port + 1))
 							local dnsmasq_conf=${acl_path}/dnsmasq.conf
 							local dnsmasq_conf_path=${acl_path}/dnsmasq.d
-							source $APP_PATH/helper_dnsmasq.sh copy_instance listen_port=$dnsmasq_port dnsmasq_conf="${dnsmasq_conf}" dnsmasq_conf_path="${dnsmasq_conf_path}"
-							lua $APP_PATH/helper_dnsmasq_add.lua -FLAG ${sid} -TMP_DNSMASQ_PATH ${dnsmasq_conf_path} \
-								-DNSMASQ_CONF_FILE ${dnsmasq_conf} -DEFAULT_DNS $DEFAULT_DNS -LOCAL_DNS $LOCAL_DNS \
+							lua $APP_PATH/helper_dnsmasq.lua add_rule -FLAG ${sid} -TMP_DNSMASQ_PATH ${dnsmasq_conf_path} -DNSMASQ_CONF_FILE ${dnsmasq_conf} \
+								-LISTEN_PORT ${dnsmasq_port} -DEFAULT_DNS $DEFAULT_DNS -LOCAL_DNS $LOCAL_DNS \
 								-USE_DIRECT_LIST "${use_direct_list}" -USE_PROXY_LIST "${use_proxy_list}" -USE_BLOCK_LIST "${use_block_list}" -USE_GFW_LIST "${use_gfw_list}" -CHN_LIST "${chn_list}" \
 								-TUN_DNS "127.0.0.1#${_dns_port}" -REMOTE_FAKEDNS 0 -USE_DEFAULT_DNS "${use_default_dns:-direct}" -CHINADNS_DNS ${_china_ng_listen:-0} \
 								-TCP_NODE $tcp_node -DEFAULT_PROXY_MODE ${tcp_proxy_mode} -NO_PROXY_IPV6 ${dnsmasq_filter_proxy_ipv6:-0} -NFTFLAG ${nftflag:-0} \
@@ -1913,6 +1936,14 @@ start() {
 		[ "$(expr $dnsmasq_version \>= 2.90)" == 0 ] && echolog "Dnsmasq版本低于2.90，建议升级至2.90及以上版本以避免部分情况下Dnsmasq崩溃问题！"
 	}
 
+	if [ "$ENABLED_DEFAULT_ACL" == 1 ] || [ "$ENABLED_ACLS" == 1 ]; then
+		[ "$(uci -q get dhcp.@dnsmasq[0].dns_redirect)" == "1" ] && {
+			uci -q set dhcp.@dnsmasq[0].dns_redirect='0' 2>/dev/null
+			uci commit dhcp 2>/dev/null
+			/etc/init.d/dnsmasq restart >/dev/null 2>&1
+		}
+	fi
+
 	[ "$ENABLED_DEFAULT_ACL" == 1 ] && {
 		mkdir -p ${GLOBAL_ACL_PATH}
 		start_redir TCP
@@ -1920,6 +1951,9 @@ start() {
 		start_dns
 	}
 	[ -n "$USE_TABLES" ] && source $APP_PATH/${USE_TABLES}.sh start
+	[ ! -s "${GLOBAL_ACL_PATH}/var_redirect_dns_port" ] && {
+		lua $APP_PATH/helper_dnsmasq.lua logic_restart -LOG 1
+	}
 	start_crontab
 	echolog "运行完成！\n"
 }
@@ -1936,6 +1970,9 @@ stop() {
 	unset XRAY_LOCATION_ASSET
 	stop_crontab
 	source $APP_PATH/helper_smartdns.sh del
+	rm -rf $GLOBAL_DNSMASQ_CONF
+	rm -rf $GLOBAL_DNSMASQ_CONF_PATH
+	[ ! -s "${GLOBAL_ACL_PATH}/var_redirect_dns_port" ] && lua $APP_PATH/helper_dnsmasq.lua restart -LOG 0
 	[ -s "$TMP_PATH/bridge_nf_ipt" ] && sysctl -w net.bridge.bridge-nf-call-iptables=$(cat $TMP_PATH/bridge_nf_ipt) >/dev/null 2>&1
 	[ -s "$TMP_PATH/bridge_nf_ip6t" ] && sysctl -w net.bridge.bridge-nf-call-ip6tables=$(cat $TMP_PATH/bridge_nf_ip6t) >/dev/null 2>&1
 	rm -rf ${TMP_PATH}
@@ -2010,6 +2047,21 @@ DEFAULT_DNS=$(uci show dhcp.@dnsmasq[0] | grep "\.server=" | awk -F '=' '{print 
 [ -z "${DEFAULT_DNS}" ] && [ "$(echo $ISP_DNS | tr ' ' '\n' | wc -l)" -le 2 ] && DEFAULT_DNS=$(echo -n $ISP_DNS | tr ' ' '\n' | head -2 | tr '\n' ',')
 LOCAL_DNS="${DEFAULT_DNS:-119.29.29.29,223.5.5.5}"
 IPT_APPEND_DNS=${LOCAL_DNS}
+
+DNSMASQ_CONF_DIR=/tmp/dnsmasq.d
+TMP_DNSMASQ_PATH=${DNSMASQ_CONF_DIR}/${CONFIG}
+DEFAULT_DNSMASQ_CFGID="$(uci -q show "dhcp.@dnsmasq[0]" | awk 'NR==1 {split($0, conf, /[.=]/); print conf[2]}')"
+if [ -f "/tmp/etc/dnsmasq.conf.$DEFAULT_DNSMASQ_CFGID" ]; then
+	DNSMASQ_CONF_DIR="$(awk -F '=' '/^conf-dir=/ {print $2}' "/tmp/etc/dnsmasq.conf.$DEFAULT_DNSMASQ_CFGID")"
+	if [ -n "$DNSMASQ_CONF_DIR" ]; then
+		DNSMASQ_CONF_DIR=${DNSMASQ_CONF_DIR%*/}
+		TMP_DNSMASQ_PATH=${DNSMASQ_CONF_DIR}/${CONFIG}
+	else
+		DNSMASQ_CONF_DIR="/tmp/dnsmasq.d"
+	fi
+fi
+GLOBAL_DNSMASQ_CONF=${DNSMASQ_CONF_DIR}/dnsmasq-${CONFIG}.conf
+GLOBAL_DNSMASQ_CONF_PATH=${TMP_DNSMASQ_PATH}
 
 DNS_QUERY_STRATEGY="UseIP"
 [ "$FILTER_PROXY_IPV6" = "1" ] && DNS_QUERY_STRATEGY="UseIPv4"
