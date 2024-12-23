@@ -30,7 +30,7 @@
 [data-theme='light'] {
     --primary-solid: #fd8c73;
     --primarytextcolor: #677087;
-    --primary-title-color: #67678f;
+    --primary-title-color: #4d4d5d;
     --menu-color: #f5f5f5f5;
     --menu-hover-color: #fff;
     --menu-item-color: #5a636b;
@@ -194,30 +194,7 @@
 ::placeholder {
 	color: var(--inputtext-color);
 }
-html {
-    margin: 0px;
-    padding: 0px;
-    height: 100%;
-    background: var(--theme-background) ;
-    -webkit-background-size: cover;
-    -moz-background-size: cover;
-    -o-background-size: cover;
-    background-size: cover;
-    background-repeat: no-repeat;
 
-	position: fixed;
-	width: 100%;
-	height: 100%;
-	left: 0px;
-	top: 0px;
-	transition: all 0.1s;
-	background-position: top center;
-	-webkit-background-size: cover;
-	-moz-background-size: cover;
-	-o-background-size: cover;
-	background-size: cover;
-	background-repeat: no-repeat;
-}
 html, body {
     font-family: var(--font-sans);
 
@@ -229,6 +206,13 @@ body {
 	letter-spacing: 0.050em;
 	font-size: var(--font-x);
 	color: var(--body-color);
+	background-position: top center;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+	background: fixed;
+	background-repeat: no-repeat;
 }
 body div {
 	line-height: 120%
@@ -403,8 +387,6 @@ footer {
 	padding: 1rem 1rem 2rem 0;
 	color: var(--primary-title-color);
 	font-size: var(--font-x);
-	-webkit-backdrop-filter: var(--primary-ufilter);
-	backdrop-filter: var(--primary-ufilter);
 	background-color: rgba(var(--primary-rgbbody), var(--primary-rgbm-ts));
 }
 footer > a {
@@ -439,12 +421,11 @@ small {
 	right: 0;
 	margin: 0;
 	padding: 0;
-	border-radius: var(--radius1);
+	border-radius: var(--radius2);
 	background-color: #51c291;
 	background-color: rgba(var(--primary-rgbm), 0.9);
 	box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-	background-image: var(--bgqs-image);
-    background-image: -webkit-linear-gradient(135deg,rgba(255,255,255,0.2) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.2) 50%,rgba(255,255,255,0.2) 75%,transparent 75%,transparent) !important;
+	background-image: -webkit-linear-gradient(135deg, rgba(255, 255, 255, 0.2) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.2) 75%, transparent 75%, transparent) !important;
 	transition: all .1s ease;
 	-moz-osx-font-smoothing: grayscale;
 	text-rendering: auto;
@@ -460,7 +441,7 @@ small {
 }
 .container-bar-left .labelbar:hover, .container-bar-right .labelbar:hover {
     background-color: rgba(255,255,255,0.3);
-    border-radius:  var(--radius1);
+    border-radius:  var(--radius2);
     text-decoration:none
 }
 .container-bar-right .labelbar:hover::before, .container-bar-left .labelbar:hover::before {
@@ -526,9 +507,8 @@ small {
 	float: left;
 	width: calc(0% + 17rem);
 	height: 100%;
-	-webkit-backdrop-filter: var(--primary-ufilter);
-	backdrop-filter: var(--primary-ufilter);
-	background: var(--bgqs-image);
+	background-color: rgba(var(--primary-rgbm), var(--primary-rgbm-ts));
+	background-image: var(--bgqs-image);
 	box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.14), 0 -2px 3px 1px rgba(0, 0, 0, 0.32), 0 0px 5px 2px rgba(0, 0, 0, 0.2);
 	overflow-x: auto;
 	position: fixed;
@@ -563,11 +543,11 @@ small {
 }
 
 header.pd-primary {
-	-webkit-backdrop-filter: var(--primary-ufilter);
-	backdrop-filter: var(--primary-ufilter);
 	background-color: rgba(var(--primary-rgbm), var(--primary-rgbm-ts));
+	background-image: var(--bgqs-image);
+	box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.35); 
 	background-image: -webkit-linear-gradient(135deg, rgba(255, 255, 255, 0.2) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.2) 75%, transparent 75%, transparent) !important;
-	box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.35);
+
 }
 
 header .fill {
@@ -583,6 +563,7 @@ header .fill {
 	width: 100%;
 	background-color: rgba(255, 255, 255, 0) !important
 }
+
 header .fill .container .flex1 {
 	flex: 1;
 }
@@ -599,6 +580,20 @@ header .fill .container .flex1 .brand {
     display: none;
 
 }
+header .fill .status span {
+  display: inline-block;
+  font-size: .875rem;
+  font-weight: bold;
+  white-space: nowrap;
+  text-decoration: none;
+  text-transform: uppercase;
+  text-shadow: none;
+  border-radius: 4px;
+  color: #ffffff;
+  cursor: default;
+  margin: 0 .25rem;
+}
+
 .status {
     display: flex;
     align-items: center;
@@ -616,7 +611,7 @@ header .fill .container .flex1 .brand {
 }
 span[data-indicator="uci-changes"],
 span[data-indicator="poll-status"] {
-    font-size: 0;
+    font-size: 0 !important;
     cursor: pointer;
     background-repeat: no-repeat;
     background-position: center;
@@ -658,11 +653,12 @@ span[data-indicator="poll-status"]:hover,
 span[data-indicator="uci-changes"] ,
 span[data-indicator="poll-status"] ,
 .pdboy-qlogout {
-    line-height: 1;
-    padding: 1rem;
-    margin: 0;
-    display: inline-block;
-
+  line-height: 1;
+  padding: 1rem;
+  cursor: pointer !important;
+  font-weight: normal!important;
+  margin: 0;
+  display: inline-block;
 }
 .pdboy-qlogout:before {
 	font-size: 1.5rem !important;
@@ -913,11 +909,10 @@ text-decoration: none!important;
 .main .main-left .nav>li>a[data-title=iStore]:before {
 	content: "\e908"
 }
-.main .main-left .nav>li>a[data-title=Inital_Setup]:before {
-	content: "\e93a"
-}
+.main .main-left .nav>li>a[data-title=Inital_Setup]:before,
+.main .main-left .nav>li>a[data-title=Netwizard]:before,
 .main .main-left .nav>li>a[data-title=Wizard]:before {
-	content: "\e90b"
+	content: "\e93e"
 }
 .main .main-left .nav>li>a[data-title=Docker]:before {
 	content: "\e902"
@@ -936,6 +931,7 @@ text-decoration: none!important;
 .main .main-left .nav>li>a[data-title=Log_out]:before {
 	content: "\e935"
 }
+.main .main-left .nav>li>a[data-title=Netizard]:after, 
 .main .main-left .nav>li>a[data-title=Wizard]:after, 
 .main .main-left .nav>li>a[data-title=iStore]:after, 
 .main .main-left .nav>li>a[data-title=Logout]:after , 
@@ -995,8 +991,6 @@ text-decoration: none!important;
 }
 #maincontent > .container {
 	background-color: rgba(var(--primary-rgbbody), var(--primary-rgbm-ts));
-	-webkit-backdrop-filter: var(--primary-ufilter);
-	backdrop-filter: var(--primary-ufilter);
 	padding: 1rem 1.25rem 3rem 1.25rem;
 }
 ul {
@@ -1010,7 +1004,7 @@ h1 {
 	padding-bottom: 10px
 }
 h2 {
-	font-size: var(--font-d);
+	font-size: 1.5em;
 	padding: 0.5rem 1.5rem 0.2rem;
 	font-weight: bold;
 	text-transform: capitalize;
@@ -1073,8 +1067,7 @@ h5 {
 .cbi-map-descr, .cbi-section-descr {
 	font-size: small;
 	line-height: 1.42857143;
-	margin: 0 1.5rem 1rem 1.5rem;
-	color: #999;
+	margin: 0.5rem 1.5rem 1rem 1.5rem;
 }
 .cbi-section-table-descr {
   display:none;
@@ -1303,10 +1296,10 @@ background-image: url("data:image/svg+xml;base64,PCEtLSBHZW5lcmF0ZWQgYnkgSWNvTW9
 }
 
 .cbi-rowstyle-2 .cbi-button-up, .cbi-rowstyle-2 .cbi-button-down, body:not(.Interfaces) .cbi-rowstyle-2:first-child {
-	background-color: rgba(var(--primary-rgbm), 0.5) !important;
+	background-color: rgba(var(--primary-rgbm), 0.3) !important;
 }
 .cbi-rowstyle-1 .cbi-button-up, .cbi-rowstyle-1 .cbi-button-down {
-	background-color: rgba(var(--primary-rgbs), 0.5) !important;
+	background-color: rgba(var(--primary-rgbs), 0.3) !important;
 }
 
 .btn:hover, .btn:focus, .btn:active, .cbi-button:hover, .cbi-button:focus, .cbi-button:active, .item:hover::after, .item:focus::after, .item:active::after {
@@ -2511,22 +2504,25 @@ body.lang_pl.node-main-login .cbi-value-title {
 .node-main-login>.main>.main-right {
 	width: 100%;
 }
-.node-main-login .main .main-right .login-bg {
-	display: block;
-	position: fixed;
-	width: 100%;
-	height: 100%;
-	left: 0px;
-	top: 0px;
 
-	transition: all 0.1s;
-	background-position: top center;
-	-webkit-background-size: cover;
-	-moz-background-size: cover;
-	-o-background-size: cover;
-	background-size: cover;
-	background-repeat: no-repeat;
+.node-main-login .main .main-right .login-bg {
+  /* display: block; */
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  left: 0px;
+  top: 0px;
+  transition: all 0.1s;
+  background-position: top center;
+  -webkit-background-size: cover;
+  background: fixed;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  background-repeat: no-repeat;
 }
+
+
 .node-main-login>.main>.main-right>.login-bg.blur {
 	transform: scale(1.05);
 	-webkit-filter: blur(5px);
@@ -2540,6 +2536,7 @@ body.lang_pl.node-main-login .cbi-value-title {
 	padding-top: 0rem;
 	background: none;
 	border: none;
+	backdrop-filter: none;
 	box-shadow: none;
 	float: center;
 	text-align: center;
@@ -2736,8 +2733,6 @@ body.lang_pl.node-main-login .cbi-value-title {
 	color: #eee;
 	text-shadow: 0 0 2px #222;
 	font-size: var(--font-x);
-	-webkit-backdrop-filter: none;
-	backdrop-filter: none;
 	background-color: rgba(255,255,255, 0);
 }
 .node-main-login footer a {
@@ -2957,6 +2952,9 @@ body.lang_pl.node-main-login .cbi-value-title {
 	background-color: rgba(var(--primary-rgbm), 0.9);
 }
 /* fix node-admin-status-realtime-load */
+.node-admin-status-channel_analysis #view > div > div > div > div,
+.node-admin-status-channel_analysis #view > div > div > div > div > div,
+.node-admin-status-realtime-wireless #view > div > div > div > div,
 .node-admin-status-realtime-load #view div, .node-admin-status-realtime-bandwidth #view > div > div > div > div, .node-admin-status-realtime-connections #view div {
 	border: none !important;
 	background-color: rgba(var(--primary-rgbbody), 0.5)!important;
@@ -3139,7 +3137,10 @@ background-color: rgba(255,255,255,0.12)!important;
 .node-admin-system-leds .cbi-section em {
 	display: block
 }
-
+.main>.main-left, .cbi-section, .cbi-section-error, #iptables, .Firewall form, #cbi-network>.cbi-section-node, #cbi-wireless>.cbi-section-node, #cbi-wireless>#wifi_assoclist_table, [data-tab-title], [data-page^="admin-system-admin"]:not(.node-main-login) .cbi-map:not(#cbi-dropbear), [data-page="admin-system-opkg"] #maincontent>.container, .tabs, .cbi-tabmenu, .cbi-tooltip ,#syslog ,header.pd-primary,#view div,#view table{
+	backdrop-filter:var(--ufilter);
+	-webkit-backdrop-filter: var(--ufilter);
+}
 #maincontent>.container>#view,
 .node-admin-status-routes #view,
 .node-admin-network-diagnostics #view,
@@ -3373,7 +3374,14 @@ table>tbody>tr>td, table>tfoot>tr>td, table>thead>tr>td {
 	display: none
 }
 .mobile-hide {
-	display: none
+	/*display: none; */
+	font-size: 0;
+}
+footer {
+  font-size: 0;
+}
+footer a {
+  font-size: 0;
 }
 .cbi-value-field .cbi-dropdown, .cbi-value-field .cbi-input-select, .cbi-value input[type="text"], .cbi-value input[type="password"] {
 	min-width: 8rem;
@@ -3398,7 +3406,14 @@ table>tbody>tr>td, table>tfoot>tr>td, table>thead>tr>td {
     display: inline-table;
 }
 .mobile-hide {
-	display: none
+	/*display: none; */
+	font-size: 0;
+}
+footer {
+  font-size: 0;
+}
+footer a {
+  font-size: 0;
 }
 .node-main-login footer {
 	display: none
@@ -3439,9 +3454,7 @@ table>tbody>tr>td, table>tfoot>tr>td, table>thead>tr>td {
     width: 4rem;
     padding-right: 0.2rem;
 }
-  #maincontent > .container {
-    padding: 1rem 1.25rem 5rem 1.25rem !important;
-  }
+
 .cbi-value-description {
 	width: 100%;
 	display: block;
