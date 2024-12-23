@@ -79,9 +79,7 @@ function index()
 	entry({"admin", "services", appname, "update_rules"}, call("update_rules")).leaf = true
 
 	--[[rule_list]]
-	entry({"admin", "services", appname, "read_gfwlist"}, call("read_rulelist", "gfw")).leaf = true
-	entry({"admin", "services", appname, "read_chnlist"}, call("read_rulelist", "chn")).leaf = true
-	entry({"admin", "services", appname, "read_chnroute"}, call("read_rulelist", "chnroute")).leaf = true
+	entry({"admin", "services", appname, "read_rulelist"}, call("read_rulelist")).leaf = true
 
 	--[[Components update]]
 	entry({"admin", "services", appname, "check_passwall"}, call("app_check")).leaf = true
@@ -495,14 +493,18 @@ function com_update(comname)
 	http_write_json(json)
 end
 
-function read_rulelist(list)
+function read_rulelist()
+	local rule_type = http.formvalue("type")
 	local rule_path
-	if list == "gfw" then
+	if rule_type == "gfw" then
 		rule_path = "/usr/share/passwall/rules/gfwlist"
-	elseif list == "chn" then
+	elseif rule_type == "chn" then
 		rule_path = "/usr/share/passwall/rules/chnlist"
-	else
+	elseif rule_type == "chnroute" then
 		rule_path = "/usr/share/passwall/rules/chnroute"
+	else
+		http.status(400, "Invalid rule type")
+		return
 	end
 	if fs.access(rule_path) then
 		http.prepare_content("text/plain")
@@ -521,11 +523,13 @@ function create_backup()
 		"/usr/share/passwall/rules/proxy_host",
 		"/usr/share/passwall/rules/proxy_ip"
 	}
-	local tar_file = "/tmp/passwall-backup.tar.gz"
+	local date = os.date("%Y%m%d")
+	local tar_file = "/tmp/passwall-" .. date .. "-backup.tar.gz"
 	fs.remove(tar_file)
 	local cmd = "tar -czf " .. tar_file .. " " .. table.concat(backup_files, " ")
 	api.sys.call(cmd)
-	http.header("Content-Disposition", "attachment; filename=passwall-backup.tar.gz")
+	http.header("Content-Disposition", "attachment; filename=passwall-" .. date .. "-backup.tar.gz")
+	http.header("X-Backup-Filename", "passwall-" .. date .. "-backup.tar.gz")
 	http.prepare_content("application/octet-stream")
 	http.write(fs.readfile(tar_file))
 	fs.remove(tar_file)
