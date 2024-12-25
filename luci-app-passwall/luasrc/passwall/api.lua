@@ -3,6 +3,7 @@ local com = require "luci.passwall.com"
 bin = require "nixio".bin
 fs = require "nixio.fs"
 sys = require "luci.sys"
+libuci = require "uci".cursor()
 uci = require"luci.model.uci".cursor()
 util = require "luci.util"
 datatypes = require "luci.cbi.datatypes"
@@ -28,6 +29,52 @@ function log(...)
 		f:write(result .. "\n")
 		f:close()
 	end
+end
+
+function uci_set_list(cursor, config, section, option, value)
+	if config and section and option then
+		if not value or #value == 0 then
+			return cursor:delete(config, section, option)
+		end
+		return cursor:set(
+			config, section, option,
+			( type(value) == "table" and value or { value } )
+		)
+	end
+	return false
+end
+
+function uci_section(cursor, config, type, name, values)
+	local stat = true
+	if name then
+		stat = cursor:set(config, name, type)
+	else
+		name = cursor:add(config, type)
+		stat = name and true
+	end
+
+	return stat and name
+end
+
+function sh_uci_get(config, section, option)
+	exec_call(string.format("uci -q get %s.%s.%s", config, section, option))
+	exec_call(string.format("uci -q commit %s", config))
+end
+
+function sh_uci_set(config, section, option, val)
+	exec_call(string.format("uci -q set %s.%s.%s=\"%s\"", config, section, option, val))
+	exec_call(string.format("uci -q commit %s", config))
+end
+
+function sh_uci_del(config, section, option)
+	exec_call(string.format("uci -q delete %s.%s.%s", config, section, option))
+	exec_call(string.format("uci -q commit %s", config))
+end
+
+function sh_uci_add_list(config, section, option, val)
+	exec_call(string.format("uci -q del_list %s.%s.%s=\"%s\"", config, section, option, val))
+	exec_call(string.format("uci -q add_list %s.%s.%s=\"%s\"", config, section, option, val))
+	exec_call(string.format("uci -q commit %s", config))
 end
 
 function set_cache_var(key, val)
@@ -129,11 +176,13 @@ end
 
 function curl_direct(url, file, args)
 	--直连访问
+	local chn_list = uci:get(appname, "@global[0]", "chn_list") or "direct"
+	local Dns = (chn_list == "proxy") and "1.1.1.1" or "223.5.5.5"
 	if not args then args = {} end
 	local tmp_args = clone(args)
 	local domain, port = get_domain_port_from_url(url)
 	if domain then
-		local ip = domainToIPv4(domain)
+		local ip = domainToIPv4(domain, Dns)
 		if ip then
 			tmp_args[#tmp_args + 1] = "--resolve " .. domain .. ":" .. port .. ":" .. ip
 		end
@@ -813,7 +862,7 @@ local default_file_tree = {
 
 local function get_api_json(url)
 	local jsonc = require "luci.jsonc"
-	local return_code, content = curl_logic(url, nil, curl_args)
+	local return_code, content = curl_auto(url, nil, curl_args)
 	if return_code ~= 0 or content == "" then return {} end
 	return jsonc.parse(content) or {}
 end
@@ -930,7 +979,7 @@ function to_download(app_name, url, size)
 	local _curl_args = clone(curl_args)
 	table.insert(_curl_args, "-m 60")
 
-	local return_code, result = curl_logic(url, tmp_file, _curl_args)
+	local return_code, result = curl_auto(url, tmp_file, _curl_args)
 	result = return_code == 0
 
 	if not result then
@@ -1081,7 +1130,7 @@ end
 function to_check_self()
 	local url = "https://raw.githubusercontent.com/xiaorouji/openwrt-passwall/main/luci-app-passwall/Makefile"
 	local tmp_file = "/tmp/passwall_makefile"
-	local return_code, result = curl_logic(url, tmp_file, curl_args)
+	local return_code, result = curl_auto(url, tmp_file, curl_args)
 	result = return_code == 0
 	if not result then
 		exec("/bin/rm", {"-f", tmp_file})

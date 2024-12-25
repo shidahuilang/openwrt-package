@@ -1406,32 +1406,6 @@ start_dns() {
 	TUN_DNS="127.0.0.1#${dns_listen_port}"
 	[ "${resolve_dns}" == "1" ] && TUN_DNS="127.0.0.1#${resolve_dns_port}"
 
-	[ "${DNS_SHUNT}" = "smartdns" ] && {
-		if command -v smartdns > /dev/null 2>&1; then
-			rm -rf $TMP_PATH2/dnsmasq_default*
-			local group_domestic=$(config_t_get global group_domestic)
-			local smartdns_remote_dns=$(config_t_get global smartdns_remote_dns)
-			if [ -n "${smartdns_remote_dns}" -a "${smartdns_remote_dns}" != "nil" ]; then
-				smartdns_remote_dns=$(echo ${smartdns_remote_dns} | tr -s ' ' '|')
-			else
-				smartdns_remote_dns="tcp://1.1.1.1"
-			fi
-			lua $APP_PATH/helper_smartdns_add.lua -FLAG "default" -SMARTDNS_CONF "/tmp/etc/smartdns/$CONFIG.conf" \
-				-LOCAL_GROUP ${group_domestic:-nil} -REMOTE_GROUP "passwall_proxy" -REMOTE_PROXY_SERVER ${TCP_SOCKS_server}  -USE_DEFAULT_DNS "${USE_DEFAULT_DNS:-direct}" \
-				-TUN_DNS ${smartdns_remote_dns} \
-				-USE_DIRECT_LIST "${USE_DIRECT_LIST}" -USE_PROXY_LIST "${USE_PROXY_LIST}" -USE_BLOCK_LIST "${USE_BLOCK_LIST}" -USE_GFW_LIST "${USE_GFW_LIST}" -CHN_LIST "${CHN_LIST}" \
-				-TCP_NODE ${TCP_NODE} -DEFAULT_PROXY_MODE "${TCP_PROXY_MODE}" -NO_PROXY_IPV6 ${FILTER_PROXY_IPV6:-0} -NFTFLAG ${nftflag:-0} \
-				-NO_LOGIC_LOG ${NO_LOGIC_LOG:-0}
-			source $APP_PATH/helper_smartdns.sh restart
-			echolog "  - 域名解析：使用SmartDNS，请确保配置正常。"
-			return
-		else
-			DNS_SHUNT="dnsmasq"
-			echolog "  * 未安装SmartDNS，默认使用Dnsmasq进行域名解析！"
-		fi
-	}
-	rm -rf $TMP_PATH2/smartdns_default*
-
 	case "$DNS_MODE" in
 	dns2socks)
 		local dns2socks_socks_server=$(echo $(config_t_get global socks_server 127.0.0.1:1080) | sed "s/#/:/g")
@@ -1547,7 +1521,7 @@ start_dns() {
 			echolog "  - udp://${TUN_DNS}"
 		fi
 	;;
-	*)
+	tcp)
 		use_tcp_node_resolve_dns=1
 		if [ "$DNS_SHUNT" = "chinadns-ng" ] && [ -n "$(first_type chinadns-ng)" ]; then
 			local china_ng_listen_port=${dns_listen_port}
@@ -1563,6 +1537,32 @@ start_dns() {
 
 	[ "${use_tcp_node_resolve_dns}" = "1" ] && echolog "  * 请确认上游 DNS 支持 TCP/DoT/DoH 查询，如非直连地址，确保 TCP 代理打开，并且已经正确转发！"
 	[ "${use_udp_node_resolve_dns}" = "1" ] && echolog "  * 请确认上游 DNS 支持 UDP 查询并已使用 UDP 节点，如上游 DNS 非直连地址，确保 UDP 代理打开，并且已经正确转发！"
+
+	[ "${DNS_SHUNT}" = "smartdns" ] && {
+		if command -v smartdns > /dev/null 2>&1; then
+			rm -rf $TMP_PATH2/dnsmasq_default*
+			local group_domestic=$(config_t_get global group_domestic)
+			local smartdns_remote_dns=$(config_t_get global smartdns_remote_dns)
+			if [ -n "${smartdns_remote_dns}" -a "${smartdns_remote_dns}" != "nil" ]; then
+				smartdns_remote_dns=$(echo ${smartdns_remote_dns} | tr -s ' ' '|')
+			else
+				smartdns_remote_dns="tcp://1.1.1.1"
+			fi
+			lua $APP_PATH/helper_smartdns_add.lua -FLAG "default" -SMARTDNS_CONF "/tmp/etc/smartdns/$CONFIG.conf" \
+				-LOCAL_GROUP ${group_domestic:-nil} -REMOTE_GROUP "passwall_proxy" -REMOTE_PROXY_SERVER ${TCP_SOCKS_server}  -USE_DEFAULT_DNS "${USE_DEFAULT_DNS:-direct}" \
+				-REMOTE_DNS ${smartdns_remote_dns} -DNS_MODE ${DNS_MODE:-socks} -TUN_DNS ${TUN_DNS} -REMOTE_FAKEDNS ${fakedns:-0} \
+				-USE_DIRECT_LIST "${USE_DIRECT_LIST}" -USE_PROXY_LIST "${USE_PROXY_LIST}" -USE_BLOCK_LIST "${USE_BLOCK_LIST}" -USE_GFW_LIST "${USE_GFW_LIST}" -CHN_LIST "${CHN_LIST}" \
+				-TCP_NODE ${TCP_NODE} -DEFAULT_PROXY_MODE "${TCP_PROXY_MODE}" -NO_PROXY_IPV6 ${FILTER_PROXY_IPV6:-0} -NFTFLAG ${nftflag:-0} \
+				-NO_LOGIC_LOG ${NO_LOGIC_LOG:-0}
+			source $APP_PATH/helper_smartdns.sh restart
+			echolog "  - 域名解析：使用SmartDNS，请确保配置正常。"
+			return
+		else
+			DNS_SHUNT="dnsmasq"
+			echolog "  * 未安装SmartDNS，默认使用Dnsmasq进行域名解析！"
+		fi
+	}
+	rm -rf $TMP_PATH2/smartdns_default*
 
 	[ "$DNS_SHUNT" = "chinadns-ng" ] && [ -n "$(first_type chinadns-ng)" ] && {
 		chinadns_ng_min=2024.04.13
@@ -1803,7 +1803,9 @@ acl_app() {
 										local type=${dns_mode}
 										[ "${dns_mode}" = "sing-box" ] && type="singbox"
 										dnsmasq_filter_proxy_ipv6=0
-										run_${type} flag=acl_${sid} type=$dns_mode dns_socks_address=127.0.0.1 dns_socks_port=$socks_port dns_listen_port=${_dns_port} remote_dns_protocol=${v2ray_dns_mode} remote_dns_tcp_server=${remote_dns} remote_dns_doh="${remote_dns_doh}" remote_dns_query_strategy=${REMOTE_DNS_QUERY_STRATEGY} remote_dns_client_ip=${remote_dns_client_ip} config_file=$config_file
+										remote_dns_query_strategy="UseIP"
+										[ "$filter_proxy_ipv6" = "1" ] && remote_dns_query_strategy="UseIPv4"
+										run_${type} flag=acl_${sid} type=$dns_mode dns_socks_address=127.0.0.1 dns_socks_port=$socks_port dns_listen_port=${_dns_port} remote_dns_protocol=${v2ray_dns_mode} remote_dns_tcp_server=${remote_dns} remote_dns_doh="${remote_dns_doh}" remote_dns_query_strategy=${remote_dns_query_strategy} remote_dns_client_ip=${remote_dns_client_ip} config_file=$config_file
 									fi
 									set_cache_var "node_${tcp_node}_$(echo -n "${remote_dns}" | md5sum | cut -d " " -f1)" "${_dns_port}"
 								}
@@ -1897,8 +1899,10 @@ acl_app() {
 										config_file=$(echo $config_file | sed "s/TCP_/DNS_${_dns_port}_TCP_/g")
 										remote_dns_doh=${remote_dns}
 										dnsmasq_filter_proxy_ipv6=0
+										remote_dns_query_strategy="UseIP"
+										[ "$filter_proxy_ipv6" = "1" ] && remote_dns_query_strategy="UseIPv4"
 										[ "$dns_mode" = "xray" ] && [ "$v2ray_dns_mode" = "tcp+doh" ] && remote_dns_doh=${remote_dns_doh:-https://1.1.1.1/dns-query}
-										_extra_param="dns_listen_port=${_dns_port} remote_dns_protocol=${v2ray_dns_mode} remote_dns_tcp_server=${remote_dns} remote_dns_doh=${remote_dns_doh} remote_dns_query_strategy=${REMOTE_DNS_QUERY_STRATEGY} remote_dns_client_ip=${remote_dns_client_ip}"
+										_extra_param="dns_listen_port=${_dns_port} remote_dns_protocol=${v2ray_dns_mode} remote_dns_tcp_server=${remote_dns} remote_dns_doh=${remote_dns_doh} remote_dns_query_strategy=${remote_dns_query_strategy} remote_dns_client_ip=${remote_dns_client_ip}"
 									fi
 									[ -n "$udp_node" ] && ([ "$udp_node" = "tcp" ] || [ "$udp_node" = "$tcp_node" ]) && {
 										config_file=$(echo $config_file | sed "s/TCP_/TCP_UDP_/g")
@@ -2141,6 +2145,8 @@ CLIENT_PROXY=$(config_t_get global client_proxy 1)
 DNS_SHUNT=$(config_t_get global dns_shunt dnsmasq)
 [ -z "$(first_type $DNS_SHUNT)" ] && DNS_SHUNT="dnsmasq"
 DNS_MODE=$(config_t_get global dns_mode tcp)
+SMARTDNS_DNS_MODE=$(config_t_get global smartdns_dns_mode socks)
+[ "$DNS_SHUNT" = "smartdns" ] && DNS_MODE=$SMARTDNS_DNS_MODE
 DNS_CACHE=0
 REMOTE_DNS=$(config_t_get global remote_dns 1.1.1.1:53 | sed 's/#/:/g' | sed -E 's/\:([^:]+)$/#\1/g')
 USE_DEFAULT_DNS=$(config_t_get global use_default_dns direct)

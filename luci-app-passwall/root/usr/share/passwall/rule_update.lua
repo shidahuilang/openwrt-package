@@ -92,7 +92,7 @@ local function curl(url, file, valifile)
 	if valifile then
 		args[#args + 1] = "--dump-header " .. valifile
 	end
-	local return_code, result = api.curl_logic(url, nil, args)
+	local return_code, result = api.curl_auto(url, nil, args)
 	return tonumber(result)
 end
 
@@ -235,11 +235,18 @@ local function fetch_rule(rule_name,rule_type,url,exclude_domain)
 		if old_md5 ~= new_md5 then
 			local count = line_count(file_tmp)
 			if use_nft == "1" and (rule_type == "ip6" or rule_type == "ip4") then
-				local set_name = "passwall_" ..rule_name
 				local output_file = file_tmp.. ".nft"
 				if rule_type == "ip4" then
+					local set_name = "passwall_" ..rule_name
+					if rule_name == "chnroute" then
+						set_name = "passwall_chn"
+					end
 					gen_cache(set_name, "ipv4_addr", file_tmp, output_file)
 				elseif rule_type == "ip6" then
+					local set_name = "passwall_" ..rule_name
+					if rule_name == "chnroute6" then
+						set_name = "passwall_chn6"
+					end
 					gen_cache(set_name, "ipv6_addr", file_tmp, output_file)
 				end
 				luci.sys.exec(string.format('mv -f %s %s', output_file, rule_path .. "/" ..rule_name.. ".nft"))
@@ -278,7 +285,7 @@ end
 local function fetch_geoip()
 	--请求geoip
 	xpcall(function()
-		local return_code, content = api.curl_logic(geoip_api)
+		local return_code, content = api.curl_auto(geoip_api)
 		local json = jsonc.parse(content)
 		if json.tag_name and json.assets then
 			for _, v in ipairs(json.assets) do
@@ -329,7 +336,7 @@ end
 local function fetch_geosite()
 	--请求geosite
 	xpcall(function()
-		local return_code, content = api.curl_logic(geosite_api)
+		local return_code, content = api.curl_auto(geosite_api)
 		local json = jsonc.parse(content)
 		if json.tag_name and json.assets then
 			for _, v in ipairs(json.assets) do
