@@ -8,7 +8,6 @@ end
 
 local appname = "passwall"
 local jsonc = api.jsonc
-local uci = api.libuci
 
 local type_name = "Xray"
 
@@ -19,7 +18,7 @@ local function _n(name)
 end
 
 local ss_method_list = {
-	"aes-128-gcm", "aes-256-gcm", "chacha20-poly1305", "xchacha20-poly1305", "2022-blake3-aes-128-gcm", "2022-blake3-aes-256-gcm", "2022-blake3-chacha20-poly1305"
+	"aes-128-gcm", "aes-256-gcm", "chacha20-poly1305", "chacha20-ietf-poly1305", "xchacha20-poly1305", "xchacha20-ietf-poly1305", "2022-blake3-aes-128-gcm", "2022-blake3-aes-256-gcm", "2022-blake3-chacha20-poly1305"
 }
 
 local security_list = { "none", "auto", "aes-128-gcm", "chacha20-poly1305", "zero" }
@@ -86,7 +85,7 @@ for k, e in ipairs(api.get_valid_nodes()) do
 end
 
 local socks_list = {}
-uci:foreach(appname, "socks", function(s)
+m.uci:foreach(appname, "socks", function(s)
 	if s.enabled == "1" and s.node then
 		socks_list[#socks_list + 1] = {
 			id = "Socks_" .. s[".name"],
@@ -181,7 +180,7 @@ if #nodes_table > 0 then
 		o:value(v.id, v.remark)
 	end
 end
-uci:foreach(appname, "shunt_rules", function(e)
+m.uci:foreach(appname, "shunt_rules", function(e)
 	if e[".name"] and e.remarks then
 		o = s:option(ListValue, _n(e[".name"]), string.format('* <a href="%s" target="_blank">%s</a>', api.url("shunt_rules", e[".name"]), e.remarks))
 		o:value("", translate("Close"))
