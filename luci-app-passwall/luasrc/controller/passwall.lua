@@ -1,10 +1,10 @@
 -- Copyright (C) 2018-2020 L-WRT Team
--- Copyright (C) 2021-2023 xiaorouji
+-- Copyright (C) 2021-2025 xiaorouji
 
 module("luci.controller.passwall", package.seeall)
 local api = require "luci.passwall.api"
-local appname = "passwall"			-- not available
-local uci = api.libuci		        -- in funtion index()
+local appname = "passwall"	-- not available
+local uci = api.uci			-- in funtion index()
 local fs = api.fs
 local http = require "luci.http"
 local util = require "luci.util"
@@ -17,8 +17,8 @@ function index()
 		else return end
 	end
 	local api = require "luci.passwall.api"
-	local appname = "passwall"			-- global definitions not available
-	local uci = api.libuci		        -- in function index()
+	local appname = "passwall"	-- global definitions not available
+	local uci = api.uci			-- in function index()
 	local fs = api.fs
 	entry({"admin", "services", appname}).dependent = true
 	entry({"admin", "services", appname, "reset_config"}, call("reset_config")).leaf = true
@@ -110,7 +110,7 @@ end
 
 function show_menu()
 	uci:delete(appname, "@global[0]", "hide_from_luci")
-	uci:commit(appname)
+	api.uci_save(uci, appname, true)
 	luci.sys.call("rm -rf /tmp/luci-*")
 	luci.sys.call("/etc/init.d/rpcd restart >/dev/null")
 	luci.http.redirect(api.url())
@@ -118,7 +118,7 @@ end
 
 function hide_menu()
 	uci:set(appname, "@global[0]", "hide_from_luci","1")
-	uci:commit(appname)
+	api.uci_save(uci, appname, true)
 	luci.sys.call("rm -rf /tmp/luci-*")
 	luci.sys.call("/etc/init.d/rpcd restart >/dev/null")
 	luci.http.redirect(luci.dispatcher.build_url("admin", "status", "overview"))
@@ -135,6 +135,7 @@ function socks_autoswitch_add_node()
 	local id = luci.http.formvalue("id")
 	local key = luci.http.formvalue("key")
 	if id and id ~= "" and key and key ~= "" then
+		uci:set(appname, id, "enable_autoswitch", "1")
 		local new_list = uci:get(appname, id, "autoswitch_backup_node") or {}
 		for i = #new_list, 1, -1 do
 			if (uci:get(appname, new_list[i], "remarks") or ""):find(key) then
@@ -146,8 +147,8 @@ function socks_autoswitch_add_node()
 				table.insert(new_list, e.id)
 			end
 		end
-		api.uci_set_list(uci, appname, id, "autoswitch_backup_node", new_list)
-		uci:commit(appname)
+		uci:set_list(appname, id, "autoswitch_backup_node", new_list)
+		api.uci_save(uci, appname)
 	end
 	luci.http.redirect(api.url("socks_config", id))
 end
@@ -156,14 +157,15 @@ function socks_autoswitch_remove_node()
 	local id = luci.http.formvalue("id")
 	local key = luci.http.formvalue("key")
 	if id and id ~= "" and key and key ~= "" then
+		uci:set(appname, id, "enable_autoswitch", "1")
 		local new_list = uci:get(appname, id, "autoswitch_backup_node") or {}
 		for i = #new_list, 1, -1 do
 			if (uci:get(appname, new_list[i], "remarks") or ""):find(key) then
 				table.remove(new_list, i)
 			end
 		end
-		api.uci_set_list(uci, appname, id, "autoswitch_backup_node", new_list)
-		uci:commit(appname)
+		uci:set_list(appname, id, "autoswitch_backup_node", new_list)
+		api.uci_save(uci, appname)
 	end
 	luci.http.redirect(api.url("socks_config", id))
 end
@@ -287,6 +289,12 @@ function connect_status()
 	local gfw_list = uci:get(appname, "@global[0]", "use_gfw_list") or "1"
 	local proxy_mode = uci:get(appname, "@global[0]", "tcp_proxy_mode") or "proxy"
 	local socks_server = api.get_cache_var("GLOBAL_TCP_SOCKS_server")
+
+	-- 兼容 curl 8.6 time_starttransfer 错误
+	local curl_ver = luci.sys.exec("curl -V 2>/dev/null | head -n 1 | awk '{print $2}' | cut -d. -f1,2") or "0"
+	url = (curl_ver == "8.6") and "-w %{http_code}:%{time_appconnect} https://" .. url
+		or "-w %{http_code}:%{time_starttransfer} http://" .. url
+
 	if socks_server and socks_server ~= "" then
 		if (chn_list == "proxy" and gfw_list == "0" and proxy_mode ~= "proxy" and baidu ~= nil) or (chn_list == "0" and gfw_list == "0" and proxy_mode == "proxy") then
 		-- 中国列表+百度 or 全局
@@ -296,7 +304,7 @@ function connect_status()
 			url = "-x socks5h://" .. socks_server .. " " .. url
 		end
 	end
-	local result = luci.sys.exec('curl --connect-timeout 3 -o /dev/null -I -sk -w "%{http_code}:%{time_appconnect}" ' .. url)
+	local result = luci.sys.exec('curl --connect-timeout 3 -o /dev/null -I -sk ' .. url)
 	local code = tonumber(luci.sys.exec("echo -n '" .. result .. "' | awk -F ':' '{print $1}'") or "0")
 	if code ~= 0 then
 		local use_time = luci.sys.exec("echo -n '" .. result .. "' | awk -F ':' '{print $2}'")
@@ -353,7 +361,7 @@ function set_node()
 	local protocol = luci.http.formvalue("protocol")
 	local section = luci.http.formvalue("section")
 	uci:set(appname, "@global[0]", protocol .. "_node", section)
-	uci:commit(appname)
+	api.uci_save(uci, appname, true)
 	luci.sys.call("/etc/init.d/passwall restart > /dev/null 2>&1 &")
 	luci.http.redirect(api.url("log"))
 end
@@ -361,7 +369,7 @@ end
 function copy_node()
 	local section = luci.http.formvalue("section")
 	local uuid = api.gen_short_uuid()
-	api.uci_section(uci, appname, "nodes", uuid)
+	uci:section(appname, "nodes", uuid)
 	for k, v in pairs(uci:get_all(appname, section)) do
 		local filter = k:find("%.")
 		if filter and filter == 1 then
@@ -375,7 +383,7 @@ function copy_node()
 	end
 	uci:delete(appname, uuid, "add_from")
 	uci:set(appname, uuid, "add_mode", 1)
-	uci:commit(appname)
+	api.uci_save(uci, appname)
 	luci.http.redirect(api.url("node_config", uuid))
 end
 
@@ -385,7 +393,7 @@ function clear_all_nodes()
 	uci:delete(appname, '@global[0]', "udp_node")
 	uci:foreach(appname, "socks", function(t)
 		uci:delete(appname, t[".name"])
-		api.uci_set_list(uci, appname, t[".name"], "autoswitch_backup_node", {})
+		uci:set_list(appname, t[".name"], "autoswitch_backup_node", {})
 	end)
 	uci:foreach(appname, "haproxy_config", function(t)
 		uci:delete(appname, t[".name"])
@@ -398,7 +406,7 @@ function clear_all_nodes()
 		uci:delete(appname, node['.name'])
 	end)
 
-	uci:commit(appname)
+	api.uci_save(uci, appname, true)
 	luci.sys.call("/etc/init.d/" .. appname .. " stop")
 end
 
@@ -421,7 +429,7 @@ function delete_select_nodes()
 					table.remove(auto_switch_node_list, i)
 				end
 			end
-			api.uci_set_list(uci, appname, t[".name"], "autoswitch_backup_node", auto_switch_node_list)
+			uci:set_list(appname, t[".name"], "autoswitch_backup_node", auto_switch_node_list)
 		end)
 		uci:foreach(appname, "haproxy_config", function(t)
 			if t["lbss"] == w then
@@ -448,7 +456,7 @@ function delete_select_nodes()
 		end)
 		uci:delete(appname, w)
 	end)
-	uci:commit(appname)
+	api.uci_save(uci, appname, true)
 	luci.sys.call("/etc/init.d/" .. appname .. " restart > /dev/null 2>&1 &")
 end
 

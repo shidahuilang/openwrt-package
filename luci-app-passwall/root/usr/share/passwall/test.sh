@@ -73,10 +73,15 @@ url_test_node() {
 			local curlx="socks5h://127.0.0.1:${_tmp_port}"
 		fi
 		sleep 1s
+		# 兼容 curl 8.6 time_starttransfer 错误
+		local curl_ver=$(curl -V 2>/dev/null | head -n 1 | awk '{print $2}' | cut -d. -f1,2)
+		local curl_arg="-w %{http_code}:%{time_starttransfer} http://"
+		[ "${curl_ver}" = "8.6" ] && curl_arg="-w %{http_code}:%{time_appconnect} https://"
+
 		local chn_list=$(config_n_get @global[0] chn_list direct)
-		local probeUrl="https://www.google.com/generate_204"
-		[ "${chn_list}" = "proxy" ] && probeUrl="https://www.baidu.com"
-		result=$(curl --connect-timeout 3 -o /dev/null -I -skL -w "%{http_code}:%{time_appconnect}" -x $curlx "${probeUrl}")
+		local probeUrl="www.google.com/generate_204"
+		[ "${chn_list}" = "proxy" ] && probeUrl="www.baidu.com"
+		result=$(curl --connect-timeout 3 -o /dev/null -I -skL -x $curlx ${curl_arg}${probeUrl})
 		pgrep -af "url_test_${node_id}" | awk '! /test\.sh/{print $1}' | xargs kill -9 >/dev/null 2>&1
 		rm -rf "/tmp/etc/${CONFIG}/url_test_${node_id}.json"
 	}
