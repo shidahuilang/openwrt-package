@@ -1293,23 +1293,14 @@ del_firewall_rule() {
 	destroy_ipset $IPSET_BLOCK6
 	destroy_ipset $IPSET_WHITE6
 
-	$DIR/app.sh echolog "删除iptables防火墙规则完成。"
+	$DIR/app.sh echolog "删除 iptables 规则完成。"
 }
 
 flush_ipset() {
-	$DIR/app.sh echolog "清空 IPSET。"
+	$DIR/app.sh echolog "清空 IPSet。"
 	for _name in $(ipset list | grep "Name: " | grep "passwall_" | awk '{print $2}'); do
 		destroy_ipset ${_name}
 	done
-}
-
-flush_ipset_reload() {
-	del_firewall_rule
-	flush_ipset
-	rm -rf /tmp/etc/passwall_tmp/singbox*
-	rm -rf /tmp/etc/passwall_tmp/smartdns*
-	rm -rf /tmp/etc/passwall_tmp/dnsmasq*
-	/etc/init.d/passwall reload
 }
 
 flush_include() {
@@ -1412,6 +1403,14 @@ start() {
 
 stop() {
 	del_firewall_rule
+	[ $(config_t_get global flush_set "0") = "1" ] && {
+		uci -q delete ${CONFIG}.@global[0].flush_set
+		uci -q commit ${CONFIG}
+		flush_ipset
+		rm -rf /tmp/etc/passwall_tmp/singbox*
+		rm -rf /tmp/etc/passwall_tmp/smartdns*
+		rm -rf /tmp/etc/passwall_tmp/dnsmasq*
+	}
 	flush_include
 }
 
@@ -1426,12 +1425,6 @@ insert_rule_before)
 	;;
 insert_rule_after)
 	insert_rule_after "$@"
-	;;
-flush_ipset)
-	flush_ipset
-	;;
-flush_ipset_reload)
-	flush_ipset_reload
 	;;
 get_ipt_bin)
 	get_ipt_bin
