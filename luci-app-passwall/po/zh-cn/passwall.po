@@ -799,6 +799,9 @@ msgstr "使用 127.0.0.1 和此端口配置节点"
 msgid "Enable Load Balancing"
 msgstr "开启负载均衡"
 
+msgid "Console Login Auth"
+msgstr "控制台登录认证"
+
 msgid "Console Username"
 msgstr "控制台账号"
 
@@ -1020,6 +1023,9 @@ msgstr "节点订阅"
 
 msgid "Subscribe Remark"
 msgstr "订阅备注（机场）"
+
+msgid "Subscribe Info"
+msgstr "订阅信息"
 
 msgid "Subscribe URL"
 msgstr "订阅网址"
