@@ -38,6 +38,26 @@ function is_old_uci()
 	return sys.call("grep 'require \"uci\"' /usr/lib/lua/luci/model/uci.lua >/dev/null 2>&1") == 0
 end
 
+function set_apply_on_parse(map)
+	if not map then
+		return
+	end
+	if is_js_luci() then
+		map.apply_on_parse = false
+		map.on_after_apply = function(self)
+			if self.redirect then
+				luci.http.write([[
+					<script type="text/javascript">
+						setTimeout(function() {
+							window.location.href = ']] .. self.redirect .. [[';
+						}, 1000);
+					</script>
+				]])
+			end
+		end
+	end
+end
+
 function uci_save(cursor, config, commit, apply)
 	if is_old_uci() then
 		cursor:save(config)
@@ -1178,11 +1198,16 @@ function luci_types(id, m, s, type_name, option_prefix)
 				end
 				s.fields[key].remove = function(self, section)
 					if s.fields["type"]:formvalue(id) == type_name then
-						if self.rewrite_option and rewrite_option_table[self.rewrite_option] == 1 then
-							m:del(section, self.rewrite_option)
+						-- 添加自定义 custom_remove 属性，如果有自定义的 custom_remove 函数，则使用自定义的 remove 逻辑
+						if self.custom_remove then
+							self:custom_remove(section)
 						else
-							if self.option:find(option_prefix) == 1 then
-								m:del(section, self.option:sub(1 + #option_prefix))
+							if self.rewrite_option and rewrite_option_table[self.rewrite_option] == 1 then
+								m:del(section, self.rewrite_option)
+							else
+								if self.option:find(option_prefix) == 1 then
+									m:del(section, self.option:sub(1 + #option_prefix))
+								end
 							end
 						end
 					end
