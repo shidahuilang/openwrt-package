@@ -30,36 +30,27 @@ case "$DISTRIB_RELEASE" in
 		;;
 esac
 
-# download tarball
-echo "download tarball"
-tarball="mihomo_$arch-$branch.tar.gz"
-curl -s -L -o "$tarball" "https://github.com/morytyann/OpenWrt-mihomo/releases/latest/download/$tarball"
-
-# extract tarball
-echo "extract tarball"
-tar -x -z -f "$tarball"
-rm -f "$tarball"
+# feed url
+repository_url="https://mihomotproxy.pages.dev"
+feed_url="$repository_url/$branch/$arch/mihomo"
 
 if [ -x "/bin/opkg" ]; then
+	# download ipks
+	eval $(curl -s -L $feed_url/index.json | jsonfilter -e 'version=@["packages"]["mihomo"]' -e 'app_version=@["packages"]["luci-app-mihomo"]' -e 'i18n_version=@["packages"]["luci-i18n-mihomo-zh-cn"]')
+	curl -s -L -J -O $feed_url/mihomo_${version}_${arch}.ipk
+	curl -s -L -J -O $feed_url/luci-app-mihomo_${app_version}_all.ipk
+	curl -s -L -J -O $feed_url/luci-i18n-mihomo-zh-cn_${i18n_version}_all.ipk
 	# update feeds
 	echo "update feeds"
 	opkg update
 	# install ipks
 	echo "install ipks"
-	opkg install mihomo_*.ipk
-	opkg install luci-app-mihomo_*.ipk
-	opkg install luci-i18n-mihomo-zh-cn_*.ipk
+	opkg install mihomo_*.ipk luci-app-mihomo_*.ipk luci-i18n-mihomo-zh-cn_*.ipk
 	rm -f -- *mihomo*.ipk
 elif [ -x "/usr/bin/apk" ]; then
-	# update feeds
-	echo "update feeds"
-	apk update
-	# install apks
-	echo "install apks"
-	apk add --allow-untrusted mihomo-*.apk
-	apk add --allow-untrusted luci-app-mihomo-*.apk
-	apk add --allow-untrusted luci-i18n-mihomo-zh-cn-*.apk
-	rm -f -- *mihomo*.apk
+	# install apks from remote repository
+	echo "install apks from remote repository"
+	apk add --allow-untrusted --repository $feed_url/packages.adb mihomo luci-app-mihomo luci-i18n-mihomo-zh-cn
 fi
 
 echo "success"
