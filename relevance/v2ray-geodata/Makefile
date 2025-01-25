@@ -7,7 +7,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=v2ray-geodata
-PKG_VERSION:=$(shell date "+%Y-%m-%d")
+PKG_VERSION:=$(shell date "+%Y.%m.%d")
 PKG_RELEASE:=1
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
