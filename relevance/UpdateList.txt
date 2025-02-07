@@ -26,6 +26,7 @@ istoreenhance
 kcptun
 linkease
 linkmount
+luasrc
 luci-app-3ginfo
 luci-app-adguardhome
 luci-app-advanced
