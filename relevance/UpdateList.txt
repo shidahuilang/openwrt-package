@@ -45,6 +45,7 @@ libcryptopp
 linkease
 linkmount
 lua-maxminddb
+luasrc
 luci-app-3ginfo
 luci-app-accesscontrol
 luci-app-adguardhome

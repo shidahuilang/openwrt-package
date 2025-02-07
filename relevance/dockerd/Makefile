@@ -151,6 +151,10 @@ define Package/dockerd/install
 
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/dockerd.init $(1)/etc/init.d/dockerd
+	
+	if [ ! -f $(TOPDIR)/feeds/luci/package.json ]; then \
+		$(INSTALL_BIN) ./files/dockerd.sh $(1)/etc/init.d/dockerd; \
+	fi
 
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) ./files/etc/config/dockerd $(1)/etc/config/dockerd
