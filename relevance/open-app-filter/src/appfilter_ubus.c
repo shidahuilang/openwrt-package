@@ -170,7 +170,6 @@ appfilter_handle_dev_visit_list(struct ubus_context *ctx, struct ubus_object *ob
         printf("mac is null\n");
         return 0;
     }
-    printf("%s %d\n", __func__, __LINE__);
 
     char *mac = json_object_get_string(mac_obj);
     dev_node_t *node = find_dev_node(mac);
@@ -330,6 +329,33 @@ appfilter_handle_visit_list(struct ubus_context *ctx, struct ubus_object *obj,
     ubus_send_reply(ctx, req, b.head);
     return 0;
 }
+static int handle_debug(struct ubus_context *ctx, struct ubus_object *obj,
+                            struct ubus_request_data *req, const char *method,
+                            struct blob_attr *msg)
+{
+    int ret;
+    blob_buf_init(&b, 0);
+    char *msg_obj_str = blobmsg_format_json(msg, true);
+    if (!msg_obj_str)
+    {
+        printf("format json failed\n");
+        return 0;
+    }
+
+    struct json_object *req_obj = json_tokener_parse(msg_obj_str);
+    struct json_object *debug_obj = json_object_object_get(req_obj, "debug");
+
+    if (debug_obj)
+    {
+        current_log_level = json_object_get_int(debug_obj);
+        LOG_WARN("debug level set to %d\n", current_log_level);
+    }
+
+    ubus_send_reply(ctx, req, b.head);
+    return 0;
+}
+
+
 
 typedef struct app_visit_time_info
 {
@@ -719,11 +745,15 @@ static int handle_get_app_filter_base(struct ubus_context *ctx, struct ubus_obje
     }
     int enable = 0;
     int work_mode = 0;
+    int record_enable = 0;
     enable = af_uci_get_int_value(uci_ctx, "appfilter.global.enable");
     work_mode = af_uci_get_int_value(uci_ctx, "appfilter.global.work_mode");
+    record_enable = af_uci_get_int_value(uci_ctx, "appfilter.global.record_enable");
+
 
     json_object_object_add(data_obj, "enable", json_object_new_int(enable));
     json_object_object_add(data_obj, "work_mode", json_object_new_int(work_mode));
+    json_object_object_add(data_obj, "record_enable", json_object_new_int(record_enable));
 
 
     json_object_object_add(response, "data", data_obj);
@@ -751,6 +781,7 @@ static int handle_set_app_filter_base(struct ubus_context *ctx, struct ubus_obje
     printf("msg_obj_str: %s\n", msg_obj_str);
     struct json_object *req_obj = json_tokener_parse(msg_obj_str);
     struct json_object *enable_obj = json_object_object_get(req_obj, "enable");
+    struct json_object *record_enable_obj = json_object_object_get(req_obj, "record_enable");
     struct json_object *work_mode_obj = json_object_object_get(req_obj, "work_mode");
     if (!enable_obj || !work_mode_obj) {
         printf("enable_obj or work_mode_obj is NULL\n");
@@ -758,6 +789,7 @@ static int handle_set_app_filter_base(struct ubus_context *ctx, struct ubus_obje
     }
     printf("enable_obj: %d\n", json_object_get_int(enable_obj));
     printf("work_mode_obj: %d\n", json_object_get_int(work_mode_obj));
+
 
     struct uci_context *uci_ctx = uci_alloc_context();
     if (!uci_ctx) {
@@ -767,6 +799,13 @@ static int handle_set_app_filter_base(struct ubus_context *ctx, struct ubus_obje
 
     af_uci_set_int_value(uci_ctx, "appfilter.global.enable", json_object_get_int(enable_obj));
     af_uci_set_int_value(uci_ctx, "appfilter.global.work_mode", json_object_get_int(work_mode_obj));
+    
+    if (record_enable_obj)
+        af_uci_set_int_value(uci_ctx, "appfilter.global.record_enable", json_object_get_int(record_enable_obj));
+    else
+        af_uci_set_int_value(uci_ctx, "appfilter.global.record_enable", 0);
+
+
     af_uci_commit(uci_ctx, "appfilter");
     reload_oaf_rule();
     g_oaf_config_change = 1;
@@ -779,7 +818,6 @@ static int handle_set_app_filter_base(struct ubus_context *ctx, struct ubus_obje
     json_object_put(response);
     return 0;
 }
-
 
 
 static int handle_get_app_filter_time(struct ubus_context *ctx, struct ubus_object *obj,
@@ -959,23 +997,6 @@ EXIT:
     return 0;
 }
 
-#if 0
-
-
-typedef void (*iter_func)(void *arg, dev_node_t *dev);
-//todo:dev for each
-extern dev_node_t *dev_hash_table[MAX_DEV_NODE_HASH_SIZE];
-
-dev_node_t *add_dev_node(char *mac);
-void init_dev_node_htable();
-void dump_dev_list(void);
-void dump_dev_visit_list(void);
-dev_node_t *find_dev_node(char *mac);
-void dev_foreach(void *arg, iter_func iter);
-#endif
-
-
-
 typedef struct all_users_info {
     int flag;
     struct json_object *users_array;
@@ -997,7 +1018,9 @@ void all_users_callback(void *arg, dev_node_t *dev)
 
     struct json_object *user_obj = json_object_new_object();
     json_object_object_add(user_obj, "mac", json_object_new_string(dev->mac));
-    json_object_object_add(user_obj, "online", json_object_new_int(1));
+    json_object_object_add(user_obj, "online", json_object_new_int(dev->online));
+    json_object_object_add(user_obj, "online_time", json_object_new_int(dev->online_time));
+    json_object_object_add(user_obj, "offline_time", json_object_new_int(dev->offline_time));
 
     if (flag > 0) {
         json_object_object_add(user_obj, "ip", json_object_new_string(dev->ip));
@@ -1030,11 +1053,46 @@ void all_users_callback(void *arg, dev_node_t *dev)
     json_object_array_add(users_array, user_obj);
 }
 
+int compare_users(const void *a, const void *b)
+{
+    struct json_object *user_a = *(struct json_object **)a;
+    struct json_object *user_b = *(struct json_object **)b;
 
+    struct json_object *online_a, *online_b;
+    json_object_object_get_ex(user_a, "online", &online_a);
+    json_object_object_get_ex(user_b, "online", &online_b);
+
+    int online_val_a = json_object_get_int(online_a);
+    int online_val_b = json_object_get_int(online_b);
+
+    if (online_val_a != online_val_b)
+        return online_val_b - online_val_a;
+
+    struct json_object *online_time_a, *online_time_b;
+    json_object_object_get_ex(user_a, "online_time", &online_time_a);
+    json_object_object_get_ex(user_b, "online_time", &online_time_b);
+
+    int online_time_val_a = json_object_get_int(online_time_a);
+    int online_time_val_b = json_object_get_int(online_time_b);
+
+    if (online_val_a == 1 && online_val_b == 1) {
+        // Both are online, sort by online_time
+        return online_time_val_a - online_time_val_b;
+    } else {
+        // Both are offline, sort by offline_time
+        struct json_object *offline_time_a, *offline_time_b;
+        json_object_object_get_ex(user_a, "offline_time", &offline_time_a);
+        json_object_object_get_ex(user_b, "offline_time", &offline_time_b);
+
+        int offline_time_val_a = json_object_get_int(offline_time_a);
+        int offline_time_val_b = json_object_get_int(offline_time_b);
+
+        return offline_time_val_a - offline_time_val_b;
+    }
+}
 
 static int handle_get_all_users(struct ubus_context *ctx, struct ubus_object *obj,
                                  struct ubus_request_data *req, const char *method,
-
                                  struct blob_attr *msg) {
     struct json_object *response = json_object_new_object();
     struct json_object *data_obj = json_object_new_object();
@@ -1070,6 +1128,9 @@ static int handle_get_all_users(struct ubus_context *ctx, struct ubus_object *ob
     update_dev_nickname();
 
     dev_foreach(&au_info, all_users_callback);
+    
+    // 对 users_array 进行排序
+    json_object_array_sort(au_info.users_array, compare_users);
 
     json_object_object_add(data_obj, "list", au_info.users_array);
 
@@ -1085,15 +1146,6 @@ static int handle_get_all_users(struct ubus_context *ctx, struct ubus_object *ob
     json_object_put(response);
     return 0;
 }
-
-#if 0
-config user user
-    list mac 12:00:00:00:00:00
-    list mac 12:00:00:00:00:00
-    list mac 12:00:00:00:00:00
-
-#endif
-
 
 
 static int handle_get_app_filter_user(struct ubus_context *ctx, struct ubus_object *obj,
@@ -1423,8 +1475,11 @@ static struct ubus_method appfilter_object_methods[] = {
     UBUS_METHOD("add_app_filter_user", handle_add_app_filter_user, empty_policy),
     UBUS_METHOD("set_nickname", handle_set_nickname, empty_policy),
     UBUS_METHOD("get_oaf_status", handle_get_oaf_status, empty_policy),
-
+    UBUS_METHOD("debug", handle_debug, empty_policy),
 };
+
+
+
 
 static struct ubus_object_type main_object_type =
     UBUS_OBJECT_TYPE("appfilter", appfilter_object_methods);
