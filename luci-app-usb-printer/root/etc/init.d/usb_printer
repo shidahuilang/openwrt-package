@@ -5,7 +5,7 @@
 START=70
 
 stop() {
-	killall -3 p910nd 2>/dev/null
+	killall p910nd 2>/dev/null
 }
 
 start() {

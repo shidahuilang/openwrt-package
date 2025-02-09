@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# MihomoTProxy's feed
+# Nikki's feed
 
 # check env
 if [[ ! -x "/bin/opkg" && ! -x "/usr/bin/apk" || ! -x "/sbin/fw4" ]]; then
@@ -31,8 +31,8 @@ case "$DISTRIB_RELEASE" in
 esac
 
 # feed url
-repository_url="https://mihomotproxy.pages.dev"
-feed_url="$repository_url/$branch/$arch/mihomo"
+repository_url="https://nikkinikki.pages.dev"
+feed_url="$repository_url/$branch/$arch/nikki"
 
 if [ -x "/bin/opkg" ]; then
 	# add key
@@ -43,10 +43,10 @@ if [ -x "/bin/opkg" ]; then
 	rm -f "$key_build_pub_file"
 	# add feed
 	echo "add feed"
-	if (grep -q mihomo /etc/opkg/customfeeds.conf); then
-		sed -i '/mihomo/d' /etc/opkg/customfeeds.conf
+	if (grep -q nikki /etc/opkg/customfeeds.conf); then
+		sed -i '/nikki/d' /etc/opkg/customfeeds.conf
 	fi
-	echo "src/gz mihomo $feed_url" >> /etc/opkg/customfeeds.conf
+	echo "src/gz nikki $feed_url" >> /etc/opkg/customfeeds.conf
 	# update feeds
 	echo "update feeds"
 	opkg update
@@ -54,11 +54,11 @@ elif [ -x "/usr/bin/apk" ]; then
 	# todo: wait for upstream support to build apk with signature
 	# add key
 	# echo "add key"
-	# curl -s -L -o "/etc/apk/keys/mihomo.pem" "$repository_url/public-key.pem"
+	# curl -s -L -o "/etc/apk/keys/nikki.pem" "$repository_url/public-key.pem"
 	# add feed
 	echo "add feed"
-	if (grep -q mihomo /etc/apk/repositories.d/customfeeds.list); then
-		sed -i '/mihomo/d' /etc/apk/repositories.d/customfeeds.list
+	if (grep -q nikki /etc/apk/repositories.d/customfeeds.list); then
+		sed -i '/nikki/d' /etc/apk/repositories.d/customfeeds.list
 	fi
 	echo "$feed_url/packages.adb" >> /etc/apk/repositories.d/customfeeds.list
 	# update feeds

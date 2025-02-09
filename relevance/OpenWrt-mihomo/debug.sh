@@ -1,7 +1,7 @@
 #!/bin/sh
 
 {
-	echo "# MihomoTProxy Debug Info"
+	echo "# Nikki Debug Info"
 	echo "## system"
 	echo "\`\`\`shell"
 	cat /etc/openwrt_release
@@ -12,15 +12,21 @@
 	echo "\`\`\`"
 	echo "## application"
 	echo "\`\`\`"
-	opkg list-installed | grep mihomo
+	if [ -x "/bin/opkg" ]; then
+		opkg list-installed "nikki"
+		opkg list-installed "luci-app-nikki"
+	elif [ -x "/usr/bin/apk" ]; then
+		apk list -I "nikki"
+		apk list -I "luci-app-nikki"
+	fi
 	echo "\`\`\`"
 	echo "## config"
 	echo "\`\`\`"
-	uci show mihomo
+	uci show nikki
 	echo "\`\`\`"
 	echo "## profile"
 	echo "\`\`\`yaml"
-	cat /etc/mihomo/run/config.yaml
+	cat /etc/nikki/run/config.yaml
 	echo "\`\`\`"
 	echo "## ip rule"
 	echo "\`\`\`"
@@ -52,7 +58,7 @@
 	echo "\`\`\`"
 	echo "## service"
 	echo "\`\`\`json"
-	service mihomo info
+	service nikki info
 	echo "\`\`\`"
 	echo "## process"
 	echo "\`\`\`"

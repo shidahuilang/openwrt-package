@@ -1,14 +1,16 @@
 #!/bin/sh
 
+# uninstall
 if [ -x "/bin/opkg" ]; then
-	opkg remove luci-i18n-mihomo-zh-cn
-	opkg remove luci-app-mihomo
-	opkg remove mihomo
+	opkg remove luci-i18n-nikki-zh-cn
+	opkg remove luci-app-nikki
+	opkg remove nikki
 elif [ -x "/usr/bin/apk" ]; then
-	apk del luci-i18n-mihomo-zh-cn
-	apk del luci-app-mihomo
-	apk del mihomo
+	apk del luci-i18n-nikki-zh-cn
+	apk del luci-app-nikki
+	apk del nikki
 fi
-
-rm -rf /etc/mihomo
-rm -f /etc/config/mihomo
+# remove config
+rm -f /etc/config/nikki
+# remove files
+rm -rf /etc/nikki
