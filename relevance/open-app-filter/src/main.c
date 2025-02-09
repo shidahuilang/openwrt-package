@@ -36,7 +36,7 @@ THE SOFTWARE.
 
 int current_log_level = LOG_LEVEL_INFO;
 af_run_time_status_t g_af_status;
-int g_oaf_config_change = 0;
+int g_oaf_config_change = 1;
 af_config_t g_af_config;
 
 void af_init_time_status(void){
@@ -125,6 +125,12 @@ void af_load_global_config(af_global_config_t *config){
         config->enable = 0;
     else
         config->enable = ret;
+
+    ret = af_uci_get_int_value(ctx, "appfilter.global.record_enable");
+    if (ret < 0)
+        config->record_enable = 0;
+    else
+        config->record_enable = ret;
 
     ret = af_uci_get_int_value(ctx, "appfilter.global.user_mode");
     if (ret < 0)
@@ -275,6 +281,15 @@ void update_oaf_status(void){
     }
 }
 
+void update_oaf_record_status(void){
+    if(g_af_config.global.record_enable == 1){
+        system("echo 1 >/proc/sys/oaf/record_enable");
+    }
+    else{
+        system("echo 0 >/proc/sys/oaf/record_enable");
+    }
+}
+
 
 void dev_list_timeout_handler(struct uloop_timeout *t)
 {
@@ -282,7 +297,6 @@ void dev_list_timeout_handler(struct uloop_timeout *t)
     count++;
     if (count % 10 == 0){
         update_dev_list();
-        dump_dev_list();
     }
     if (count % 60 == 0){
         check_dev_visit_info_expire();
@@ -292,10 +306,13 @@ void dev_list_timeout_handler(struct uloop_timeout *t)
         }
         flush_expire_visit_info();
         update_oaf_status();
+        dump_dev_list();
     }
     if (g_oaf_config_change == 1){
+        update_lan_ip();
         af_load_config(&g_af_config);
         update_oaf_status();
+        update_oaf_record_status();
         g_oaf_config_change = 0;
     }
     uloop_timeout_set(t, 1000);
