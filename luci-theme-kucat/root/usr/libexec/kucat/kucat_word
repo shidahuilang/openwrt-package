@@ -61,7 +61,7 @@ get_word() {
 		local gword=`echo $gwordjson | jsonfilter -qe '@.hitokoto'`
 		local gfrom=`echo $gwordjson | jsonfilter -qe '@.from_who'`
 		[ -n "${gfrom}" ] && gfrom=$(echo "    ---- $gfrom")|| gfrom=''
-		[ -n "${gword}" ] && echo "$gword     $gfrom"
+		[ -n "${gword}" ] &&   echo "$gword     $gfrom"
 		;;
 	esac
 }
