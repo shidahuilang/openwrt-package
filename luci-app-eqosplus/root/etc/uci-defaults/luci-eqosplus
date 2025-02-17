@@ -1,4 +1,13 @@
 #!/bin/sh
+[ ! -f "/usr/share/ucitrack/luci-app-eqosplus.json" ] && {
+    cat > /usr/share/ucitrack/luci-app-eqosplus.json << EEOF
+{
+    "config": "eqosplus",
+    "init": "eqosplus"
+}
+EEOF
+/etc/init.d/ucitrack reload
+}
 chmod +x  /etc/init.d/eqosplus /usr/bin/eqosplus*
 uci -q batch <<-EOF >/dev/null
 	delete ucitrack.@eqosplus[-1]
