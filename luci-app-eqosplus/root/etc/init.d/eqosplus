@@ -52,3 +52,7 @@ stop_service(){
 	eqosplus stop
 }
 
+
+reload_service() {
+	restart
+}
