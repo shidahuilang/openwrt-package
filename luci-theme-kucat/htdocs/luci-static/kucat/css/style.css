@@ -26,23 +26,22 @@
     --radius0: 8px;
     --radius1: 0.375rem;
     --radius2: 0.25rem;
+    --primary-solid: #fd8c73;
+    --menu-hover-barbgcolor: rgba(255,255,255, 0.3);
  }
 [data-theme='light'] {
-    --primary-solid: #fd8c73;
     --primarytextcolor: #677087;
     --primary-title-color: #4d4d5d;
     --menu-color: #f5f5f5f5;
     --menu-hover-color: #fff;
-    --menu-item-color: #5a636b;
     --menu-item-titlebg-color: rgba(var(--primary-rgbm),0.22);
-    --menu-item-hover-bgcolor: rgba(248,248,248, 0.2);
+    --menu-barbgcolor: rgba(var(--primary-rgbm), var(--primary-rgbm-ts));
     --body-text-color: #3c4655;
     --body-color: #65656b;
+    --body-hover-bgcolor: rgba(50,50,50,0.05);
     --inputbg-color: rgba(248,248,248,0.15);
     --inputtext-color: #4d5256;
     --inputborder-color: rgba(0,0,0,0.2);
-    --input-hover-color: #fff;
-    --input-hover-bgcolor: rgba(248,248,248,0.5);
     --input-bgcolor: rgba(255,255,255,0.6);
     --input-boxcolor: rgba(0, 0, 0, 0.12);
     --input-boxhovercolor: rgba(0, 0, 0, 0.22);
@@ -51,21 +50,18 @@
     --font-sans: "Microsoft Yahei","Google Sans","WenQuanYi Micro Hei", "sans-serif", "Helvetica Neue", "Helvetica", "Hiragino Sans GB";
 }
 [data-theme="dark"] {
-    --primary-solid: #fd8c73;
     --primarytextcolor: #bbb;
     --primary-title-color: #bbb;
-    --menu-color: #bbb;
+    --menu-color: #ddd;
     --menu-hover-color: #e9eff3;
-    --menu-item-color: #b4c9e3;
     --menu-item-titlebg-color: rgba(var(--primary-rgbm),0.4);
-    --menu-item-hover-bgcolor: rgba(255, 255, 255, 0.2);
+    --menu-barbgcolor: rgba(var(--primary-rgbm), var(--primary-rgbm-ts));
     --body-text-color: #8391a2;
     --body-color: #8b8e91;
+    --body-hover-bgcolor: rgba(255,255,255,0.05);
     --inputbg-color: rgba(255,255,255,0.11);
     --inputtext-color: #bbb;
     --inputborder-color: rgba(255,255,255,0.2);
-    --input-hover-color: #ccc;
-    --input-hover-bgcolor: rgba(255,255,255,0.22);
     --input-bgcolor: rgba(0,0,0,0.2);
     --input-boxcolor: rgba(255,255,255,0.15);
     --input-boxhovercolor: rgba(255, 255, 255, 0.22);
@@ -205,7 +201,7 @@ html, body {
 	padding: 0 !important;
 }
 body {
-	letter-spacing: 0.05em;
+	letter-spacing: 0.050em;
 	font-size: var(--font-z);
 	color: var(--body-color);
 	background-position: top center;
@@ -452,13 +448,13 @@ small {
     border-radius:  var(--radius2);
     text-decoration:none
 }
+
 .container-bar-right .labelbar:hover::before, .container-bar-left .labelbar:hover::before {
-      color: var(--menu-color);
+    color: var(--menu-hover-color);
 	text-decoration: none
 }
-
 .container-bar-right .labelbar::before,.container-bar-left .labelbar::before {
-      color: var(--menu-color);
+    color: var(--menu-color);
     font-size: 2rem !important;
     text-decoration: none
 }
@@ -515,8 +511,7 @@ small {
 	float: left;
 	width: calc(0% + 17rem);
 	height: 100%;
-	background-color: rgba(var(--primary-rgbm), var(--primary-rgbm-ts));
-	background-image: var(--bgqs-image);
+	background-color: var(--menu-bgcolor);
 	box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.14), 0 -2px 3px 1px rgba(0, 0, 0, 0.32), 0 0px 5px 2px rgba(0, 0, 0, 0.2);
 	overflow-x: auto;
 	position: fixed;
@@ -524,12 +519,12 @@ small {
 }
 .main .main-left .sidenav-header {
 	text-align: center;
-	height: 4.8rem;
-	margin: 0 10px;
-	background-color: rgba(255, 255, 255, 0);
+	height: 4.8rem; 
+	margin: 0;
+	background-color: var(--menu-barbgcolor);
 	padding: 2rem;
 	background-clip: padding-box;
-	border-bottom: 1px solid #ddd
+	border-bottom: 1px solid #ddd;
 }
 .main-right {
 	width: calc(100% - 17rem);
@@ -554,8 +549,7 @@ small {
 }
 
 header.pd-primary {
-	background-color: rgba(var(--primary-rgbm), var(--primary-rgbm-ts));
-	background-image: var(--bgqs-image);
+	background-color: var(--menu-barbgcolor);
 	box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.35); 
 	background-image: -webkit-linear-gradient(135deg, rgba(255, 255, 255, 0.2) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.2) 75%, transparent 75%, transparent) !important;
 
@@ -582,7 +576,7 @@ header .fill .container .flex1 .showSide {
 	display: none;
 }
 header .fill .container .flex1 .brand {
-    color: var(--menu-hover-color);
+    color: var(--menu-color);
     font-family: var(--font-sans);
     font-weight: bold;
     font-size: 1.5rem;
@@ -657,7 +651,8 @@ span[data-indicator="uci-changes"]:hover,
 span[data-indicator="poll-status"]:hover,
 .pdboy-qlogout:hover,
 .showSide:hover {
-	background-color: var(--menu-item-hover-bgcolor)!important;
+	background-color: var(--menu-hover-barbgcolor)!important;
+	color:  var(--menu-hover-color);
 	border-radius: var(--radius1);
 	text-decoration: none
 }
@@ -759,7 +754,8 @@ text-decoration: none!important;
 	box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.16), 0 0 2px 0 rgba(0, 0, 0, 0.12)
 }
 .alert-message > * {
-	margin: .5rem 0;
+	margin: 0;
+	white-space: nowrap;
 }
 .alert-message > h4 {
     margin: 0.5rem;
@@ -779,7 +775,7 @@ text-decoration: none!important;
 /*   menu */
 
 .main .main-left .nav {
-	margin-top: .5rem
+	margin-top: 0
 }
 .slide-menu {
 	overflow: hidden
@@ -788,21 +784,20 @@ text-decoration: none!important;
 .main .main-left .nav>li>a:first-child {
     display: block;
     font-size: var(--font-d);
-    color: var(--menu-color);
+    color: var(--menu-fontcolor);
     padding: .8rem 0rem .8rem 3rem;
-    margin-bottom: 0.1rem;
+    margin-bottom: 1px;
     font-weight: 500;
     display: flex;
     width: 100%;
     text-decoration: none;
     white-space: nowrap;
-    cursor: default;
+    cursor: pointer;
     transition: all .2s;
     position: relative;
 }
 .main .main-left .nav>li  {
 	padding: 0rem;
-	cursor: pointer
 }
 .main .main-left .nav .slide ul {
 	display: none;
@@ -828,7 +823,7 @@ text-decoration: none!important;
 	position: absolute;
 	left: .8rem;
 	content: "\e91a";
-	color: var(--menu-color)
+	color: var(--menu-fontcolor)
 }
 
 .main .main-left .nav>.slide>a::after, .main .main-left>.nav>li>a::after {
@@ -840,7 +835,7 @@ text-decoration: none!important;
 	font-weight: normal;
 	font-variant: normal;
 	text-transform: none;
-	color: var(--menu-color);
+	color: var(--menu-fontcolor);
 	content: '\e20b';
 	transition: all .1s ease;
 	-moz-osx-font-smoothing: grayscale;
@@ -850,7 +845,7 @@ text-decoration: none!important;
 }
 .main .main-left .nav>li>a:hover a::after, .main .main-left>.nav>li>a.active a::after {
 	cursor: pointer;
-	color: var(--menu-color);
+	color: var(--menu-hover-color);
 	width: 100%
 }
 .main>.main-left .nav>.slide>a.active::before, .main .main-left .nav>li>a:hover::after, .main .main-left .nav>li>a.active::after {
@@ -862,8 +857,13 @@ text-decoration: none!important;
 	-webkit-transform: rotate(180deg);
 	transform: rotate(180deg)
 }
+.main .main-left .nav>li>a.active {
+	cursor: pointer;
+	background-color: var(--menu-item-active-bgcolor);
+	color: var(--menu-hover-color)
+}
 
-.main .main-left .nav>li>a:hover, .main .main-left .nav>li>a.active {
+.main .main-left .nav>li>a:hover{
 	cursor: pointer;
 	background-color: var(--menu-item-hover-bgcolor);
 	color: var(--menu-hover-color)
@@ -948,7 +948,7 @@ text-decoration: none!important;
 }
 .main .main-left .nav .slide .slide-menu > li.active {
 	color: var(--menu-hover-color);
-	background-color: var(--menu-item-hover-bgcolor);
+	background-color: var(--menu-item-active-bgcolor);
 	border-left: 4px solid var(--primary-solid)
 }
 .main .main-left .nav .slide .slide-menu li:hover {
@@ -961,20 +961,17 @@ text-decoration: none!important;
 	color: var(--menu-hover-color);
 }
 .main .main-left .sidenav-header .brand {
-    color: var(--menu-hover-color);
+    color: var(--menu-color);
     font-family: var(--font-sans);
     font-weight: bold;
     font-size: 1.5rem;
-	padding-left: 0px;
-	text-decoration: none;
-	/*letter-spacing: 3px;*/
-	font-weight: bolder;
-	cursor: default;
-	vertical-align: text-bottom;
-	white-space: nowrap;
-	text-align: center;
-	align-items: center;
-	justify-content: center;
+    text-decoration: none;
+    letter-spacing: 3px;
+    font-weight: bolder;
+    cursor: default;
+    vertical-align: text-bottom;
+    white-space: nowrap;
+    text-align: center;
 }
 
 ul {
@@ -1171,7 +1168,7 @@ table>tbody>tr:first-child>td, table>tfoot>tr:first-child>td, table>thead>tr:fir
 
 /* button style */
 
-.btn, button, .cbi-button, select, input, .cbi-dropdown {
+.btn, button, select, input, .cbi-dropdown {
 	height: 2.8rem;
 	line-height: 1;
 	outline: 0;
@@ -1182,7 +1179,7 @@ table>tbody>tr:first-child>td, table>tfoot>tr:first-child>td, table>thead>tr:fir
 	border: 1px solid var(--inputborder-color);
 	border-radius:  var(--radius2);
 	transition: box-shadow .25s ease;
-	border-radius: 0.25rem;
+	border-radius: var(--radius2);
 	cursor: pointer;
 	box-shadow: 0 0.3rem 0.8rem var(--input-boxcolor);
 }
@@ -1203,13 +1200,14 @@ table>tbody>tr:first-child>td, table>tfoot>tr:first-child>td, table>thead>tr:fir
     font-size: var(--font-z);
     color: var(--menu-hover-color);
     background-color: #008b89;
-    background-image: var(--bgqs-image);
     box-shadow: 0 0.3rem 0.8rem var(--input-boxcolor);
     transform: translate(1) translate(0,0);
     transition: transform 225ms,box-shadow 225ms;
-    border-radius: 0.25rem;
+    border-radius: var(--radius2);
 }
-
+.cbi-tab-descr {
+    padding: 0 0 0.5rem 1.5rem;
+}
 
 .cbi-section-table-row:last-child {
     margin-bottom: 0;
@@ -1232,24 +1230,20 @@ table>tbody>tr:first-child>td, table>tfoot>tr:first-child>td, table>thead>tr:fir
 
 .cbi-tabcontainer>.cbi-value:nth-of-type(4n+2), .cbi-map>.cbi-section .cbi-value:nth-of-type(4n+2), fieldset>table>tbody>tr:nth-of-type(4n+2), table>tbody>tr:nth-of-type(4n+2), div>.table>.tr:nth-of-type(4n+2) {
 	background-color: rgba(var(--primary-rgbm), var(--primary-rgbs-ts));
-	background-image: var(--bgqs-image);
 }
 .cbi-tabcontainer>.cbi-value:nth-of-type(4n), .cbi-map>.cbi-section .cbi-value:nth-of-type(4n), fieldset>table>tbody>tr:nth-of-type(4n), table>tbody>tr:nth-of-type(4n), div>.table>.tr:nth-of-type(4n) {
 	background-color: rgba(var(--primary-rgbs), var(--primary-rgbs-ts));
-	background-image: var(--bgqs-image);
 }
 .cbi-tabcontainer>.cbi-value:nth-of-type(4n+2):hover, .cbi-map>.cbi-section .cbi-value:nth-of-type(4n+2):hover, fieldset>table>tbody>tr:nth-of-type(4n+2):hover, table>tbody>tr:nth-of-type(4n+2):hover, div>.table>.tr:nth-of-type(4n+2):hover {
-    background-color: rgba(50,50,50,0.05);
-    background-image: var(--bgqs-image);
+    background-color: var(--body-hover-bgcolor);
 	                  
 }
 .cbi-tabcontainer>.cbi-value:nth-of-type(4n):hover, .cbi-map>.cbi-section .cbi-value:nth-of-type(4n):hover, fieldset>table>tbody>tr:nth-of-type(4n):hover, table>tbody>tr:nth-of-type(4n):hover, div>.table>.tr:nth-of-type(4n):hover {
-    background-color: rgba(50,50,50,0.05);
-    background-image: var(--bgqs-image);
+    background-color: var(--body-hover-bgcolor);
 }
 
 .cbi-tabcontainer>.cbi-value:nth-of-type(2n+1):hover,.cbi-map>.cbi-section .cbi-value:nth-of-type(2n+1):hover,fieldset>table>tbody>tr:nth-of-type(2n+1):hover,table>tbody>tr:nth-of-type(2n+1):hover,div>.table>.tr:nth-of-type(2n+1):hover {
-    background-color: rgba(50,50,50,0.05);
+    background-color: var(--body-hover-bgcolor);
 }
 
 /* fix multiple table */
@@ -1312,6 +1306,7 @@ background-image: url("data:image/svg+xml;base64,PCEtLSBHZW5lcmF0ZWQgYnkgSWNvTW9
 	text-decoration: none
 }
 .btn:focus, .cbi-button:focus, .item:hover::after, .item:focus::after {
+	color: var(--menu-hover-color);
 	box-shadow: 0 0.5rem 1rem var(--input-boxhovercolor);
 	-webkit-box-shadow: 0 0.5rem 1rem var(--input-boxhovercolor);
 	-moz-box-shadow: 0 0.5rem 1rem var(--input-boxhovercolor);
@@ -1357,7 +1352,7 @@ button:hover, .btn:hover, .cbi-button:hover ,.item:hover{
 .cbi-page-actions .cbi-button-apply, .cbi-section-actions .cbi-button-edit, .cbi-button-edit, .cbi-button-apply, .cbi-button-reload, .cbi-button-action, .cbi-button[value="Submit"], .cbi-button[value="Upload"], .cbi-button[value$="Apply"], .cbi-button[onclick="addKey(event)"] {
 	font-weight: normal;
 	border-color: rgba(var(--primary-rgbm), 1);
-	color: var(--menu-hover-color)!important;
+	color: var(--menu-color);
 	border: thin solid rgba(var(--primary-rgbm), 1);
 	background-color: rgba(var(--primary-rgbm), 0.9);
 }
@@ -1961,7 +1956,6 @@ select, input {
 	transition: width .25s ease-in;
 	border-radius:  var(--radius2)!important;
 	background-color: rgba(var(--primary-rgbm),0.7);
-	background-image: var(--bgqs-image);
 }
 .cbi-progressbar::after {
 	font-size: var(--font-x);
@@ -1980,7 +1974,7 @@ select, input {
 #modal_overlay {
 	position: fixed;
 	z-index: 900;
-	top: 0px;
+	top: 0;
 	display: none;
 	bottom: 0;
 	overflow-y: scroll;
@@ -1998,7 +1992,7 @@ select, input {
 	max-width: 800px;
 	min-height: 32px;
 	margin: 5em auto;
-	padding: 1em;
+	padding: 1rem;
 	border-radius:  var(--radius2)!important;
 	background-color: rgba(var(--primary-rgbbody), 1);
     box-shadow: 0 2px 10px 0px rgba(255, 255, 255, .16), 0 0 10px 0 rgba(255, 255, 255, .12);
@@ -2033,12 +2027,6 @@ select, input {
 
 .modal > .button-row .btn{
   line-height: 1.8;
-}
-
-#modal_overlay .modal>div {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
 }
 
 .modal > pre, .modal > textarea {
@@ -2190,7 +2178,10 @@ body.modal-overlay-active #modal_overlay {
 	text-align: left !important;
 	margin-left: 5px;
 }
-
+.right .cbi-button {
+	line-height: 1;
+	margin: 0;
+}
 .right, .right::before {
     text-align: right !important;
     margin-right: 5px;
@@ -2298,18 +2289,20 @@ body.modal-overlay-active #modal_overlay {
 	transition: color 100ms ease, border-color 100ms ease, opacity 100ms ease;
 	-webkit-transition: color 100ms ease, border-color 100ms ease, opacity 100ms ease;
 	vertical-align: baseline;
-	border: none;
 	outline: none;
-	color: var(--body-text-color);
-	border-radius:  var(--radius2);
-	background-color: rgba(255,255,255,0.1);
-	border: 1px solid var(--inputborder-color)!important;
+	background-color: var(--inputbg-color);
+	color: var(--inputtext-color);
+	border: 1px solid var(--inputborder-color);
+	border-radius:  var(--radius2); 
 	word-wrap: break-word;
 	white-space: pre-wrap;
 	min-width: 18rem;
 	margin: 0rem
 }
 
+.cbi-input-textarea:focus , textarea:focus { 
+  border: 1px solid var(rgba(var(--primary-rgbm), 1));
+  }
 /* config changes */
 .uci-change-list {
     font-family: var(--font-apple);
@@ -2943,6 +2936,20 @@ body.lang_pl.node-main-login .cbi-value-title {
 	margin: 0;
 }
 
+.cbi-tab-disabled[data-errors]::after {
+  content: attr(data-errors);
+  background: #c43c35;
+  color: #fff;
+  height: 16px;
+  min-width: 16px;
+  border-radius: 8px;
+  text-align: center;
+  margin: 0 5px 0 0;
+  padding: 2px 2px 2px 2px;
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+}
 #cbi-firewall-redirect table *, #cbi-network-switch_vlan table *, #cbi-firewall-zone table * {
 	font-size: small;
 	white-space: nowrap;
@@ -3094,7 +3101,7 @@ body.lang_pl.node-main-login .cbi-value-title {
 .cbi-page-actions.control-group .cbi-dropdown.btn.cbi-button.cbi-button-apply.important > ul {
 overflow-y: hidden;
 }
-.cbi-dropdown.btn  {
+.cbi-dropdown.btn.cbi-button.cbi-button-action {
 	padding-right: 5px;
 }
 
@@ -3164,7 +3171,8 @@ background-color: rgba(255,255,255,0.12)!important;
 #chatlog .response {
     background-color: rgba(255,255,255,0.1)!important;
 }
-[data-page="admin-status-usage-details"] .cbi-value-title  {
+[data-page="admin-status-usage-details"] .cbi-value-title,
+.main #view .cbi-value-title  {
    width: 15rem;
 }
 
@@ -3369,15 +3377,16 @@ pre.command-output {
 .node-admin-status-routes #view,
 .node-admin-network-diagnostics #view,
 .node-admin-status-processes #view {
-
     min-width: inherit;
     overflow-x: auto;
     overflow-y: hidden;
 }
+
 [data-page="admin-system-reboot"]  #maincontent>.container>#view,
-[data-page="admin-system-poweroffdevice"]  #maincontent .container  {
+[data-page="admin-system-poweroffdevice"]  #maincontent .container {
   padding: 0 1rem 3rem 1rem;
 }
+
 .node-admin-network-diagnostics #view .table{
     margin-top: 2rem;
 }
