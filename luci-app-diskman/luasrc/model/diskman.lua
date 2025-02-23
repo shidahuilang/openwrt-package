@@ -40,7 +40,7 @@ local get_smart_info = function(device)
     local attrib, val
     if section == 1 then
         attrib, val = line:match "^(.-):%s+(.+)"
-    elseif section == 2 and device:match("nvme") then
+    elseif section == 2 and smart_info.nvme_ver then
       attrib, val = line:match("^(.-):%s+(.+)")
       if not smart_info.health then smart_info.health = line:match(".-overall%-health.-: (.+)") end
     elseif section == 2 then
@@ -74,11 +74,15 @@ local get_smart_info = function(device)
     elseif attrib == "Serial Number" then
       smart_info.sn = val
     elseif attrib == "194" or attrib == "Temperature" then
-      smart_info.temp = val:match("(%d+)") .. "°C"
+      if val ~= "-" then
+        smart_info.temp = (val:match("(%d+)") or "?") .. "°C"
+      end
     elseif attrib == "Rotation Rate" then
       smart_info.rota_rate = val
     elseif attrib == "SATA Version is" then
       smart_info.sata_ver = val
+    elseif attrib == "NVMe Version" then
+      smart_info.nvme_ver = val
     end
   end
   return smart_info
@@ -179,13 +183,13 @@ local get_parted_info = function(device)
         partition_temp["number"] = -1
         partition_temp["fs"] = "Free Space"
         partition_temp["name"] = "-"
-      elseif device:match("sd") or device:match("sata") then
+      elseif device:match("sd") or device:match("sata") or device:match("vd") then
         partition_temp["name"] = device..partition_temp["number"]
       elseif device:match("mmcblk") or device:match("md") or device:match("nvme") then
         partition_temp["name"] = device.."p"..partition_temp["number"]
       end
       if partition_temp["number"] > 0 and partition_temp["fs"] == "" and d.command.lsblk then
-        partition_temp["fs"] = luci.util.exec(d.command.lsblk .. " /dev/"..device.. tostring(partition_temp["number"]) .. " -no fstype"):match("([^%s]+)") or ""
+        partition_temp["fs"] = (luci.util.exec(d.command.lsblk .. " /dev/" .. partition_temp["name"] .. " -no fstype") or ""):match("([^%s]+)") or ""
       end
       partition_temp["fs"] = partition_temp["fs"] == "" and "raw" or partition_temp["fs"]
       partition_temp["sec_start"] = partition_temp["sec_start"] and partition_temp["sec_start"]:sub(1,-2)
@@ -223,10 +227,10 @@ local get_parted_info = function(device)
           p["type"] = "logical"
           table.insert(partitions_temp[disk_temp["extended_partition_index"]]["logicals"], i)
         end
-      elseif (p["number"] < 4) and (p["number"] > 0) then
+      elseif (p["number"] <= 4) and (p["number"] > 0) then
         local s = nixio.fs.readfile("/sys/block/"..device.."/"..p["name"].."/size")
         if s then
-          local real_size_sec = tonumber(s) * tonumber(disk_temp.phy_sec)
+          local real_size_sec = tonumber(s) * tonumber(disk_temp.logic_sec)
           -- if size not equal, it's an extended
           if real_size_sec ~= p["size"] then
             disk_temp["extended_partition_index"] = i
@@ -244,7 +248,7 @@ local get_parted_info = function(device)
       end
     end
   end
-  result = disk_temp
+  result = disk_temp or result
   result.partitions = partitions_temp
 
   return result
@@ -311,7 +315,7 @@ d.get_disk_info = function(device, wakeup)
     disk_info = get_parted_info(device)
     disk_info["sec_size"] = disk_info["logic_sec"] .. "/" .. disk_info["phy_sec"]
     disk_info["size_formated"] = byte_format(tonumber(disk_info["size"]))
-    -- if status is standby, then get smart_info again
+    -- if status is standby, after get part info, the disk is weakuped, then get smart_info again for more informations
     if smart_info.status ~= "ACTIVE" then smart_info = get_smart_info(device) end
   else
     disk_info = {}
@@ -403,6 +407,7 @@ d.list_devices = function()
       or dev:match("^mmcblk%d+$")
       or dev:match("^sata[a-z]$")
       or dev:match("^nvme%d+n%d+$")
+      or dev:match("^vd[a-z]$")
       then
       table.insert(target_devnames, dev)
     end
@@ -455,10 +460,10 @@ d.get_format_cmd = function()
     ext2 = { cmd = "mkfs.ext2", option = "-F -E lazy_itable_init=1" },
     ext3 = { cmd = "mkfs.ext3", option = "-F -E lazy_itable_init=1" },
     ext4 = { cmd = "mkfs.ext4", option = "-F -E lazy_itable_init=1" },
-    fat32 = { cmd = "mkfs.vfat", option = "-F" },
-    exfat = { cmd = "mkexfat", option = "-f" },
+    fat32 = { cmd = "mkfs.fat", option = "-F 32" },
+    exfat = { cmd = "mkfs.exfat", option = "" },
     hfsplus = { cmd = "mkhfs", option = "-f" },
-    ntfs = { cmd = "mkntfs", option = "-f" },
+    ntfs = { cmd = "mkfs.ntfs", option = "-f" },
     swap = { cmd = "mkswap", option = "" },
     btrfs = { cmd = "mkfs.btrfs", option = "-f" }
   }
@@ -470,6 +475,18 @@ d.get_format_cmd = function()
     end
   end
   return result
+end
+
+d.find_free_md_device = function()
+  for num=0,127 do
+    local md = io.open("/dev/md"..tostring(num), "r")
+    if md == nil then
+      return "/dev/md"..tostring(num)
+    else
+      io.close(md)
+    end
+  end
+  return nil
 end
 
 d.create_raid = function(rname, rlevel, rmembers)
@@ -492,18 +509,8 @@ d.create_raid = function(rname, rlevel, rmembers)
       return "ERR: Invalid raid name"
     end
   else
-    local mdnum = 0
-    for num=1,127 do
-      local md = io.open("/dev/md"..tostring(num), "r")
-      if md == nil then
-        mdnum = num
-        break
-      else
-        io.close(md)
-      end
-    end
-    if mdnum == 0 then return "ERR: Cannot find proper md number" end
-    rname = "/dev/md"..mdnum
+    rname = d.find_free_md_device()
+    if rname == nil then return "ERR: Cannot find free md device" end
   end
 
   if rlevel == "5" or rlevel == "6" then
