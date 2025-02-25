@@ -158,6 +158,9 @@ return view.extend({
         o.retain = true;
         o.depends('tun_gso', '1');
 
+        o = s.taboption('tun', form.Flag, 'tun_endpoint_independent_nat', '*' + ' ' + _('Endpoint Independent NAT'));
+        o.rmempty = false;
+
         o = s.taboption('tun', form.Flag, 'tun_dns_hijack', '*' + ' ' + _('Overwrite DNS Hijack'));
         o.rmempty = false;
 
@@ -168,17 +171,16 @@ return view.extend({
         o.value('tcp://any:53');
         o.value('udp://any:53');
 
-        o = s.taboption('tun', form.Flag, 'tun_endpoint_independent_nat', '*' + ' ' + _('Endpoint Independent NAT'));
-        o.rmempty = false;
-
         s.tab('dns', _('DNS Config'));
 
         o = s.taboption('dns', form.Value, 'dns_port', '*' + ' ' + _('DNS Port'));
         o.datatype = 'port';
         o.placeholder = '1053';
 
+        o = s.taboption('dns', form.Flag, 'dns_ipv6', '*' + ' ' + _('IPv6'));
+        o.rmempty = false;
+
         o = s.taboption('dns', form.ListValue, 'dns_mode', '*' + ' ' + _('DNS Mode'));
-        o.value('normal', 'Normal');
         o.value('fake-ip', 'Fake-IP');
         o.value('redir-host', 'Redir-Host');
 
@@ -203,7 +205,7 @@ return view.extend({
         o.value('whitelist', _('Allow Mode'));
         o.depends({ 'dns_mode': 'fake-ip', 'fake_ip_filter': '1' });
 
-        o = s.taboption('dns', form.Flag, 'fake_ip_cache', _('Fake-IP Cache'));
+        o = s.taboption('dns', form.Flag, 'fake_ip_cache', '*' + ' ' + _('Fake-IP Cache'));
         o.retain = true;
         o.rmempty = false;
         o.depends('dns_mode', 'fake-ip');
@@ -212,9 +214,6 @@ return view.extend({
         o.rmempty = false;
 
         o = s.taboption('dns', form.Flag, 'dns_doh_prefer_http3', _('DoH Prefer HTTP/3'));
-        o.rmempty = false;
-
-        o = s.taboption('dns', form.Flag, 'dns_ipv6', _('IPv6'));
         o.rmempty = false;
 
         o = s.taboption('dns', form.Flag, 'dns_system_hosts', _('Use System Hosts'));
