@@ -1,5 +1,5 @@
 #!/bin/sh /etc/rc.common
-# Copyright (C) 2021-2022 Lienol <lawlienol@gmail.com>
+# Copyright (C) 2021-2025 Lienol <lawlienol@gmail.com>
 
 START=99
 STOP=10
@@ -23,14 +23,14 @@ ipt_flag="OpenVPN Server"
 
 ipt_rule() {
 	if [ "$1" = "add" ]; then
-		iptables -t nat -I postrouting_rule -s ${ip_segment%.*}.0/${ip_prefix} -m comment --comment "${ipt_flag}" -j MASQUERADE 2>/dev/null
-		iptables -I forwarding_rule -s ${ip_segment%.*}.0/${ip_prefix} -m comment --comment "${ipt_flag}" -j ACCEPT 2>/dev/null
-		iptables -I input_rule -p ${proto} --dport ${port} -m comment --comment "${ipt_flag}" -j ACCEPT 2>/dev/null
-		iptables -t mangle -I OUTPUT -p ${proto} --sport ${port} -m comment --comment "${ipt_flag}" -j RETURN 2>/dev/null
+		iptables -w -t nat -I postrouting_rule -s ${ip_segment%.*}.0/${ip_prefix} -m comment --comment "${ipt_flag}" -j MASQUERADE 2>/dev/null
+		iptables -w -I forwarding_rule -s ${ip_segment%.*}.0/${ip_prefix} -m comment --comment "${ipt_flag}" -j ACCEPT 2>/dev/null
+		iptables -w -I input_rule -p ${proto} --dport ${port} -m comment --comment "${ipt_flag}" -j ACCEPT 2>/dev/null
+		iptables -w -t mangle -I OUTPUT -p ${proto} --sport ${port} -m comment --comment "${ipt_flag}" -j RETURN 2>/dev/null
 		
 		[ "${ipv6}" -eq 1 ] && {
-			ip6tables -I input_rule -p ${proto} --dport ${port} -m comment --comment "${ipt_flag}" -j ACCEPT 2>/dev/null
-			ip6tables -t mangle -I OUTPUT -p ${proto} --sport ${port} -m comment --comment "${ipt_flag}" -j RETURN 2>/dev/null
+			ip6tables -w -I input_rule -p ${proto} --dport ${port} -m comment --comment "${ipt_flag}" -j ACCEPT 2>/dev/null
+			ip6tables -w -t mangle -I OUTPUT -p ${proto} --sport ${port} -m comment --comment "${ipt_flag}" -j RETURN 2>/dev/null
 		}
 	else
 		ipt_del() {
@@ -59,15 +59,15 @@ gen_include() {
 		echo 'COMMIT'
 	}
 	cat <<-EOF >> /var/etc/${CONFIG}.include
-		iptables-save -c | grep -v "${ipt_flag}" | iptables-restore -c
-		iptables-restore -n <<-EOT
+		iptables-save -c | grep -v "${ipt_flag}" | iptables-restore -w -c
+		iptables-restore -w -n <<-EOT
 		$(extract_rules 4 filter)
 		$(extract_rules 4 nat)
 		$(extract_rules 4 mangle)
 		EOT
 		[ "${ipv6}" -eq 1 ] && {
-			ip6tables-save -c | grep -v "${ipt_flag}" | ip6tables-restore -c
-			ip6tables-restore -n <<-EOT
+			ip6tables-save -c | grep -v "${ipt_flag}" | ip6tables-restore -w -c
+			ip6tables-restore -w -n <<-EOT
 			$(extract_rules 6 filter)
 			$(extract_rules 6 mangle)
 			EOT

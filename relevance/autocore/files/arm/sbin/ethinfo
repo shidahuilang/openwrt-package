@@ -12,7 +12,10 @@ for ifname, stat in pairs(util.ubus("network.device", "status")) do
 		if (ifname:match("^(br-.+)$")) == ifname then
 			break
 		else
-			if not stat["link-supported"] then
+			if stat["devtype"] ~= "ethernet" then
+				break
+			end
+			if not stat["link-supported"] or #stat["link-supported"] == 0 then
 				break
 			end
 			local status = 0

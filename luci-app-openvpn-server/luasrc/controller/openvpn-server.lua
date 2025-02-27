@@ -1,4 +1,4 @@
--- Copyright 2021-2022 Lienol <lawlienol@gmail.com>
+-- Copyright 2021-2025 Lienol <lawlienol@gmail.com>
 module("luci.controller.openvpn-server", package.seeall)
 
 function index()
