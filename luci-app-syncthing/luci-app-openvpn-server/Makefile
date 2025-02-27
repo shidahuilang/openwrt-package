@@ -1,10 +1,10 @@
-# Copyright (C) 2021-2022 Lienol <lawlienol@gmail.com>
+# Copyright (C) 2021-2025 Lienol <lawlienol@gmail.com>
 
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-openvpn-server
-PKG_VERSION:=20211229
-PKG_RELEASE:=2
+PKG_VERSION:=20250227
+PKG_RELEASE:=1
 
 LUCI_TITLE:=LuCI support for OpenVPN Server
 LUCI_DEPENDS:=+openvpn-easy-rsa +openvpn-openssl +kmod-tun +@OPENVPN_openssl_ENABLE_MANAGEMENT
