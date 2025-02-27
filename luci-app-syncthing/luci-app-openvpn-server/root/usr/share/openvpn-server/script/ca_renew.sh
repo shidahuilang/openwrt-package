@@ -21,9 +21,9 @@ unlock() {
 lock
 cd /tmp
 echo yes | easyrsa init-pki
-echo CN | easyrsa build-ca nopass
+echo CA | easyrsa build-ca nopass
 easyrsa gen-dh
-easyrsa build-server-full server nopass
+echo yes | easyrsa build-server-full server nopass
 cp -f /tmp/pki/dh.pem /usr/share/openvpn-server/dh.pem
 cp -f /tmp/pki/ca.crt /usr/share/openvpn-server/ca.crt
 cp -f /tmp/pki/issued/server.crt /usr/share/openvpn-server/server.crt
