@@ -615,6 +615,7 @@ small {
     width: calc(0% + 15rem);
     height: 100%;
     background-color: var(--menu-bgcolor);
+    background-image: var(--bgqs-image);
     box-shadow: 0 .1rem .5rem .2rem var(--input-boxcolor);
     overflow-x: auto;
     position: fixed;
@@ -928,7 +929,9 @@ span[data-indicator="poll-status"],
     cursor: pointer;
     transition: all .2s;
     position: relative;
+    color: var(--menu-fontcolor);
     font-size: var(--font-z)
+    
 }
 
 .main .main-left .nav .slide .slide-menu>li {
@@ -1339,7 +1342,6 @@ table,
 .cbi-tblsection table.cbi-section-table {
     overflow-y: visible
 }
-
 table>tbody>tr>td,
 table>tbody>tr>th,
 table>tfoot>tr>td,
@@ -1433,7 +1435,7 @@ input,
     transition: box-shadow .25s ease;
     border-radius: var(--radius2);
     cursor: pointer;
-    box-shadow: 0 0.3rem 0.8rem var(--input-boxcolor)
+    box-shadow: 0 0.3rem 0.8rem var(--input-boxcolor);
 }
 
 .btn,
@@ -1458,7 +1460,8 @@ button,
     box-shadow: 0 0.3rem 0.8rem var(--input-boxcolor);
     transform: translate(1) translate(0, 0);
     transition: transform 225ms, box-shadow 225ms;
-    border-radius: var(--radius2)
+    border-radius: var(--radius2);
+    background-image: var(--bgqs-image);
 }
 
 .cbi-tab-descr {
@@ -1491,7 +1494,8 @@ textarea {
 fieldset>table>tbody>tr:nth-of-type(4n+2),
 table>tbody>tr:nth-of-type(4n+2),
 div>.table>.tr:nth-of-type(4n+2) {
-    background-color: rgba(var(--primary-rgbm), var(--primary-rgbs-ts))
+    background-color: rgba(var(--primary-rgbm), var(--primary-rgbs-ts));
+    background-image: var(--bgqs-image);
 }
 
 .cbi-tabcontainer>.cbi-value:nth-of-type(4n),
@@ -1499,7 +1503,8 @@ div>.table>.tr:nth-of-type(4n+2) {
 fieldset>table>tbody>tr:nth-of-type(4n),
 table>tbody>tr:nth-of-type(4n),
 div>.table>.tr:nth-of-type(4n) {
-    background-color: rgba(var(--primary-rgbs), var(--primary-rgbs-ts))
+    background-color: rgba(var(--primary-rgbs), var(--primary-rgbs-ts));
+    background-image: var(--bgqs-image);
 }
 
 .cbi-tabcontainer>.cbi-value:nth-of-type(4n+2):hover,
@@ -1602,12 +1607,9 @@ body:not(.Interfaces) .cbi-rowstyle-2:first-child {
 .cbi-button:active,
 .item:hover::after,
 .item:focus::after,
-.item:active::after,
-.cbi-page-actions .cbi-button-apply + .cbi-button-save:hover,
-.cbi-page-actions .cbi-button-apply + .cbi-button-save:focus,
-.cbi-page-actions .cbi-button-apply + .cbi-button-save:active {
-	text-decoration: none;
-	outline: 0;
+.item:active::after {
+    outline: 0;
+    text-decoration: none
 }
 
 .btn:focus,
@@ -1896,9 +1898,6 @@ button:active{
     display: inline-flex
 }
 
-.cbi-value.cbi-value-last {
-    padding: 0 0.8rem
-}
 
 .cbi-value:first-child {
     padding-top: 1rem
@@ -4252,9 +4251,69 @@ div#add_link_div {
     cursor: pointer
 }
 
-#file-manager-container .file-manager-header {
-    padding: 4px
+#file-manager-container .file-manager-header input{
+  max-width: none;
+  min-width: 20rem;
 }
+
+#content-filemanager>#file-list-container  #file-table tr>th .sort-button{
+  top: 10px;
+  transform: none;
+  padding: 0.5rem;
+}
+div#file-manager-container {
+  margin-left: 0.5rem;
+}
+
+div#content-filemanager>div#file-list-container {
+  margin-top: 10px !important;
+}
+
+div#file-manager-container #file-table tr>th {
+  background-color: rgba(var(--primary-rgbm), 1);
+    color: var(--menu-color);
+}
+
+div#file-manager-container #status-bar {
+  background-color: rgba(var(--primary-rgbm), 0.3);
+}
+
+div#file-manager-container #status-bar #status-info{
+  color:var(--title-color);
+}
+
+#file-list-container .table>#file-list>tr:hover {
+   background-color: rgba(var(--primary-rgbm), 0.4) !important;
+}
+
+.cbi-tabcontainer-content #editor-container {
+   width: 100%;
+  border: 1px solid var(--inputborder-color);
+}
+
+.editor-content>.line-numbers {
+   background-color: rgba(var(--primary-rgbm), 0.2);
+}
+
+.editor-content>#hexedit-container.hexedit {
+   background-color: rgba(var(--primary-rgbbody), 0.1);
+}
+
+.editor-content>.hexedit>.hexedit-search-container {
+   background-color: rgba(var(--primary-rgbbody), 0.1);
+  --clr-header:var(--title-color);
+}
+
+.editor-content>.hexedit>.hexedit-headers {
+  background-color: rgba(255, 255, 255, 0.8);
+   background-color: rgba(var(--primary-rgbm), 0.2);
+  --clr-header:var(--title-color);
+}
+
+#file-list-container table>tbody>tr>td {
+     padding: 0.2rem
+}
+
 
 .tr.cbi-section-table-row[id*="wolplus"],
 .tr.cbi-section-table-row[id*="firewall"] {
@@ -4262,7 +4321,7 @@ div#add_link_div {
 	border-bottom: 1px solid rgba(var(--primary-rgbm), 0.1);
         min-width: unset
 }
-#mwan3-service-status>.alert-message>div>strong{
+#mwan3-service-status .alert-message>div>strong{
   white-space: nowrap;
   font-size: var(--font-x);
 }
