@@ -22,7 +22,7 @@ return view.extend({
 	load: function() {
 		return Promise.all([
 			L.resolveDefault(callServiceList('transmission')),
-			L.resolveDefault(fs.stat('/usr/share/transmission/web/index.html')),
+			L.resolveDefault(fs.stat('/usr/share/transmission/public_html/index.html')),
 			uci.load('transmission')
 		]);
 	},
@@ -34,7 +34,7 @@ return view.extend({
 		var webinstalled = res[1] || !!uci.get_first('transmission', 'transmission', 'web_home');
 
 		var button = '';
-		if (running)
+		if (running && webinstalled)
 			button = '&#160;<a class="btn" href="http://' + window.location.hostname + ':' + port + '" target="_blank" rel="noreferrer noopener">' + _('Open Web Interface') + '</a>';
 
 		let m, s, o;
