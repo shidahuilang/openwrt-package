@@ -12,15 +12,15 @@ return view.extend({
             uci.load('nikki'),
             network.getHostHints(),
             network.getNetworks(),
-            nikki.getUsers(),
-            nikki.getGroups()
+            nikki.getIdentifiers(),
         ]);
     },
     render: function (data) {
         const hosts = data[1].hosts;
         const networks = data[2];
-        const users = data[3];
-        const groups = data[4];
+        const users = data[3]?.users ?? [];
+        const groups = data[3]?.groups ?? [];
+        const cgroups = data[3]?.cgroups ?? [];
 
         let m, s, o;
 
@@ -130,18 +130,22 @@ return view.extend({
 
         s.tab('bypass', _('Bypass'));
 
-        o = s.taboption('bypass', form.MultiValue, 'bypass_user', _('Bypass User'));
-        o.create = true;
+        o = s.taboption('bypass', form.DynamicList, 'bypass_user', _('Bypass User'));
 
         for (const user of users) {
             o.value(user);
         };
 
-        o = s.taboption('bypass', form.MultiValue, 'bypass_group', _('Bypass Group'));
-        o.create = true;
+        o = s.taboption('bypass', form.DynamicList, 'bypass_group', _('Bypass Group'));
 
         for (const group of groups) {
             o.value(group);
+        };
+
+        o = s.taboption('bypass', form.DynamicList, 'bypass_cgroup', _('Bypass cgroup'));
+
+        for (const cgroup of cgroups) {
+            o.value(cgroup);
         };
 
         o = s.taboption('bypass', form.Flag, 'bypass_china_mainland_ip', _('Bypass China Mainland IP'));
