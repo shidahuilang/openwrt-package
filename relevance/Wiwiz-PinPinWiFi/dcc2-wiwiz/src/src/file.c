@@ -31,6 +31,7 @@
 #include <inttypes.h>
 #include <sys/statvfs.h>
 #include <linux/limits.h>
+#include <libgen.h>
 
 #include "log/log.h"
 #include "file.h"
@@ -152,13 +153,18 @@ static int start_upload_file(struct file_context *ctx, const char *path)
 {
     struct tty *tty = container_of(ctx, struct tty, file);
     struct rtty *rtty = tty->rtty;
-    const char *name = basename(path);
+    const char *name;
     struct stat st;
     int fd;
+    char *dirc;
+
+    dirc = strdup(path);
+    name = basename(dirc);
 
     fd = open(path, O_RDONLY);
     if (fd < 0) {
         log_err("open '%s' fail: %s\n", path, strerror(errno));
+        free(dirc);
         return -1;
     }
 
@@ -177,6 +183,7 @@ static int start_upload_file(struct file_context *ctx, const char *path)
 
     log_info("upload file: %s, size: %" PRIu64 "\n", path, (uint64_t)st.st_size);
 
+    free(dirc);
     return 0;
 }
 
