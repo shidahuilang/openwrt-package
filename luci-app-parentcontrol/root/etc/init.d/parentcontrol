@@ -59,23 +59,23 @@ mmode=$1
     ;;
 esac  
 idlist=`uci show $CONFIG | grep "enable='1'" | grep "$mmode" | grep -oE '\[.*?\]' | grep -o '[0-9]'`
-elog "set_rules:$mmode" 
 for i in $idlist ;do
     mac=$(uci -q get $CONFIG.@$mmode[$i].mac ) && MAC="-m mac --mac-source $mac" || MAC=""
-    timestart=$(uci get $CONFIG.@$mmode[$i].timestart 2>/dev/null) || timestart="00:00"
-    timeend=$(uci get $CONFIG.@$mmode[$i].timeend 2>/dev/null) ||  timeend="00:00"
-    wweek=$(uci get $CONFIG.@$mmode[$i].week |sed 's/ /,/g' 2>/dev/null)
+    timestart=$(uci -q get $CONFIG.@$mmode[$i].timestart ) || timestart="00:00"
+    timeend=$(uci -q get $CONFIG.@$mmode[$i].timeend) ||  timeend="00:00"
+    wweek=$(uci -q get $CONFIG.@$mmode[$i].week )  || wweek='*'
+    local Z1,Z2,Z3,Z4,Z5,Z6,Z7=0,0,0,0,0,0,0
     for ww in `echo $wweek | sed 's/,/ /g' `; do 
-        [ "$ww" == "1" ] && local Z1="Mon,"
-        [ "$ww" == "2" ] && local Z2="Tue,"
-        [ "$ww" == "3" ] && local Z3="Wed,"
-        [ "$ww" == "4" ] && local Z4="Thu,"
-        [ "$ww" == "5" ] && local Z5="Fri,"
-        [ "$ww" == "6" ] && local Z6="Sat,"
-        [ "$ww" == "7" ] && local Z7="Sun"
+        [ "$ww" == "1" ] && Z1="Mon,"
+        [ "$ww" == "2" ] && Z2="Tue,"
+        [ "$ww" == "3" ] && Z3="Wed," 
+        [ "$ww" == "4" ] && Z4="Thu," 
+        [ "$ww" == "5" ] && Z5="Fri,"
+        [ "$ww" == "6" ] && Z6="Sat," 
+        [ "$ww" == "7" ] && Z7="Sun"
     done
     [ -z "$timestart" -o -z "$timeend" -o "$timestart" = "$timeend" ] && TIME="" || TIME="--timestart ${timestart} --timestop ${timeend}"
-    [ -z "$wweek" -o "$wweek" = "*" ] && WEEK="" || WEEK="--weekdays $Z1$Z2$Z3$Z4$Z5$Z6$Z7"
+    [ -z "$wweek" -o "x$wweek" = "x*" ] && WEEK="" || WEEK="--weekdays $Z1$Z2$Z3$Z4$Z5$Z6$Z7"
     [ -n "$TIME" -o -n "$WEEK" ] && WT="-m time --kerneltz ${TIME} ${WEEK}" || WT=""
    case $mmode in
     time)
@@ -123,7 +123,7 @@ del_rule() {
 	 for chain in "PREROUTING" "FORWARD" "OUTPUT" "INPUT" ; do
 	     	$ip -D  $chain -j $ta 2>/dev/null
 		
-		elog "delrule: $ip -- $ta -- ${chain} "
+		# elog "delrule: $ip -- $ta -- ${chain} "
 	 done
 	 $ip -F $ta 2>/dev/null
 	 $ip -X $ta 2>/dev/null

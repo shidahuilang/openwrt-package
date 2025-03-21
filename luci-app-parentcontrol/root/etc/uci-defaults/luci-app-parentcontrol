@@ -1,11 +1,13 @@
 #!/bin/sh
 
+[ -e "/etc/config/ucitrack" ] && {
 uci -q batch <<-EOF >/dev/null
 	delete ucitrack.@parentcontrol[-1]
 	add ucitrack parentcontrol
 	set ucitrack.@parentcontrol[-1].init=parentcontrol
 	commit ucitrack
 EOF
+}
 
 uci -q delete firewall.parentcontrol
 uci -q set firewall.parentcontrol=include
