@@ -51,6 +51,29 @@
 
 extern pthread_mutex_t	config_mutex;
 
+/* start: added by wiwiz */
+void batchAuth(t_authresponse *authresponse, const char *mac, const char *token) {
+	char *cmd;
+	FILE *authfile;
+	safe_asprintf(&cmd, "cat /tmp/wiwiz_auth_data | grep -i '%s' | grep -i '%s' | awk \'{print $1}\'>/tmp/wiwiz_auth", mac, token);
+    execute(cmd, 0);
+    free(cmd);
+
+	/* Blanket default is error. */
+	authresponse->authcode = AUTH_ERROR;
+	
+	authfile = fopen("/tmp/wiwiz_auth", "r");
+	if (!authfile) {
+		debug(LOG_ERR, "fopen(): %s", strerror(errno));		
+		return;
+	}
+
+	fscanf(authfile, "%d", (int *)&authresponse->authcode);
+
+	fclose(authfile);
+}
+/* end: added by wiwiz */
+
 /** Initiates a transaction with the auth server, either to authenticate or to
  * update the traffic counters at the server
 @param authresponse Returns the information given by the central server 
@@ -110,7 +133,7 @@ auth_server_request(t_authresponse *authresponse, const char *request_type, cons
 		auth_server->authserv_hostname
 	);
 
-        free(safe_token);
+    free(safe_token);
 
 	debug(LOG_DEBUG, "Sending HTTP request to auth server: [%s]\n", buf);
 	send(sockfd, buf, strlen(buf), 0);

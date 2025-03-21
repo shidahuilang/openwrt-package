@@ -46,6 +46,8 @@
 /** @brief Sent after the user performed a manual log-out on the gateway  */
 #define GATEWAY_MESSAGE_ACCOUNT_LOGGED_OUT     "logged-out"
 
+void batchAuth(t_authresponse *authresponse, const char *mac, const char *token);	/* added by wiwiz */
+
 /** @brief Initiates a transaction with the auth server */
 t_authcode auth_server_request(t_authresponse *authresponse,
 			const char *request_type,
