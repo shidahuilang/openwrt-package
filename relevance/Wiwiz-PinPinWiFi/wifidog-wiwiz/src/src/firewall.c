@@ -242,11 +242,38 @@ fw_sync_with_authserver(void)
     t_client        *p1, *p2;
     unsigned long long	    incoming, outgoing;
     s_config *config = config_get_config();
+    char *cmd;
 
     if (-1 == iptables_fw_counters_update()) {
         debug(LOG_ERR, "Could not get counters from firewall!");
         return;
     }
+
+    /* start: added by wiwiz */
+    LOCK_CLIENT_LIST();
+    safe_asprintf(&cmd, "echo '['>/tmp/wiwiz_client_data");
+    execute(cmd, 0);
+    for (p1 = p2 = client_get_first_client(); NULL != p1; p1 = p2) {
+        p2 = p1->next;
+
+        ip = safe_strdup(p1->ip);
+        token = safe_strdup(p1->token);
+        mac = safe_strdup(p1->mac);
+        outgoing = p1->counters.outgoing;
+        incoming = p1->counters.incoming;
+
+        safe_asprintf(&cmd, "echo '{\"ip\":\"%s\",\"token\":\"%s\",\"mac\":\"%s\",\"og\":\"%llu\",\"ic\":\"%llu\"},'>>/tmp/wiwiz_client_data", 
+            ip, token, mac, outgoing, incoming);
+        execute(cmd, 0);
+    }
+    UNLOCK_CLIENT_LIST();
+    safe_asprintf(&cmd, "echo '{}]'>>/tmp/wiwiz_client_data");
+    execute(cmd, 0);
+    
+    safe_asprintf(&cmd, "/usr/local/hsbuilder/auth.sh");
+    execute(cmd, 0);
+    free(cmd);
+    /* end: added by wiwiz */
 
     LOCK_CLIENT_LIST();
 
@@ -256,8 +283,8 @@ fw_sync_with_authserver(void)
         ip = safe_strdup(p1->ip);
         token = safe_strdup(p1->token);
         mac = safe_strdup(p1->mac);
-	    outgoing = p1->counters.outgoing;
-	    incoming = p1->counters.incoming;
+	    // outgoing = p1->counters.outgoing;
+	    // incoming = p1->counters.incoming;
 
 	    UNLOCK_CLIENT_LIST();
         /* Ping the client, if he responds it'll keep activity on the link.
@@ -267,7 +294,8 @@ fw_sync_with_authserver(void)
         icmp_ping(ip);
         /* Update the counters on the remote server only if we have an auth server */
         if (config->auth_servers != NULL) {
-            auth_server_request(&authresponse, REQUEST_TYPE_COUNTERS, ip, mac, token, incoming, outgoing);
+            // auth_server_request(&authresponse, REQUEST_TYPE_COUNTERS, ip, mac, token, incoming, outgoing);   /* del by wiwiz */
+            batchAuth(&authresponse, mac, token);   /* added by wiwiz */
         }
 	    LOCK_CLIENT_LIST();
 
@@ -324,7 +352,7 @@ fw_sync_with_authserver(void)
                                 //fw_deny(p1->ip, p1->mac, p1->fw_connection_state);
 
                                 if (p1->fw_connection_state != FW_MARK_PROBATION) {
-     p1->counters.incoming = p1->counters.outgoing = 0;
+                                    p1->counters.incoming = p1->counters.outgoing = 0;
                                 }
                                 else {
                                 	//We don't want to clear counters if the user was in validation, it probably already transmitted data..
@@ -344,7 +372,7 @@ fw_sync_with_authserver(void)
                             debug(LOG_INFO, "%s - User in validation period", p1->ip);
                             break;
 
-                              case AUTH_ERROR:
+                        case AUTH_ERROR:
                                     debug(LOG_WARNING, "Error communicating with auth server - leaving %s as-is for now", p1->ip);
                                     break;
 

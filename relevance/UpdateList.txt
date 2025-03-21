@@ -13,7 +13,6 @@ cdnspeedtest
 clud
 cpulimit-ng
 cpulimit
-ddns-go
 ddnsto
 eqos-master-wiwiz
 ffmpeg-remux
@@ -45,7 +44,6 @@ luci-app-control-webrestriction
 luci-app-control-weburl
 luci-app-cpulimit
 luci-app-cupsd
-luci-app-ddns-go
 luci-app-ddnsto
 luci-app-diskman
 luci-app-eqosplus
