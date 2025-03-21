@@ -8,6 +8,5 @@ luci-theme-design
 luci-theme-kucat
 luci-theme-neobird
 luci-theme-neobird2
-luci-theme-opentomato
 luci-theme-opentomcat
 luci-theme-opentopd
