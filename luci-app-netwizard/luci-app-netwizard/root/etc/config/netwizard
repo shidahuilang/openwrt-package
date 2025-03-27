@@ -1,0 +1,4 @@
+
+config netwizard 'default'
+	option lan_netmask '255.255.255.0'
+
