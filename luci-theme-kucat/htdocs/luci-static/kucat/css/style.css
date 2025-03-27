@@ -77,7 +77,8 @@
 }
 
 .tr {
-    display: table-row
+    display: table-row;
+    white-space: nowrap
 }
 
 .thead {
@@ -104,7 +105,6 @@
 
 .th {
     font-weight: bold;
-    white-space: nowrap
 }
 
 .tr.placeholder {
@@ -672,6 +672,7 @@ header .fill {
 }
 
 header .fill .container .flex1 {
+  white-space: nowrap;
     flex: 1
 }
 
@@ -743,7 +744,7 @@ span[data-indicator="poll-status"]:not([data-style="inactive"]):before {
     font-size: 1.5rem !important;
     font-family: 'kucat' !important;
     content: "\e936";
-    color: #ffffff;
+    color: var(--menu-hover-color);
     text-decoration: none
 }
 
@@ -1594,12 +1595,7 @@ background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzY4IiBoZWlnaHQ
 .cbi-rowstyle-2 .cbi-button-up,
 .cbi-rowstyle-2 .cbi-button-down,
 body:not(.Interfaces) .cbi-rowstyle-2:first-child {
-    background-color: rgba(var(--primary-rgbm), 0.2) !important
-}
-
-.cbi-rowstyle-1 .cbi-button-up,
-.cbi-rowstyle-1 .cbi-button-down {
-    background-color: rgba(var(--primary-rgbs), 0.3) !important
+    background-color: rgba(var(--primary-rgbm), 0.5) !important
 }
 
 .btn:hover,
@@ -1661,8 +1657,6 @@ button:active{
 .modal div[class="btn"],
 .cbi-button-find,
 .cbi-button-link,
-.cbi-button-up,
-.cbi-button-down,
 .cbi-button-neutral,
 .cbi-button[name="zero"],
 .cbi-button[name="restart"],
@@ -2013,11 +2007,6 @@ button:active{
     align-items: center
 }
 
-.td.cbi-section-actions>*>*,
-.td.cbi-section-actions>*>form>* {
-    margin: 0 5px
-}
-
 .td.cbi-section-actions>*>form {
     display: inline-flex;
     margin: 0
@@ -2208,7 +2197,6 @@ button:active{
   font-size: 1.5rem;
   line-height: 1;
   margin: 5px 5px 5px 0;
-  color: var(--inputtext-color);
   background-color: rgba(var(--primary-rgbm), 0.9);
   border: 1px solid rgba(var(--primary-rgbm), 1);
 
@@ -2359,7 +2347,7 @@ button:active{
   box-shadow: 0 0 4px var(--inputborder-color);
   border-radius: var(--radius2);
   border: 0px solid var(--inputborder-color);
-  background: rgba(var(--primary-rgbbody), 1);
+  background-color: rgba(var(--primary-rgbbody), 1);
   color: var(--inputtext-color);
     cursor: pointer;
   margin-left: 0 !important;
@@ -2467,9 +2455,8 @@ input {
     position: relative;
     height: 26px;
     margin: 2px 0;
-    border-radius: var(--radius2) !important;
-    border-color: rgba(0, 0, 0, 0.3) !important;
-    background-color: rgba(0, 0, 0, 0.5) !important;
+    border-color: rgba(0, 0, 0, 0.5) !important;
+    background-color: rgba(0, 0, 0, 0.35) !important;
     color: var(--menu-color)
 }
 
@@ -2477,16 +2464,15 @@ input {
     width: 0;
     height: 100%;
     transition: width .25s ease-in;
-    border-radius: var(--radius2) !important;
-    background-color: rgba(var(--primary-rgbm), 0.7)
+    background-color: rgba(var(--primary-rgbm), 0.8)
 }
 
 .cbi-progressbar::after {
     font-size: var(--font-x);
-
+/*
     font-family: monospace;
-    font-size-adjust: .5;
-    line-height: normal;
+    font-size-adjust: .5; */
+    line-height: 1.5;
     position: absolute;
     top: 4px;
     right: 0;
@@ -2819,6 +2805,7 @@ td > .ifacebadge,
 .cbi-section em {
     font-weight: 600;
     color: var(--title-color);
+    white-space: nowrap;
     text-align: center
 }
 
@@ -3114,13 +3101,13 @@ span[data-tooltip] .label {
     position: absolute;
     z-index: 1000;
     left: -1000px;
-    padding: 2px 5px;
+    padding: 0.4rem 0.8rem;
     transition: opacity .25s ease-out;
     white-space: pre;
     pointer-events: none;
     opacity: 0;
     border-radius: var(--radius2);
-    background: var(--menu-barbgcolor);
+    background-color: rgba(var(--primary-rgbbody), 1);
     box-shadow: 0 0 2px #444
 }
 
@@ -4362,6 +4349,43 @@ div#file-manager-container #status-bar #status-info{
   font-size: var(--font-x);
 }
 
+    [data-page="admin-network-firewall-forwards"] .table:not(.cbi-section-table) {
+        display: block
+    }
+
+    [data-page="admin-network-firewall-forwards"] .table:not(.cbi-section-table),
+    [data-page="admin-network-firewall-rules"] .table:not(.cbi-section-table),
+    [data-page="admin-network-hosts"] .table,
+    [data-page="admin-network-routes"] .table {
+        overflow-y: visible
+    }
+
+    .commandbox {
+        width: 32% !important
+    }
+
+    [data-page="admin-network-network"] .cbi-section-table tr,
+    [data-page="admin-network-network"] .cbi-section-table td {
+        font-size: var(--font-x) !important
+    }
+
+    [data-page="admin-network-network"] .cbi-section-node table td:nth-of-type(1) {
+        padding: 5px !important
+    }
+
+    [data-page="admin-network-network"] .cbi-section-node table td,
+    [data-page="admin-network-wireless"] fieldset .cbi-section-node table td {
+        padding: 10px !important
+    }
+
+    [data-page="admin-network-network"] .cbi-section-table br {
+        display: initial
+    }
+  [data-page="admin-status-overview"] .tr.table-titles>.th:nth-child(1),
+  [data-page="admin-status-overview"] .main #view td:nth-child(1) {
+    text-align: right !important;
+  }
+
 @keyframes anim-fade-in {
     100% {
         opacity: 1
@@ -4381,7 +4405,6 @@ div#file-manager-container #status-bar #status-info{
         top: -12px
     }
 }
-
 @media screen and (max-width:1366px) {
 
     .main>.main-left>.nav>li,
@@ -4439,43 +4462,6 @@ div#file-manager-container #status-bar #status-info{
         width: 100%
     }
 
-    [data-page="admin-network-firewall-forwards"] .table:not(.cbi-section-table) {
-        display: block
-    }
-
-    [data-page="admin-network-firewall-forwards"] .table:not(.cbi-section-table),
-    [data-page="admin-network-firewall-rules"] .table:not(.cbi-section-table),
-    [data-page="admin-network-hosts"] .table,
-    [data-page="admin-network-routes"] .table {
-        overflow-y: visible
-    }
-
-    .commandbox {
-        width: 32% !important
-    }
-
-    [data-page="admin-network-network"] .cbi-section-table tr,
-    [data-page="admin-network-network"] .cbi-section-table td {
-        font-size: var(--font-x) !important
-    }
-
-    [data-page="admin-network-network"] .cbi-section-node table td:nth-of-type(1) {
-        padding: 5px !important
-    }
-
-    [data-page="admin-network-network"] .cbi-section-node table td,
-    [data-page="admin-network-wireless"] fieldset .cbi-section-node table td {
-        padding: 10px !important
-    }
-
-    [data-page="admin-network-network"] .cbi-section-table br {
-        display: initial
-    }
-
-    [data-page="admin-status-overview"]  .main #view td:nth-child(1) {
-        width: 8rem;
-        padding-right: 0.6rem
-    }
 
     .cbi-value-title {
         width: 16rem;
@@ -4485,12 +4471,14 @@ div#file-manager-container #status-bar #status-info{
 
 
 }
+@media only screen and (max-width: 1152px) {
 
-@media screen and (max-width:1152px) {
     .main .main-left .nav .slide .slide-menu .active a {
         font-size: var(--font-x)
     }
-
+    header .fill .container .flex1 .brand {
+      color: var(--menu-hover-color);
+    }
 
     label, button, input, select, option,.cbi-dropdown, textarea {
         font-size: var(--font-x)
@@ -4552,7 +4540,6 @@ div#file-manager-container #status-bar #status-info{
 
     [data-page="admin-status-overview"]  .main #view td:nth-child(1) {
         width: 6rem;
-        padding-right: 0.6rem
     }
 
     .modal .cbi-value-title,
@@ -4617,7 +4604,7 @@ div#file-manager-container #status-bar #status-info{
 
     .td.cbi-section-actions>*>*,
     .td.cbi-section-actions>*>form>* {
-        margin: 1.1px 2px
+        margin: 0 2px
     }
 
     .cbi-section>h3:first-child,
@@ -4718,9 +4705,12 @@ div#file-manager-container #status-bar #status-info{
     }
 }
 
-@media screen and (max-width:600px) {
+@media only screen and (max-width: 768px) {
     .main-left {
         width: calc(0% + 15rem)
+    }
+    .pd-primary .fill .container {
+      padding: 0 0.2rem;
     }
 
     .cbi-section>div>table.table {
@@ -4813,12 +4803,6 @@ div#file-manager-container #status-bar #status-info{
 		min-width: 8rem;
 		margin: 0;
     }
-    
-    [data-page="admin-status-overview"]  .main #view td:nth-child(1) {
-        width: 5rem;
-        padding-right: 0.4rem
-    }
-
 
     .cbi-value-title,
     .cbi-value-field {
@@ -4866,11 +4850,11 @@ div#file-manager-container #status-bar #status-info{
     }
 }
 
-@media screen and (max-width:480px) {
+@media only screen and (max-width: 480px) {
 
     [data-page="admin-status-overview"] .main #view td:nth-child(1) {
-        width: 4rem;
-        padding-right: 0.2rem
+    max-width: 8rem;
+    white-space: normal !important;
     }
 
     .Diagnostics form .cbi-map .cbi-section div {
