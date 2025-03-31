@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 NAME:=netwizard
 PKG_NAME:=luci-app-$(NAME)
 PKG_VERSION:=1.9.2
-PKG_RELEASE:=20250327
+PKG_RELEASE:=20250330
 
 PKG_LICENSE:=GPLv3
 PKG_LICENSE_FILES:=LICENSE
@@ -22,8 +22,4 @@ endef
 
 include $(TOPDIR)/feeds/luci/luci.mk
 
-define Package/luci-app-netwizard/postinst
-#!/bin/sh
-rm -rf /tmp/luci*
-endef
 # call BuildPackage - OpenWrt buildroot signature

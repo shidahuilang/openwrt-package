@@ -7,18 +7,17 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=smartdns
 PKG_VERSION:=1.2025.46.2
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://www.github.com/pymumu/smartdns.git
-PKG_SOURCE_VERSION:=361dc7e34ac418544c8006927161563b325ab97f
-PKG_MIRROR_HASH:=77f7e2d992b7c5917c75d38ca29f6f90efd58e88f29a1f19cca51cb28cbe92cb
+PKG_SOURCE_VERSION:=8612d0a46d9c59cfcc19dfb4d27122a90ed5a74c
+PKG_MIRROR_HASH:=d669ddfb05d9c2008c876856c8b4ddf45a773c0536b0a96418fe5a9ea0d47f4e
 
 SMARTDNS_WEBUI_VERSION:=1.0.0
 SMAETDNS_WEBUI_SOURCE_PROTO:=git
 SMARTDNS_WEBUI_SOURCE_URL:=https://github.com/pymumu/smartdns-webui.git
 SMARTDNS_WEBUI_SOURCE_VERSION:=7bbd1a6f6a7038ecb6cfbf424615aa7831bc1cea
-SMARTDNS_WEBUI_HASH:=b3f4f73b746ee169708f6504c52b33d9bbeb7c269b731bd7de4f61d0ad212d74
 SMARTDNS_WEBUI_FILE:=smartdns-webui-$(SMARTDNS_WEBUI_VERSION).tar.gz
 
 PKG_MAINTAINER:=Nick Peng <pymumu@gmail.com>
@@ -27,11 +26,11 @@ PKG_LICENSE_FILES:=LICENSE
 
 PKG_BUILD_PARALLEL:=1
 
-ifdef CONFIG_PACKAGE_smartdns-ui
-PKG_BUILD_DEPENDS:=rust/host node/host
-include $(TOPDIR)/feeds/packages/lang/rust/rust-package.mk
-endif
+# node compile is slow, so do not use it, doownload node manually.
+# PACKAGE_smartdns-ui:node/host
+PKG_BUILD_DEPENDS:=PACKAGE_smartdns-ui:rust/host 
 
+include $(TOPDIR)/feeds/packages/lang/rust/rust-package.mk
 include $(INCLUDE_DIR)/package.mk
 
 MAKE_VARS += VER=$(PKG_VERSION) 
@@ -99,13 +98,16 @@ define Package/smartdns-ui/install
 endef
 
 define Build/Compile/smartdns-webui
+	which npm || (echo "npm not found, please install npm first" && exit 1)
 	npm install --prefix $(PKG_BUILD_DIR)/smartdns-webui/
 	npm run build --prefix $(PKG_BUILD_DIR)/smartdns-webui/
 endef
 
 define Build/Compile/smartdns-ui
+	cargo install --force --locked bindgen-cli
 	CARGO_BUILD_ARGS="$(if $(strip $(RUST_PKG_FEATURES)),--features "$(strip $(RUST_PKG_FEATURES))") --profile $(CARGO_PKG_PROFILE)"
 	+$(CARGO_PKG_VARS) CARGO_BUILD_ARGS="$(CARGO_BUILD_ARGS)" CC=$(TARGET_CC) \
+	PATH="$$(PATH):$(CARGO_HOME)/bin" \
 	make -C $(PKG_BUILD_DIR)/plugin/smartdns-ui
 endef
 
@@ -116,6 +118,7 @@ define Download/smartdns-webui
 	MIRROR_HASH:=b3f4f73b746ee169708f6504c52b33d9bbeb7c269b731bd7de4f61d0ad212d74
 	VERSION:=$(SMARTDNS_WEBUI_SOURCE_VERSION)
 	HASH:=$(SMARTDNS_WEBUI_HASH)
+	DEPENDS:=$(RUST_ARCH_DEPENDS)
 	SUBDIR:=smartdns-webui
 endef
 $(eval $(call Download,smartdns-webui))
@@ -130,11 +133,12 @@ endif
 define Build/Compile
 	$(call Build/Compile/Default,smartdns)
 ifdef CONFIG_PACKAGE_smartdns-ui
-	$(call Build/Compile/smartdns-webui)
 	$(call Build/Compile/smartdns-ui)
+	$(call Build/Compile/smartdns-webui)
 endif
 endef
 
 $(eval $(call BuildPackage,smartdns))
+$(eval $(call RustBinPackage,smartdns-ui))
 $(eval $(call BuildPackage,smartdns-ui))
 
