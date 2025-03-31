@@ -56,7 +56,20 @@ _uci_set(){
     uci_set netwizard default "$1" "$2"
     uci commit netwizard
 }
+synflood(){
+if [ "x$synflood" = "x1" ] ;then
+$UCISET firewall.@defaults[0].syn_flood='1'
+$UCISET firewall.@defaults[0].synflood_protect='1'
+$UCISET firewall.@defaults[0].input='ACCEPT'
+$UCISET firewall.@zone[1].input='ACCEPT'
 
+else
+$UCIDEL firewall.@defaults[0].syn_flood
+$UCIDEL firewall.@defaults[0].synflood_protect
+$UCISET firewall.@defaults[0].input='ACCEPT'
+$UCISET firewall.@zone[1].input='REJECT'
+fi
+}
 # 设置IPV6
 setipv6() {
     local mode=$1
@@ -326,9 +339,9 @@ EOF
             ;;
     esac
 
+    synflood
     test -n "${lan_ipaddr}"  &&  $UCISET network.lan.ipaddr="${lan_ipaddr}"  
     test -n "${lan_netmask}" &&  $UCISET network.lan.netmask="${lan_netmask}"
-    [ "x$synflood" = "x1" ] && $UCISET firewall.@defaults[0].syn_flood='1' || $UCIDEL firewall.@defaults[0].syn_flood
     sed -i "/dhcp_option '6/d" /etc/config/dhcp
     sed -i "/list dns/d" /etc/config/dhcp
 
