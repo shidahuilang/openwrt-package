@@ -10,7 +10,6 @@ local lan_gateway = uci:get("netwizard", "default", "lan_gateway")
 if lan_gateway ~= "" then
    lan_gateway = sys.exec("ipaddr=`uci -q get network.lan.ipaddr`;echo ${ipaddr%.*}")
 end
-
 local lan_ip = uci:get("network", "lan", "ipaddr")
 local landhcp =  uci:get("network", "lan", "lan_dhcp")
 if landhcp ~= "" then
@@ -171,7 +170,7 @@ synflood = s:taboption("othersetup", Flag, "synflood", translate("Enable SYN-flo
 synflood.default = 1
 synflood.anonymous = false
 
-e = s:taboption("othersetup", Flag, "showhide",translate('Hide Wizard'), translate('Show or hide the setup wizard menu. After hiding, you can open the display wizard menu in [Advanced Settings] [Advanced] or use the 3rd function in the background to restore the wizard and default theme.'))
+-- e = s:taboption("othersetup", Flag, "https",translate('Accessing using HTTPS'), translate('Open the address in the background and use HTTPS for secure access'))
 
 m.apply_on_parse = true
 m.on_after_apply = function(self,map)
