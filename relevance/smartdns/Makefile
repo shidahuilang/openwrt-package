@@ -11,8 +11,8 @@ PKG_RELEASE:=3
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://www.github.com/pymumu/smartdns.git
-PKG_SOURCE_VERSION:=8612d0a46d9c59cfcc19dfb4d27122a90ed5a74c
-PKG_MIRROR_HASH:=d669ddfb05d9c2008c876856c8b4ddf45a773c0536b0a96418fe5a9ea0d47f4e
+PKG_SOURCE_VERSION:=20f56745c4f2ad2a5a4e1fb927770b3cb8122a69
+PKG_MIRROR_HASH:=29b32ee0c275a4b845b28c53a2597b43f4d3f04676e04b9c53aae5ecaf3c6f94
 
 SMARTDNS_WEBUI_VERSION:=1.0.0
 SMAETDNS_WEBUI_SOURCE_PROTO:=git
@@ -78,7 +78,7 @@ endef
 define Package/smartdns-ui
   $(Package/smartdns/default)
   TITLE:=smartdns dashboard
-  DEPENDS:=+smartdns
+  DEPENDS:=+smartdns $(RUST_ARCH_DEPENDS)
 endef
 
 define Package/smartdns-ui/description
@@ -118,7 +118,6 @@ define Download/smartdns-webui
 	MIRROR_HASH:=b3f4f73b746ee169708f6504c52b33d9bbeb7c269b731bd7de4f61d0ad212d74
 	VERSION:=$(SMARTDNS_WEBUI_SOURCE_VERSION)
 	HASH:=$(SMARTDNS_WEBUI_HASH)
-	DEPENDS:=$(RUST_ARCH_DEPENDS)
 	SUBDIR:=smartdns-webui
 endef
 $(eval $(call Download,smartdns-webui))
