@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=eqos
-PKG_RELEASE:=6
+PKG_RELEASE:=7
 LUCI_DIR:=/usr/lib/lua/luci
 
 include $(INCLUDE_DIR)/package.mk

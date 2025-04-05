@@ -6,7 +6,6 @@
     "init": "ucitrack"
 }
 EEOF
-/etc/init.d/ucitrack reload
 }
 
 uci -q get ucitrack.@eqos[0] > /dev/null || {

@@ -6,7 +6,6 @@
     "init": "eqosplus"
 }
 EEOF
-/etc/init.d/ucitrack reload
 }
 chmod +x  /etc/init.d/eqosplus /usr/bin/eqosplus*
 uci -q batch <<-EOF >/dev/null
