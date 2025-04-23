@@ -153,7 +153,9 @@ define Package/dockerd/install
 	$(INSTALL_BIN) ./files/dockerd.init $(1)/etc/init.d/dockerd
 	
 	if [ ! -f $(TOPDIR)/feeds/luci/package.json ]; then \
+		$(INSTALL_DIR) $(1)/etc/uci-defaults; \
 		$(INSTALL_BIN) ./files/dockerd.sh $(1)/etc/init.d/dockerd; \
+		$(INSTALL_BIN) ./files/dockerd.defaults $(1)/etc/uci-defaults/80-dockerd; \
 	fi
 
 	$(INSTALL_DIR) $(1)/etc/config

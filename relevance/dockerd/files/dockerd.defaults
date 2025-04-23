@@ -1,0 +1,6 @@
+#!/bin/sh
+
+/etc/init.d/dockerd uciadd
+
+rm -rf /tmp/luci-*
+exit 0
