@@ -178,7 +178,37 @@ sethttps() {
 	 
     fi
 }
+dnsredirect(){
+[ -n "$(command -v nft)" ] && nftables_clear || iptables_clear
+config_get_bool dns_redirect "$cfg" dns_redirect 1
+if [ "$dns_redirect" = 1 ]; then
+ 	if [ -n "$(command -v nft)" ]; then
+ 		nft add table inet dnsmasq
+ 		nft add chain inet dnsmasq prerouting "{ type nat hook prerouting priority -105; policy accept; }"
+ 		nft add rule inet dnsmasq prerouting "meta nfproto { ipv4, ipv6 } udp dport 53 counter redirect to :53 comment \"DNSMASQ HIJACK\""
+ 	else
+ 		iptables -t nat -A PREROUTING -m comment --comment "DNSMASQ" -p udp --dport 53 -j REDIRECT --to-ports 53
+ 		iptables -t nat -A PREROUTING -m comment --comment "DNSMASQ" -p tcp --dport 53 -j REDIRECT --to-ports 53
+ 		[ -n "$(command -v ip6tables)" ] && ip6tables -t nat -A PREROUTING -m comment --comment "DNSMASQ" -p udp --dport 53 -j REDIRECT --to-ports 53
+ 		[ -n "$(command -v ip6tables)" ] && ip6tables -t nat -A PREROUTING -m comment --comment "DNSMASQ" -p tcp --dport 53 -j REDIRECT --to-ports 53
+ 	fi
+fi
+}
 
+iptables_clear()
+ {
+ 	config_get dns_port "$cfg" port 53
+ 	iptables -t nat -D PREROUTING -m comment --comment "DNSMASQ" -p udp --dport 53 -j REDIRECT --to-ports $dns_port 2>"/dev/null"
+ 	iptables -t nat -D PREROUTING -m comment --comment "DNSMASQ" -p tcp --dport 53 -j REDIRECT --to-ports $dns_port 2>"/dev/null"
+ 	[ -n "$(command -v ip6tables)" ] && ip6tables -t nat -D PREROUTING -m comment --comment "DNSMASQ" -p udp --dport 53 -j REDIRECT --to-ports $dns_port 2>"/dev/null"
+ 	[ -n "$(command -v ip6tables)" ] && ip6tables -t nat -D PREROUTING -m comment --comment "DNSMASQ" -p tcp --dport 53 -j REDIRECT --to-ports $dns_port 2>"/dev/null"
+ }
+
+ nftables_clear()
+ {
+ 	! nft --check list table inet dnsmasq > "/dev/null" 2>&1 || \
+ 		nft delete table inet dnsmasq
+ }
 # Function to configure network settings
 configure_network() {
     local cfg=$1
@@ -305,6 +335,8 @@ configure_network() {
                     [ "x$ifname" = "xdevice" ] && $UCISET network.@$ifname[0].ports="${lannet} ${wan_interface}" || $UCISET network.lan.$ifname="${lannet} ${wan_interface}"
                 fi
                 [ "x$masq" = "x1" ] && $UCISET firewall.@zone[0].masq='1' || $UCIDEL firewall.@zone[0].masq
+		
+		
             }
             $UCIDEL firewall.@zone[0].network
             uci -q add_list firewall.@zone[0].network='lan'
@@ -327,6 +359,7 @@ configure_network() {
     test -n "${lan_ipaddr}"  &&  $UCISET network.lan.ipaddr="${lan_ipaddr}"  
     test -n "${lan_netmask}" &&  $UCISET network.lan.netmask="${lan_netmask}"
     setsynflood
+    # dnsredirect
     # sethttps
     sed -i "/dhcp_option '6/d" /etc/config/dhcp
     sed -i "/list dns/d" /etc/config/dhcp
@@ -405,11 +438,7 @@ EOF
 EOF
     (sleep 2
      /etc/init.d/network restart
-     /etc/init.d/dnsmasq reload
-     /etc/init.d/firewall reload
-     # /etc/init.d/rpcd restart
-     # /etc/init.d/uhttpd reload
-     )&
+     /etc/init.d/dnsmasq reload)&
 }
 
 boot() {

@@ -94,8 +94,11 @@ msgstr "Wan口子网掩码"
 msgid "Wan IPv4 gateway"
 msgstr "Wan口网关"
 
-msgid "Use iptables to force all TCP/UDP DNS 53ports in IPV4/IPV6 to be forwarded from this route[Suggest opening]"
-msgstr "用iptables强制IPV4/IPV6所有TCP/UDP DNS 53端口走此路由解析[建议打开]"
+msgid "DNS Redirect"
+msgstr "DNS 重定向"
+
+msgid "force all TCP/UDP DNS 53ports in IPV4/IPV6 to be forwarded from this route[Suggest opening]"
+msgstr "强制IPV4/IPV6所有TCP/UDP DNS 53端口走此路由解析[建议打开]"
 
 msgid "Custom firewall"
 msgstr "启用自定义规则"
