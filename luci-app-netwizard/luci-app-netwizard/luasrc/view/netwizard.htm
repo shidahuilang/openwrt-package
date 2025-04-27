@@ -1,0 +1,73 @@
+<%#
+Copyright (C)  2022-2025  sirpdboy  <herboy2008@gmail.com> https://github.com/sirpdboy/partexp
+-%>
+
+
+<%+cbi/valueheader%>
+<%local fs=require"nixio.fs"%>
+<input type="button" class="btn cbi-button cbi-button-apply" id="apply_run_button" value="<%:Click to execute%>" onclick=" return apply_run(this) "/>
+
+<script type="text/javascript">//<![CDATA[
+
+function apply_run(btn){
+	var sid='default'
+	var opt={
+		base:"cbid.netwizard."+sid,
+		get:function(opt){
+			var id=this.base+'.'+opt;
+			var obj=document.getElementsByName(id)[0] || document.getElementsByClassName(id)[0] || document.getElementById(id)
+			if (obj){
+				return obj;
+			}else{
+				return null;
+			}
+		},
+		getlist:function(opt){
+			var id=this.base+'.'+opt;
+			var objs=document.getElementsByName(id) || document.getElementsByClassName(id);
+			var ret=[];
+			if (objs){
+				for (var i=0;i < objs.length;i++){
+					ret[i]=objs[i].value;
+				}
+			}else{
+				alert("<%:Fatal on get option,please help in debug%>:"+opt);
+			}
+			return ret;
+		},
+		query:function(param,src,tval="1",fval="0"){
+			var ret="&"+param+"=";
+			var obj=this.get(src);
+			if (obj){
+				if (obj.type=="checkbox"){
+					return ret+(obj.checked==true ? tval:fval);
+				}else{
+					return ret+encodeURIComponent(obj.value);
+				}
+			}
+			return ''
+		}
+	}
+
+
+	btn.value='<%:Waiting,(executing)...%>';
+	btn.disabled=true;
+	
+
+    var ipaddr=opt.get("lan_ipaddr").value;
+	URL = window.location.protocol + "//" + ipaddr + "/cgi-bin/luci/admin/netwizard";
+	console.log(ipaddr);
+	console.log(URL);
+	-- const S_URL = '<%=luci.dispatcher.build_url("admin", "netwizard" ,"run")%>';
+		XHR.get('<%=luci.dispatcher.build_url("admin","netwizard","run" )%>',null,function(x){
+			setTimeout(function(){
+				window.location = URL
+			},5000);
+
+		});
+		return false;
+	}
+//]]></script>
+ 
+
+<%+cbi/valuefooter%>

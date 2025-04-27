@@ -170,11 +170,17 @@ synflood = s:taboption("othersetup", Flag, "synflood", translate("Enable SYN-flo
 synflood.default = 1
 synflood.anonymous = false
 
--- e = s:taboption("othersetup", Flag, "https",translate('Accessing using HTTPS'), translate('Open the address in the background and use HTTPS for secure access'))
+-- dns_redirect = s:taboption("othersetup", Flag, "dns_redirect", translate("DNS Redirect"),translate("Force all TCP/UDP DNS 53ports in IPV4/IPV6 to be forwarded from this route[Suggest opening]"))
+-- dns_redirect.default = 1
+-- dns_redirect.anonymous = false
 
-m.apply_on_parse = true
-m.on_after_apply = function(self,map)
-	luci.sys.exec("/etc/init.d/netwizard start >/dev/null 2>&1")
-end
+e = s:taboption("othersetup", Flag, "https",translate('Accessing using HTTPS'), translate('Open the address in the background and use HTTPS for secure access'))
+
+
+
+e=t:option(Button, "restart", translate("Perform operation"))
+e.inputtitle=translate("Click to execute")
+e.template ='netwizard'
+
 
 return m
