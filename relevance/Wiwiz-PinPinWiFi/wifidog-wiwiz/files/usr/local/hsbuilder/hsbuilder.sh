@@ -247,6 +247,12 @@ do
 		continue
 	else
 		if [ "$DISABLE_IPV6" = "1" ]; then
+			uci del network.lan.ip6assign
+			uci set network.lan.delegate='0'
+			uci del network.wan.ip6assign
+			uci set network.wan.delegate='0'
+			uci commit network
+
 			[ "$(uci get network.lan.ipv6 2>/dev/null)" != "0" ] && {
 				uci set network.lan.ipv6='0' && uci commit network
 			}
@@ -426,8 +432,9 @@ do
 	
 	if [ "$ENVINFO_SENT" = "0" ]; then
 		MODEL=$(/usr/local/hsbuilder/getmodel.sh)
-		curl -m 5 --data-urlencode "e2=$ENVINFO_$MY_VERSION|$MODEL" "http://$AS_HOSTNAME_X/as/s/readconf/?m=info&gw_id=$GW_ID&ver=$MY_VERSION" 1>/dev/null 2>/dev/null || \
-		curl -m 5 --data "e2=$ENVINFO_$MY_VERSION|$MODEL" "http://$AS_HOSTNAME_X/as/s/readconf/?m=info&gw_id=$GW_ID&ver=$MY_VERSION" 1>/dev/null 2>/dev/null 
+		DISTRIB_DSC=$(grep -E "^DISTRIB_DESCRIPTION=" /etc/openwrt_release | cut -d'=' -f2 | sed "s/'//g")
+		curl -m 5 --data-urlencode "e2=$ENVINFO_$MY_VERSION|$MODEL|$DISTRIB_DSC" "http://$AS_HOSTNAME_X/as/s/readconf/?m=info&gw_id=$GW_ID&ver=$MY_VERSION" 1>/dev/null 2>/dev/null || \
+		curl -m 5 --data "e2=$ENVINFO_$MY_VERSION|$MODEL|$DISTRIB_DSC" "http://$AS_HOSTNAME_X/as/s/readconf/?m=info&gw_id=$GW_ID&ver=$MY_VERSION" 1>/dev/null 2>/dev/null 
 		ENVINFO_SENT=1
 	fi
 	
