@@ -583,7 +583,12 @@ local function processData(szType, content, add_mode, add_from)
 		if info.tls == "tls" or info.tls == "1" then
 			result.tls = "1"
 			result.tls_serverName = (info.sni and info.sni ~= "") and info.sni or info.host
-			result.tls_allowInsecure = allowInsecure_default and "1" or "0"
+			info.allowinsecure = info.allowinsecure or info.insecure
+			if info.allowinsecure and (info.allowinsecure == "1" or info.allowinsecure == "0") then
+				result.tls_allowInsecure = info.allowinsecure
+			else
+				result.tls_allowInsecure = allowInsecure_default and "1" or "0"
+			end
 		else
 			result.tls = "0"
 		end
@@ -788,7 +793,10 @@ local function processData(szType, content, add_mode, add_from)
 						result.tls = "1"
 						result.tls_serverName = (params.sni and params.sni ~= "") and params.sni or params.host
 						result.alpn = params.alpn
-						result.fingerprint = (params.fp and params.fp ~= "") and params.fp or "chrome"
+						if params.fp and params.fp ~= "" then
+							result.utls = "1"
+							result.fingerprint = params.fp
+						end
 						if params.security == "reality" then
 							result.reality = "1"
 							result.reality_publicKey = params.pbk or nil
@@ -796,7 +804,12 @@ local function processData(szType, content, add_mode, add_from)
 							result.reality_spiderX = params.spx or nil
 						end
 					end
-					result.tls_allowInsecure = allowInsecure_default and "1" or "0"
+					params.allowinsecure = params.allowinsecure or params.insecure
+					if params.allowinsecure and (params.allowinsecure == "1" or params.allowinsecure == "0") then
+						result.tls_allowInsecure = params.allowinsecure
+					else
+						result.tls_allowInsecure = allowInsecure_default and "1" or "0"
+					end
 				else
 					result.error_msg = "请更换Xray或Sing-Box来支持SS更多的传输方式."
 				end
@@ -854,6 +867,7 @@ local function processData(szType, content, add_mode, add_from)
 			result.tls = '1'
 			result.tls_serverName = peer and peer or sni
 
+			params.allowinsecure = params.allowinsecure or params.insecure
 			if params.allowinsecure then
 				if params.allowinsecure == "1" or params.allowinsecure == "0" then
 					result.tls_allowInsecure = params.allowinsecure
@@ -1111,7 +1125,10 @@ local function processData(szType, content, add_mode, add_from)
 				result.tls = "1"
 				result.tls_serverName = (params.sni and params.sni ~= "") and params.sni or params.host
 				result.alpn = params.alpn
-				result.fingerprint = (params.fp and params.fp ~= "") and params.fp or "chrome"
+				if params.fp and params.fp ~= "" then
+					result.utls = "1"
+					result.fingerprint = params.fp
+				end
 				if params.security == "reality" then
 					result.reality = "1"
 					result.reality_publicKey = params.pbk or nil
@@ -1121,7 +1138,13 @@ local function processData(szType, content, add_mode, add_from)
 			end
 
 			result.port = port
-			result.tls_allowInsecure = allowInsecure_default and "1" or "0"
+
+			params.allowinsecure = params.allowinsecure or params.insecure
+			if params.allowinsecure and (params.allowinsecure == "1" or params.allowinsecure == "0") then
+				result.tls_allowInsecure = params.allowinsecure
+			else
+				result.tls_allowInsecure = allowInsecure_default and "1" or "0"
+			end
 
 			if result.type == "sing-box" and (result.transport == "mkcp" or result.transport == "xhttp" or result.transport == "splithttp") then
 				log("跳过节点:" .. result.remarks .."，因Sing-Box不支持" .. szType .. "协议的" .. result.transport .. "传输方式，需更换Xray。")
@@ -1164,8 +1187,9 @@ local function processData(szType, content, add_mode, add_from)
 		result.hysteria_auth_type = "string"
 		result.hysteria_auth_password = params.auth
 		result.tls_serverName = params.peer
-		if params.insecure and (params.insecure == "1" or params.insecure == "0") then
-			result.tls_allowInsecure = params.insecure
+		params.allowinsecure = params.allowinsecure or params.insecure
+		if params.allowinsecure and (params.allowinsecure == "1" or params.allowinsecure == "0") then
+			result.tls_allowInsecure = params.allowinsecure
 			--log(result.remarks ..' 使用节点AllowInsecure设定: '.. result.tls_allowInsecure)
 		else
 			result.tls_allowInsecure = allowInsecure_default and "1" or "0"
@@ -1215,8 +1239,9 @@ local function processData(szType, content, add_mode, add_from)
 			result.address = host_port
 		end
 		result.tls_serverName = params.sni
-		if params.insecure and (params.insecure == "1" or params.insecure == "0") then
-			result.tls_allowInsecure = params.insecure
+		params.allowinsecure = params.allowinsecure or params.insecure
+		if params.allowinsecure and (params.allowinsecure == "1" or params.allowinsecure == "0") then
+			result.tls_allowInsecure = params.allowinsecure
 			--log(result.remarks ..' 使用节点AllowInsecure设定: '.. result.tls_allowInsecure)
 		else
 			result.tls_allowInsecure = allowInsecure_default and "1" or "0"
@@ -1278,6 +1303,7 @@ local function processData(szType, content, add_mode, add_from)
 		result.tls_serverName = params.sni
 		result.tuic_alpn = params.alpn or "default"
 		result.tuic_congestion_control = params.congestion_control or "cubic"
+		params.allowinsecure = params.allowinsecure or params.insecure
 		if params.allowinsecure then
 			if params.allowinsecure == "1" or params.allowinsecure == "0" then
 				result.tls_allowInsecure = params.allowinsecure
@@ -1290,6 +1316,70 @@ local function processData(szType, content, add_mode, add_from)
 		end
 		result.type = 'sing-box'
 		result.protocol = "tuic"
+	elseif szType == "anytls" then
+		result.type = 'sing-box'
+		result.protocol = "anytls"
+		local alias = ""
+		if content:find("#") then
+			local idx_sp = content:find("#")
+			alias = content:sub(idx_sp + 1, -1)
+			content = content:sub(0, idx_sp - 1)
+		end
+		result.remarks = UrlDecode(alias)
+		if content:find("@") then
+			local Info = split(content, "@")
+			result.password = UrlDecode(Info[1])
+			local port = "443"
+			Info[2] = (Info[2] or ""):gsub("/%?", "?")
+			local query = split(Info[2], "?")
+			local host_port = query[1]
+			local params = {}
+			for _, v in pairs(split(query[2], '&')) do
+				local t = split(v, '=')
+				params[t[1]] = UrlDecode(t[2])
+			end
+			-- [2001:4860:4860::8888]:443
+			-- 8.8.8.8:443
+			if host_port:find(":") then
+				local sp = split(host_port, ":")
+				port = sp[#sp]
+				if api.is_ipv6addrport(host_port) then
+					result.address = api.get_ipv6_only(host_port)
+				else
+					result.address = sp[1]
+				end
+			else
+				result.address = host_port
+			end
+			result.tls = "0"
+			if params.security == "tls" or params.security == "reality" then
+				result.tls = "1"
+				result.tls_serverName = (params.sni and params.sni ~= "") and params.sni or params.host
+				result.alpn = params.alpn
+				if params.fp and params.fp ~= "" then
+					result.utls = "1"
+					result.fingerprint = params.fp
+				end
+				if params.security == "reality" then
+					result.reality = "1"
+					result.reality_publicKey = params.pbk or nil
+					result.reality_shortId = params.sid or nil
+				end
+			end
+			result.port = port
+			params.allowinsecure = params.allowinsecure or params.insecure
+			if params.allowinsecure and (params.allowinsecure == "1" or params.allowinsecure == "0") then
+				result.tls_allowInsecure = params.allowinsecure
+			else
+				result.tls_allowInsecure = allowInsecure_default and "1" or "0"
+			end
+			local singbox_version = api.get_app_version("sing-box")
+			local version_ge_1_12 = api.compare_versions(singbox_version:match("[^v]+"), ">=", "1.12.0")
+			if not has_singbox or not version_ge_1_12 then
+				log("跳过节点:" .. result.remarks .."，因" .. szType .. "类型的节点需要 Sing-Box 1.12 以上版本支持。")
+				return nil
+			end
+		end
 	else
 		log('暂时不支持' .. szType .. "类型的节点订阅，跳过此节点。")
 		return nil
