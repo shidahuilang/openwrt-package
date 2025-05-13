@@ -31,6 +31,7 @@ docker
 dockerd
 dsmboot
 ffmpeg-remux
+file
 filebrowser
 frp
 gost
