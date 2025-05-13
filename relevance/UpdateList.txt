@@ -15,6 +15,7 @@ cpulimit-ng
 cpulimit
 ddnsto
 ffmpeg-remux
+file
 filebrowser
 go-aliyundrive-webdav
 gost
