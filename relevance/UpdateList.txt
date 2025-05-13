@@ -16,6 +16,7 @@ cpulimit
 ddnsto
 eqos-master-wiwiz
 ffmpeg-remux
+file
 filebrowser
 frp
 go-aliyundrive-webdav
