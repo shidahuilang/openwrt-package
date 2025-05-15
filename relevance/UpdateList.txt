@@ -27,6 +27,7 @@ cpulimit-ng
 cpulimit
 ddns-scripts_dnspod
 ddnsto
+doc
 docker
 dockerd
 dsmboot
