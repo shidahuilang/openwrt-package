@@ -14,6 +14,7 @@ clud
 cpulimit-ng
 cpulimit
 ddnsto
+doc
 eqos-master-wiwiz
 ffmpeg-remux
 file
