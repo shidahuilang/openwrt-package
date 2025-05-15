@@ -14,6 +14,7 @@ clud
 cpulimit-ng
 cpulimit
 ddnsto
+doc
 ffmpeg-remux
 file
 filebrowser
