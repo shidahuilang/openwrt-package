@@ -381,7 +381,10 @@ o = s:taboption("DNS", Flag, "filter_proxy_ipv6", translate("Filter Proxy Host I
 o.default = "0"
 
 ---- DNS Forward Mode
-o = s:taboption("DNS", ListValue, "dns_mode", translate("Filter Mode"))
+o = s:taboption("DNS", ListValue, "dns_mode", translate("Filter Mode"),
+			 "<font color='red'>" .. translate(
+				 "If the node uses Xray/Sing-Box shunt, select the matching filter mode (Xray/Sing-Box).") ..
+				 "</font>")
 o:value("udp", translatef("Requery DNS By %s", "UDP"))
 o:value("tcp", translatef("Requery DNS By %s", "TCP"))
 if chinadns_tls == 0 then
@@ -402,7 +405,10 @@ end
 
 ---- SmartDNS Forward Mode
 if api.is_finded("smartdns") then
-	o = s:taboption("DNS", ListValue, "smartdns_dns_mode", translate("Filter Mode"))
+	o = s:taboption("DNS", ListValue, "smartdns_dns_mode", translate("Filter Mode"),
+				 "<font color='red'>" .. translate(
+					 "If the node uses Xray/Sing-Box shunt, select the matching filter mode (Xray/Sing-Box).") ..
+					 "</font>")
 	o:value("socks", "Socks")
 	if has_singbox then
 		o:value("sing-box", "Sing-Box")
@@ -452,6 +458,21 @@ if api.is_finded("smartdns") then
 			t = { value }
 		end
 		return DynamicList.write(self, section, t)
+	end
+	function o.validate(self, value) --禁止私有IP
+		if type(value) == "table" then
+			for _, v in ipairs(value) do
+				if v:match("127%.0%.0%.") or
+				   v:match("192%.168%.") or
+				   v:match("10%.") or
+				   v:match("172%.1[6-9]%.") or
+				   v:match("172%.2[0-9]%.") or
+				   v:match("172%.3[0-1]%.") then
+					return nil, translatef("Private IPs are not allowed: %s", v)
+				end
+			end
+		end
+		return value
 	end
 end
 

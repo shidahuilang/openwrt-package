@@ -118,8 +118,14 @@ msgstr "国内分组名"
 msgid "You only need to configure domestic DNS packets in SmartDNS and set it redirect or as Dnsmasq upstream, and fill in the domestic DNS group name here."
 msgstr "您只需要在SmartDNS配置好国内DNS分组，并设置重定向或作为Dnsmasq上游，此处填入国内DNS分组名。"
 
+msgid "Private IPs are not allowed: %s"
+msgstr "不允许使用私有 IP 地址：%s"
+
 msgid "Filter Mode"
 msgstr "过滤模式"
+
+msgid "If the node uses Xray/Sing-Box shunt, select the matching filter mode (Xray/Sing-Box)."
+msgstr "当节点使用 Xray/Sing-Box 分流时，过滤模式需对应选择 Xray/Sing-Box 。"
 
 msgid "A/AAAA type"
 msgstr "A/AAAA 类型"
