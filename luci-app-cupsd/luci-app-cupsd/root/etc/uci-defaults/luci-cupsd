@@ -8,8 +8,5 @@ uci -q batch <<-EOF >/dev/null
 EOF
 
 
-/etc/init.d/cupsd stop
-/etc/init.d/cupsd start
-
 rm -f /tmp/luci*
 exit 0
