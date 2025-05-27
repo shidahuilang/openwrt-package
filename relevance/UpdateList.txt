@@ -58,6 +58,7 @@ luci-app-istoreenhance
 luci-app-istorex
 luci-app-linkease
 luci-app-lucky
+luci-app-mail
 luci-app-mentohust
 luci-app-mosdns
 luci-app-msd_lite

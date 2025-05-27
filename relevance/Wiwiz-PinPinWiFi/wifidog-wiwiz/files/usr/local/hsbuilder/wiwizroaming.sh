@@ -23,6 +23,12 @@ doAuth() {
 	IP="$2"
 	AS_HOSTNAME_X="$3"
 
+	IS_AUTHED=$(wdctl status  2>/dev/null | grep 'IP:' | grep 'MAC:' | tr -d ' ' | sed 's/IP://g' | sed 's/MAC:/ /g' | grep -i "$MAC" | grep -i "$IP ")
+	if [ "$IS_AUTHED" != "" ]; then
+		debug "$IP $MAC is already authed"
+		return
+	fi
+
     URL="http://$AS_HOSTNAME_X/as/s/auth/?stage=token&gw_id=$HID&mac=$MAC"
     
 	debug "HID=$HID"
@@ -34,12 +40,14 @@ doAuth() {
 	rm -f "$TMPFILE"
 	
 	if [ "$token" == "" ]; then
+		debug "token is empty"
 		return
 	fi
 	
 	wdctl auth "$MAC" "$IP" "$token"
 	debug "wdctl auth $MAC $IP $token"
 
+	#kicks same mac but different IP
 	wdctl status | grep 'IP:' | grep 'MAC:' | tr -d ' ' | sed 's/IP://g' | sed 's/MAC:/ /g' | grep -i "$MAC" | grep -v "$IP " | while read LINE; do
 		IPtoReset=$(echo "$LINE" | cut -d ' ' -f 1)
 		wdctl reset "$IPtoReset"
