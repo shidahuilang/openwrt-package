@@ -19,7 +19,6 @@ eqos-master-wiwiz
 ffmpeg-remux
 file
 filebrowser
-frp
 go-aliyundrive-webdav
 gost
 internet-detector-mod-email
