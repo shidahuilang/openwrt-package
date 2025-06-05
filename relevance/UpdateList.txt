@@ -32,7 +32,6 @@ docker
 dockerd
 dsmboot
 ffmpeg-remux
-file
 filebrowser
 frp
 gost
@@ -49,7 +48,6 @@ lua-maxminddb
 luci-app-3ginfo
 luci-app-accesscontrol
 luci-app-adguardhome
-luci-app-advanced
 luci-app-alist
 luci-app-aliyundrive-webdav
 luci-app-amlogic
@@ -66,7 +64,6 @@ luci-app-control-timewol
 luci-app-control-webrestriction
 luci-app-control-weburl
 luci-app-cpulimit
-luci-app-cupsd
 luci-app-ddnsto
 luci-app-diskman
 luci-app-dockerman
@@ -117,7 +114,6 @@ luci-app-socat
 luci-app-ssr-mudb-server
 luci-app-store
 luci-app-supervisord
-luci-app-switch-lan-play
 luci-app-syncdial
 luci-app-syncthing
 luci-app-tcpdump
@@ -132,8 +128,6 @@ luci-app-verysync
 luci-app-vlmcsd
 luci-app-vsftpd
 luci-app-webd
-luci-app-wifidog
-luci-app-wolplus
 luci-app-wrtbwmon
 luci-app-xlnetacc
 luci-app-zerotier
@@ -172,7 +166,6 @@ smartmontools
 socat
 softethervpn
 softethervpn5
-switch-lan-play
 syncthing
 tini
 ucl
