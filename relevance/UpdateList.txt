@@ -16,7 +16,6 @@ cpulimit
 ddnsto
 doc
 ffmpeg-remux
-file
 filebrowser
 go-aliyundrive-webdav
 gost
@@ -26,7 +25,6 @@ linkease
 linkmount
 luci-app-3ginfo
 luci-app-adguardhome
-luci-app-advanced
 luci-app-alist
 luci-app-amlogic
 luci-app-autoipsetadder
@@ -40,7 +38,6 @@ luci-app-control-timewol
 luci-app-control-webrestriction
 luci-app-control-weburl
 luci-app-cpulimit
-luci-app-cupsd
 luci-app-ddnsto
 luci-app-diskman
 luci-app-fileassistant
@@ -75,13 +72,11 @@ luci-app-rclone
 luci-app-shutdown
 luci-app-smartdns
 luci-app-smartinfo
-luci-app-socat
 luci-app-softethervpn
 luci-app-sqm
 luci-app-ssr-mudb-server
 luci-app-store
 luci-app-supervisord
-luci-app-switch-lan-play
 luci-app-syncthing
 luci-app-tcpdump
 luci-app-tencentddns
@@ -92,9 +87,7 @@ luci-app-unblockneteasemusic
 luci-app-unishare
 luci-app-vlmcsd
 luci-app-webd
-luci-app-wifidog
 luci-app-wol
-luci-app-wolplus
 luci-app-zerotier
 luci-lib-iform
 luci-nginxer
@@ -123,7 +116,6 @@ smartdns
 smartmontools
 socat
 softethervpn5
-switch-lan-play
 udp2raw
 unishare
 upx-static
