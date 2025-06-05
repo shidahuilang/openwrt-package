@@ -18,11 +18,10 @@
 
 <% local ver = require "luci.version" %>
 </div>
-<footer>
+<!-- added style="text-wrap: auto" but on this page it is still not the best solution. I will take it to consideration next time :) -->
+<footer style="text-wrap: auto">
 	<div>
-		<a class="luci-link" href="https://github.com/openwrt/luci" target="_blank"> 
-						
-						<%= ver.distversion %> </a>
+						<%= ver.distversion %>
 	</div>
 </footer>
 </div>

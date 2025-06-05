@@ -18,13 +18,16 @@
 
 <% local ver = require "luci.version" %>
 </div>
-<footer class="mobile-hide">
-	<div>
-		<a class="luci-link" href="https://github.com/openwrt/luci" target="_blank"> 
-						
-						<%= ver.distversion %> </a>
-		<ul class="breadcrumb pull-right" id="modemenu" style="display:none"></ul>
-	</div>
+<footer class="mobile-hide" style="text-wrap: auto">
+  <div class="footer-content" style="display: flex; flex-wrap: wrap; gap: 0.5em; justify-content: end;">
+
+
+
+
+    <span><%= ver.distversion %></span>
+
+    <ul class="breadcrumb pull-right" id="modemenu" style="display:none"></ul>
+  </div>
 </footer>
 </div>
 </div>

@@ -992,6 +992,7 @@ input,
 
 }
 
+[data-page=""],
 [data-page="admin-dashboard"] {
     .main-right > #maincontent {
         .Dashboard {
@@ -1008,19 +1009,17 @@ input,
             .dashboard-bg {
                 background-color: #333333;
             }
-        }
 
-        .router-status-info .title img,
-        .lan-info .title img,
-        .wifi-info .title img {
-            filter: invert(90%);
-        }
+            img.svgmonochrome {
+                filter: invert(90%);
+            }
 
-        tr {
-            border-top: thin solid #4d4d4d;
-
-            &:last-child {
-                border-bottom: thin solid #4d4d4d;
+            tr {
+                border-top: thin solid #4d4d4d;
+    
+                &:last-child {
+                    border-bottom: thin solid #4d4d4d;
+                }
             }
         }
     }
@@ -1033,6 +1032,18 @@ input,
 
     .fb-container td[class$="-icon"]::before {
         filter: invert(0.7);
+    }
+
+    div#list-content {
+        table.cbi-section-table {
+            tbody {
+                tr:nth-child(1) {
+                    td.parent-icon {
+                        background: #1e1e1e !important;
+                    }
+                }
+            }
+        }
     }
 }
 
