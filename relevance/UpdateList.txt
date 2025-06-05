@@ -17,7 +17,6 @@ ddnsto
 doc
 eqos-master-wiwiz
 ffmpeg-remux
-file
 filebrowser
 go-aliyundrive-webdav
 gost
@@ -28,7 +27,6 @@ linkease
 linkmount
 luci-app-3ginfo
 luci-app-adguardhome
-luci-app-advanced
 luci-app-alist
 luci-app-amlogic
 luci-app-autoipsetadder
@@ -44,7 +42,6 @@ luci-app-control-timewol
 luci-app-control-webrestriction
 luci-app-control-weburl
 luci-app-cpulimit
-luci-app-cupsd
 luci-app-ddnsto
 luci-app-diskman
 luci-app-eqosplus
@@ -82,12 +79,10 @@ luci-app-sakurafrp
 luci-app-shutdown
 luci-app-smartdns
 luci-app-smartinfo
-luci-app-socat
 luci-app-softethervpn
 luci-app-ssr-mudb-server
 luci-app-store
 luci-app-supervisord
-luci-app-switch-lan-play
 luci-app-syncthing
 luci-app-synology
 luci-app-tcpdump
@@ -100,8 +95,6 @@ luci-app-unishare
 luci-app-usb-printer
 luci-app-vlmcsd
 luci-app-webd
-luci-app-wifidog
-luci-app-wolplus
 luci-app-wxedge
 luci-app-xunlei
 luci-app-xunyou
@@ -135,7 +128,6 @@ smartdns
 smartmontools
 socat
 softethervpn5
-switch-lan-play
 udp2raw
 unishare
 upx-static
