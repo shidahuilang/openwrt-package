@@ -6,8 +6,16 @@ uci -q batch <<-EOF >/dev/null
 	set firewall.socat.type=script
 	set firewall.socat.path=/var/etc/socat.include
 	set firewall.socat.reload=1
+	commit firewall
 EOF
 
+if [ -x /sbin/fw4 ]; then
+	if ! nft -at list chain inet fw4 socat_input >/dev/null 2>&1 ; then
+		rm -f /var/etc/socat.include
+		# load nftables.d
+		fw4 -q reload
+	fi
+fi
 uci -q batch <<-EOF >/dev/null
 	delete ucitrack.@socat[-1]
 	add ucitrack socat
