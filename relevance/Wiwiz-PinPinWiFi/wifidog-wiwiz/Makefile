@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=wifidog-wiwiz
-PKG_VERSION:=20250527
+PKG_VERSION:=20250617
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 
 PKG_FIXUP:=autoreconf
@@ -20,7 +20,7 @@ define Package/wifidog-wiwiz
   SUBMENU:=Portal
   SECTION:=net
   CATEGORY:=Wiwiz/PinPinWiFi
-  DEPENDS:=+iptables-mod-extra +iptables-mod-ipopt +iptables-mod-nat-extra +libpthread +curl
+  DEPENDS:=+iptables-mod-extra +iptables-mod-ipopt +iptables-mod-nat-extra +libpthread +curl +jsonfilter
   TITLE:=wifidog-wiwiz
   URL:=http://www.wiwiz.com
   MENU:=1
@@ -62,6 +62,8 @@ define Package/wifidog-wiwiz/install
 	$(INSTALL_BIN) ./files/usr/local/hsbuilder/wiwizroaming.sh.old $(1)/usr/local/hsbuilder/wiwizroaming.sh.old
 	$(INSTALL_BIN) ./files/usr/local/hsbuilder/getmodel.sh $(1)/usr/local/hsbuilder/getmodel.sh
 	$(INSTALL_BIN) ./files/usr/local/hsbuilder/auth.sh $(1)/usr/local/hsbuilder/auth.sh
+	$(INSTALL_BIN) ./files/usr/local/hsbuilder/checkauth.sh $(1)/usr/local/hsbuilder/checkauth.sh
+	$(INSTALL_BIN) ./files/usr/local/hsbuilder/dhcp_portal.sh $(1)/usr/local/hsbuilder/dhcp_portal.sh
 	$(INSTALL_DATA) ./files/usr/local/hsbuilder/hsbuilder.conf $(1)/usr/local/hsbuilder/hsbuilder.conf
 	$(INSTALL_DATA) ./files/usr/local/hsbuilder/ver $(1)/usr/local/hsbuilder/ver
 
@@ -83,6 +85,7 @@ define Package/wifidog-wiwiz/install
 	$(INSTALL_BIN) ./files/www/cgi-bin/myip $(1)/www/cgi-bin/myip
 	$(INSTALL_BIN) ./files/www/cgi-bin/showdevinfo $(1)/www/cgi-bin/showdevinfo
 	$(INSTALL_BIN) ./files/www/cgi-bin/kickmac $(1)/www/cgi-bin/kickmac
+	$(INSTALL_BIN) ./files/www/cgi-bin/cpi $(1)/www/cgi-bin/cpi
 	$(INSTALL_DATA) ./files/www/index.html.wiwiz $(1)/www/index.html.wiwiz
 	$(INSTALL_DATA) ./files/www/error.html.wiwiz $(1)/www/error.html.wiwiz
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
