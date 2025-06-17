@@ -21,6 +21,7 @@ if [ -x "/bin/opkg" ]; then
 	fi
 	wget -O "nikki.pub" "https://nikkinikki.pages.dev/key-build.pub"
 	opkg-key remove nikki.pub
+	rm -f nikki.pub
 elif [ -x "/usr/bin/apk" ]; then
 	if (grep -q nikki /etc/apk/repositories.d/customfeeds.list); then
 		sed -i '/nikki/d' /etc/apk/repositories.d/customfeeds.list
