@@ -1,3 +1,5 @@
+require "luci.util"
+
 m = Map("wiwiz", translate("Wiwiz"),
     translate("Portal")) 
 
@@ -26,6 +28,14 @@ lan.rmempty = false
 lan.addremove = false
 lan.default = "br-lan"
 
+dhcp_portal = portal:option(Flag, "dhcp_portal", translate("Enable DHCP Captive Portal Identification"));
+dhcp_portal.optional = false 
+dhcp_portal.rmempty = false
+
 ver = portal:option(DummyValue, "ver", translate("Plugin Version"), translate("<a href='http://www.wiwiz.com/pinpinwifi/wiwiz-ipk.htm' target='_blank'>Readme</a>"));
+
+m.on_after_commit = function(self)
+    luci.util.exec("(sleep 3; /usr/local/hsbuilder/dhcp_portal.sh) &")
+end
 
 return m

@@ -1,0 +1,50 @@
+#!/usr/bin/lua
+require("luci.sys")
+require("luci.util")
+require("luci.http")
+
+local client_ip = luci.sys.getenv("REMOTE_ADDR")
+if client_ip == "" then
+    return
+end
+
+local wdrun = luci.util.exec("ps | grep wifidog | grep -v grep")
+wdrun = string.gsub(wdrun, "\n", "")
+if wdrun == "" then
+    return
+end
+
+local captive = ""
+
+local client_mac = luci.util.exec("cat /proc/net/arp | grep 0x2 | grep '".. client_ip .." ' | awk '{print $4}' 2>/dev/null")
+client_mac = string.gsub(client_mac, "\n", "")
+if client_mac == "" then
+    captive = "true"
+else
+    local checkauth = luci.util.exec("/usr/local/hsbuilder/checkauth.sh '".. client_mac .."' '".. client_ip .."'")
+    checkauth = string.gsub(checkauth, "\n", "")
+
+    if checkauth == "false" then
+        captive = "true"
+    elseif checkauth == "true" then
+        captive = "false"
+    end
+end
+
+print("Content-type: application/captive+json\n")
+if captive == "false" then
+    local output = "{\"captive\": ".. captive .."}"    
+    print(output)
+else
+    local lan_ip = luci.util.exec("ifconfig $(uci get wiwiz.portal.lan 2>/dev/null) | grep 'inet addr' | awk '{ print $2}' | awk -F: '{print $2}' 2>/dev/null")
+    lan_ip = string.gsub(lan_ip, "\n", "")
+    local portal = "http://".. lan_ip ..":2060"
+
+    local host = luci.util.exec("uci get wiwiz.portal.server 2>/dev/null | cut -d ':' -f 1")
+    host = string.gsub(host, "\n", "")
+
+    local portalUrl = "https://".. host .."/as/rd.jsp?rd=".. luci.http.urlencode(portal) 
+
+    local output = "{\"captive\": ".. captive ..", \"user-portal-url\": \"".. portalUrl .."\"}"
+    print(output)
+end

@@ -29,3 +29,6 @@ msgstr "Wiwiz插件版本"
 
 msgid "<a href='http://www.wiwiz.com/pinpinwifi/wiwiz-ipk.htm' target='_blank'>Readme</a>"
 msgstr "<a href='http://www.wiwiz.com/pinpinwifi/wiwiz-ipk.htm' target='_blank'>使用说明</a>"
+
+msgid "Enable DHCP Captive Portal Identification"
+msgstr "启用DHCP Captive Portal通告"
