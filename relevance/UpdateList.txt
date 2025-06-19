@@ -1,4 +1,3 @@
-3ginfo
 OpenAppFilter
 Rclone-OpenWrt
 UnblockNeteaseMusic-Go
@@ -23,7 +22,6 @@ istoreenhance
 kcptun
 linkease
 linkmount
-luci-app-3ginfo
 luci-app-adguardhome
 luci-app-alist
 luci-app-amlogic
