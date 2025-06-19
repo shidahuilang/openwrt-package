@@ -1,4 +1,3 @@
-3ginfo
 OpenAppFilter
 Rclone-OpenWrt
 Wiwiz-PinPinWiFi
@@ -45,7 +44,6 @@ libcryptopp
 linkease
 linkmount
 lua-maxminddb
-luci-app-3ginfo
 luci-app-accesscontrol
 luci-app-adguardhome
 luci-app-alist

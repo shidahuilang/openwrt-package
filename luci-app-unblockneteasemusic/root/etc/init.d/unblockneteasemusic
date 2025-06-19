@@ -217,10 +217,6 @@ start_service() {
 	procd_close_instance
 }
 
-service_started() {
-	procd_set_config_changed firewall
-}
-
 stop_service() {
 	config_load "$NAME"
 
@@ -244,10 +240,6 @@ stop_service() {
 	/etc/init.d/dnsmasq restart 2>"/dev/null"
 
 	rm -f "$RUN_DIR/run.log"
-}
-
-service_stopped() {
-	procd_set_config_changed firewall
 }
 
 reload_service() {
