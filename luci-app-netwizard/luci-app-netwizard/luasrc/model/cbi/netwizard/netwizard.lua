@@ -174,13 +174,11 @@ synflood.anonymous = false
 -- dns_redirect.default = 1
 -- dns_redirect.anonymous = false
 
-e = s:taboption("othersetup", Flag, "https",translate('Accessing using HTTPS'), translate('Open the address in the background and use HTTPS for secure access'))
+-- e = s:taboption("othersetup", Flag, "https",translate('Accessing using HTTPS'), translate('Open the address in the background and use HTTPS for secure access'))
 
-
-
-e=t:option(Button, "restart", translate("Perform operation"))
-e.inputtitle=translate("Click to execute")
-e.template ='netwizard'
-
+m.apply_on_parse = true
+m.on_after_apply = function(self,map)
+	luci.sys.exec("/etc/init.d/netwizard start >/dev/null 2>&1")
+end
 
 return m
