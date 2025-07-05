@@ -2,11 +2,11 @@
 
 # uninstall
 if [ -x "/bin/opkg" ]; then
-	opkg remove luci-i18n-nikki-zh-cn
+	opkg list-installed luci-i18n-nikki-* | cut -d ' ' -f 1 | xargs opkg remove
 	opkg remove luci-app-nikki
 	opkg remove nikki
 elif [ -x "/usr/bin/apk" ]; then
-	apk del luci-i18n-nikki-zh-cn
+	apk list --installed --manifest luci-i18n-nikki-* | cut -d ' ' -f 1 | xargs apk del
 	apk del luci-app-nikki
 	apk del nikki
 fi
@@ -14,6 +14,10 @@ fi
 rm -f /etc/config/nikki
 # remove files
 rm -rf /etc/nikki
+# remove log
+rm -rf /var/log/nikki
+# remove temp
+rm -rf /var/run/nikki
 # remove feed
 if [ -x "/bin/opkg" ]; then
 	if (grep -q nikki /etc/opkg/customfeeds.conf); then

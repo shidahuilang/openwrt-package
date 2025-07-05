@@ -38,20 +38,36 @@ if [ -x "/bin/opkg" ]; then
 	# update feeds
 	echo "update feeds"
 	opkg update
+	# get languages
+	echo "get languages"
+	languages=$(opkg list-installed luci-i18n-base-* | cut -d ' ' -f 1 | cut -d '-' -f 4-)
+	# get latest version
+	echo "get latest version"
+	wget -O nikki.version $feed_url/index.json
 	# install ipks
 	echo "install ipks"
-	eval "$(wget -O - $feed_url/index.json | jsonfilter -e 'nikki_version=@["packages"]["nikki"]' -e 'luci_app_nikki_version=@["packages"]["luci-app-nikki"]' -e 'luci_i18n_nikki_version=@["packages"]["luci-i18n-nikki-zh-cn"]')"
+	eval "$(jsonfilter -i nikki.version -e "nikki_version=@['packages']['nikki']" -e "luci_app_nikki_version=@['packages']['luci-app-nikki']")"
 	opkg install "$feed_url/nikki_${nikki_version}_${arch}.ipk"
 	opkg install "$feed_url/luci-app-nikki_${luci_app_nikki_version}_all.ipk"
-	opkg install "$feed_url/luci-i18n-nikki-zh-cn_${luci_i18n_nikki_version}_all.ipk"
-	rm -f -- *nikki*.ipk
+	for lang in $languages; do
+		lang_version=$(jsonfilter -i nikki.version -e "@['packages']['luci-i18n-nikki-${lang}']")
+		opkg install "$feed_url/luci-i18n-nikki-${lang}_${lang_version}_all.ipk"
+	done
+	
+	rm -f nikki.version
 elif [ -x "/usr/bin/apk" ]; then
 	# update feeds
 	echo "update feeds"
 	apk update
+	# get languages
+	echo "get languages"
+	languages=$(apk list --installed --manifest luci-i18n-base-* | cut -d ' ' -f 1 | cut -d '-' -f 4-)
 	# install apks from remote repository
 	echo "install apks from remote repository"
-	apk add --allow-untrusted -X $feed_url/packages.adb nikki luci-app-nikki luci-i18n-nikki-zh-cn
+	apk add --allow-untrusted -X $feed_url/packages.adb nikki luci-app-nikki
+	for lang in $languages; do
+		apk add --allow-untrusted -X $feed_url/packages.adb "luci-i18n-nikki-${lang}"
+	done
 fi
 
-echo "success"
+echo "success" 

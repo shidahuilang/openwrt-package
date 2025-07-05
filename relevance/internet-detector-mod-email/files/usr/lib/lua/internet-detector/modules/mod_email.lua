@@ -86,7 +86,7 @@ function Module:init(t)
 		self._enabled = true
 	else
 		self._enabled = false
-		self.syslog("warning", string.format("%s: %s is not available", self.name, self.mta))
+		self.syslog("err", string.format("%s: %s is not available", self.name, self.mta))
 	end
 
 	if (not self.mailRecipient or
@@ -162,6 +162,7 @@ function Module:run(currentStatus, lastStatus, timeDiff, timeNow, inetChecked)
 	if not self._enabled then
 		return
 	end
+
 	if currentStatus == 1 then
 		self._aliveCounter   = 0
 		self._msgSentConnect = false
