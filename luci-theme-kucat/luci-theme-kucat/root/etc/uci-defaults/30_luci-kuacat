@@ -8,8 +8,7 @@ uci batch <<-EOF
 EOF
 fi
 chmod +x /usr/libexec/kucat/kucat*
-if [ ! -s "/etc/config/advancedplus" ];then
-[ ! -s "/etc/config/kucat" ] && {
+
 cat <<-EOF >/etc/config/kucat
 config basic
 	option gouser 'admin'
@@ -34,12 +33,10 @@ config basic
 	option font_z '0.92rem'
 	option font_x '0.875rem'
 	option tsoset '1'
-	option set_ttyd '1'
+	option set_login '0'
 	option set_firewall_wan '1'
 	option dhcp_domain '1'
 
 EOF
-}
-fi
 rm -rf /tmp/luci-*
 exit 0
