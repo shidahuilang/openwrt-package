@@ -1,6 +1,7 @@
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=luci-app-ssr-plus
+LUCI_TITLE:=luci-app-ssr-plus
+LUCI_PKGARCH:=all
 PKG_VERSION:=190
 PKG_RELEASE:=1
 
@@ -70,6 +71,7 @@ LUCI_DEPENDS:= \
 
 define Package/$(PKG_NAME)/config
 select PACKAGE_luci-lib-ipkg if PACKAGE_$(PKG_NAME)
+select PACKAGE_luci-lua-runtime if PACKAGE_$(PKG_NAME)
 
 choice
 	prompt "Shadowsocks Client Selection"
