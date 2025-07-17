@@ -289,17 +289,6 @@ function gen_outbound(flag, node, tag, proxy_table)
 			}
 		end
 
-		if node.protocol == "shadowsocksr" then
-			protocol_table = {
-				method = node.method or nil,
-				password = node.password or "",
-				obfs = node.ssr_obfs,
-				obfs_param = node.ssr_obfs_param,
-				protocol = node.ssr_protocol,
-				protocol_param = node.ssr_protocol_param,
-			}
-		end
-
 		if node.protocol == "trojan" then
 			protocol_table = {
 				password = node.password,
@@ -1700,7 +1689,8 @@ function gen_config(var)
 			if remote_dns_fake then
 				table.insert(dns.rules, {
 					query_type = { "A", "AAAA" },
-					server = fakedns_tag
+					server = fakedns_tag,
+					disable_cache = true
 				})
 			end
 		end
