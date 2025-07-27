@@ -445,7 +445,7 @@ msgstr "负载均衡策略"
 msgid "Fallback Node"
 msgstr "后备节点"
 
-msgid "Use Custome Probe URL"
+msgid "Use Custom Probe URL"
 msgstr "使用自定义探测网址"
 
 msgid "By default the built-in probe URL will be used, enable this option to use a custom probe URL."
@@ -1712,16 +1712,10 @@ msgid "Protocol parameter. Enable length block encryption."
 msgstr "协议参数。启用长度块加密。"
 
 msgid "ECH Config"
-msgstr "ECH 密钥"
-
-msgid "ECH Key"
 msgstr "ECH 配置"
 
-msgid "PQ signature schemes"
-msgstr "后量子对等证书签名方案"
-
-msgid "Disable adaptive sizing of TLS records"
-msgstr "禁用 TLS 记录的自适应大小调整"
+msgid "ECH Key"
+msgstr "ECH 密钥"
 
 msgid "Enable Multipath TCP, need to be enabled in both server and client configuration."
 msgstr "启用 Multipath TCP，需在服务端和客户端配置中同时启用。"
