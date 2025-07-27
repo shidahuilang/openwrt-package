@@ -7,17 +7,17 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=smartdns
 PKG_VERSION:=1.2025.46.2
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://www.github.com/pymumu/smartdns.git
-PKG_MIRROR_HASH:=7570cff824f4dca0b350f8a42ed64f94604c46d711d803b691e6e3eeefa3f69d
-PKG_SOURCE_VERSION:=130a9c06016d4aa12fede5edc94dc847c81640d7
+PKG_MIRROR_HASH:=53566766cef4204e2c25d85f55d7e891e4b723b353c3600e4ae5c9c84b78668d
+PKG_SOURCE_VERSION:=9e5980ec06cd831283f8e395a27016cbc858e1fb
 
 SMARTDNS_WEBUI_VERSION:=1.0.0
 SMAETDNS_WEBUI_SOURCE_PROTO:=git
 SMARTDNS_WEBUI_SOURCE_URL:=https://github.com/pymumu/smartdns-webui.git
-SMARTDNS_WEBUI_SOURCE_VERSION:=c610c52492b3988e7cee370424013afdf0e7a00b
+SMARTDNS_WEBUI_SOURCE_VERSION:=8950449c67783dfc5f027d62849ba9e284d04254
 SMARTDNS_WEBUI_FILE:=smartdns-webui-$(SMARTDNS_WEBUI_VERSION).tar.gz
 
 PKG_MAINTAINER:=Nick Peng <pymumu@gmail.com>
@@ -93,7 +93,7 @@ define Package/smartdns-ui/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(INSTALL_DIR) $(1)/etc/smartdns/conf.d/
 	$(INSTALL_DIR) $(1)/usr/share/smartdns/wwwroot
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/plugin/smartdns-ui/target/libsmartdns_ui.so $(1)/usr/lib/libsmartdns_ui.so
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/plugin/smartdns-ui/target/smartdns_ui.so $(1)/usr/lib/smartdns_ui.so
 	$(CP) $(PKG_BUILD_DIR)/smartdns-webui/out/* $(1)/usr/share/smartdns/wwwroot
 endef
 
