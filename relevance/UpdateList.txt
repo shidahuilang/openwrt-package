@@ -22,7 +22,6 @@ chinadns-ng
 cloudflared
 clud
 containerd
-cpulimit-ng
 cpulimit
 ddns-scripts_dnspod
 ddnsto
