@@ -10,7 +10,6 @@ ardhome
 assets
 cdnspeedtest
 clud
-cpulimit-ng
 cpulimit
 ddnsto
 doc
