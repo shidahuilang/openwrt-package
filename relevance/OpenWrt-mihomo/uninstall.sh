@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# Nikki's uninstaller
+
 # uninstall
 if [ -x "/bin/opkg" ]; then
 	opkg list-installed luci-i18n-nikki-* | cut -d ' ' -f 1 | xargs opkg remove
