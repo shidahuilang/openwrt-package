@@ -416,7 +416,7 @@ configure_network() {
             done
         }
 
-        if [[ "${wifi_ssid}" != "${old_wifi_ssid}" -o "${wifi_key}" != "${old_wifi_key}" ]]; then
+        if [[ "${wifi_ssid}" != "${old_wifi_ssid}" || "${wifi_key}" != "${old_wifi_key}" ]]; then
                 test -n "${wifi_ssid}" && {
                     for radio in radio0 radio1 radio2 radio3; do
                         wifi_setup_radio ${radio}
