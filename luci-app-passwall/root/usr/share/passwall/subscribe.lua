@@ -1037,7 +1037,7 @@ local function processData(szType, content, add_mode, add_from)
 
 			result.encryption = params.encryption or "none"
 
-			result.flow = params.flow or nil
+			result.flow = params.flow and params.flow:gsub("-udp443", "") or nil
 
 			if result.type == "sing-box" and (result.transport == "mkcp" or result.transport == "xhttp" or result.transport == "splithttp") then
 				log("跳过节点:" .. result.remarks .."，因Sing-Box不支持" .. szType .. "协议的" .. result.transport .. "传输方式，需更换Xray。")
@@ -1191,7 +1191,7 @@ local function processData(szType, content, add_mode, add_from)
 			
 			result.encryption = params.encryption or "none"
 
-			result.flow = params.flow or nil
+			result.flow = params.flow and params.flow:gsub("-udp443", "") or nil
 
 			result.tls = "0"
 			if params.security == "tls" or params.security == "reality" then
@@ -1269,7 +1269,6 @@ local function processData(szType, content, add_mode, add_from)
 		else
 			result.address = host_port
 		end
-		result.protocol = params.protocol
 		result.hysteria_obfs = params.obfsParam
 		result.hysteria_auth_type = "string"
 		result.hysteria_auth_password = params.auth
