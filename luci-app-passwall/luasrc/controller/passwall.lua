@@ -448,6 +448,9 @@ function clear_all_nodes()
 	end)
 	uci:foreach(appname, "subscribe_list", function(t)
 		uci:delete(appname, t[".name"], "md5")
+		uci:delete(appname, t[".name"], "chain_proxy")
+		uci:delete(appname, t[".name"], "preproxy_node")
+		uci:delete(appname, t[".name"], "to_node")
 	end)
 
 	api.uci_save(uci, appname, true, true)
@@ -516,6 +519,16 @@ function delete_select_nodes()
 			end
 			if t["fallback_node"] == w then
 				uci:delete(appname, t[".name"], "fallback_node")
+			end
+		end)
+		uci:foreach(appname, "subscribe_list", function(t)
+			if t["preproxy_node"] == w then
+				uci:delete(appname, t[".name"], "preproxy_node")
+				uci:delete(appname, t[".name"], "chain_proxy")
+			end
+			if t["to_node"] == w then
+				uci:delete(appname, t[".name"], "to_node")
+				uci:delete(appname, t[".name"], "chain_proxy")
 			end
 		end)
 		if (uci:get(appname, w, "add_mode") or "0") == "2" then
@@ -633,20 +646,29 @@ function create_backup()
 end
 
 function restore_backup()
+	local result = { status = "error", message = "unknown error" }
 	local ok, err = pcall(function()
 		local filename = http.formvalue("filename")
 		local chunk = http.formvalue("chunk")
 		local chunk_index = tonumber(http.formvalue("chunk_index") or "-1")
 		local total_chunks = tonumber(http.formvalue("total_chunks") or "-1")
-		if not filename or not chunk then
-			http_write_json({ status = "error", message = "Missing filename or chunk" })
+		if not filename then
+			result = { status = "error", message = "Missing filename" }
+			return
+		end
+		if not chunk then
+			result = { status = "error", message = "Missing chunk data" }
 			return
 		end
 		local file_path = "/tmp/" .. filename
 		local decoded = nixio.bin.b64decode(chunk)
+		if not decoded then
+			result = { status = "error", message = "Base64 decode failed" }
+			return
+		end
 		local fp = io.open(file_path, "a+")
 		if not fp then
-			http_write_json({ status = "error", message = "Failed to open file for writing: " .. file_path })
+			result = { status = "error", message = "Failed to open file: " .. file_path }
 			return
 		end
 		fp:write(decoded)
@@ -667,19 +689,21 @@ function restore_backup()
 				api.log(" * 重启 PassWall 服务中…\n")
 				luci.sys.call('/etc/init.d/passwall restart > /dev/null 2>&1 &')
 				luci.sys.call('/etc/init.d/passwall_server restart > /dev/null 2>&1 &')
+				result = { status = "success", message = "Upload completed", path = file_path }
 			else
 				api.log(" * PassWall 配置文件解压失败，请重试！")
+				result = { status = "error", message = "Decompression failed" }
 			end
 			luci.sys.call("rm -rf " .. temp_dir)
 			fs.remove(file_path)
-			http_write_json({ status = "success", message = "Upload completed", path = file_path })
 		else
-			http_write_json({ status = "success", message = "Chunk received" })
+			result = { status = "success", message = "Chunk received" }
 		end
 	end)
 	if not ok then
-		http_write_json({ status = "error", message = tostring(err) })
+		result = { status = "error", message = tostring(err) }
 	end
+	http_write_json(result)
 end
 
 function geo_view()
