@@ -78,7 +78,6 @@ luci-app-istoreenhance
 luci-app-istorex
 luci-app-linkease
 luci-app-lucky
-luci-app-mentohust
 luci-app-mosdns
 luci-app-msd_lite
 luci-app-mwan3helper
@@ -133,7 +132,6 @@ luci-lib-iform
 luci-lib-nixio
 luci-nginxer
 lucky
-mentohust
 mosdns
 mosdnszz
 msd_lite
