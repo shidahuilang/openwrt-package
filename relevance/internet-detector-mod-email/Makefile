@@ -5,8 +5,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=internet-detector-mod-email
-PKG_VERSION:=1.6.3
-PKG_RELEASE:=20
+PKG_VERSION:=1.6.4
+PKG_RELEASE:=21
 PKG_MAINTAINER:=gSpot <https://github.com/gSpotx2f/luci-app-internet-detector>
 
 include $(INCLUDE_DIR)/package.mk
