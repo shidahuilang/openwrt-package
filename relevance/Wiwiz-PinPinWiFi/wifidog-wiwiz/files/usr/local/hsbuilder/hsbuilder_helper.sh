@@ -18,6 +18,11 @@ if [ "$LANDEV" == "" ]; then
 	LANDEV=br-lan
 fi
 
+log1() {
+	echo "$1" >>$LOGFILE
+	logger -t 'hshelper' "$1"
+}
+
 getIP() {
 	_mac="$1"
 
@@ -28,13 +33,13 @@ getIP() {
 passAuthed() {
 	HID=$(uci get wiwiz.portal.hotspotid 2>/dev/null)
 	if [ "$HID" = "" ]; then
-		echo "Helper: passAuthed() unable to get hotspot_id." >>$LOGFILE
+		log1 "Helper: passAuthed() unable to get hotspot_id."
 		return
 	fi
 	
 	AS_HOSTNAME_X=$(uci get wiwiz.portal.server 2>/dev/null)
 	if [ "$AS_HOSTNAME_X" = "" ]; then
-		echo "Helper: passAuthed() unable to get AS_HOSTNAME_X." >>$LOGFILE
+		log1 "Helper: passAuthed() unable to get AS_HOSTNAME_X."
 		return
 	fi
 	
@@ -53,7 +58,7 @@ passAuthed() {
 		
 		if [ "$ip" != "" ]; then
 			wdctl auth "$mac" "$ip" "$token"
-			echo "Helper: passAuthed() auth $mac $ip $token." >>$LOGFILE
+			log1 "Helper: passAuthed() auth $mac $ip $token."
 		fi
 	done
 	
@@ -94,7 +99,7 @@ if [ "$1" = "-dest" ]; then
 	fi
 	shift 2
 fi
-echo "hsbuilder_helper.sh: $(date)" >> $LOGFILE
+log1 "hsbuilder_helper.sh started: $(date)"
 
 WDLOG=$(uci get wiwiz.portal.wdlog 2>/dev/null)
 if [ "$WDLOG" = "1" ]; then
@@ -112,7 +117,7 @@ if [ "$_s" == "" ]; then
 	sleep 3
 	$WIFIDOG_START
 #	wdctl restart
-	echo "Helper: $(date) Wifidog not respond. Restarted." >>$LOGFILE
+	log1 "Helper: $(date) Wifidog not respond. Restarted."
 #		sleep 5
 #		passAuthed
 	exit 0
@@ -137,7 +142,7 @@ if [ "$IS_LOAD_HIGH" = "true" ]; then
 	sleep 3
 	$WIFIDOG_START
 #	wdctl restart
-	echo "Helper: $(date) Wifidog too busy! Restarted (wdctl). LOAD=$LOAD" >>$LOGFILE
+	log1 "Helper: $(date) Wifidog too busy! Restarted (wdctl). LOAD=$LOAD"
 #	sleep 5
 #	passAuthed
 	exit 0
@@ -149,7 +154,7 @@ if [ "$_p" = "" ]; then
 	#	cp -f $DEST/usr/local/hsbuilder/wifidog.conf $WIFIDOG_CONFPATH/wifidog.conf
 	#fi
 	$WIFIDOG_START
-	echo "Helper: $(date) Wifidog not running! Started." >>$LOGFILE
+	log1 "Helper: $(date) Wifidog not running! Started."
 #	sleep 5
 #	passAuthed
 	exit 0
@@ -163,7 +168,7 @@ else
 		done
 		
 		$WIFIDOG_START
-		echo "Helper: $(date) All Wifidogs killed and restarted" >>$LOGFILE
+		log1 "Helper: $(date) Wifidog not running! Restarted."
 #		sleep 5
 #		passAuthed
 		exit 0
@@ -175,7 +180,7 @@ if [ "$_p" = "" ]; then
 	killall -9 wifidog 2>/dev/null
 	sleep 3
 	$WIFIDOG_START
-	echo "Helper: $(date) Firewall not ok, wifidog restarted." >>$LOGFILE
+	log1 "Helper: $(date) Firewall not ok, wifidog restarted."
 	exit 0	
 fi
 
@@ -191,6 +196,6 @@ fi
 #	exit 0
 #fi
 
-echo "hsbuilder_helper.sh: done." >> $LOGFILE
+log1 "hsbuilder_helper.sh: done."
 
 exit 0

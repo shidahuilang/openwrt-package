@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=wifidog-wiwiz
-PKG_VERSION:=20250617
+PKG_VERSION:=20250909
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 
 PKG_FIXUP:=autoreconf
@@ -88,6 +88,7 @@ define Package/wifidog-wiwiz/install
 	$(INSTALL_BIN) ./files/www/cgi-bin/cpi $(1)/www/cgi-bin/cpi
 	$(INSTALL_DATA) ./files/www/index.html.wiwiz $(1)/www/index.html.wiwiz
 	$(INSTALL_DATA) ./files/www/error.html.wiwiz $(1)/www/error.html.wiwiz
+	$(INSTALL_DATA) ./files/www/mymac.htm $(1)/www/mymac.htm
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(INSTALL_BIN) ./files/etc/uci-defaults/199-noredir $(1)/etc/uci-defaults/199-noredir
 
