@@ -37,6 +37,17 @@ NORESOLVE="false"
 
 ENVINFO_SENT='0'
 
+log2() {
+		echo "$1" >&2
+		echo "$1" >>$LOGFILE
+		logger -t 'hsbuilder' "$1"
+}
+
+log1() {
+	echo "$1" >>$LOGFILE
+	logger -t 'hsbuilder' "$1"
+}
+
 doConfig() {
 	SURL="$1"
 	NR="$2"
@@ -213,15 +224,13 @@ fi
 while :
 do
 	if [ -e "$ADDRLIST" ]; then
-		echo "Another process is running." >&2
-		echo "Another process is running." >>$LOGFILE
+		log2 "Another process is running."
 		#exit 5
 		continue
 	fi
 
 	if [ ! -e "$CONFPATH" ]; then
-		echo "Configuration File Not Exist." >&2
-		echo "Configuration File Not Exist." >>$LOGFILE
+		log2 "Configuration File Not Exist."
 		#exit 1
 		continue
 	fi
@@ -238,7 +247,7 @@ do
 	if [ "$ENABLED" != "1" ]; then
 		_p=$(ps | grep wifidog | grep -v grep 2>/dev/null)
 		if [ "$_p" != "" ]; then
-			echo "wiwiz disabled, wifidog shutting down " >>$LOGFILE
+			log1 "wiwiz disabled, wifidog shutting down "
 			wdctl stop
 			
 			#uci get network.lan.ipv6 1>/dev/null 2>/dev/null && (uci del network.lan.ipv6 && uci commit)
@@ -288,12 +297,11 @@ do
 	touch $USERBLOCKPORT
 	touch $DOMAINNAME
 	touch $IPLIST.lasttime
-	echo "hsbuilder.sh $MY_VERSION: $(date)" >> $LOGFILE
+	log1 "hsbuilder.sh $MY_VERSION: $(date)"
 
 	AS_HOSTNAME_X=$AS_HOSTNAME
 	if [ "$AS_HOSTNAME_X" = "" ]; then
-		echo "Server is not reachable." >&2
-		echo "Server is not reachable." >>$LOGFILE
+		log2 "Server is not reachable."
 		#exit 4
 		continue
 	fi
@@ -312,8 +320,7 @@ do
 		rm -f $BLOCKPORT
 		rm -f $USERBLOCKPORT
 		rm -f $DOMAINNAME
-		echo "Configuration Data Download and Setup Failed." >&2
-		echo "Configuration Data Download and Setup Failed." >>$LOGFILE
+		log2 "Configuration Data Download and Setup Failed."
 		#exit 2
 		sleep 2
 		continue
@@ -412,11 +419,10 @@ do
 		# back up iplist
 		cp -f $IPLIST $IPLIST.lasttime
 		
-		echo "Wifidog conf file changed." >>$LOGFILE
+		log1 "Wifidog conf file changed."
 	fi
 
-
-	echo "hsbuilder.sh: done." >>$LOGFILE
+	log1 "hsbuilder.sh: done."
 
 	sleep 3
 	rm -f $WD_CONF_TMP
