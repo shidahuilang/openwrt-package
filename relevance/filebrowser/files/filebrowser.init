@@ -28,8 +28,12 @@ start_service() {
 	procd_append_param command --address "[::]"
 	procd_append_param command --port "$listen_port"
 	procd_append_param command --root "$root_path"
+	procd_append_param command --disable-exec="$disable_exec"
 	[ -z "$base_url" ] || procd_append_param command --baseurl "$base_url"
-	[ "$disable_exec" = "0" ] || procd_append_param command --disable-exec
+	if [ ! -e "$DB_PATH" ]; then
+		procd_append_param command --username "admin"
+		procd_append_param command --password "$("$PROG" hash "admin")"
+	fi
 
 	procd_set_param limits core="unlimited"
 	procd_set_param limits nofile="1000000 1000000"
