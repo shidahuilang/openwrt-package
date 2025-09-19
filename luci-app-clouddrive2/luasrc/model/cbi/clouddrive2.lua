@@ -14,8 +14,8 @@ o.rmempty = false
 o = s:option(Value, "port", translate("Port"))
 o.datatype = "port"
 o.default = "19798"
-
-o = s:option(Value, "mount_point", translate("Mount Point"))
-o.default = "/mnt/clouddrive"
+-- 
+-- o = s:option(Value, "mount_point", translate("Mount Point"))
+-- o.default = "/mnt/clouddrive"
 
 return m

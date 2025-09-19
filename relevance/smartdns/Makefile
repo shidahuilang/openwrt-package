@@ -1,23 +1,23 @@
 #
-# Copyright (c) 2018-2023 Nick Peng (pymumu@gmail.com)
+# Copyright (c) 2018-2025 Nick Peng (pymumu@gmail.com)
 # This is free software, licensed under the GNU General Public License v3.
 #
 
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=smartdns
-PKG_VERSION:=1.2025.46.2
-PKG_RELEASE:=5
+PKG_VERSION:=1.2025.47
+PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://www.github.com/pymumu/smartdns.git
-PKG_MIRROR_HASH:=a7edb052fea61418c91c7a052f7eb1478fe6d844aec5e3eda0f2fcf82de29a10
-PKG_SOURCE_VERSION:=4027503602c1dab32d2df5b8a471bc5778d1a536
+PKG_MIRROR_HASH:=deb3ba1a8ca88fb7294acfb46c5d8881dfe36e816f4746f4760245907ebd0b98
+PKG_SOURCE_VERSION:=0f1912ab020ea9a60efac4732442f0bb7093f40b
 
 SMARTDNS_WEBUI_VERSION:=1.0.0
 SMARTDNS_WEBUI_SOURCE_PROTO:=git
 SMARTDNS_WEBUI_SOURCE_URL:=https://github.com/pymumu/smartdns-webui.git
-SMARTDNS_WEBUI_SOURCE_VERSION:=95f5d622fd014713aa2991190cbb62a2d58024b5
+SMARTDNS_WEBUI_SOURCE_VERSION:=c322303eac2ebee389f4a72a002163552e552f74
 SMARTDNS_WEBUI_FILE:=smartdns-webui-$(SMARTDNS_WEBUI_VERSION).tar.gz
 
 PKG_MAINTAINER:=Nick Peng <pymumu@gmail.com>
@@ -26,7 +26,7 @@ PKG_LICENSE_FILES:=LICENSE
 
 PKG_BUILD_PARALLEL:=1
 
-# node compile is slow, so do not use it, doownload node manually.
+# node compile is slow, so do not use it, download node manually.
 # PACKAGE_smartdns-ui:node/host
 PKG_BUILD_DEPENDS:=PACKAGE_smartdns-ui:rust/host 
 
@@ -115,7 +115,7 @@ define Download/smartdns-webui
 	FILE:=$(SMARTDNS_WEBUI_FILE)
 	PROTO:=$(SMARTDNS_WEBUI_SOURCE_PROTO)
 	URL:=$(SMARTDNS_WEBUI_SOURCE_URL)
-	MIRROR_HASH:=a1c084dcc4fb7f87641d706b70168fc3c159f60f37d4b7eac6089ae68f0a18a1
+	MIRROR_HASH:=29970b932d9abdb2a53085d71b4f4964ec3291d8d7c49794a04f2c35fbc6b665
 	VERSION:=$(SMARTDNS_WEBUI_SOURCE_VERSION)
 	HASH:=$(SMARTDNS_WEBUI_HASH)
 	SUBDIR:=smartdns-webui
