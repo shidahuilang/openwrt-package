@@ -43,7 +43,7 @@ function renderStatus(isRunning) {
 
 function uploadCertificate(type, filename, ev) {
 	return ui.uploadFile('/usr/share/unblockneteasemusic/' + filename, ev.target)
-	.then(L.bind(function(btn, res) {
+	.then(L.bind((btn, res) => {
 		btn.firstChild.data = _('检查 %s 中...').format(type);
 
 		if (res.size <= 0) {
@@ -53,8 +53,8 @@ function uploadCertificate(type, filename, ev) {
 
 		ui.addNotification(null, E('p', _('您的 %s 已成功上传。大小：%sB。').format(type, res.size)));
 	}, this, ev.target))
-	.catch(function(e) { ui.addNotification(null, E('p', e.message)) })
-	.finally(L.bind(function(btn, input) {
+	.catch((e) => { ui.addNotification(null, E('p', e.message)) })
+	.finally(L.bind((btn, input) => {
 		btn.firstChild.data = _('上传...');
 	}, this, ev.target));
 }
@@ -78,7 +78,7 @@ return view.extend({
 		if (!L.hasSystemFeature('firewall4')) {
 			s = m.section(form.TypedSection);
 			s.anonymous = true;
-			s.render = () => {
+			s.render = function() {
 				this.handleSaveApply = null;
 				this.handleSave = null;
 				this.handleReset = null;
@@ -95,8 +95,8 @@ return view.extend({
 		s = m.section(form.TypedSection);
 		s.anonymous = true;
 		s.render = function() {
-			poll.add(function() {
-				return L.resolveDefault(getServiceStatus()).then(function(res) {
+			poll.add(() => {
+				return L.resolveDefault(getServiceStatus()).then((res) => {
 					let view = document.getElementById('service_status');
 					view.innerHTML = renderStatus(res);
 				});
@@ -117,6 +117,7 @@ return view.extend({
 			_('留空以使用默认音源。'));
 		o.value('bilibili', _('Bilibili 音乐'));
 		o.value('bilivideo', _('Bilibili 音乐 (bilivideo)'));
+		o.value('bodian', _('波点音乐'));
 		o.value('joox', _('JOOX 音乐'));
 		o.value('kugou', _('酷狗音乐'));
 		o.value('kuwo', _('酷我音乐'));
@@ -153,7 +154,7 @@ return view.extend({
 
 		o = s.option(form.Value, 'youtube_key', _('Youtube API Key'),
 			_('API Key 申请地址：https://developers.google.com/youtube/v3/getting-started#before-you-start'));
-
+		o.password = true;
 		o.depends({'music_source': 'youtube', '!contains': true});
 
 		o = s.option(form.Flag, 'follow_source_order', _('顺序查询'),
@@ -218,7 +219,7 @@ return view.extend({
 		o.inputstyle = 'apply';
 		o.inputtitle = _('下载 ca.crt');
 		o.onclick = function() {
-			return fs.read_direct('/usr/share/unblockneteasemusic/core/ca.crt', 'blob').then(function(blob) {
+			return fs.read_direct('/usr/share/unblockneteasemusic/core/ca.crt', 'blob').then((blob) => {
 				let url = window.URL.createObjectURL(blob);
 				let link = E('a', { 'style': 'display:none', 'href': url, 'download': 'ca.crt' });
 
@@ -226,7 +227,7 @@ return view.extend({
 				link.click();
 				document.body.removeChild(link);
 				window.URL.revokeObjectURL(url);
-			}).catch(function(err) {
+			}).catch((err) => {
 				ui.addNotification(null, E('p', [ _('下载文件失败：%s。').format(err.message) ]));
 			});
 		}
@@ -335,7 +336,7 @@ return view.extend({
 
 		o = s.option(form.Value, 'mac_addr', _('MAC 地址'));
 		o.datatype = 'macaddr';
-		Object.keys(hosts).forEach(function(mac) {
+		Object.keys(hosts).forEach((mac) => {
 			let hint = hosts[mac].name || L.toArray(hosts[mac].ipaddrs || hosts[mac].ipv4)[0];
 			o.value(mac, hint ? '%s (%s)'.format(mac, hint) : mac);
 		});
