@@ -15,7 +15,6 @@ ddnsto
 doc
 ffmpeg-remux
 filebrowser
-go-aliyundrive-webdav
 gost
 istoreenhance
 kcptun
