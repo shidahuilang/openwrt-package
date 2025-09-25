@@ -217,6 +217,10 @@ start_service() {
 	procd_close_instance
 }
 
+service_started() {
+	procd_set_config_changed firewall
+}
+
 stop_service() {
 	config_load "$NAME"
 
