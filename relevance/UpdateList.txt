@@ -16,7 +16,6 @@ doc
 eqos-master-wiwiz
 ffmpeg-remux
 filebrowser
-go-aliyundrive-webdav
 gost
 internet-detector-mod-email
 istoreenhance
