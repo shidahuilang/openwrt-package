@@ -70,7 +70,6 @@ luci-app-pppoe-server
 luci-app-pushbot
 luci-app-quickstart
 luci-app-rclone
-luci-app-sakurafrp
 luci-app-shutdown
 luci-app-smartdns
 luci-app-smartinfo
