@@ -7,7 +7,7 @@
 include $(TOPDIR)/rules.mk
 
 LUCI_TITLE:=cpulimit configuration module
-LUCI_DEPENDS:=+cpulimit
+LUCI_DEPENDS:=+luci-compat +cpulimit
 
 include $(TOPDIR)/feeds/luci/luci.mk
 
