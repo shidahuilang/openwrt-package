@@ -16,6 +16,7 @@ doc
 eqos-master-wiwiz
 ffmpeg-remux
 filebrowser
+frp
 gost
 internet-detector-mod-email
 istoreenhance
