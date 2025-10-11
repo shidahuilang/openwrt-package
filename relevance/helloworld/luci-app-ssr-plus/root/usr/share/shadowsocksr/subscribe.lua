@@ -1179,17 +1179,45 @@ local execute = function()
 								if result then
 									-- 中文做地址的 也没有人拿中文域名搞，就算中文域也有Puny Code SB 机场
 									if not result.server or not result.server_port
+										or result.server == "127.0.0.1"
 										or result.alias == "NULL"
 										or check_filer(result)
 										or result.server:match("[^0-9a-zA-Z%-_%.%s]")
-										or cache[groupHash][result.hashkey]
 									then
 										log('丢弃无效节点: ' .. result.alias)
 									else
 										-- log('成功解析: ' .. result.type ..' 节点, ' .. result.alias)
+										-- 统一标记 grouphashkey
 										result.grouphashkey = groupHash
-										tinsert(nodeResult[index], result)
-										cache[groupHash][result.hashkey] = nodeResult[index][#nodeResult[index]]
+										-- 初始化缓存
+										cache[groupHash] = cache[groupHash] or {}
+										-- 初始化 hashkey 对应的节点数组
+										cache[groupHash][result.hashkey] = cache[groupHash][result.hashkey] or {}
+
+										-- 初始化 nodeResult[index]
+										nodeResult[index] = nodeResult[index] or {}
+
+										-- 检查是否有完全重复（hashkey + alias）节点
+										local is_duplicate = nil
+										for i, r in ipairs(cache[groupHash][result.hashkey]) do
+											if r.alias == result.alias then
+									       		is_duplicate = i
+										   		break
+											end
+										end
+
+										if is_duplicate then
+											-- 已经存在完全重复节点，直接丢弃其他重复节点
+											log('丢弃重复节点: ' .. result.alias)
+											return
+										else
+											-- **直接覆盖缓存中同 hashkey 的节点**
+											cache[groupHash][result.hashkey] = {result} 
+											-- 将节点加入 nodeResult
+											table.insert(nodeResult[index], result)
+											-- 更新 hashkey 对应的节点数量
+											cache_count[groupHash][result.hashkey] = #cache[groupHash][result.hashkey]
+										end
 									end
 								end
 							end, function(err)
