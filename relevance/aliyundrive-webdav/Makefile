@@ -6,14 +6,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=aliyundrive-webdav
-PKG_VERSION:=2.3.2
+PKG_VERSION:=2.3.3
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://github.com/messense/aliyundrive-webdav.git
-PKG_SOURCE_VERSION:=7ba03f68fd5200802000997548a4a2b33b404324
-PKG_MIRROR_HASH:=05826a036c266d58c784b08b59f6c948857947b78da3e76ed9847bd69a7d7d4b
+PKG_SOURCE_VERSION:=6e8eba62b4e50acf89681e3a67a3a693186dcd05
+PKG_MIRROR_HASH:=b6b1099c90818c5eb322bdae105d3df8d7a954d6e9ee7798c3c2412eed528640
 
 PKG_LICENSE:=MIT
 PKG_MAINTAINER:=messense <messense@icloud.com>
@@ -46,9 +46,9 @@ define Package/aliyundrive-webdav/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/target/$(RUSTC_TARGET_ARCH)/release/aliyundrive-webdav $(1)/usr/bin/
 
 	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) ./files/aliyundrive-webdav.init $(1)/etc/init.d/aliyundrive-webdav
+	$(INSTALL_BIN) $(CURDIR)/files/aliyundrive-webdav.init $(1)/etc/init.d/aliyundrive-webdav
 	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_CONF) ./files/aliyundrive-webdav.config $(1)/etc/config/aliyundrive-webdav
+	$(INSTALL_CONF) $(CURDIR)/files/aliyundrive-webdav.config $(1)/etc/config/aliyundrive-webdav
 endef
 
 $(eval $(call BuildPackage,aliyundrive-webdav))
