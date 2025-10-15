@@ -1,5 +1,5 @@
 m = Map("rtty", translate("Wiwiz"),
-translate("DCC2 Ver 1.2.4 <a href='http://www.wiwiz.com/pinpinwifi/wiwiz-ipk.htm' target='_blank'>Readme</a>")) 
+translate("DCC2 Ver 1.2.5 <a href='http://www.wiwiz.com/pinpinwifi/wiwiz-ipk.htm' target='_blank'>Readme</a>")) 
 
 rtty = m:section(TypedSection, "rtty", "")
 
