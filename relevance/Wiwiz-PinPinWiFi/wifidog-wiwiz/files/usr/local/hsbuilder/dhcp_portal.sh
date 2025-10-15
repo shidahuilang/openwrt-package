@@ -16,7 +16,7 @@ fi
 dof=$(uci get dhcp.$NETIF.dhcp_option_force 2>/dev/null)
 if [ "$dof" != "" ]; then
     for op in $dof; do
-        is_114=$(echo "$op" | grep -F "114," | grep "$HOST")
+        is_114=$(echo "$op" | grep -F "114,")
         if [ ! -z "$is_114" ]; then
             uci del_list dhcp.$NETIF.dhcp_option_force="$op"
         fi

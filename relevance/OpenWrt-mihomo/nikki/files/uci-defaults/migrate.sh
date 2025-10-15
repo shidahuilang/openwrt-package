@@ -190,6 +190,27 @@ proxy_reserved_ip6=$(uci -q get nikki.proxy.reserved_ip6); [ -z "$proxy_reserved
 	uci add_list nikki.proxy.reserved_ip6=ff00::/8
 }
 
+# since v1.24.3
+
+proxy_bypass_china_mainland_ip=$(uci -q get nikki.proxy.bypass_china_mainland_ip)
+proxy_bypass_china_mainland_ip6=$(uci -q get nikki.proxy.bypass_china_mainland_ip6)
+[ -z "$proxy_bypass_china_mainland_ip6" ] && uci set nikki.proxy.bypass_china_mainland_ip6=$proxy_bypass_china_mainland_ip
+
+routing_tproxy_fw_mask=$(uci -q get nikki.routing.tproxy_fw_mask); [ -z "$routing_tproxy_fw_mask" ] && uci set nikki.routing.tproxy_fw_mask=0xFF
+routing_tun_fw_mask=$(uci -q get nikki.routing.tun_fw_mask); [ -z "$routing_tun_fw_mask" ] && uci set nikki.routing.tun_fw_mask=0xFF
+
+procd=$(uci -q get nikki.procd); [ -z "$procd" ] && {
+	uci set nikki.procd=procd
+	uci set nikki.procd.fast_reload=$(uci -q get nikki.config.fast_reload)
+	uci set nikki.procd.env_safe_paths=$(uci -q get nikki.env.safe_paths)
+	uci set nikki.procd.env_disable_loopback_detector=$(uci -q get nikki.env.disable_loopback_detector)
+	uci set nikki.procd.env_disable_quic_go_gso=$(uci -q get nikki.env.disable_quic_go_gso)
+	uci set nikki.procd.env_disable_quic_go_ecn=$(uci -q get nikki.env.disable_quic_go_ecn)
+	uci set nikki.procd.env_skip_system_ipv6_check=$(uci -q get nikki.env.skip_system_ipv6_check)
+	uci del nikki.config.fast_reload
+	uci del nikki.env
+}
+
 # commit
 uci commit nikki
 
