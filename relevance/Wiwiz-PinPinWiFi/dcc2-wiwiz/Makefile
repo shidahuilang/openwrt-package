@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=dcc2-wiwiz
-PKG_VERSION:=20241125
+PKG_VERSION:=20251015
 PKG_RELEASE:=1
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
@@ -23,17 +23,17 @@ define Package/dcc2-wiwiz/Default
   PROVIDES:=dcc2-wiwiz
 endef
 
-Package/dcc2-wiwiz-openssl=$(call Package/dcc2-wiwiz/Default,openssl,+PACKAGE_dcc2-wiwiz-openssl:libopenssl)
-Package/dcc2-wiwiz-wolfssl=$(call Package/dcc2-wiwiz/Default,wolfssl,+PACKAGE_dcc2-wiwiz-wolfssl:libwolfssl)
-Package/dcc2-wiwiz-mbedtls=$(call Package/dcc2-wiwiz/Default,mbedtls,+PACKAGE_dcc2-wiwiz-mbedtls:libmbedtls +PACKAGE_dcc2-wiwiz-mbedtls:zlib)
+#Package/dcc2-wiwiz-openssl=$(call Package/dcc2-wiwiz/Default,openssl,+PACKAGE_dcc2-wiwiz-openssl:libopenssl)
+#Package/dcc2-wiwiz-wolfssl=$(call Package/dcc2-wiwiz/Default,wolfssl,+PACKAGE_dcc2-wiwiz-wolfssl:libwolfssl)
+#Package/dcc2-wiwiz-mbedtls=$(call Package/dcc2-wiwiz/Default,mbedtls,+PACKAGE_dcc2-wiwiz-mbedtls:libmbedtls +PACKAGE_dcc2-wiwiz-mbedtls:zlib)
 Package/dcc2-wiwiz-nossl=$(call Package/dcc2-wiwiz/Default,nossl)
 
 define Package/dcc2-wiwiz-openssl/conffiles
 /etc/config/rtty
 endef
 
-Package/dcc2-wiwiz-wolfssl/conffiles = $(Package/dcc2-wiwiz-openssl/conffiles)
-Package/dcc2-wiwiz-mbedtls/conffiles = $(Package/dcc2-wiwiz-openssl/conffiles)
+#Package/dcc2-wiwiz-wolfssl/conffiles = $(Package/dcc2-wiwiz-openssl/conffiles)
+#Package/dcc2-wiwiz-mbedtls/conffiles = $(Package/dcc2-wiwiz-openssl/conffiles)
 Package/dcc2-wiwiz-nossl/conffiles = $(Package/dcc2-wiwiz-openssl/conffiles)
 
 ifeq ($(BUILD_VARIANT),openssl)
@@ -89,7 +89,7 @@ uci -q get ucitrack.@rtty[0] > /dev/null && {
 }
 endef
 
-$(eval $(call BuildPackage,dcc2-wiwiz-openssl))
-$(eval $(call BuildPackage,dcc2-wiwiz-wolfssl))
-$(eval $(call BuildPackage,dcc2-wiwiz-mbedtls))
+#$(eval $(call BuildPackage,dcc2-wiwiz-openssl))
+#$(eval $(call BuildPackage,dcc2-wiwiz-wolfssl))
+#$(eval $(call BuildPackage,dcc2-wiwiz-mbedtls))
 $(eval $(call BuildPackage,dcc2-wiwiz-nossl))
