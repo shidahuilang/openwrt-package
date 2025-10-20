@@ -20,7 +20,6 @@ frp
 gost
 internet-detector-mod-email
 istoreenhance
-kcptun
 linkease
 linkmount
 luci-app-adguardhome
@@ -101,7 +100,6 @@ mosdnszz
 msd_lite
 nas-packages-luci
 natter
-netdata
 oaf
 open-app-filter
 openwrt-nezha
@@ -111,12 +109,11 @@ openwrt_nezha
 oscam
 p910nd
 packr
-parted
 quickstart
 rclone-ng
 rclone-webui-react
 rclone
-shadowsocks-libev
+shadowsocks-rust
 shadowsocksr-libev
 smartdns
 smartmontools
