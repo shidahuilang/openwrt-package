@@ -117,6 +117,7 @@ rclone-ng
 rclone-webui-react
 rclone
 shadowsocks-libev
+shadowsocksr-libev
 smartdns
 smartmontools
 socat
