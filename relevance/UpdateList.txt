@@ -18,7 +18,6 @@ ffmpeg-remux
 filebrowser
 frp
 gost
-internet-detector-mod-email
 istoreenhance
 linkease
 linkmount
@@ -31,8 +30,6 @@ luci-app-bypass
 luci-app-chatgpt
 luci-app-cifs-mount
 luci-app-clash
-luci-app-clouddrive2
-luci-app-cloudflared
 luci-app-cloudflarespeedtest
 luci-app-control-timewol
 luci-app-control-webrestriction
@@ -58,7 +55,6 @@ luci-app-netdata
 luci-app-netwizard
 luci-app-nezha-agent
 luci-app-nginx-manager
-luci-app-nginx-pingos
 luci-app-nodogsplash
 luci-app-oaf
 luci-app-oled
