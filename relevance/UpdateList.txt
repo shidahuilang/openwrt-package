@@ -155,7 +155,6 @@ rclone-ng
 rclone-webui-react
 rclone
 runc
-shadowsocks-libev
 smartmontools
 socat
 softethervpn
