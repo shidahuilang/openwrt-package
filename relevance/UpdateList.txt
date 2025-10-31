@@ -106,7 +106,6 @@ quickstart
 rclone-ng
 rclone-webui-react
 rclone
-shadowsocks-libev
 smartdns
 smartmontools
 socat
