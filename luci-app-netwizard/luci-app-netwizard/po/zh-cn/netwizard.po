@@ -94,14 +94,6 @@ msgstr "Wan口子网掩码"
 msgid "Wan IPv4 gateway"
 msgstr "Wan口网关"
 
-msgid "DNS Redirect"
-msgstr "DNS 重定向"
-
-msgid "force all TCP/UDP DNS 53ports in IPV4/IPV6 to be forwarded from this route[Suggest opening]"
-msgstr "强制IPV4/IPV6所有TCP/UDP DNS 53端口走此路由解析[建议打开]"
-
-msgid "Custom firewall"
-msgstr "启用自定义规则"
 
 msgid "Use custom Wan DNS"
 msgstr "自定义Wan口的DNS"
@@ -115,11 +107,11 @@ msgstr "禁用DHCP服务器"
 msgid "Force the DNS server in the DHCP server to be specified as the IP for this route"
 msgstr "强制指定DHCP服务器中DNS服务器为此路由的IP"
 
-msgid "Enable IP dynamic camouflage"
-msgstr "启用IP动态伪装"
+msgid "Forcefully forwarding"
+msgstr "强制转发"
 
-msgid "Enable IP dynamic camouflage when the side routing network is not ideal"
-msgstr "启用IP动态伪装，当旁路网络速度不理想时开启"
+msgid "Forcefully add LAN to WAN forwarding"
+msgstr "强制增加lan到wan转发"
 
 msgid "Enable SYN-flood defense"
 msgstr "启用 SYN-flood 防御"
@@ -127,14 +119,15 @@ msgstr "启用 SYN-flood 防御"
 msgid "Enable Firewall SYN-flood defense [Suggest opening]"
 msgstr "启用防火墙SYN-flood防洪攻击[建议打开]"
 
-msgid "Firewall regulations"
-msgstr "防火墙规定"
-
-msgid "Bypass firewall settings, when Xiaomi or Huawei are used as the main router, the WIFI signal cannot be used normally"
-msgstr "旁路防火墙设置,当小米或者华为等做为主路由后WIFI信号无法正常使用开启."
 
 msgid "Show or hide the setup wizard menu. After hiding, you can open the display wizard menu in [Advanced Settings] [Advanced] or use the 3rd function in the background to restore the wizard and default theme."
 msgstr "显示或隐藏设置向导菜单，隐藏后在[进阶设置][高级]可以开启显示向导菜单或在后台用3号功能恢复向导和默认主题。"
 
 msgid "Hide Wizard"
 msgstr "隐藏设置向导"
+
+msgid "Redirect to HTTPS"
+msgstr "重定向到HTTPS"
+
+msgid "Enable automatic redirection of HTTP requests to HTTPS port."
+msgstr "允许自动将HTTP请求重定向至 HTTPS 端口。"

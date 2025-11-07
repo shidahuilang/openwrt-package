@@ -10,7 +10,10 @@ local lan_gateway = uci:get("netwizard", "default", "lan_gateway")
 if lan_gateway ~= "" then
    lan_gateway = sys.exec("ipaddr=`uci -q get network.lan.ipaddr`;echo ${ipaddr%.*}")
 end
-local lan_ip = uci:get("network", "lan", "ipaddr")
+local lan_ip = uci:get("netwizard", "default", "ipaddr")
+if lan_ip ~= "" then
+   lan_ip = sys.exec("ipaddr=`uci -q get network.lan.ipaddr`;echo ${ipaddr%/*}")
+end 
 local landhcp =  uci:get("network", "lan", "lan_dhcp")
 if landhcp ~= "" then
    landhcp = uci:get("dhcp", "lan", "ignore")
@@ -81,7 +84,6 @@ for _, iface in ipairs(ifaces) do
 	end
   end
 end
--- wan_interface.default = wan_face
 
 wan_pppoe_user = s:taboption("wansetup", Value, "wan_pppoe_user", translate("PAP/CHAP username"))
 wan_pppoe_user:depends({wan_proto="pppoe"})
@@ -154,10 +156,11 @@ e:value("1.1.1.1", translate("Cloudflare DNS:1.1.1.1"))
 e.anonymous = false
 e:depends("dnsset", true)
 
-masq = s:taboption("wansetup", Flag, "masq", translate("Enable IP dynamic camouflage"),translate("Enable IP dynamic camouflage when the side routing network is not ideal"))
-masq:depends({wan_proto="siderouter"})
-masq.anonymous = false
-
+e = s:taboption("wansetup", Flag, "forwarding", translate("Forcefully forwarding"),translate("Forcefully add LAN to WAN forwarding"))
+e.default = 1
+e:depends({wan_proto="pppoe"})
+e:depends({wan_proto="dhcp"})
+e:depends({wan_proto="static"})
 if has_wifi then
 	e = s:taboption("wifisetup", Value, "wifi_ssid", translate("<abbr title=\"Extended Service Set Identifier\">ESSID</abbr>"))
 	e.datatype = "maxlength(32)"
@@ -166,19 +169,18 @@ if has_wifi then
 	e.password = true
 end
 
+e = s:taboption("wansetup", Flag, "https", translate("Redirect to HTTPS"),translate("Enable automatic redirection of HTTP requests to HTTPS port."))
+e.default = 0
+e.anonymous = false
+
 synflood = s:taboption("othersetup", Flag, "synflood", translate("Enable SYN-flood defense"),translate("Enable Firewall SYN-flood defense [Suggest opening]"))
 synflood.default = 1
 synflood.anonymous = false
 
--- dns_redirect = s:taboption("othersetup", Flag, "dns_redirect", translate("DNS Redirect"),translate("Force all TCP/UDP DNS 53ports in IPV4/IPV6 to be forwarded from this route[Suggest opening]"))
--- dns_redirect.default = 1
--- dns_redirect.anonymous = false
-
--- e = s:taboption("othersetup", Flag, "https",translate('Accessing using HTTPS'), translate('Open the address in the background and use HTTPS for secure access'))
 
 m.apply_on_parse = true
 m.on_after_apply = function(self,map)
-	luci.sys.exec("/etc/init.d/netwizard start >/dev/null 2>&1")
+	luci.sys.exec("/etc/init.d/netwizard restart >/dev/null 2>&1")
 end
 
 return m
