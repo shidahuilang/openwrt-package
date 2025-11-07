@@ -990,6 +990,7 @@ add_firewall_rule() {
 	$ipt_m -N PSW
 	$ipt_m -A PSW $(dst $IPSET_LAN) -j RETURN
 	$ipt_m -A PSW $(dst $IPSET_VPS) -j RETURN
+	$ipt_m -A PSW -m conntrack --ctdir REPLY -j RETURN
 	
 	[ ! -z "${WAN_IP}" ] && {
 		$ipt_m -A PSW $(comment "WAN_IP_RETURN") -d "${WAN_IP}" -j RETURN
@@ -1066,7 +1067,6 @@ add_firewall_rule() {
 	unset WAN6_IP
 
 	insert_rule_before "$ip6t_m" "PREROUTING" "mwan3" "-j PSW"
-	insert_rule_before "$ip6t_m" "PREROUTING" "PSW" "-p tcp -m socket -j PSW_DIVERT"
 
 	$ip6t_m -N PSW_OUTPUT
 	$ip6t_m -A PSW_OUTPUT -m mark --mark 0xff -j RETURN
