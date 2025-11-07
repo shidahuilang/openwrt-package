@@ -30,10 +30,9 @@ setipv6() {
                 set network.lan.delegate='0'
                 set network.wan.ipv6='0'
                 set network.wan.delegate='0'
-                set firewall.@defaults[0].disable_ipv6='1'
 EOF
             ;;
-        1)
+        1) #pppoe
             uci -q batch <<EOF
                 set dhcp.lan.ra='hybrid'
                 set dhcp.lan.dhcpv6='hybrid'
@@ -56,7 +55,6 @@ EOF
                 set network.lan.ip6ifaceid='eui64'
                 delete network.wan6.reqaddress='try'
                 set network.wan6.reqprefix='auto'
-                set firewall.@defaults[0].disable_ipv6='0'
                 set dhcp.wan6.master='1'
                 set dhcp.wan6.ra='relay'
                 set dhcp.wan6.dhcpv6='relay'
@@ -89,7 +87,7 @@ EOF
                 set dhcp.lan6.ndp='relay'
 EOF
             ;;
-        3) 
+        3)  #dhcp
             uci -q batch <<EOF
                 set dhcp.lan.ra='hybrid'
                 set dhcp.lan.dhcpv6='hybrid'
@@ -139,45 +137,72 @@ else
 fi
 }
 
+setforwarding(){
+    # uci delete firewall.@forwarding[0]
+    uci add firewall forwarding  > "/dev/null" 2>&1 
+    $UCISET firewall.@forwarding[-1].src='lan'
+    $UCISET firewall.@forwarding[-1].dest='wan'
+}
+
 sethttps() {
 	config_get https "$cfg" https
 	if [ -n "$(command -v nginx)" ]; then
 		if [ -z "`uci -q get nginx._redirect2ssl`" ]; then
-			$UCISET nginx._redirect2ssl=server
-			$UCISET nginx._redirect2ssl.server_name='_redirect2ssl'
-			$UCISET nginx._redirect2ssl.return='302 https://$host$request_uri'
-			$UCISET nginx._redirect2ssl.access_log='off; # logd openwrt'
+			uci -q set nginx._redirect2ssl=server
+			uci -q set nginx._redirect2ssl.server_name='_redirect2ssl'
+			uci -q set nginx._redirect2ssl.return='302 https://$host$request_uri'
+			uci -q set nginx._redirect2ssl.access_log='off; # logd openwrt'
 		fi
-           if [ "x${https}" = "x1" ] ; then
-    		$UCIDEL nginx.default_server.listen
-    		$UCIADD nginx.default_server.listen='80'
-    		$UCIADD nginx.default_server.listen='[::]:80'
-    		$UCIDEL nginx._redirect2ssl.listen
-    		$UCIADD nginx._redirect2ssl.listen='80 default_server'
-    		$UCIADD nginx._redirect2ssl.listen='[::]:80 default_server'
-    	   else
-	         $UCIDEL nginx._redirect2ssl.listen
-	         $UCIADD nginx._redirect2ssl.listen='80'
-	         $UCIADD nginx._redirect2ssl.listen='[::]:80'
-	         $UCIDEL nginx.default_server.listen
-	         $UCIADD nginx.default_server.listen='80 default_server'
-	         $UCIADD nginx.default_server.listen='[::]:80 default_server'
-    	   fi
-	   uci commit nginx
-    	   /etc/init.d/nginx reload
+    	if [ "x${https}" = "x1" ] ; then
+    		uci -q del nginx.default_server.listen
+    		uci -q add_list nginx.default_server.listen='80'
+    		uci -q add_list nginx.default_server.listen='[::]:80'
+    		uci -q del nginx._redirect2ssl.listen
+    		uci -q add_list nginx._redirect2ssl.listen='80 default_server'
+    		uci -q add_list nginx._redirect2ssl.listen='[::]:80 default_server'
+    	else
+	         uci -q del nginx._redirect2ssl.listen
+	         uci -q add_list nginx._redirect2ssl.listen='80'
+	         uci -q add_list nginx._redirect2ssl.listen='[::]:80'
+	         uci -q del nginx.default_server.listen
+	         uci -q add_list nginx.default_server.listen='80 default_server'
+	         uci -q add_list nginx.default_server.listen='[::]:80 default_server'
+    	fi
+    	uci commit nginx
+    	/etc/init.d/nginx reload
+	elif [ -n "$(command -v lighttpd)" ]; then
+        if [ "x${https}" = "x1" ] ; then
+	         sed -i "s/	# url.redirect =/	url.redirect =/" /etc/lighttpd/conf.d/82-https.conf
+		else
+	         sed -i "s/	url.redirect =/	# url.redirect =/" /etc/lighttpd/conf.d/82-https.conf
+        fi
+	    /etc/init.d/lighttpd reload
     else
-    
-	 /etc/init.d/uhttpd stop
          sed -i "/listen_https/d" /etc/config/uhttpd
-        [ "x${https}" = "x1" ] &&{
-	         $UCIADD uhttpd.main.listen_https='0.0.0.0:443'
-	         $UCIADD uhttpd.main.listen_https='[::]:443'
-	         # $UCISET uhttpd.main.redirect_https='1' 
-       }
-	 uci commit uhttpd
+	 uci -q set uhttpd.main.redirect_https='0'
 	 
+	 certscrt=''
+	 certskey=''
+        if [ "x${https}" = "x1" ] ; then
+	         uci -q add_list uhttpd.main.listen_https='0.0.0.0:443'
+	         uci -q add_list uhttpd.main.listen_https='[::]:443'
+	         uci -q set uhttpd.main.redirect_https='1'
+	         certscrt='/etc/ssl/ezopwrt.crt'
+		 certskey='/etc/ssl/ezopwrt.key'
+	         rm -f $certskey $certscrt
+		 hostname=$(uci -q get system.@system[0].hostname | awk '{print tolower($0)}')
+		 $UCISET network.lan.hostname=${hostname}
+		 $UCISET dhcp.@dnsmasq[0].domain="${hostname}.lan"
+	         openssl req -new -newkey rsa:2048 -days 3650 -nodes -x509 -keyout $certskey -out $certscrt -subj "/C=CN/CN=$hostname.lan"
+		 uci commit system
+        fi
+	    uci -q set uhttpd.main.cert=$certscrt 
+	    uci -q set uhttpd.main.key=$certskey 
+	    uci commit uhttpd
+	    /etc/init.d/uhttpd reload
     fi
 }
+
 dnsredirect(){
 [ -n "$(command -v nft)" ] && nftables_clear || iptables_clear
 config_get_bool dns_redirect "$cfg" dns_redirect 1
@@ -227,7 +252,7 @@ configure_network() {
     config_get lan_ipaddr "$cfg" lan_ipaddr 
     config_get lan_netmask "$cfg" lan_netmask '255.255.255.0'
     config_get dns_tables "$cfg" dns_tables 
-
+   config_get forwarding "$cfg" forwarding
     if [ "x$showhide" = "x1" ]; then
         touch /etc/config/netwizard_hide
         $UCISET advancedplus.@basic[0].wizard="1"
@@ -246,9 +271,10 @@ configure_network() {
     $UCIDEL network.lan.gateway
     $UCIDEL network.lan.dns
     $UCIDEL firewall.@zone[0].masq
-	[ `uci -q get network.wan` ] && $UCIDEL network.wan
-	[ `uci -q get network.wan6` ] && $UCIDEL network.wan6
-	[ `uci -q get network.lan6` ] && $UCIDEL network.lan6
+    sed -i '/^config forwarding/,/^$/d' /etc/config/firewall  # del forwarding
+    [ `uci -q get network.wan` ] && $UCIDEL network.wan
+    [ `uci -q get network.wan6` ] && $UCIDEL network.wan6
+    [ `uci -q get network.lan6` ] && $UCIDEL network.lan6
     netname=$(ls /sys/class/net/ | grep -E '^(eth[0-9]+|usb[0-9]+|lan[0-9]+|wan)$')
     netsum=$(echo "$netname" | wc -l)
     [ $netsum -gt 1 ] && {
@@ -259,7 +285,7 @@ configure_network() {
         lannet=$(echo "$lannet" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
         [ "x$ifname" = "xdevice" ] && $UCISET network.@$ifname[0].ports="${lannet}" || $UCISET network.lan.$ifname="${lannet}"
     }
-
+    uci commit network
     if [ -n "$wan_interface" ] ;then
          $UCISET network.wan=interface
          $UCISET network.wan6=interface
@@ -267,25 +293,31 @@ configure_network() {
          $UCISET network.wan6.delegate='1'
          $UCIDEL dhcp.wan.master
          $UCIDEL dhcp.lan.master
-         $UCIDEL firewall.@zone[1].network
+
+	 $UCISET network.wan.metric='1'
          $UCISET network.wan.$ifname="${wan_interface}"
          $UCISET network.wan6.$ifname="@wan"
+	 # firewall
+         $UCIDEL firewall.@zone[1].network
+         $UCISET firewall.@zone[1].masq='1'
          [ "x$ifname" = "xdevice" ] && {
-                 uci -q add_list firewall.@zone[1].network='wan6'
-                  uci -q add_list firewall.@zone[1].network='wan' 
-          } || uci -q set firewall.@zone[1].network='wan wan6'
+                 $UCIADD firewall.@zone[1].network='wan6'
+                 $UCIADD firewall.@zone[1].network='wan'
+          } || $UCISET firewall.@zone[1].network='wan wan6'
     fi
 
     case "${wan_proto}" in
         dhcp)
             $UCISET network.wan.proto='dhcp'
             $UCISET network.wan.delegate='0'
+	    [ "x$forwarding" = "x1" ] && setforwarding
             [ "x$ipv6" = "x1" ] && setipv6 3 || setipv6 0
             ;;
         static)
             config_get wan_ipaddr "$cfg" wan_ipaddr
             config_get wan_netmask "$cfg" wan_netmask
             config_get wan_gateway "$cfg" wan_gateway
+	    [ "x$forwarding" = "x1" ] && setforwarding
             [ "x$ipv6" = "x1" ] && setipv6 3 || setipv6 0
             test -n "${wan_ipaddr}" && test -n "${wan_netmask}" && {
                 $UCISET network.wan.proto='static'
@@ -302,18 +334,12 @@ configure_network() {
         pppoe)
             config_get wan_pppoe_user "$cfg" wan_pppoe_user
             config_get wan_pppoe_pass "$cfg" wan_pppoe_pass
+	    [ "x$forwarding" = "x1" ] && setforwarding
             [ "x$ipv6" = "x1" ] && setipv6 1 || setipv6 0
             [[ "${wan_pppoe_user} != $(uci -q get network.wan.username)" || "${wan_pppoe_pass} != $(uci -q get network.wan.password)" ]] && {
                 $UCISET network.wan.proto='pppoe'
-		$UCISET network.wan.metric='41'
                 $UCISET network.wan.username="${wan_pppoe_user}"
                 $UCISET network.wan.password="${wan_pppoe_pass}"
-                $UCISET network.wan.keepalive='60 20'
-                $UCISET network.wan.mtu='1480'
-                $UCISET network.wan.persist='1'
-                $UCISET network.wan.holdoff='5'
-                $UCISET network.wan.pppd_options='debug noipdefault'
-		$UCIDEL network.wan6
                 config_get wan_dns "$cfg" wan_dns
                 test -n "${wan_dns}" && {
                     $UCISET network.wan.peerdns='0'
@@ -322,10 +348,10 @@ configure_network() {
             }
             ;;
         siderouter)
+
             config_get lan_gateway "$cfg" lan_gateway
             config_get lan_dns "$cfg" lan_dns
-            config_get masq "$cfg" masq
-	     $UCIDEL dhcp.lan.ra_slaac
+            $UCIDEL dhcp.lan.ra_slaac
             $UCISET network.lan.proto='static'
             test -n "${lan_gateway}" && {
                 $UCISET network.lan.gateway="${lan_gateway}"
@@ -334,13 +360,11 @@ configure_network() {
                 if [ $netsum -gt 1 ]; then
                     [ "x$ifname" = "xdevice" ] && $UCISET network.@$ifname[0].ports="${lannet} ${wan_interface}" || $UCISET network.lan.$ifname="${lannet} ${wan_interface}"
                 fi
-                [ "x$masq" = "x1" ] && $UCISET firewall.@zone[0].masq='1' || $UCIDEL firewall.@zone[0].masq
-		
-		
+                $UCISET firewall.@zone[0].masq='1'
             }
             $UCIDEL firewall.@zone[0].network
             uci -q add_list firewall.@zone[0].network='lan'
-            [ `uci show network | grep utun | wc -l` -gt 1 ] && $UCIADD firewall.@zone[0].network='utun'
+            [ `uci show network | grep utun | wc -l` -gt 1 ] && uci add firewall.@zone[0].network='utun'
             [ "x$ipv6" = "x1" ] && {
                 $UCISET network.lan6=interface
                 $UCISET network.lan6.proto='dhcpv6'
@@ -359,8 +383,7 @@ configure_network() {
     test -n "${lan_ipaddr}"  &&  $UCISET network.lan.ipaddr="${lan_ipaddr}"  
     test -n "${lan_netmask}" &&  $UCISET network.lan.netmask="${lan_netmask}"
     setsynflood
-    # dnsredirect
-    # sethttps
+    sethttps
     sed -i "/dhcp_option '6/d" /etc/config/dhcp
     sed -i "/list dns/d" /etc/config/dhcp
 
@@ -373,6 +396,8 @@ configure_network() {
         $UCIDEL dhcp.@dnsmasq[0].boguspriv
         $UCIDEL dhcp.@dnsmasq[0].filterwin2k
         $UCIDEL dhcp.@dnsmasq[0].nonegcache
+	$UCIDEL dhcp.lan.max_preferred_lifetime
+	$UCIDEL dhcp.lan.max_valid_lifetime
     else
         $UCIDEL dhcp.lan.ignore
         $UCIDEL dhcp.lan.dynamicdhcp
@@ -436,13 +461,19 @@ EOF
     commit firewall
     commit network
 EOF
-    (sleep 2
-     /etc/init.d/network restart
-     /etc/init.d/dnsmasq reload)&
+
 }
 
 boot() {
 	XBOOT=1 start
+	SSID=$(uci -q get wireless.@wifi-iface[0].ssid)
+	KEY=$(uci -q get wireless.@wifi-iface[0].key)
+	IPADDR=`a=$(uci -q get network.lan.ipaddr);echo ${a%/*}`
+	NETMASK=$(uci -q get network.lan.netmask)
+	uci -q set netwizard.default=netwizard
+	uci -q set netwizard.default.lan_ipaddr="$IPADDR"
+	uci -q set netwizard.default.lan_netmask="$NETMASK"
+	uci commit netwizard
 }
 
 start() { 
@@ -450,6 +481,10 @@ start() {
     [ "x$XBOOT" = "x1" ] && exit 0
     config_load netwizard
     config_foreach configure_network netwizard
+    	(
+	 /etc/init.d/network restart
+	 /etc/init.d/dnsmasq reload
+	 )&
     rm -f $LOCK 2>/dev/null
 }
 
