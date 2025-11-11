@@ -580,16 +580,19 @@ o = s:taboption("DNS", Flag, "dns_redirect", translate("DNS Redirect"), translat
 o.default = "1"
 o.rmempty = false
 
-if (m:get("@global_forwarding[0]", "use_nft") or "0") == "1" then
-	o = s:taboption("DNS", Button, "clear_ipset", translate("Clear NFTSET"), translate("Try this feature if the rule modification does not take effect."))
-else
-	o = s:taboption("DNS", Button, "clear_ipset", translate("Clear IPSET"), translate("Try this feature if the rule modification does not take effect."))
-end
-o.inputstyle = "remove"
-function o.write(e, e)
-	m:set("@global[0]", "flush_set", "1")
-	api.uci_save(m.uci, appname, true, true)
-	luci.http.redirect(api.url("log"))
+local use_nft = m:get("@global_forwarding[0]", "use_nft") == "1"
+local set_title = api.i18n.translate(use_nft and "Clear NFTSET on Reboot" or "Clear IPSET on Reboot")
+o = s:taboption("DNS", Flag, "flush_set_on_reboot", set_title, translate("Clear IPSET/NFTSET on service reboot. This may increase reboot time."))
+o.default = "0"
+o.rmempty = false
+
+set_title = api.i18n.translate(use_nft and "Clear NFTSET" or "Clear IPSET")
+o = s:taboption("DNS", DummyValue, "clear_ipset", set_title, translate("Try this feature if the rule modification does not take effect."))
+o.rawhtml = true
+function o.cfgvalue(self, section)
+	return string.format(
+		[[<button type="button" class="cbi-button cbi-button-remove" onclick="location.href='%s'">%s</button>]],
+		api.url("flush_set") .. "?redirect=1&reload=1", set_title)
 end
 
 s:tab("Proxy", translate("Mode"))
@@ -770,7 +773,7 @@ for k, v in pairs(nodes_table) do
 		s2.fields["node"]:value(v.id, v["remark"])
 	end
 
-	if v.protocol and v.protocol ~= "_shunt" then
+	if v.protocol ~= "_shunt" then
 		s.fields["dns_mode"]:depends({ dns_shunt = "chinadns-ng", tcp_node = v.id })
 		s.fields["dns_mode"]:depends({ dns_shunt = "dnsmasq", tcp_node = v.id })
 		if api.is_finded("smartdns") then
