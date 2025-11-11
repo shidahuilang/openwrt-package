@@ -8,7 +8,6 @@ luci-theme-bootstrap
 luci-theme-design
 luci-theme-edge
 luci-theme-ifit
-luci-theme-kucat
 luci-theme-neobird
 luci-theme-neobird2
 luci-theme-opentomcat
