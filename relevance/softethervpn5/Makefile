@@ -87,8 +87,8 @@ CMAKE_HOST_OPTIONS += \
 	-DCURSES_CURSES_LIBRARY=$(STAGING_DIR_HOSTPKG)/lib/libncursesw.a \
 	-DCURSES_INCLUDE_PATH=$(STAGING_DIR_HOSTPKG)/include
 CMAKE_OPTIONS += \
-	-DICONV_LIB_PATH="$(ICONV_PREFIX)/lib" \
-	-DOQS_PERMIT_UNSUPPORTED_ARCHITECTURE=ON
+	-DOQS_ENABLE=OFF \
+	-DICONV_LIB_PATH="$(ICONV_PREFIX)/lib"
 
 # static build for host (hamcorebuilder), avoid -fpic on ncurses/host and shared libs can't be found on host
 define Host/Prepare
