@@ -5,7 +5,7 @@ m = Map("wiwiz", translate("Wiwiz"),
 
 portal = m:section(TypedSection, "wiwiz", "")
 
-enabled = portal:option(Flag, "enabled", translate("Enable"));
+enabled = portal:option(Flag, "enabled", translate("Enable"), translate("network service will restart after enabling portal, please reconnect to the router if necessary"));
 enabled.optional = false 
 enabled.rmempty = false
 
@@ -35,7 +35,7 @@ dhcp_portal.rmempty = false
 ver = portal:option(DummyValue, "ver", translate("Plugin Version"), translate("<a href='http://www.wiwiz.com/pinpinwifi/wiwiz-ipk.htm' target='_blank'>Readme</a>"));
 
 m.on_after_commit = function(self)
-    luci.util.exec("(sleep 3; /usr/local/hsbuilder/dhcp_portal.sh) &")
+    luci.util.exec("(sleep 3; /usr/local/hsbuilder/dhcp_portal.sh; /usr/local/hsbuilder/handle_ipv6.sh) &")
 end
 
 return m

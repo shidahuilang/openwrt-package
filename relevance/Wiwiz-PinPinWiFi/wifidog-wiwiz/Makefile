@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=wifidog-wiwiz
-PKG_VERSION:=20251015
+PKG_VERSION:=20251114
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 
 PKG_FIXUP:=autoreconf
@@ -64,6 +64,7 @@ define Package/wifidog-wiwiz/install
 	$(INSTALL_BIN) ./files/usr/local/hsbuilder/auth.sh $(1)/usr/local/hsbuilder/auth.sh
 	$(INSTALL_BIN) ./files/usr/local/hsbuilder/checkauth.sh $(1)/usr/local/hsbuilder/checkauth.sh
 	$(INSTALL_BIN) ./files/usr/local/hsbuilder/dhcp_portal.sh $(1)/usr/local/hsbuilder/dhcp_portal.sh
+	$(INSTALL_BIN) ./files/usr/local/hsbuilder/handle_ipv6.sh $(1)/usr/local/hsbuilder/handle_ipv6.sh
 	$(INSTALL_DATA) ./files/usr/local/hsbuilder/hsbuilder.conf $(1)/usr/local/hsbuilder/hsbuilder.conf
 	$(INSTALL_DATA) ./files/usr/local/hsbuilder/ver $(1)/usr/local/hsbuilder/ver
 
