@@ -32,3 +32,6 @@ msgstr "<a href='http://www.wiwiz.com/pinpinwifi/wiwiz-ipk.htm' target='_blank'>
 
 msgid "Enable DHCP Captive Portal Identification"
 msgstr "启用DHCP Captive Portal通告"
+
+msgid "network service will restart after enabling portal, please reconnect to the router if necessary"
+msgstr "启用Portal后网络将重启，可能需要重新连接到路由器"

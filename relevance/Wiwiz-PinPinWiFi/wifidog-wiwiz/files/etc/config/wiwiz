@@ -5,5 +5,5 @@ config wiwiz portal
         option server 'cp.wiwiz.com:80'
         option lan 'br-lan'
 	option disable_ipv6 '1'
-        option dhcp_portal '0'
+        option dhcp_portal '1'
         option ver ''
