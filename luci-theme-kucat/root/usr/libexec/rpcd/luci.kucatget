@@ -14,7 +14,6 @@
 . /usr/share/libubox/jshn.sh
 
 kucat='kucat'
-[ -s "/etc/config/advancedplus" ] && kucat='advancedplus'
 background="$(uci -q get $kucat.@basic[0].background || echo '0')"
 
 PIC_TMP_DIR="/var/kucat"
@@ -29,7 +28,7 @@ PIC_LOCK="/var/lock/kucat_lock_pic.lock"
 
 LANG=$(uci get luci.main.lang 2>/dev/null || echo "zh_cn")
 WORD_CACHE="${PIC_TMP_DIR}/kucat_daily_word_$LANG.cache"
-WORD_LOCK="${PIC_TMP_DIR}/lock/kucat_daily_word.lock"
+WORD_LOCK="/var/lock/kucat_daily_word.lock"
 
 mkdir -p "$PIC_LINK_DIR" "$PIC_TMP_DIR"
 chmod 755 "$PIC_LINK_DIR" "$PIC_TMP_DIR" "$PIC_TMP_PATH"

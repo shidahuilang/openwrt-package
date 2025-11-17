@@ -32,7 +32,6 @@
 		</footer>
 <div class="footend"></div>
 </div>
-<script src="{{ media }}/js/footend.js"></script>
 <script type="text/javascript">L.require('menu-kucat')</script>
 </body>
 </html>
