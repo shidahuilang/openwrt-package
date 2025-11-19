@@ -189,10 +189,10 @@ if (dayword == "1") {
     
     <meta name="msapplication-config" content="{{ media }}/browserconfig.xml">
     <meta name="msapplication-TileImage" content="{{ media }}/logo.png">
-    <link rel="stylesheet" href="{{ media }}/css/style.css{# ?v=PKG_VERSION #}">
+    <link rel="stylesheet" href="{{ media }}/css/style.css">
 
     <noscript>
-        <link rel="stylesheet" href="{{ media }}/css/style.css{# ?v=PKG_VERSION #}">
+        <link rel="stylesheet" href="{{ media }}/css/style.css">
     </noscript>
     <style title="text/css">
     :root {
@@ -229,8 +229,8 @@ if (dayword == "1") {
 	{% endif %}
     </style>
 <script src="{{ dispatcher.build_url('admin/translations', dispatcher.lang) }}?v={{ version.luciversion }}"></script>
-<script src="{{ resource }}/cbi.js?v={{ version.luciversion }}"></script>
-<script src="{{ media }}/js/style.js?v={{ version.luciversion }}"></script>
+<script src="{{ resource }}/cbi.js"></script>
+<script src="{{ media }}/js/style.js"></script>
 </head>
 <body
 class="lang_{{ dispatcher.lang }} {{ ctx.authsession ? 'logged-in' : '' }} {{ length(ctx.path) ? `node-${join('-', ctx.path)}` : 'node-main-login' }}"
