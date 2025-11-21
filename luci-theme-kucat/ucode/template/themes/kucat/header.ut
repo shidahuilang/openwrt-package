@@ -189,10 +189,10 @@ if (dayword == "1") {
     
     <meta name="msapplication-config" content="{{ media }}/browserconfig.xml">
     <meta name="msapplication-TileImage" content="{{ media }}/logo.png">
-    <link rel="stylesheet" href="{{ media }}/css/style.css">
+    <link rel="stylesheet" href="{{ media }}/css/style.css{# ?v=PKG_VERSION #}">
 
     <noscript>
-        <link rel="stylesheet" href="{{ media }}/css/style.css">
+        <link rel="stylesheet" href="{{ media }}/css/style.css{# ?v=PKG_VERSION #}">
     </noscript>
     <style title="text/css">
     :root {
@@ -217,7 +217,7 @@ if (dayword == "1") {
             {% endif %}
 
     }
-     @media screen and (max-width: 920px) { .main .main-left {background-color:rgba(var(--primary-rgbbody), 0.95);}}
+     @media screen and (max-width: 920px) { .main-left {background-color:rgba(var(--primary-rgbbody), 0.95);width: calc(0% + 15rem);}}
     {% endif -%}
     
 	{% if (setbar == "1"): %}
@@ -229,8 +229,8 @@ if (dayword == "1") {
 	{% endif %}
     </style>
 <script src="{{ dispatcher.build_url('admin/translations', dispatcher.lang) }}?v={{ version.luciversion }}"></script>
-<script src="{{ resource }}/cbi.js"></script>
-<script src="{{ media }}/js/style.js"></script>
+<script src="{{ resource }}/cbi.js?v={{ version.luciversion }}"></script>
+<script src="{{ media }}/js/style.js?v={{ version.luciversion }}"></script>
 </head>
 <body
 class="lang_{{ dispatcher.lang }} {{ ctx.authsession ? 'logged-in' : '' }} {{ length(ctx.path) ? `node-${join('-', ctx.path)}` : 'node-main-login' }}"

@@ -21,197 +21,460 @@
 'use strict';
 'require baseclass';
 'require ui';
+
+/**
+ * Lightweight animation utilities for menu interactions
+ */
+const KucatAnimations = {
+    durations: {
+        fast: 200,
+        normal: 300,
+        slow: 400
+    },
+
+    /**
+     * Smooth slide down animation
+     */
+    slideDown: function(element, duration = 'normal') {
+        if (!element) return;
+        
+        const animDuration = typeof duration === 'string' ? 
+            this.durations[duration] || this.durations.normal : 
+            duration;
+        
+        // Store original state
+        const originalDisplay = element.style.display;
+        const originalHeight = element.style.height;
+        
+        // Prepare for animation
+        element.style.display = 'block';
+        element.style.overflow = 'hidden';
+        element.style.height = '0px';
+        element.style.transition = `height ${animDuration}ms ease-out`;
+        
+        // Trigger animation
+        requestAnimationFrame(() => {
+            element.style.height = element.scrollHeight + 'px';
+        });
+        
+        // Clean up after animation
+        setTimeout(() => {
+            element.style.height = originalHeight;
+            element.style.overflow = '';
+            element.style.transition = '';
+            if (originalDisplay === 'none') {
+                element.style.display = 'block';
+            }
+        }, animDuration);
+    },
+
+    /**
+     * Smooth slide up animation
+     */
+    slideUp: function(element, duration = 'normal') {
+        if (!element) return;
+        
+        const animDuration = typeof duration === 'string' ? 
+            this.durations[duration] || this.durations.normal : 
+            duration;
+        
+        // Store original state
+        const originalHeight = element.style.height;
+        
+        // Prepare for animation
+        element.style.overflow = 'hidden';
+        element.style.height = element.scrollHeight + 'px';
+        element.style.transition = `height ${animDuration}ms ease-out`;
+        
+        // Trigger animation
+        requestAnimationFrame(() => {
+            element.style.height = '0px';
+        });
+        
+        // Clean up after animation
+        setTimeout(() => {
+            element.style.display = 'none';
+            element.style.height = originalHeight;
+            element.style.overflow = '';
+            element.style.transition = '';
+        }, animDuration);
+    }
+};
+
+/**
+ * Kucat Theme Menu Handler
+ * Optimized for mobile responsiveness and CSS compatibility
+ */
 return baseclass.extend({
-	__init__: function() {
-		ui.menu.load().then(L.bind(this.render, this));
-	},
+    __init__: function() {
+        ui.menu.load().then(L.bind(this.render, this));
+    },
 
-	render: function(tree) {
-		var node = tree,
-		    url = '';
+    render: function(tree) {
+        var node = tree,
+            url = '';
 
-		this.renderModeMenu(node);
+        // Render main menu structure
+        this.renderModeMenu(tree);
 
-		if (L.env.dispatchpath.length >= 3) {
-			for (var i = 0; i < 3 && node; i++) {
-				node = node.children[L.env.dispatchpath[i]];
-				url = url + (url ? '/' : '') + L.env.dispatchpath[i];
-			}
+        // Render tab menu for deep navigation
+        if (L.env.dispatchpath.length >= 3) {
+            for (var i = 0; i < 3 && node; i++) {
+                node = node.children[L.env.dispatchpath[i]];
+                url = url + (url ? '/' : '') + L.env.dispatchpath[i];
+            }
 
-			if (node)
-				this.renderTabMenu(node, url);
-		}
+            if (node) {
+                this.renderTabMenu(node, url);
+            }
+        }
 
-		document.querySelector('.showSide')
-			.addEventListener('click', ui.createHandlerFn(this, 'handleSidebarToggle'));
+        // Initialize sidebar functionality
+        this.initSidebar();
 
-		document.querySelector('.darkMask')
-			.addEventListener('click', ui.createHandlerFn(this, 'handleSidebarToggle'));
-			
-		document.querySelector(".main > .loading").style.opacity = '0';
-		document.querySelector(".main > .loading").style.visibility = 'hidden';
+        // Hide loading indicator
+        this.hideLoading();
 
-		if (window.innerWidth <= 920)
-			document.querySelector('.main-left').style.width = '0';
+        // Initialize responsive behavior
+        this.initResponsive();
+    },
 
-		document.querySelector('.main-right').style.overflow = 'auto';
-		window.addEventListener('resize', this.handleSidebarToggle, true);
-		
-	},
+    /**
+     * Initialize sidebar toggle functionality
+     */
+    initSidebar: function() {
+        var showSide = document.querySelector('.showSide');
+        var darkMask = document.querySelector('.darkMask');
 
-	handleMenuExpand: function(ev) {
-		var a = ev.target, ul1 = a.parentNode, ul2 = a.nextElementSibling;
-		var collapse = false;
+        if (showSide) {
+            showSide.addEventListener('click', L.bind(this.toggleSidebar, this));
+        }
+        
+        if (darkMask) {
+            darkMask.addEventListener('click', L.bind(this.toggleSidebar, this));
+        }
+    },
 
-		document.querySelectorAll('li.slide.active').forEach(function(li) {
-			if (li !== a.parentNode || li == ul1) {
-				li.classList.remove('active');
-				li.childNodes[0].classList.remove('active');
-			}
-			if (!collapse && li == ul1) {
-				collapse = true;
-			}
-		});
+    /**
+     * Initialize responsive behavior
+     */
+    initResponsive: function() {
+        // Set initial state for mobile
+        if (window.innerWidth <= 920) {
+            this.closeSidebar();
+        }
 
-		if (!ul2)
-			return;
+        // Add resize handler with debouncing
+        let resizeTimeout;
+        window.addEventListener('resize', L.bind(function() {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                this.handleResize();
+            }, 100);
+        }, this));
+    },
 
-		if (ul2.parentNode.offsetLeft + ul2.offsetWidth <= ul1.offsetLeft + ul1.offsetWidth)
-			ul2.classList.add('align-left');
-		if (!collapse) {
-			ul1.classList.add('active');
-			a.classList.add('active');
+    /**
+     * Handle window resize events
+     */
+    handleResize: function() {
+        var width = window.innerWidth;
+        var mainLeft = document.querySelector('.main-left');
+        var darkMask = document.querySelector('.darkMask');
 
-		}
-		else
-		{
-			ul1.classList.remove('active');
-			a.classList.remove('active');
-		}
-		
-		a.blur();
-		ev.preventDefault();
-		ev.stopPropagation();
-	},
+        if (width > 920) {
+            // Desktop - ensure sidebar is visible
+            if (mainLeft) {
+                mainLeft.style.width = '';
+                mainLeft.style.visibility = 'visible';
+            }
+            if (darkMask) {
+                darkMask.style.visibility = 'hidden';
+                darkMask.style.opacity = '0';
+            }
+        } else {
+            // Mobile - ensure sidebar is hidden by default
+            this.closeSidebar();
+        }
+    },
 
-	renderMainMenu: function(tree, url, level) {
-		var l = (level || 0) + 1,
-		    ul = E('ul', { 'class': level ? 'slide-menu' : 'nav' }),
-		    children = ui.menu.getChildren(tree);
+    /**
+     * Toggle sidebar visibility (mobile)
+     */
+    toggleSidebar: function() {
+        var mainLeft = document.querySelector('.main-left');
+        var darkMask = document.querySelector('.darkMask');
+        var mainRight = document.querySelector('.main-right');
+        var showSide = document.querySelector('.showSide');
 
-		if (children.length == 0 || l > 2)
-			return E([]);
+        if (!mainLeft || !darkMask) return;
 
-		for (var i = 0; i < children.length; i++) {
-			var isActive = ((L.env.dispatchpath[l] == children[i].name) && (L.env.dispatchpath[l - 1] == tree.name)),
-				submenu = this.renderMainMenu(children[i], url + '/' + children[i].name, l),
-				hasChildren = submenu.children.length,
-				slideClass = hasChildren ? 'slide' : null,
-				menuClass = hasChildren ? 'menu' : null;
-			if (isActive) {
-				ul.classList.add('active');
-				slideClass += " active";
-				menuClass += " active";
-			}
+        var isOpen = mainLeft.style.width !== '0px' && mainLeft.style.width !== '0';
 
-			ul.appendChild(E('li', { 'class': slideClass }, [
-				E('a', {
-					'href': L.url(url, children[i].name),
-					'click': (l == 1) ? ui.createHandlerFn(this, 'handleMenuExpand') : null,
-					'class': menuClass,
-					'data-title': hasChildren ? children[i].title.replace(" ", "_") : children[i].title.replace(" ", "_"),
-				}, [_(children[i].title)]),
-				submenu
-			]));
-		}
+        if (isOpen) {
+            this.closeSidebar();
+        } else {
+            this.openSidebar();
+        }
+    },
 
-		if (l == 1) {
-			var container = document.querySelector('#mainmenu');
+    /**
+     * Open sidebar (mobile)
+     */
+    openSidebar: function() {
+        var mainLeft = document.querySelector('.main-left');
+        var darkMask = document.querySelector('.darkMask');
+        var mainRight = document.querySelector('.main-right');
 
-			container.appendChild(ul);
-			container.style.display = '';
-		}
+        if (mainLeft) {
+            mainLeft.style.width = '15rem';
+            mainLeft.style.visibility = 'visible';
+        }
+        if (darkMask) {
+            darkMask.style.visibility = 'visible';
+            darkMask.style.opacity = '1';
+        }
+        if (mainRight) {
+            mainRight.style.overflowY = 'hidden';
+        }
 
-		return ul;
-	},
+        // Add active class for CSS targeting
+        document.body.classList.add('sidebar-open');
+    },
 
-	renderModeMenu: function(tree) {
-		var ul = document.querySelector('#modemenu'),
-		    children = ui.menu.getChildren(tree);
+    /**
+     * Close sidebar (mobile)
+     */
+    closeSidebar: function() {
+        var mainLeft = document.querySelector('.main-left');
+        var darkMask = document.querySelector('.darkMask');
+        var mainRight = document.querySelector('.main-right');
 
-		for (var i = 0; i < children.length; i++) {
-			var isActive = (L.env.requestpath.length ? children[i].name == L.env.requestpath[0] : i == 0);
+        if (mainLeft) {
+            mainLeft.style.width = '0';
+            mainLeft.style.visibility = 'hidden';
+        }
+        if (darkMask) {
+            darkMask.style.visibility = 'hidden';
+            darkMask.style.opacity = '0';
+        }
+        if (mainRight) {
+            mainRight.style.overflowY = 'auto';
+        }
 
-			ul.appendChild(E('li', {}, [
-				E('a', {
-					'href': L.url(children[i].name),
-					'class': isActive ? 'active' : null
-				}, [ _(children[i].title) ])
-			]));
+        // Remove active class
+        document.body.classList.remove('sidebar-open');
+    },
 
-			if (isActive)
-				this.renderMainMenu(children[i], children[i].name);
+    /**
+     * Hide loading indicator
+     */
+    hideLoading: function() {
+        var loading = document.querySelector('.main > .loading');
+        if (loading) {
+            loading.style.opacity = '0';
+            loading.style.visibility = 'hidden';
+            
+            // Remove from DOM after fade out
+            setTimeout(() => {
+                if (loading && loading.parentNode) {
+                    loading.parentNode.removeChild(loading);
+                }
+            }, 300);
+        }
+    },
 
-			if (i > 0 && i < children.length)
-				ul.appendChild(E('li', {'class': 'divider'}, [E('span')]))
-		}
+    /**
+     * Handle menu expand/collapse with smooth animations
+     */
+    handleMenuExpand: function(ev) {
+        var target = ev.target;
+        var slideItem = target.parentNode;
+        var slideMenu = target.nextElementSibling;
 
-		if (children.length > 1)
-			ul.parentElement.style.display = '';
-	},
+        // Prevent default behavior
+        ev.preventDefault();
+        ev.stopPropagation();
 
-	renderTabMenu: function(tree, url, level) {
-		var container = document.querySelector('#tabmenu'),
-			    l = (level || 0) + 1,
-			    ul = E('ul', { 'class': 'tabs' }),
-			    children = ui.menu.getChildren(tree),
-			    activeNode = null;
+        if (!slideMenu || !slideMenu.classList.contains('slide-menu')) {
+            return;
+        }
 
-		if (children.length == 0)
-			return E([]);
+        var isActive = slideItem.classList.contains('active');
+        var allSlideItems = document.querySelectorAll('.main .main-left .nav > li.slide');
 
-		for (var i = 0; i < children.length; i++) {
-			var isActive = (L.env.dispatchpath[l + 2] == children[i].name),
-				activeClass = isActive ? ' active' : '',
-				className = 'tabmenu-item-%s %s'.format(children[i].name, activeClass);
+        // Close all other menus
+        allSlideItems.forEach(function(item) {
+            if (item !== slideItem) {
+                var otherMenu = item.querySelector('.slide-menu');
+                if (otherMenu && otherMenu.style.display !== 'none') {
+                    item.classList.remove('active');
+                    item.querySelector('a.menu').classList.remove('active');
+                    KucatAnimations.slideUp(otherMenu, 'fast');
+                }
+            }
+        });
 
-			ul.appendChild(E('li', { 'class': className }, [
-				E('a', { 'href': L.url(url, children[i].name) }, [ _(children[i].title) ] )
-			]));
+        // Toggle current menu
+        if (isActive) {
+            // Close current menu
+            slideItem.classList.remove('active');
+            target.classList.remove('active');
+            KucatAnimations.slideUp(slideMenu, 'fast');
+        } else {
+            // Open current menu
+            slideItem.classList.add('active');
+            target.classList.add('active');
+            KucatAnimations.slideDown(slideMenu, 'fast');
+        }
 
-			if (isActive)
-				activeNode = children[i];
-		}
+        // Remove focus from clicked element
+        target.blur();
+    },
 
-		container.appendChild(ul);
-		container.style.display = '';
+    /**
+     * Render main navigation menu
+     */
+    renderMainMenu: function(tree, url, level) {
+        var currentLevel = (level || 0) + 1;
+        var ul = E('ul', { 'class': level ? 'slide-menu' : 'nav' });
+        var children = ui.menu.getChildren(tree);
 
-		if (activeNode)
-			container.appendChild(this.renderTabMenu(activeNode, url + '/' + activeNode.name, l));
+        if (children.length === 0 || currentLevel > 2) {
+            return E([]);
+        }
 
-		return ul;
-	},
+        for (var i = 0; i < children.length; i++) {
+            var child = children[i];
+            var isActive = this.isMenuItemActive(child, tree, currentLevel);
+            var submenu = this.renderMainMenu(child, url + '/' + child.name, currentLevel);
+            var hasChildren = submenu.children.length > 0;
+            
+            var slideClass = hasChildren ? 'slide' : '';
+            var menuClass = hasChildren ? 'menu' : '';
+            
+            if (isActive) {
+                slideClass += ' active';
+                menuClass += ' active';
+                ul.classList.add('active');
+            }
 
-	handleSidebarToggle: function(ev) {
-		var width = window.innerWidth,
-		    darkMask = document.querySelector('.darkMask'),
-		    mainRight = document.querySelector('.main-right'),
-		    mainLeft = document.querySelector('.main-left'),
-		    open = mainLeft.style.width == '';
+            var menuItem = E('li', { 
+                'class': slideClass.trim()
+            }, [
+                E('a', {
+                    'href': L.url(url, child.name),
+                    'click': (currentLevel === 1 && hasChildren) ? 
+                             ui.createHandlerFn(this, 'handleMenuExpand') : null,
+                    'class': menuClass.trim(),
+                    'data-title': child.title.replace(/ /g, '_'),
+                }, [_(child.title)]),
+                submenu
+            ]);
 
-			if (width > 920 || ev.type == 'resize')
-				open = true;
-				
-		darkMask.style.visibility = open ? '' : 'visible';
-		darkMask.style.opacity = open ? '': 1;
+            ul.appendChild(menuItem);
+        }
 
-		if (width <= 920)
-			mainLeft.style.width = open ? '0' : '';
-		else
-			mainLeft.style.width = ''
+        // Append to main menu container for top level
+        if (currentLevel === 1) {
+            var container = document.querySelector('#mainmenu');
+            if (container) {
+                container.appendChild(ul);
+                container.style.display = '';
+            }
+        }
 
-		mainLeft.style.visibility = open ? '' : 'visible';
+        return ul;
+    },
 
-		mainRight.style['overflow-y'] = open ? 'visible' : 'hidden';
-	}
+    /**
+     * Check if menu item is active based on current path
+     */
+    isMenuItemActive: function(child, parent, level) {
+        return (L.env.dispatchpath[level] === child.name) && 
+               (L.env.dispatchpath[level - 1] === parent.name);
+    },
+
+    /**
+     * Render mode menu (top level categories)
+     */
+    renderModeMenu: function(tree) {
+        var ul = document.querySelector('#modemenu');
+        var children = ui.menu.getChildren(tree);
+
+        if (!ul) return;
+
+        for (var i = 0; i < children.length; i++) {
+            var isActive = (L.env.requestpath.length ? 
+                children[i].name == L.env.requestpath[0] : i == 0);
+
+            ul.appendChild(E('li', {}, [
+                E('a', {
+                    'href': L.url(children[i].name),
+                    'class': isActive ? 'active' : null
+                }, [_(children[i].title)])
+            ]));
+
+            if (isActive) {
+                this.renderMainMenu(children[i], children[i].name);
+            }
+
+            // Add divider between menu items (except last)
+            if (i > 0 && i < children.length - 1) {
+                ul.appendChild(E('li', {'class': 'divider'}, [E('span')]));
+            }
+        }
+
+        if (children.length > 1) {
+            ul.parentElement.style.display = '';
+        }
+    },
+
+    /**
+     * Render tab menu for sub-navigation
+     */
+    renderTabMenu: function(tree, url, level) {
+        var container = document.querySelector('#tabmenu');
+        var currentLevel = (level || 0) + 1;
+        var ul = E('ul', { 'class': 'tabs' });
+        var children = ui.menu.getChildren(tree);
+        var activeNode = null;
+
+        if (children.length === 0 || !container) {
+            return E([]);
+        }
+
+        for (var i = 0; i < children.length; i++) {
+            var child = children[i];
+            var isActive = (L.env.dispatchpath[currentLevel + 2] === child.name);
+            var activeClass = isActive ? ' active' : '';
+            var className = 'tabmenu-item-%s %s'.format(child.name, activeClass);
+
+            ul.appendChild(E('li', { 
+                'class': className.trim()
+            }, [
+                E('a', { 
+                    'href': L.url(url, child.name) 
+                }, [_(child.title)])
+            ]));
+
+            if (isActive) {
+                activeNode = child;
+            }
+        }
+
+        container.appendChild(ul);
+        container.style.display = '';
+
+        // Recursively render nested tabs
+        if (activeNode) {
+            container.appendChild(this.renderTabMenu(
+                activeNode, 
+                url + '/' + activeNode.name, 
+                currentLevel
+            ));
+        }
+
+        return ul;
+    }
 });
