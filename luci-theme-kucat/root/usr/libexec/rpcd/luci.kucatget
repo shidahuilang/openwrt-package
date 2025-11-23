@@ -31,7 +31,111 @@ WORD_CACHE="${PIC_TMP_DIR}/kucat_daily_word_$LANG.cache"
 WORD_LOCK="/var/lock/kucat_daily_word.lock"
 
 mkdir -p "$PIC_LINK_DIR" "$PIC_TMP_DIR"
-chmod 755 "$PIC_LINK_DIR" "$PIC_TMP_DIR" "$PIC_TMP_PATH"
+chmod 755 "$PIC_LINK_DIR" "$PIC_TMP_DIR"
+# 只在文件存在时设置权限
+[ -f "$PIC_TMP_PATH" ] && chmod 644 "$PIC_TMP_PATH"
+
+# 获取可用的WAN接口
+get_available_wan_interfaces() {
+    # 获取所有活跃的网络接口
+    for iface in $(ip route | grep default | awk '{print $5}' | sort -u); do
+        if [ -n "$iface" ] && ip link show "$iface" 2>/dev/null | grep -q "state UP"; then
+            echo "$iface"
+        fi
+    done
+}
+
+# 检查HTTP工具可用性
+check_http_tool() {
+    if command -v curl >/dev/null 2>&1; then
+        # 测试curl是否正常工作
+        if curl --version >/dev/null 2>&1; then
+            echo "curl"
+            return 0
+        fi
+    fi
+    
+    if command -v wget >/dev/null 2>&1; then
+        echo "wget"
+        return 0
+    fi
+    
+    return 1
+}
+
+# 使用可用工具进行HTTP请求（支持多WAN接口）
+http_request() {
+    local url="$1"
+    local tool=$(check_http_tool)
+    local interfaces=$(get_available_wan_interfaces)
+    
+    case "$tool" in
+        "curl")
+            # 使用curl
+            if [ -z "$interfaces" ]; then
+                curl -s --connect-timeout 5 --max-time 15 "$url" 2>/dev/null
+            else
+                for iface in $interfaces; do
+                    local result=$(curl --interface "$iface" -s --connect-timeout 5 --max-time 15 "$url" 2>/dev/null)
+                    if [ $? -eq 0 ] && [ -n "$result" ]; then
+                        echo "$result"
+                        return 0
+                    fi
+                done
+            fi
+            ;;
+        "wget")
+            # 使用wget (不支持接口绑定，但可以设置超时)
+            wget -q -T 15 -t 2 -O - "$url" 2>/dev/null
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
+
+# 使用可用工具进行HTTP请求（支持自定义header和多WAN接口）
+http_request_with_header() {
+    local url="$1"
+    local header="$2"
+    local tool=$(check_http_tool)
+    local interfaces=$(get_available_wan_interfaces)
+    
+    case "$tool" in
+        "curl")
+            if [ -z "$interfaces" ]; then
+                if [ -n "$header" ]; then
+                    curl -fks --max-time 15 --header "$header" "$url" 2>/dev/null
+                else
+                    curl -fks --max-time 15 "$url" 2>/dev/null
+                fi
+            else
+                for iface in $interfaces; do
+                    local result
+                    if [ -n "$header" ]; then
+                        result=$(curl --interface "$iface" -fks --max-time 15 --header "$header" "$url" 2>/dev/null)
+                    else
+                        result=$(curl --interface "$iface" -fks --max-time 15 "$url" 2>/dev/null)
+                    fi
+                    if [ $? -eq 0 ] && [ -n "$result" ]; then
+                        echo "$result"
+                        return 0
+                    fi
+                done
+            fi
+            ;;
+        "wget")
+            if [ -n "$header" ]; then
+                wget -q -T 15 -t 2 --header="$header" -O - "$url" 2>/dev/null
+            else
+                wget -q -T 15 -t 2 -O - "$url" 2>/dev/null
+            fi
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
 
 # 获取每日一言
 fetch_daily_word() {
@@ -39,34 +143,34 @@ fetch_daily_word() {
     dayword="$(uci -q get $kucat.@basic[0].dayword || echo '0')"
     case "$dayword" in
         1)
-            [ "X$LANG" == "Xen" ] && gwordjson=$(curl -s 'https://open.iciba.com/dsapi/' | jsonfilter -qe '@.content') || gwordjson=$(curl -s 'https://open.iciba.com/dsapi/' | jsonfilter -qe '@.note')
+            [ "X$LANG" == "Xen" ] && gwordjson=$(http_request 'https://open.iciba.com/dsapi/' | jsonfilter -qe '@.content') || gwordjson=$(http_request 'https://open.iciba.com/dsapi/' | jsonfilter -qe '@.note')
             [ -n "${gwordjson}" ] && echo "$gwordjson"
             ;;
         2)
             # form iciba : https://api.vvhan.com/api/en
-            [ "X$LANG" == "Xen" ] && gwordjson=$(curl -s 'https://api.vvhan.com/api/en?type=sj' | jsonfilter -qe '@.data.zh') || gwordjson=$(curl -s 'https://api.vvhan.com/api/en?type=sj' | jsonfilter -qe '@.data.en')
+            [ "X$LANG" == "Xen" ] && gwordjson=$(http_request 'https://api.vvhan.com/api/en?type=sj' | jsonfilter -qe '@.data.zh') || gwordjson=$(http_request 'https://api.vvhan.com/api/en?type=sj' | jsonfilter -qe '@.data.en')
             [ -n "${gwordjson}" ] && echo "$gwordjson"
             ;;
         3)
-            local gwordjson=$(curl -s 'https://api.yixiangzhilv.com/yiyan/sentence/get/')
+            local gwordjson=$(http_request 'https://api.yixiangzhilv.com/yiyan/sentence/get/')
             local gword=$(echo $gwordjson | jsonfilter -qe '@.content')
             local gfrom=$(echo $gwordjson | jsonfilter -qe '@.author')
             [ -n "${gfrom}" ] && gfrom=$(echo "$gfrom") || gfrom=''
             [ -n "${gword}" ] && echo "$gword       $gfrom"
             ;;
         4)
-            local gwordjson=$(curl -s 'https://yijuzhan.com/api/word.php?m=json')
+            local gwordjson=$(http_request 'https://yijuzhan.com/api/word.php?m=json')
             local gword=$(echo $gwordjson | jsonfilter -qe '@.content')
             local gfrom=$(echo $gwordjson | jsonfilter -qe '@.source')
             [ -n "${gfrom}" ] && gfrom=$(echo "$gfrom") || gfrom=''
             [ -n "${gword}" ] && echo "$gword     $gfrom"
             ;;
         5)
-            local gword=$(curl -s https://v.api.aa1.cn/api/api-wenan-dujitang/index.php?aa1=json | sed 's/\[//g' | sed 's/\]//g' | jsonfilter -qe '@.dujitang')
+            local gword=$(http_request 'https://v.api.aa1.cn/api/api-wenan-dujitang/index.php?aa1=json' | sed 's/\[//g' | sed 's/\]//g' | jsonfilter -qe '@.dujitang')
             [ -n "${gword}" ] && echo "$gword"
             ;;
         *)
-            local gwordjson=$(curl -s 'https://v1.hitokoto.cn')
+            local gwordjson=$(http_request 'https://v1.hitokoto.cn')
             local gword=$(echo $gwordjson | jsonfilter -qe '@.hitokoto')
             local gfrom=$(echo $gwordjson | jsonfilter -qe '@.from_who')
             [ -n "${gfrom}" ] && gfrom=$(echo "$gfrom") || gfrom=''
@@ -135,32 +239,31 @@ fetch_PicUrl() {
     local picurl
     case "$background" in
         1)
-             picurl=$(curl -s 'https://open.iciba.com/dsapi/' |\
-	     jsonfilter -qe '@.picture4')
+             picurl=$(http_request 'https://open.iciba.com/dsapi/' | jsonfilter -qe '@.picture4')
             [ -n "${picurl}" ] && echo "$picurl"
             ;;
         2)
-            curl -fks --max-time 3 \
-                --header "Authorization: Client-ID kmFIroj2ELqXJPtC0XUoyww-Tr_lDU8Ho8uxjptIrCo" \
-                "https://api.unsplash.com/photos/random?count=1&orientation=landscape" |
+            http_request_with_header \
+                "https://api.unsplash.com/photos/random?count=1&orientation=landscape" \
+                "Authorization: Client-ID kmFIroj2ELqXJPtC0XUoyww-Tr_lDU8Ho8uxjptIrCo" |
                 jsonfilter -e "@[0]['urls']['regular']"
             ;;
         3)
-            picurl=$(curl -s "https://www.bing.com/HPImageArchive.aspx?format=js&n=1" |\
-	     jsonfilter -qe '@.images[0].url')
+            picurl=$(http_request "https://www.bing.com/HPImageArchive.aspx?format=js&n=1" | jsonfilter -qe '@.images[0].url')
             [ -n "${picurl}" ] && echo "https://www.bing.com${picurl}"
             ;;
         4)
-            i=$(awk 'BEGIN{srand();print int(rand()*8)}')
-            j=$(awk 'BEGIN{srand();print int(rand()*200)}')
-            curl -s "http://wp.birdpaper.com.cn/intf/search?content=4k&pageno=$j&count=9" | 
+            # 使用 /dev/urandom 生成随机数，兼容 BusyBox
+            i=$(hexdump -n 1 -e '"%u"' /dev/urandom 2>/dev/null | awk '{print $1 % 8}')
+            j=$(hexdump -n 2 -e '"%u"' /dev/urandom 2>/dev/null | awk '{print $1 % 200}')
+            http_request "http://wp.birdpaper.com.cn/intf/search?content=4k&pageno=$j&count=9" | 
 	    awk -F '\"count\":9' '{print $2}' | awk -F ',\"processTime\"' '{print $1}' | 
 	    sed 's#,#{#' | 
 	    jsonfilter -e "@.list[$i].url"
             ;;
         5)
-            curl -fks --max-time 3 \
-                "https://wallhaven.cc/api/v1/search?resolutions=1920x1080&sorting=random" |
+            http_request_with_header \
+                "https://wallhaven.cc/api/v1/search?resolutions=1920x1080&sorting=random" "" |
                 jsonfilter -qe '@.data[0].path'
             ;;
     esac
@@ -172,17 +275,38 @@ try_down_pic() {
     if flock -n 200 >/dev/null 2>&1; then
         local bgurl="$(fetch_PicUrl)"
         if [ -n "$bgurl" ]; then
-             rm -rf "$PIC_TMP_PATH" "$PIC_LINK_PATH"
-	     local tmp_file="${PIC_TMP_PATH}.$$.tmp"
-            if curl -kLfsm 3 "$bgurl" -o "${tmp_file}" > /dev/null 2>&1; then
-		if [ -s "$tmp_file" ]; then
-                     mv "${tmp_file}" "${PIC_TMP_PATH}"
-                     chmod 644 "${PIC_TMP_PATH}"
-                     date +%Y%m%d > "$PIC_CACHE"
-                     ln -sf "$PIC_TMP_PATH" "$PIC_LINK_PATH"
-		fi
+            rm -rf "$PIC_TMP_PATH" "$PIC_LINK_PATH"
+            local tmp_file="${PIC_TMP_PATH}.$$.tmp"
+            local download_success=0
+            local tool=$(check_http_tool)
+            local interfaces=$(get_available_wan_interfaces)
+            
+            case "$tool" in
+                "curl")
+                    if [ -z "$interfaces" ]; then
+                        curl -kLfsm 30 "$bgurl" -o "${tmp_file}" > /dev/null 2>&1 && download_success=1
+                    else
+                        # 尝试每个可用的WAN接口
+                        for iface in $interfaces; do
+                            if curl --interface "$iface" -kLfsm 30 "$bgurl" -o "${tmp_file}" > /dev/null 2>&1; then
+                                download_success=1
+                                break
+                            fi
+                        done
+                    fi
+                    ;;
+                "wget")
+                    wget -q -T 30 -t 2 -O "${tmp_file}" "$bgurl" > /dev/null 2>&1 && download_success=1
+                    ;;
+            esac
+            
+            if [ $download_success -eq 1 ] && [ -s "$tmp_file" ]; then
+                mv "${tmp_file}" "${PIC_TMP_PATH}"
+                chmod 644 "${PIC_TMP_PATH}"
+                date +%Y%m%d > "$PIC_CACHE"
+                ln -sf "$PIC_TMP_PATH" "$PIC_LINK_PATH"
             else
-                rm -f "${PIC_PATH}.tmp"
+                rm -f "${tmp_file}"
             fi
         fi
         flock -u 200 >/dev/null 2>&1

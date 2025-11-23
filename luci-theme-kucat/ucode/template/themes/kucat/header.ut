@@ -199,7 +199,7 @@ if (dayword == "1") {
         --primary-rgbm: {{ primary_rgbm }};--primary-rgbm-ts: {{ primary_rgbm_ts }};--primary-rgbs: {{ primary_rgbs }};--primary-rgbs-ts: {{ primary_rgbs_ts }};
         --font-d: {{ fontd }};--font-z: {{ fontz }};--font-x: {{ fontx }};--ufilter: {{ ufilter }};
         {% if (automode == 'dark'): %}
-            --menu-item-titlebg-color: rgba(var(--primary-rgbm),0.32);--body-hover-bgcolor: rgba(255,255,255,0.05);--menu-hover-color: #f5f5f5f5;--menu-fontcolor: #ddd;--primarytextcolor: #bbb;--primary-title-color: #ccc;--menu-color: #ddd;--title-color: #ddd;--body-color: #bbb;
+            --menu-item-titlebg-color: rgba(var(--primary-rgbm),0.32);--body-hover-bgcolor: rgba(255,255,255,0.05);--menu-hover-color: #f5f5f5f5;--menu-fontcolor: #bbb;--primarytextcolor: #bbb;--primary-title-color: #ccc;--menu-color: #ddd;--title-color: #ddd;--body-color: #bbb;
             --primary-rgbbody:33,45,60;--inputtext-color: #ccc;  --inputborder-color: rgba(255,255,255,0.2);  --input-bgcolor: rgba(0,0,0,0.2);  --input-boxcolor: rgba(255,255,255,0.22);  --input-boxhovercolor: rgba(255,255,255,0.32);  --input-checkcolor: rgba(255,255,255,0.7);--filter-color:invert(90%);
         {% else %}
             --menu-item-titlebg-color: rgba(var(--primary-rgbm),0.12);--body-hover-bgcolor: rgba(50,50,50,0.05);--menu-hover-color: #fff;--menu-fontcolor: #f5f5f5f5;--primarytextcolor: #505063;--primary-title-color: #4d4d5d;--menu-color: #eee;--title-color: #3c3c3c;--body-color: #424242;
@@ -209,9 +209,9 @@ if (dayword == "1") {
             --bgqs-image: -webkit-linear-gradient(135deg, rgba(255, 255, 255, 0.1) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.1) 75%, transparent 75%, transparent);
             --menu-bgcolor: rgba(var(--primary-rgbm), var(--primary-rgbm-ts));--menu-item-hover-bgcolor: rgba(248,248,248, 0.22);--menu-item-active-bgcolor: rgba(248,248,248, 0.3);
         {% else %}
-            --bgqs-image: none;--menu-bgcolor: rgba(var(--primary-rgbbody), var(--primary-rgbm-ts));--menu-item-hover-bgcolor: rgba(var(--primary-rgbm), 0.8);--menu-item-active-bgcolor:  rgba(var(--primary-rgbm), var(--primary-rgbm-ts));
+            --bgqs-image: none;--menu-bgcolor: rgba(var(--primary-rgbbody), var(--primary-rgbm-ts));--menu-item-hover-bgcolor: rgba(var(--primary-rgbm), 0.8);--menu-item-active-bgcolor:  rgba(var(--primary-rgbm), 0.9);
             {% if (automode == 'dark'): %}
-                      --menu-fontcolor: #ddd;
+                      --menu-fontcolor: #bbb;
             {% else %}
                       --menu-fontcolor: #333333;
             {% endif %}
