@@ -21,12 +21,6 @@ local chnlist_update = "0"
 local geoip_update = "0"
 local geosite_update = "0"
 
--- match comments/title/whitelist/ip address/excluded_domain
-local comment_pattern = "^[#!\\[@]+"
-local ip_pattern = "^%d+%.%d+%.%d+%.%d+"
-local ip4_ipset_pattern = "^%d+%.%d+%.%d+%.%d+[%/][%d]+$"
-local ip6_ipset_pattern = ":-[%x]+%:+[%x]-[%/][%d]+$"
-local domain_pattern = "([%w%-]+%.[%w%.%-]+)[%/%*]*"
 local excluded_domain = {"apple.com","sina.cn","sina.com.cn","baidu.com","byr.cn","jlike.com","weibo.com","zhongsou.com","youdao.com","sogou.com","so.com","soso.com","aliyun.com","taobao.com","jd.com","qq.com","bing.com"}
 
 local gfwlist_url = uci:get(name, "@global_rules[0]", "gfwlist_url") or {"https://fastly.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/gfw.txt"}
@@ -87,7 +81,8 @@ end
 -- curl
 local function curl(url, file, valifile)
 	local args = {
-		"-skL", "-w %{http_code}", "--retry 3", "--connect-timeout 3", "--max-time 300", "--speed-limit 51200 --speed-time 15"
+		"-skL", "-w %{http_code}", "--retry 3", "--connect-timeout 3", "--max-time 300", "--speed-limit 51200 --speed-time 15",
+		'-A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"'
 	}
 	if file then
 		args[#args + 1] = "-o " .. file
@@ -100,14 +95,43 @@ local function curl(url, file, valifile)
 end
 
 --check excluded domain
+local excluded_map = {}
+for _, d in ipairs(excluded_domain) do
+	excluded_map[d] = true
+end
 local function check_excluded_domain(value)
-	value = value and value:lower() or ""
-	for _, domain in ipairs(excluded_domain) do
-		local pattern = "^[a-z0-9-]+%.(" .. domain .. ")$"
-		if value:match(pattern) then
-		    return true
-		end
+	if not value or value == "" then return false end
+	value = value:lower()
+	local eq_pos = value:find("=", 1, true)
+	if eq_pos then
+		value = value:sub(eq_pos + 1)
 	end
+	if value:sub(1,1) == "/" then
+		value = value:sub(2)
+	end
+	local slash_pos = value:find("/", 1, true)
+	local colon_pos = value:find(":", 1, true)
+	local cut_pos
+	if slash_pos and colon_pos then
+		cut_pos = (slash_pos < colon_pos) and slash_pos or colon_pos
+	else
+		cut_pos = slash_pos or colon_pos
+	end
+	if cut_pos then
+		value = value:sub(1, cut_pos - 1)
+	end
+	value = value:gsub("^%.*", ""):gsub("%.*$", "")
+	while value do
+		if excluded_map[value] then
+			return true
+		end
+		local dot_pos = value:find(".", 1, true)
+		if not dot_pos then
+			break
+		end
+		value = value:sub(dot_pos + 1)
+	end
+	return false
 end
 
 local function line_count(file_path)
@@ -116,6 +140,185 @@ local function line_count(file_path)
 		num = num + 1
 	end
 	return num;
+end
+
+-- 替代 string.find 查找 "^[#!\\[@]+"
+local function is_comment_line(s)
+	if not s or s == "" then return false end
+	local b = s:byte(1)
+	-- '#' = 35, '!' = 33, '\' = 92, '[' = 91, '@' = 64
+	if b == 35 or b == 33 or b == 92 or b == 91 or b == 64 then
+		return true
+	end
+	return false
+end
+
+-- IPv4 检测，替代 string.find "^%d+%.%d+%.%d+%.%d+"
+-- IPv4 cidr检测，替代 string.find "^%d+%.%d+%.%d+%.%d+[%/][%d]+$"
+local function is_ipv4(s, check_cidr)
+	local dot = 0
+	local seg_start = 1
+	local len = #s
+	local mask_start = nil
+	local i = 1
+	while i <= len do
+		local b = s:byte(i)
+		if b >= 48 and b <= 57 then
+			-- 数字，继续
+		elseif b == 46 then  -- "."
+			dot = dot + 1
+			if dot > 3 or i == seg_start then return false end
+			local seg = tonumber(s:sub(seg_start, i - 1))
+			if not seg or seg > 255 then return false end
+			seg_start = i + 1
+		elseif b == 47 then  -- "/"
+			if not check_cidr then return false end
+			if dot ~= 3 or i == seg_start then return false end
+			local seg = tonumber(s:sub(seg_start, i - 1))
+			if not seg or seg > 255 then return false end
+			mask_start = i + 1
+			break
+		else
+			return false
+		end
+		i = i + 1
+	end
+	-- 如果没有 CIDR，则检查最后一段即可
+	if not check_cidr or not mask_start then
+		if dot ~= 3 or seg_start > len then return false end
+		local seg = tonumber(s:sub(seg_start))
+		return seg and seg <= 255 or false
+	end
+	-- CIDR 掩码检查
+	if mask_start > len then return false end
+	local mask = tonumber(s:sub(mask_start))
+	return mask and mask >= 0 and mask <= 32 or false
+end
+
+local function is_ipv4_cidr(s)
+	return is_ipv4(s, true)
+end
+
+local function is_ipv6(s, check_cidr)
+	local first = s:byte(1)
+	local last = s:byte(#s)
+	if first == 91 and last == 93 then  -- "[" and "]"
+		s = s:sub(2, -2)
+	end
+	local len = #s
+	local i = 1
+	local seg_len = 0
+	local segs = 0
+	local saw_dc = false  -- 是否出现 "::"
+	local b
+	while i <= len do
+		b = s:byte(i)
+		-- CIDR 部分
+		if b == 47 then  -- '/'
+			if not check_cidr then
+				return false
+			end
+			-- 处理 "/" 之前的段
+			if seg_len > 0 then segs = segs + 1 end
+			if (not saw_dc and segs ~= 8) or (saw_dc and segs > 8) then return false end
+			-- 解析掩码
+			i = i + 1
+			if i > len then return false end
+			local mask = 0
+			while i <= len do
+				b = s:byte(i)
+				if b < 48 or b > 57 then return false end
+				mask = mask * 10 + (b - 48)
+				if mask > 128 then return false end
+				i = i + 1
+			end
+			-- CIDR 解析成功
+			return true
+		end
+		-- 冒号处理（: 或 ::）
+		if b == 58 then
+			local nextb = (i+1 <= len) and s:byte(i+1) or 0
+			-- "::"
+			if nextb == 58 then
+				if saw_dc then return false end
+				saw_dc = true
+				if seg_len > 0 then segs = segs + 1 end
+				seg_len = 0
+				i = i + 2
+			else
+				-- 普通 ":"
+				if seg_len == 0 then return false end
+				segs = segs + 1
+				seg_len = 0
+				i = i + 1
+			end
+		else
+			-- hex 数字
+			local is_hex =
+				(b >= 48 and b <= 57) or   -- 0-9
+				(b >= 65 and b <= 70) or   -- A-F
+				(b >= 97 and b <= 102)     -- a-f
+			if not is_hex then return false end
+			seg_len = seg_len + 1
+			if seg_len > 4 then return false end
+			i = i + 1
+		end
+	end
+	if seg_len > 0 then segs = segs + 1 end
+	if not saw_dc then return segs == 8 end
+	return segs <= 8
+end
+
+-- IPv6 cidr检测，替代 string.find ":-[%x]+%:+[%x]-[%/][%d]+$"
+local function is_ipv6_cidr(s)
+	return is_ipv6(s, true)
+end
+
+-- 检测是否含有冒号，替代 string.find(line, ":")
+local function has_colon(s)
+	for i = 1, #s do
+		if s:byte(i) == 58 then  -- ':'
+			return true
+		end
+	end
+	return false
+end
+
+-- 域名提取，替代 string.match "([%w%-]+%.[%w%.%-]+)[%/%*]*"
+local function extract_domain(s)
+	if not s or s == "" then return nil end
+	local len = #s
+	local start = nil
+	local last_dot = nil
+	for i = 1, len do
+		local b = s:byte(i)
+		-- 允许的域名字符：a-zA-Z0-9.- 
+		if (b >= 48 and b <= 57) or (b >= 65 and b <= 90) or (b >= 97 and b <= 122) or b == 45 or b == 46 then
+			if not start then start = i end
+			if b == 46 then last_dot = i end
+		else
+			if start then
+				if last_dot and last_dot > start then
+					local domain = s:sub(start, i - 1)
+					while domain:byte(1) == 46 do
+						domain = domain:sub(2)
+					end
+					return domain
+				else
+					start = nil
+					last_dot = nil
+				end
+			end
+		end
+	end
+	if start and last_dot and last_dot > start then
+		local domain = s:sub(start)
+		while domain:byte(1) == 46 do
+			domain = domain:sub(2)
+		end
+		return domain
+	end
+	return nil
 end
 
 local function non_file_check(file_path, vali_file)
@@ -201,7 +404,6 @@ local function fetch_rule(rule_name,rule_type,url,exclude_domain)
 
 		if sret_tmp == 200 then
 			if rule_name == "gfwlist" and geo2rule == "0" then
-				local domains = {}
 				local gfwlist = io.open(download_file_tmp..k, "r")
 				local decode = api.base64Decode(gfwlist:read("*all"))
 				gfwlist:close()
@@ -214,8 +416,8 @@ local function fetch_rule(rule_name,rule_type,url,exclude_domain)
 			if rule_type == "domain" and exclude_domain == true then
 				for line in io.lines(download_file_tmp..k) do
 					line = line:gsub("full:", "")
-					if not (string.find(line, comment_pattern) or string.find(line, ip_pattern) or check_excluded_domain(line) or string.find(line, ":")) then
-						local match = string.match(line, domain_pattern)
+					if not (is_comment_line(line) or is_ipv4(line) or check_excluded_domain(line) or has_colon(line)) then
+						local match = extract_domain(line)
 						if match then
 							domains[match] = true
 						end
@@ -225,8 +427,8 @@ local function fetch_rule(rule_name,rule_type,url,exclude_domain)
 			elseif rule_type == "domain" then
 				for line in io.lines(download_file_tmp..k) do
 					line = line:gsub("full:", "")
-					if not (string.find(line, comment_pattern) or string.find(line, ip_pattern) or string.find(line, ":")) then
-						local match = string.match(line, domain_pattern)
+					if not (is_comment_line(line) or is_ipv4(line) or has_colon(line)) then
+						local match = extract_domain(line)
 						if match then
 							domains[match] = true
 						end
@@ -235,22 +437,35 @@ local function fetch_rule(rule_name,rule_type,url,exclude_domain)
 
 			elseif rule_type == "ip4" then
 				local out = io.open(unsort_file_tmp, "a")
+				local function is_0dot(s) -- "^0%..*"
+					return s and s:byte(1)==48 and s:byte(2)==46
+				end
 				for line in io.lines(download_file_tmp..k) do
-					if string.match(line, ip4_ipset_pattern) and not string.match(line, "^0%..*") then
-						out:write(string.format("%s\n", line))
+					if is_ipv4_cidr(line) and not is_0dot(line) then
+						out:write(line .. "\n")
 					end
 				end
 				out:close()
 
 			elseif rule_type == "ip6" then
 				local out = io.open(unsort_file_tmp, "a")
+				local function is_double_colon_cidr(s) -- "^::(/%d+)?$"
+					if not s or s:byte(1)~=58 or s:byte(2)~=58 then return false end
+					local l = #s
+					if l==2 then return true end
+					if l==3 or s:byte(3)~=47 then return false end
+					for i=4,l do
+						local b=s:byte(i)
+						if b<48 or b>57 then return false end
+					end
+					return true
+				end
 				for line in io.lines(download_file_tmp..k) do
-					if string.match(line, ip6_ipset_pattern) and not string.match(line, "^::(/%d+)?$") then
-						out:write(string.format("%s\n", line))
+					if is_ipv6_cidr(line) and not is_double_colon_cidr(line) then
+						out:write(line .. "\n")
 					end
 				end
 				out:close()
-
 			end
 		else
 			sret = 0
@@ -268,7 +483,7 @@ local function fetch_rule(rule_name,rule_type,url,exclude_domain)
 			end
 			out:close()
 		end
-		sys.call("LC_ALL=C sort -u " .. unsort_file_tmp .. " > " .. file_tmp)
+		os.execute("LC_ALL=C /bin/busybox sort -u " .. unsort_file_tmp .. " > " .. file_tmp)
 		os.remove(unsort_file_tmp)
 
 		local old_md5 = sys.exec("echo -n $(md5sum " .. rule_path .. "/" ..rule_name.. " | awk '{print $1}')"):gsub("\n", "")
@@ -290,10 +505,10 @@ local function fetch_rule(rule_name,rule_type,url,exclude_domain)
 					end
 					gen_cache(set_name, "ipv6_addr", file_tmp, output_file)
 				end
-				sys.exec(string.format('mv -f %s %s', output_file, rule_path .. "/" ..rule_name.. ".nft"))
+				sys.call(string.format('mv -f %s %s', output_file, rule_path .. "/" ..rule_name.. ".nft"))
 				os.remove(output_file)
 			end
-			sys.exec("mv -f "..file_tmp .. " " ..rule_path .. "/" ..rule_name)
+			sys.call("mv -f "..file_tmp .. " " ..rule_path .. "/" ..rule_name)
 			reboot = 1
 			log(rule_name.. " 更新成功，总规则数 " ..count.. " 条。")
 		else
