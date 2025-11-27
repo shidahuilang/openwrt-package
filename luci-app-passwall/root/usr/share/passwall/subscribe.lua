@@ -504,8 +504,8 @@ local function processData(szType, content, add_mode, group)
 		end
 		result.obfs_param = base64Decode(params.obfsparam)
 		result.protocol_param = base64Decode(params.protoparam)
-		local group = base64Decode(params.group)
-		if group then result.group = group end
+		-- local ssr_group = base64Decode(params.group)
+		-- if ssr_group then result.ssr_group = ssr_group end
 		result.remarks = base64Decode(params.remarks)
 	elseif szType == 'vmess' then
 		local info = jsonParse(content)
@@ -1207,7 +1207,7 @@ local function processData(szType, content, add_mode, group)
 				result.xhttp_path = params.path
 				result.xhttp_mode = params.mode or "auto"
 				result.use_xhttp_extra = (params.extra and params.extra ~= "") and "1" or nil
-				result.xhttp_extra = (params.extra and params.extra ~= "") and params.extra or nil
+				result.xhttp_extra = (params.extra and params.extra ~= "") and api.base64Encode(params.extra) or nil
 				local success, Data = pcall(jsonParse, params.extra)
 				if success and Data then
 					local address = (Data.extra and Data.extra.downloadSettings and Data.extra.downloadSettings.address)
