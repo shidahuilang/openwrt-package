@@ -662,7 +662,6 @@ header .fill .container .flex1 .brand {
 header .fill .status span {
     display: inline-block;
     font-size: .875rem;
-    font-weight: 700;
     white-space: nowrap;
     text-decoration: none;
     text-transform: uppercase;
@@ -2112,8 +2111,8 @@ body.modal-overlay-active #modal_overlay {
 
 .cbi-section {
     border: 0px solid rgba(0, 0, 0, 0);
-    overflow: auto;
     box-shadow: 0px 1px 0px var(--input-boxcolor);
+	overflow-x: auto;
     padding: 0
 }
 
@@ -2347,11 +2346,6 @@ div>.table>.tr:nth-of-type(2n+1):hover {
     display: table-cell
 }
 
-.cbi-value-field>div {
-    align-items: center;
-    line-height: 1.2
-}
-
 .cbi-value-description {
     font-size: 0.75rem;
     opacity: .7;
@@ -2417,8 +2411,8 @@ div>.table>.tr:nth-of-type(2n+1):hover {
 .cbi-section-table-row>.cbi-value-field .cbi-input-select,
 .cbi-section-table-row>.cbi-value-field .cbi-input-text,
 .cbi-section-table-row>.cbi-value-field .cbi-input-password {
-    min-width: 8rem;
-    max-width: 10rem
+    min-width: 6rem;
+    max-width: 8rem
 }
 
 .cbi-section-table-row>.cbi-value-field [data-dynlist]>input,
@@ -3372,6 +3366,12 @@ body.lang_pl.node-main-login .cbi-value-title {
     max-width: 14rem;
     width: 10rem
 }
+.history-tooltip {
+  background-color: rgba(var(--primary-rgbbody),1)!important;
+  color: var(--body-color) !important;
+  border: 1px solid var(--input-boxcolor)!important;
+  width: 300px!important;
+}
 
 #dialog_reslov .dialog_box {
     width: 90% !important;
@@ -3853,6 +3853,9 @@ input,
         text-align: left
     }
 
+    .cbi-section {
+        padding-bottom: 0.5rem;
+    }
     .cbi-tab-descr {
         padding: 0 0.3rem
     }
@@ -3943,9 +3946,6 @@ input,
         padding: 0.5rem 0 0.2rem 0.3rem
     }
 
-    .cbi-section {
-        padding-bottom: 0.5rem
-    }
 
     .td,
     .th {
@@ -4032,10 +4032,6 @@ input,
     .cbi-value-field {
         text-align: left;
         padding: 0 0.3rem
-    }
-
-    .cbi-value-field>div {
-        line-height: 1
     }
 
     .cbi-dynlist p {
