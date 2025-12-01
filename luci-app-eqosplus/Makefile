@@ -18,7 +18,7 @@ LUCI_DEPENDS:=+ip-full +tc +nftables +bc +kmod-ifb
 LUCI_PKGARCH:=all
 
 PKG_VERSION:=1.3.0
-PKG_RELEASE:=19
+PKG_RELEASE:=20
 PKG_MAINTAINER:=sirpdboy <herboy2008@gmail.com>
 
 define Build/Compile
