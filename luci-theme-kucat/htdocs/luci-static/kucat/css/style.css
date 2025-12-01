@@ -294,20 +294,43 @@ body {
 
 .td,
 .th {
-    line-height: normal;
     display: table-cell;
     font-size: var(--font-x);
     color: var(--body-color);
     text-align: center;
     vertical-align: middle;
     white-space: nowrap;
-    padding: .78rem
+    padding: .7rem
+}
+
+.th {
+    padding: .6rem
 }
 
 .tr.placeholder {
-    height: 2rem
+    height: 1.9rem
+}
+#cbi-firewall .tr[data-title]::before, #cbi-firewall .tr.cbi-section-table-titles.named::before {
+  font-weight: bold;
+  display: table-cell;
+  align-self: center;
+  flex: 1 1 5%;
+  padding: .5rem;
+  content: attr(data-title) "\20";
+  text-align: center;
+  vertical-align: middle;
+  white-space: normal;
+  word-wrap: break-word;
+  font-size: var(--font-z);
 }
 
+ #cbi-firewall .tr.cbi-section-table-titles.named::before {
+    background-color: var(--menu-item-titlebg-color) !important;
+}
+
+.cbi-section-table-row {
+  text-align: center !important;
+}
 .tr.placeholder>.td {
     position: absolute;
     right: 0;
@@ -486,11 +509,6 @@ a:hover {
     text-decoration: underline
 }
 
-em {
-    font-style: normal !important;
-    line-height: 1.5;
-    padding-left: 10px
-}
 
 code {
     font-size: var(--font-x);
@@ -509,7 +527,7 @@ abbr {
 
 hr {
     opacity: .1;
-    border-color: #eee;
+    border-color: var(--input-boxcolor);
     margin: 1rem 0
 }
 
@@ -544,7 +562,7 @@ footer a {
 #view {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    /* gap: 1rem; */
     min-width: inherit;
     overflow-x: auto;
     overflow-y: hidden
@@ -564,6 +582,13 @@ footer a {
     color: var(--title-color);
     box-shadow: 0 0.1rem 0.4rem var(--input-boxcolor);
     padding: 1rem 3rem !important
+}
+
+.container .cbi-map>div:not(.cbi-button),
+.container .cbi-map>fieldset.cbi-section:not(.cbi-button),
+#view>#content_syslog,
+#view>div>div:not(.cbi-button) {
+  padding: 0 1%;
 }
 
 .main {
@@ -610,7 +635,7 @@ footer a {
     flex-direction: column
 }
 
-.main-right>#maincontent>.container {
+#maincontent>.container {
     flex-grow: 1;
     display: flex;
     flex-direction: column
@@ -1115,7 +1140,7 @@ li {
     min-width: inherit;
     overflow: unset;
     border-radius: var(--radius1);
-    background-color: rgba(var(--primary-rgbbody), var(--primary-rgbm-ts));
+    background-color: rgba(var(--primary-rgbbody), 0.9);
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.16), 0 0 2px 0 var(--input-boxcolor);
     padding: 1rem
 }
@@ -1260,7 +1285,7 @@ select,
 }
 
 select option {
-    background-color: rgba(var(--primary-rgbbody), 1);
+    background-color: rgba(var(--primary-rgbbody), 0.95);
     width: 100% !important;
     overflow: hidden
 }
@@ -1302,7 +1327,7 @@ input[type='radio'] {
     appearance: none !important;
     -webkit-appearance: none !important;
     background-image: url('data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'-4 -4 8 8\'%3e%3ccircle r=\'3\' fill=\'%23ccc\'/%3e%3c/svg%3e');
-    background-color: rgba(var(--primary-rgbm), 0.2);
+    background-color: rgba(var(--primary-rgbm), 0.3);
     box-shadow: inset 0 2px 1px rgba(255, 255, 255, .6);
     border-radius: 70%;
     cursor: pointer;
@@ -1419,11 +1444,11 @@ textarea,
     width: auto;
     min-width: 100%;
     max-width: none;
-    max-height: 200px !important;
+    max-height: 170px !important;
     box-shadow: 0 0 4px var(--inputborder-color);
     border-radius: var(--radius2);
     border: 0px solid var(--inputborder-color);
-    background-color: rgba(var(--primary-rgbbody), 1);
+    background-color: rgba(var(--primary-rgbbody), 0.95);
     color: var(--inputtext-color);
     margin-left: 0 !important;
     margin-top: 0rem;
@@ -1551,12 +1576,23 @@ textarea,
     color: var(--menu-hover-color);
     border-right: 0.18751rem solid rgba(255, 255, 255, 0);
     letter-spacing: 1px;
-    white-space: nowrap;
+    /*white-space: nowrap; */
     margin-bottom: 0.5rem;
     overflow-x: auto;
-    padding: 0.3rem 1rem
 }
 
+.container .cbi-tabmenu, .container #tabmenu {
+  margin-left: -2%!important; 
+}
+
+ul.tabs, .tabmenu .tabs, #tabmenu .tabs, ul.cbi-tabmenu {
+  padding-left: 2.5%!important;   
+  box-shadow: 0 1px 0px 0px var(--input-boxcolor), 0 0px 1px -1px var(--input-boxcolor);
+  transition: box-shadow .25s, -webkit-box-shadow .25s;
+  margin-bottom: 10px;
+  padding-top: 1rem;
+  padding-bottom: 0.3rem;
+}
 .tabs>li,
 .cbi-tabmenu li {
     display: inline-block;
@@ -1583,6 +1619,7 @@ textarea,
     box-shadow: 0 0.3rem 0.5rem var(--input-boxhovercolor);
     margin-bottom: 0
 }
+
 
 [data-tab-title] {
     overflow: hidden;
@@ -2060,7 +2097,7 @@ body.modal-overlay-active #modal_overlay {
 
 .notice {
     color: var(--primary-title-color);
-    background-color: rgba(var(--primary-rgbbody), 1);
+    background-color: rgba(var(--primary-rgbbody), 0.95);
     padding: 2rem 1rem
 }
 
@@ -2085,9 +2122,8 @@ body.modal-overlay-active #modal_overlay {
 .cbi-map {
     display: flex;
     flex-direction: column;
-    
-	overflow-x: auto;
-    gap: 1rem
+    overflow-x: auto;
+    /* gap: 1rem */
 }
 
 .cbi-section,
@@ -2111,7 +2147,7 @@ body.modal-overlay-active #modal_overlay {
 
 .cbi-section {
     border: 0px solid rgba(0, 0, 0, 0);
-    box-shadow: 0px 1px 0px var(--input-boxcolor);
+    box-shadow: 0 1px 0px 0px var(--input-boxcolor), 0 0px 1px -1px var(--input-boxcolor);
     padding: 0
 }
 
@@ -2210,7 +2246,7 @@ table>thead>tr>th,
     letter-spacing: 1px;
     color: var(--body-color);
     white-space: nowrap;
-    padding: 1.2rem 1.5rem
+    padding: 0.5rem;
 }
 
 table .tr>.td.cbi-value-field,
@@ -2220,9 +2256,12 @@ table .tr>.th.cbi-section-table-cell {
     display: table-cell !important;
     color: var(--body-color);
     white-space: nowrap;
-    padding: 0.2rem
+    width: auto;
+    padding: 0.5rem
 }
-
+tr>td, tr>th, .tr>.td, .tr>.th, .cbi-section-table-row::before, #cbi-wireless>#wifi_assoclist_table>.tr:nth-child(2) {
+  padding: 0.7rem 1rem;
+}
 table .tr>.td.cbi-value-field>[id*="ifc-description"] {
     text-align: center;
     font-weight: 400 !important
@@ -2251,28 +2290,29 @@ td.cbi-value-field var,
 .tr.table-titles>.th,
 .tr.cbi-section-table-titles>.th {
     font-size: var(--font-z);
-    background-color: var(--menu-item-titlebg-color) !important;
     color: var(--title-color) !important;
     border-top: 0 !important;
-    padding: 0.7rem 0.2rem !important
 }
 
+.tr.table-titles>.th,
+.tr.cbi-section-table-titles>.th {
+    background-color: var(--menu-item-titlebg-color) !important;
+}
 .cbi-section-table .cbi-section-table-titles .cbi-section-table-cell {
     width: auto !important
 }
 
 .cbi-tabcontainer>.cbi-value:nth-of-type(4n+2),
 .cbi-map>.cbi-section .cbi-value:nth-of-type(4n+2),
-fieldset>table>tbody>tr:nth-of-type(4n+2),
+.cbi-map>div>.cbi-section>.cbi-section-node>.cbi-value:nth-of-type(4n+1),
 table>tbody>tr:nth-of-type(4n+2),
 div>.table>.tr:nth-of-type(4n+2) {
     background-color: rgba(var(--primary-rgbs), var(--primary-rgbs-ts));
     background-image: var(--bgqs-image)
 }
-
+.cbi-map>div>.cbi-section>.cbi-section-node>.cbi-value:nth-of-type(4n+2),
 .cbi-tabcontainer>.cbi-value:nth-of-type(4n),
 .cbi-map>.cbi-section .cbi-value:nth-of-type(4n),
-fieldset>table>tbody>tr:nth-of-type(4n),
 table>tbody>tr:nth-of-type(4n),
 div>.table>.tr:nth-of-type(4n) {
     background-color: rgba(var(--primary-rgbm), var(--primary-rgbs-ts));
@@ -2281,17 +2321,16 @@ div>.table>.tr:nth-of-type(4n) {
 
 .cbi-tabcontainer>.cbi-value:nth-of-type(4n+2):hover,
 .cbi-map>.cbi-section .cbi-value:nth-of-type(4n+2):hover,
-fieldset>table>tbody>tr:nth-of-type(4n+2):hover,
+.cbi-map>div>.cbi-section>.cbi-section-node>.cbi-value:nth-of-type(2n+1):hover,
 table>tbody>tr:nth-of-type(4n+2):hover,
 div>.table>.tr:nth-of-type(4n+2):hover,
 .cbi-tabcontainer>.cbi-value:nth-of-type(4n):hover,
 .cbi-map>.cbi-section .cbi-value:nth-of-type(4n):hover,
-fieldset>table>tbody>tr:nth-of-type(4n):hover,
+.cbi-map>div>.cbi-section>.cbi-section-node>.cbi-value:nth-of-type(2n):hover,
 table>tbody>tr:nth-of-type(4n):hover,
 div>.table>.tr:nth-of-type(4n):hover,
 .cbi-tabcontainer>.cbi-value:nth-of-type(2n+1):hover,
 .cbi-map>.cbi-section .cbi-value:nth-of-type(2n+1):hover,
-fieldset>table>tbody>tr:nth-of-type(2n+1):hover,
 table>tbody>tr:nth-of-type(2n+1):hover,
 div>.table>.tr:nth-of-type(2n+1):hover {
     background-color: var(--body-hover-bgcolor)
@@ -2366,7 +2405,6 @@ div>.table>.tr:nth-of-type(2n+1):hover {
     display: inline-block;
     width: 100%;
     line-height: 2.3rem;
-    padding: 0 0.8rem
 }
 
 .cbi-value:first-child {
@@ -2508,7 +2546,10 @@ td>.ifacebadge,
 .nft-rules tr>td,
 .nft-rules tr>th {
     text-align: left !important;
-    padding: 0 0.8rem !important
+}
+
+.nft-rules tr>td{
+    line-height: 2rem;
 }
 
 .network-status-table {
@@ -2867,7 +2908,8 @@ body.lang_pl.node-main-login .cbi-value-title {
 }
 
 .node-main-login>.main .cbi-map {
-    padding: 1rem !important
+    padding: 1rem !important;
+    overflow: hidden;
 }
 
 .node-main-login>.main .container h2 {
@@ -3065,6 +3107,7 @@ body.lang_pl.node-main-login .cbi-value-title {
 #view>div,
 #view>table {
     backdrop-filter: var(--ufilter);
+    /* width: 100%; */
     -webkit-backdrop-filter: var(--ufilter)
 }
 
@@ -3117,7 +3160,6 @@ body.lang_pl.node-main-login .cbi-value-title {
     -webkit-overflow-scrolling: touch;
     margin-bottom: 20px;
     margin-top: 5px;
-    padding: 10px
 }
 
 [data-page^="admin-status-channel"] #view>div:first-child,
@@ -3184,6 +3226,7 @@ body.lang_pl.node-main-login .cbi-value-title {
 
 [data-page^="admin-system-ttyd-ttyd"] #view>iframe {
     border-radius: var(--radius2) !important;
+    padding: 0 1%;
     min-height: 600px !important
 }
 
@@ -3561,6 +3604,12 @@ pre {
     padding: 0 0.8rem
 }
 
+.controls>*>.btn:not([aria-label$="page"]) {
+  flex-grow: initial !important;
+  margin-top: .25rem;
+    padding: 0.5rem 1.2rem;
+}
+
 [data-theme="dark"] .pdboy-light:before,
 [data-theme="light"] .pdboy-dark:before {
     color: #aaa !important
@@ -3660,8 +3709,7 @@ input,
     display: initial
 }
 
-.cbi-dropdown[open]>ul.dropdown>li>input.create-item-input:first-child:last-child,
-#cbi-firewall .cbi-value-field {
+.cbi-dropdown[open]>ul.dropdown>li>input.create-item-input:first-child:last-child {
     width: 100%
 }
 
@@ -3852,9 +3900,6 @@ input,
         text-align: left
     }
 
-    .cbi-section {
-        padding-bottom: 0.5rem;
-    }
     .cbi-tab-descr {
         padding: 0 0.3rem
     }
@@ -3873,8 +3918,7 @@ input,
     table>tbody>tr>td,
     table>tfoot>tr>td,
     table>thead>tr>td {
-        font-size: var(--font-x);
-        color: var(--body-color);
+
         padding: 1rem 0.5rem
     }
 
@@ -3911,6 +3955,12 @@ input,
     input[name="traceroute"],
     input[name="nslookup"] {
         width: 100%
+    }
+    [data-page="admin-network-diagnostics"] .tr .td {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        flex: 1;
     }
 }
 
@@ -3950,7 +4000,7 @@ input,
     .th {
         line-height: 1;
         margin: 0;
-        padding: 10px
+        padding: 0.5rem;
     }
 
     h2 {
@@ -4008,11 +4058,6 @@ input,
         padding: 0
     }
 
-    .cbi-input-textarea,
-    textarea {
-        width: 18rem !important;
-        min-width: 8rem
-    }
 
     .modal.cbi-modal {
         max-width: 100%;
@@ -4085,6 +4130,11 @@ input,
 
     [data-page^="admin-network-dhcp"] [data-tab-active="true"]{
         padding: 0 !important
+    }
+
+    /* bandix */
+    .device-card {
+    background-color: rgba(var(--primary-rgbbody), 0.3)!important
     }
 }
 

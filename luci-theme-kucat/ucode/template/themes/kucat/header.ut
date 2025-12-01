@@ -202,7 +202,7 @@ if (dayword == "1") {
             --menu-item-titlebg-color: rgba(var(--primary-rgbm),0.32);--body-hover-bgcolor: rgba(255,255,255,0.05);--menu-hover-color: #f5f5f5f5;--menu-fontcolor: #bbb;--primarytextcolor: #bbb;--primary-title-color: #ccc;--menu-color: #ddd;--title-color: #ddd;--body-color: #bbb;
             --primary-rgbbody:33,45,60;--inputtext-color: #ccc;  --inputborder-color: rgba(255,255,255,0.2);  --input-bgcolor: rgba(0,0,0,0.2);  --input-boxcolor: rgba(255,255,255,0.22);  --input-boxhovercolor: rgba(255,255,255,0.32);  --input-checkcolor: rgba(255,255,255,0.7);--filter-color:invert(90%);
         {% else %}
-            --menu-item-titlebg-color: rgba(var(--primary-rgbm),0.12);--body-hover-bgcolor: rgba(50,50,50,0.05);--menu-hover-color: #fff;--menu-fontcolor: #f5f5f5f5;--primarytextcolor: #505063;--primary-title-color: #4d4d5d;--menu-color: #eee;--title-color: #3c3c3c;--body-color: #424242;
+            --menu-item-titlebg-color: rgba(var(--primary-rgbm),0.22);--body-hover-bgcolor: rgba(50,50,50,0.05);--menu-hover-color: #fff;--menu-fontcolor: #f5f5f5f5;--primarytextcolor: #505063;--primary-title-color: #4d4d5d;--menu-color: #eee;--title-color: #3c3c3c;--body-color: #424242;
             --primary-rgbbody:244,245,247;--inputtext-color: #383838;  --inputborder-color: rgba(0,0,0,0.2);  --input-bgcolor: rgba(255,255,255,0.2);  --input-boxcolor: rgba(0,0,0,0.22);  --input-boxhovercolor: rgba(0,0,0,0.32);  --input-checkcolor: rgba(var(--primary-rgbm),1);--filter-color:invert(10%);
 	{% endif %}
         {% if (bgqs == '0'): %}
