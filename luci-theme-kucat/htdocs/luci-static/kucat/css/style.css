@@ -562,7 +562,6 @@ footer a {
 #view {
     display: flex;
     flex-direction: column;
-    /* gap: 1rem; */
     min-width: inherit;
     overflow-x: auto;
     overflow-y: hidden
@@ -997,8 +996,6 @@ body[class*="node-"]>.main>.main-left>.nav>.slide>.menu.active::before {
     display: flex;
     height: 4.8rem;
     background-clip: padding-box;
-    /*border-bottom: 1px solid var(--menu-fontcolor); 
-    margin: 0rem 1rem;*/
     justify-content: center;
     align-items: center;
     padding: 2rem
@@ -1223,7 +1220,7 @@ input,
     line-height: 1;
     background-image: none;
     background-color: var(--input-bgcolor);
-    color: var(--inputtext-color);
+    color: var(--body-color);
     border: 1px solid var(--inputborder-color);
     border-radius: var(--radius2);
     transition: box-shadow 0.3s ease;
@@ -1357,6 +1354,7 @@ select:not([multiple="multiple"]):focus,
 input:not(.cbi-button):focus,
 .cbi-dropdown:focus {
     border: 1px solid rgba(var(--primary-rgbm), 0.7);
+    color: var(--inputtext-color);
     box-shadow: 0 1px 6px var(--input-boxhovercolor)
 }
 
@@ -1661,17 +1659,13 @@ textarea {
     -webkit-transition: color 100ms ease, border-color 100ms ease, opacity 100ms ease;
     outline: none;
     background-color: var(--input-bgcolor);
-    color: var(--inputtext-color);
+    color: var(--body-color);
     border: 1px solid var(--inputborder-color);
     word-wrap: break-word;
     white-space: pre-wrap;
     padding: 10px
 }
 
-.cbi-input-textarea:focus,
-textarea:focus {
-    box-shadow: 0 0.1rem 0.3rem var(--input-boxcolor)
-}
 
 .cbi-dynlist {
     line-height: 1.3;
@@ -2067,7 +2061,9 @@ body.modal-overlay-active #modal_overlay {
     margin-bottom: .5em;
     max-width: 100%
 }
-
+.modal>.cbi-map {
+        overflow-x: unset;
+}
 .modal>.button-row .btn {
     line-height: 1.3
 }
@@ -2263,7 +2259,7 @@ tr>td, tr>th, .tr>.td, .tr>.th, .cbi-section-table-row::before, #cbi-wireless>#w
   padding: 0.7rem 1rem;
 }
 table .tr>.td.cbi-value-field>[id*="ifc-description"] {
-    text-align: center;
+    text-align: left;
     font-weight: 400 !important
 }
 
@@ -2404,9 +2400,12 @@ div>.table>.tr:nth-of-type(2n+1):hover {
 .cbi-value {
     display: inline-block;
     width: 100%;
-    line-height: 2.3rem;
 }
 
+.cbi-value>.cbi-value-field,
+.cbi-value>.cbi-value-title {
+  line-height: 2.3rem;
+}
 .cbi-value:first-child {
     padding-top: 1rem
 }
@@ -2546,11 +2545,10 @@ td>.ifacebadge,
 .nft-rules tr>td,
 .nft-rules tr>th {
     text-align: left !important;
+      line-height: 1.5;
+      padding: 0.4rem 0.8rem !important;
 }
 
-.nft-rules tr>td{
-    line-height: 2rem;
-}
 
 .network-status-table {
     display: flex
@@ -3107,7 +3105,6 @@ body.lang_pl.node-main-login .cbi-value-title {
 #view>div,
 #view>table {
     backdrop-filter: var(--ufilter);
-    /* width: 100%; */
     -webkit-backdrop-filter: var(--ufilter)
 }
 
@@ -3375,13 +3372,17 @@ body.lang_pl.node-main-login .cbi-value-title {
 }
 
 [data-page^="admin-services-openclash"] .cbi-section,
-[data-page^="admin-services-openclash"] .cbi-section>div,
-[data-page^="admin-services-openclash"] .cbi-tabmenu {
+[data-page^="admin-services-openclash"] .cbi-section>div{
     background-color: rgba(var(--primary-rgbbody), 0.2) !important;
     border: 0px solid #ddd !important;
     box-shadow: none !important
 }
 
+[data-page^="admin-services-openclash"] .cbi-tabmenu {
+    background-color: rgba(var(--primary-rgbbody), 0.2) !important;
+    border: 0px solid #ddd !important;
+
+}
 [data-page^="admin-services-openclash"] #tab {
     border: 0px solid #ddd !important;
     box-shadow: none !important
@@ -3667,7 +3668,7 @@ pre {
 .container .alert,
 .container .alert-message,
 .cbi-map-descr+fieldset {
-    margin-top: 1rem
+    margin: 1%
 }
 
 button,
@@ -3962,6 +3963,7 @@ input,
         align-items: center;
         flex: 1;
     }
+
 }
 
 @media only screen and (max-width: 768px) {
@@ -4068,7 +4070,6 @@ input,
         display: flex;
         align-items: center;
         flex-wrap: wrap;
-        width: 100%;
         padding: 0.5rem
     }
 

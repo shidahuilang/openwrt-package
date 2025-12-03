@@ -37,8 +37,9 @@ chmod 755 "$PIC_LINK_DIR" "$PIC_TMP_DIR"
 
 # 获取可用的WAN接口
 get_available_wan_interfaces() {
-    # 获取所有活跃的网络接口
-    for iface in $(ip route | grep default | awk '{print $5}' | sort -u); do
+    ifaces=$(ip route | grep default | awk '{print $5}' | sort -u)
+    [ $ifaces = 'br-lan' ] && return
+    for iface in $ifaces; do
         if [ -n "$iface" ] && ip link show "$iface" 2>/dev/null | grep -q "state UP"; then
             echo "$iface"
         fi
@@ -93,6 +94,7 @@ http_request() {
             ;;
     esac
 }
+
 
 # 使用可用工具进行HTTP请求（支持自定义header和多WAN接口）
 http_request_with_header() {
@@ -178,37 +180,20 @@ fetch_daily_word() {
             ;;
     esac
 }
-
-check_network_curl() {
-    # 尝试访问知名网站，超时3秒
-    if curl -s --connect-timeout 3 -I "https://www.qq.com" > /dev/null 2>&1; then
-        echo 1
-    else
-        echo 2
-    fi
-}
-check_network_wget() {
-    # 尝试下载小文件，超时3秒
-    if wget -T 3 -q --spider "https://www.qq.com" > /dev/null 2>&1; then
-        echo 1
-    else
-        echo 2
-    fi
-}
 check_network() {
-    # 检查DNS解析
-    if ! nslookup "www.qq.com" > /dev/null 2>&1; then
-        echo 2
-        return
+    if ! nslookup "www.qq.com" 114.114.114.114 >/dev/null 2>&1 ; then
+        return 1  # 失败
     fi
+
+    for test_url in "https://www.qq.com" "https://www.baidu.com" "https://www.taobao.com"; do
+        if curl -s --connect-timeout 3 -I "$test_url" >/dev/null 2>&1; then
+            return 0  # 成功
+        fi
+    done
     
-    # 检查HTTP连接
-    if curl -s --connect-timeout 3 "https://www.qq.com" > /dev/null 2>&1; then
-        echo 1
-    else
-        echo 2
-    fi
+    return 1  # 失败
 }
+
 
 try_update_word() {
     local lock="$WORD_LOCK"
@@ -283,20 +268,21 @@ try_down_pic() {
             
             case "$tool" in
                 "curl")
-                    if [ -z "$interfaces" ]; then
-                        curl -kLfsm 30 "$bgurl" -o "${tmp_file}" > /dev/null 2>&1 && download_success=1
-                    else
+                    if  [ -n "$interfaces" ] && [ "$interfaces" != "" ] ; then
+
                         # 尝试每个可用的WAN接口
                         for iface in $interfaces; do
-                            if curl --interface "$iface" -kLfsm 30 "$bgurl" -o "${tmp_file}" > /dev/null 2>&1; then
+                            if curl --interface "$iface" -kLfsm 3 "$bgurl" -o "${tmp_file}" > /dev/null 2>&1; then
                                 download_success=1
                                 break
                             fi
                         done
+		    else
+		        curl -kLfsm 3 "$bgurl" -o "${tmp_file}" > /dev/null 2>&1 && download_success=1
                     fi
                     ;;
                 "wget")
-                    wget -q -T 30 -t 2 -O "${tmp_file}" "$bgurl" > /dev/null 2>&1 && download_success=1
+                    wget -q -T 3 -t 2 -O "${tmp_file}" "$bgurl" > /dev/null 2>&1 && download_success=1
                     ;;
             esac
             
@@ -398,7 +384,7 @@ case "$1" in
         "get_url")
             read -r input
             if [ -s "$PIC_CACHE" ]; then
-                  pictime=$(cat $PIC_CACHE | grep $(date +%Y%m%d))
+                  pictime=$(grep $(date +%Y%m%d) $PIC_CACHE)
                   if [ -n "$pictime" ]; then
                     json_init
                     json_add_string "url" "$PIC_RE_URL"
@@ -426,7 +412,7 @@ case "$1" in
     "get_word")
         read -r input
         if [ -s "$WORD_CACHE" ]; then
-            wordtime=$(cat $WORD_CACHE | grep $(date +%Y%m%d))
+            wordtime=$(grep $(date +%Y%m%d) $WORD_CACHE )
             if [ -n "$wordtime" ]; then
                     json_init
                     json_add_string "word" "$(cat "$WORD_CACHE" | head -n1)"
