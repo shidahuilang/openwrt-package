@@ -89,6 +89,7 @@ luci-app-xunlei
 luci-app-xunyou
 luci-app-zerotier
 luci-lib-iform
+luci-mod-istorenext
 luci-nginxer
 lucky
 mosdns
