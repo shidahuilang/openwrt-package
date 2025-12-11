@@ -130,6 +130,7 @@ luci-lib-docker
 luci-lib-fs
 luci-lib-iform
 luci-lib-nixio
+luci-mod-istorenext
 luci-nginxer
 lucky
 mosdns
