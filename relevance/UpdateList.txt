@@ -85,6 +85,7 @@ luci-app-webd
 luci-app-wol
 luci-app-zerotier
 luci-lib-iform
+luci-mod-istorenext
 luci-nginxer
 lucky
 mosdns
