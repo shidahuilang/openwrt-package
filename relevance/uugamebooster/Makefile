@@ -1,21 +1,32 @@
+# SPDX-License-Identifier: GPL-3.0-only
 #
-# Copyright (C) 2021 KFERMercer <KFER.Mercer@gmail.com>
-#
-# This is free software, licensed under the GNU General Public License v3.
-#
-
-#
-# to get the latest version & md5 checksum:
-# curl -L -s -k -H "Accept:text/plain" "http://router.uu.163.com/api/plugin?type=openwrt-$(UU_ARCH)"
-#
+# Copyright (C) 2021 ImmortalWrt.org
 
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=uugamebooster
-PKG_VERSION:=v4.14.4
+PKG_VERSION:=10.14.12
 PKG_RELEASE:=1
 
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(ARCH).tar.gz
+PKG_SOURCE_URL:=https://uurouter.gdl.netease.com/uuplugin/openwrt-$(ARCH)/v$(PKG_VERSION)/uu.tar.gz?
+ifeq ($(ARCH),aarch64)
+  PKG_HASH:=48525347fc9dd92b7099f7e9583a55e99d72527b17ee8f9a7fc07c15c4506cd4
+else ifeq ($(ARCH),arm)
+  PKG_HASH:=e9af3ed23665df2ad3acada30af487304b9bf307eea1d98f3e4522183942c779
+else ifeq ($(ARCH),mipsel)
+  PKG_HASH:=31619b590134ec2d0ccec6a087dd763246100a69709585d6a2509a3327b5a628
+else ifeq ($(ARCH),x86_64)
+  PKG_HASH:=cf993292a881bd692f74128f97c70f20211e673b19c04da059cddea00964ed1c
+endif
+
+PKG_LICENSE:=Proprietary
+
 include $(INCLUDE_DIR)/package.mk
+
+STRIP:=true
+
+TAR_CMD=$(HOST_TAR) -C $(1)/ $(TAR_OPTIONS)
 
 define Package/uugamebooster
   SECTION:=net
@@ -26,60 +37,28 @@ define Package/uugamebooster
 endef
 
 define Package/uugamebooster/description
-  NetEase's UU Game Booster Accelerates Triple-A Gameplay and Market
-endef
-
-ifeq ($(ARCH),arm)
-	UU_ARCH:=arm
-	PKG_MD5SUM:=9d524db2593abd58a2977ff844e8db65
-endif
-
-ifeq ($(ARCH),aarch64)
-	UU_ARCH:=aarch64
-	PKG_MD5SUM:=3ce3e920432e59825bc84113fbbf2a8e
-endif
-
-ifeq ($(ARCH),mipsel)
-	UU_ARCH:=mipsel
-	PKG_MD5SUM:=d65b3295d5770e4a15ff9e8a4b83bc2a
-endif
-
-ifeq ($(ARCH),x86_64)
-	UU_ARCH:=x86_64
-	PKG_MD5SUM:=b9ca050a6ed3658b460150b02f7772e6
-endif
-
-PKG_SOURCE_URL:=https://uu.gdl.netease.com/uuplugin/openwrt-$(UU_ARCH)/$(PKG_VERSION)/uu.tar.gz?
-PKG_SOURCE:=$(PKG_NAME)-$(UU_ARCH)-$(PKG_VERSION).tar.gz
-
-STRIP:=true
-
-UNTAR_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)/$(PKG_NAME)-$(UU_ARCH)-bin
-
-define Build/Prepare
-	mkdir -vp $(UNTAR_DIR)
-	tar -zxvf $(DL_DIR)/$(PKG_SOURCE) -C $(UNTAR_DIR)
+  NetEase's UU Game Booster Accelerates Triple-A Gameplay and Market.
 endef
 
 define Build/Compile
 endef
 
 define Package/uugamebooster/conffiles
-/root/.uuplugin_uuid
+/.uuplugin_uuid
+/usr/share/uugamebooster/uu.conf
 endef
 
 define Package/uugamebooster/install
-	# $(INSTALL_DIR) $(1)/etc/init.d
-	# $(INSTALL_BIN) ./files/uugamebooster.init $(1)/etc/init.d/uuplugin
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/uuplugin $(1)/usr/bin/uugamebooster
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/xtables-nft-multi $(1)/usr/bin/xtables-nft-multi
 
 	$(INSTALL_DIR) $(1)/usr/share/uugamebooster
-	$(INSTALL_BIN) $(UNTAR_DIR)/uuplugin $(1)/usr/share/uugamebooster/uuplugin
-	$(INSTALL_CONF) $(UNTAR_DIR)/uu.conf $(1)/usr/share/uugamebooster/uu.conf
+	$(INSTALL_CONF) $(PKG_BUILD_DIR)/uu.conf $(1)/usr/share/uugamebooster/uu.conf
 
-	# not finish yet:
-	# $(INSTALL_DIR) $(1)/usr/bin
-	# $(INSTALL_BIN) ./files/uugamebooster-update $(1)/usr/bin/uugamebooster
-	# $(LN) $(1)/usr/bin/uugamebooster/uugamebooster-update $(1)/usr/bin/uugamebooster-update
+	$(INSTALL_DIR) $(1)/etc/config $(1)/etc/init.d
+	$(INSTALL_CONF) $(CURDIR)/files/uugamebooster.config $(1)/etc/config/uugamebooster
+	$(INSTALL_BIN) $(CURDIR)/files/uugamebooster.init $(1)/etc/init.d/uugamebooster
 endef
 
 $(eval $(call BuildPackage,uugamebooster))
