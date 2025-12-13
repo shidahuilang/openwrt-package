@@ -647,8 +647,8 @@ header.pd-primary {
     width: calc(100% - 15rem);
     z-index: 100;
     box-shadow: 0 0.3rem 0.5rem var(--input-boxcolor);
-    background-color: rgba(var(--primary-rgbm), 0.8);
-    background-image: -webkit-linear-gradient(135deg, rgba(255, 255, 255, 0.2) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.2) 75%, transparent 75%, transparent) !important
+    background-color: rgba(var(--primary-rgbm),  var(--primary-rgbm-ts));
+    background-image: var(--bgqs-image);
 }
 
 header .fill {

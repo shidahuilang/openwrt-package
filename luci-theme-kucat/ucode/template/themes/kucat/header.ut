@@ -26,7 +26,6 @@ const boardinfo = ubus.call('system', 'board');
 const hostname = striptags(boardinfo?.hostname ?? '?');
 let uci_cursor = cursor();
 http.prepare_content('text/html; charset=UTF-8');
-srand(+substr(reverse(time() + ""), 0, 8));
 
 //Custom settings
 let config = {};
@@ -80,6 +79,28 @@ if ( mode == 'auto' ) {
         automode = auto_theme.auto_theme;
 } 
 
+function getSecureRandom(max) {
+        try {
+            let random_bytes = readfile("/dev/urandom", { binary: true, length: 4 });
+            if (random_bytes && length(random_bytes) >= 4) {
+                let random_int = 
+                    (ord(substr(random_bytes, 0, 1)) << 24) |
+                    (ord(substr(random_bytes, 1, 1)) << 16) |
+                    (ord(substr(random_bytes, 2, 1)) << 8) |
+                    ord(substr(random_bytes, 3, 1));
+                
+                return random_int % max;
+            }
+        } catch (e) {
+        }
+        let now = time();
+        let hostname_hash = 0;
+        for (let i = 0; i < length(hostname); i++) {
+            hostname_hash = (hostname_hash * 31 + ord(substr(hostname, i, 1))) & 0xFFFFFFFF;
+        }
+        return (now ^ hostname_hash) % max;
+}
+
 function fetchPIC(path, themeDir) {
         const imageTypes = " jpg jpeg png gif webp ";
         let backgroundTable = [];
@@ -109,7 +130,7 @@ function Getwallpaper(themeDir, num) {
          if (!access(physicalPath)) { return { url: bgUrl };}
          let bgpath = fetchPIC(physicalPath, themeDir);
          if (length(bgpath) > 0) {
-               let randomIndex = srand() % length(bgpath);
+	       let randomIndex = getSecureRandom(length(bgpath));
                let currentBg = bgpath[randomIndex];
                bgUrl = currentBg.url;
            } 

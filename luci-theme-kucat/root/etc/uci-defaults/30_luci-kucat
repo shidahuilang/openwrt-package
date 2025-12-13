@@ -1,0 +1,11 @@
+#!/bin/sh
+
+uci batch <<-EOF
+	set luci.themes.KuCat=/luci-static/kucat
+	set luci.main.mediaurlbase=/luci-static/kucat
+	commit luci
+EOF
+
+chmod +x /usr/libexec/rpcd/luci.kucat*
+rm -rf /tmp/luci-*
+exit 0
