@@ -1,102 +1,10 @@
-<%+cbi/valueheader%>
 <%
 --	Template Developers:
 --		- lwb1978
 --	Copyright: copyright(c)2025–2027
 --	Description: Passwall(2) UI template
-
-local cbid = "cbid." .. self.config .. "." .. section .. "." .. self.option
-
--- 读取 MultiValue
-local values = {}
-for i, key in pairs(self.keylist) do
-	values[#values + 1] = {
-		key = key,
-		label = self.vallist[i] or key,
-		group = self.group and self.group[i] or nil
-	}
-end
-
--- 获取选中值
-local selected = {}
-local cval = self:cfgvalue(section)
-if type(cval) == "table" then
-	for _, v in pairs(cval) do
-		selected[v] = true
-	end
-elseif type(cval) == "string" then
-	for v in cval:gmatch("%S+") do
-		selected[v] = true
-	end
-end
-
--- 按原顺序分组
-local groups = {}
-local group_order = {}
-for _, item in ipairs(values) do
-	local g = item.group
-	if not g or g == "" then 
-		g = translate("default") 
-	end
-	if not groups[g] then 
-		groups[g] = {}
-		table.insert(group_order, g)
-	end
-	table.insert(groups[g], item)
-end
 %>
 
-<div id="<%=cbid%>" class="cbi-input-select" style="display:inline-block;">
-	<!-- 搜索 -->
-	<input type="text" id="<%=cbid%>.search" class="mv_search_input cbi-input-text" placeholder="<%:Search nodes...%>" />
-	<!-- 主容器 -->
-	<div class="mv_list_container">
-		<ul class="cbi-multi mv_node_list" id="<%=cbid%>.node_list">
-			<% for _, gname in ipairs(group_order) do %>
-			<% 	local items = groups[gname] %>
-			<li class="group-block" data-group="<%=gname%>">
-				<!-- 组标题 -->
-				<div class="group-title">
-					<span id="arrow-<%=self.option%>-<%=gname%>" class="mv-arrow-down-small"></span>
-					<b style="margin-left:8px;"><%=gname%></b>
-					<span id="group-count-<%=self.option%>-<%=gname%>" style="margin-left:8px;color:#007bff;">
-						(0/<%=#items%>)
-					</span>
-				</div>
-				<!-- 组内容 -->
-				<ul id="group-<%=self.option%>-<%=gname%>" class="group-items">
-				<% for _, item in ipairs(items) do %>
-					<li class="node-item" data-node-name="<%=pcdata(item.label):lower()%>" title="<%=pcdata(item.label)%>">
-						<div class="mv-node-row">
-							<input type="checkbox" class="cbi-input-checkbox mv-node-checkbox"
-								<%= attr("id",   cbid .. "." .. item.key) ..
-									attr("name", cbid) ..
-									attr("value", item.key) ..
-									ifattr(selected[item.key], "checked", "checked")
-								%> />
-							<label for="<%=cbid .. "." .. item.key%>" class="mv-node-label"><%=pcdata(item.label)%></label>
-						</div>
-					</li>
-				<% end %>
-				</ul>
-			</li>
-			<% end %>
-		</ul>
-	</div>
-	<!-- 控制栏 -->
-	<div class="mv-controls">
-		<input class="btn cbi-button cbi-button-edit" type="button" onclick="mv_selectAll('<%=cbid%>','<%=self.option%>',true)" value="<%:Select all%>">
-		<input class="btn cbi-button cbi-button-edit" type="button" onclick="mv_selectAll('<%=cbid%>','<%=self.option%>',false)" value="<%:DeSelect all%>">
-		<span id="count-<%=self.option%>" style="color:#666;"></span>
-	</div>
-</div>
-<%+cbi/valuefooter%>
-
-<%
--- 公共部分(只加载一次)
-if not _G.__NODES_MULTIVALUE_CSS_JS__ then
-	_G.__NODES_MULTIVALUE_CSS_JS__ = true
-%>
 <style>
 /* 组标题的右箭头 */
 .mv-arrow-right {
@@ -223,9 +131,13 @@ if not _G.__NODES_MULTIVALUE_CSS_JS__ then
 	};
 
 	// 计数
-	function mv_updateCount(opt, nodeList) {
+	function mv_updateCount(opt, nodeList, searchInput) {
+		const keyword = searchInput.value.trim().toLowerCase();
+		const isSearching = keyword.length > 0;
 		// 当前实例下的所有 checkbox
-		const cbs = nodeList.querySelectorAll("input[type=checkbox]");
+		const cbs = isSearching 
+			? Array.from(nodeList.querySelectorAll("input[type=checkbox]")).filter(cb => cb.closest("li").style.display !== "none")
+			: nodeList.querySelectorAll("input[type=checkbox]");
 		let checked = 0;
 		cbs.forEach(cb => { if(cb.checked) checked++; });
 		// 更新总计
@@ -238,15 +150,23 @@ if not _G.__NODES_MULTIVALUE_CSS_JS__ then
 			const gname = group.getAttribute("data-group");
 			const groupCbs = group.querySelectorAll("li[data-node-name] input[type=checkbox]");
 			let groupChecked = 0;
-			groupCbs.forEach(cb => { if(cb.checked) groupChecked++; });
+			let totalCount = 0;
+			groupCbs.forEach(cb => {
+				const li = cb.closest("li");
+				// 搜索时只统计可见节点
+				if (!isSearching || li.style.display !== "none") {
+					totalCount++;
+					if (cb.checked) groupChecked++;
+				}
+			});
 			const span = document.getElementById("group-count-" + opt + "-" + gname);
-			if(span) span.textContent = "(" + groupChecked + "/" + groupCbs.length + ")";
+			if(span) span.textContent = "(" + groupChecked + "/" + totalCount + ")";
 		});
 	}
 
 	// 搜索
-	function mv_filterGroups(keyword, opt, nodeList) {
-		keyword = (keyword || "").toLowerCase().trim();
+	function mv_filterGroups(searchInput, opt, nodeList) {
+		const keyword = searchInput.value.trim().toLowerCase();
 		nodeList.querySelectorAll(".group-block").forEach(group => {
 			const items = group.querySelectorAll("li[data-node-name]");
 			let matchCount = 0;
@@ -274,22 +194,12 @@ if not _G.__NODES_MULTIVALUE_CSS_JS__ then
 				}
 			}
 		});
-		mv_updateCount(opt, nodeList);
+		mv_updateCount(opt, nodeList, searchInput);
 		// 清空搜索后恢复全部折叠
 		if (!keyword) {
 			mv_collapseAllGroups(opt, nodeList);
 		}
 	}
-
-	// 全选 / 全不选
-	function mv_selectAll(cbid, opt, flag) {
-		const nodeList = document.getElementById(cbid + ".node_list");
-		const cbs = nodeList.querySelectorAll("input[type=checkbox]");
-		cbs.forEach(cb=>{
-			if (cb.offsetParent !== null) cb.checked = flag;
-		});
-		mv_updateCount(opt, nodeList);
-	};
 
 	// 折叠所有组
 	function mv_collapseAllGroups(opt, nodeList) {
@@ -301,38 +211,103 @@ if not _G.__NODES_MULTIVALUE_CSS_JS__ then
 			if (arrow) arrow.className = "mv-arrow-right";
 		});
 	}
-//]]>
-</script>
-<% end %>
 
-<script type="text/javascript">
-//<![CDATA[
-(function(){
-	const cbid = "<%=cbid%>";
-	const opt = "<%=self.option%>";
-	const searchInput = document.getElementById(cbid + ".search");
-	const nodeList = document.getElementById(cbid + ".node_list");
-
-	nodeList.querySelectorAll(".group-title").forEach(title => {
-		title.addEventListener("click", function() {
-			const g = this.closest(".group-block")?.getAttribute("data-group");
-			if (g) mv_toggleGroup(opt, nodeList, searchInput, g);
+	window.mv_nodeitem_rendered = {};
+	function mv_render_multivalue_list(cbid, opt, nodeList, searchInput) {
+		if (window.mv_nodeitem_rendered[cbid]) return;
+		const root = document.getElementById(cbid);
+		if (!root) return;
+		// 遍历所有组
+		root.querySelectorAll(".group-items").forEach(function(ul) {
+			// 组名
+			const gname = ul.id.replace("group-" + opt + "-", "");
+			// 解析 Lua 注入的数据
+			const items    = JSON.parse(ul.dataset.items || "[]");
+			const selected = JSON.parse(ul.dataset.selected || "{}");
+			// 清空
+			ul.innerHTML = "";
+			// 按你的原 HTML 完整渲染
+			items.forEach(function(item) {
+				// li
+				let li = document.createElement("li");
+				li.className = "node-item";
+				li.setAttribute("data-node-name", item.label.toLowerCase());
+				li.title = item.label;
+				// row div
+				let row = document.createElement("div");
+				row.className = "mv-node-row";
+				// checkbox
+				let checkboxId = cbid + "." + item.key;
+				let checkbox = document.createElement("input");
+				checkbox.type = "checkbox";
+				checkbox.className = "cbi-input-checkbox mv-node-checkbox";
+				checkbox.id = checkboxId;
+				checkbox.name = cbid;
+				checkbox.value = item.key;
+				if (selected[item.key]) checkbox.checked = true;
+				// label
+				let label = document.createElement("label");
+				label.className = "mv-node-label";
+				label.htmlFor = checkboxId;
+				label.textContent = item.label;
+				// 组装
+				row.appendChild(checkbox);
+				row.appendChild(label);
+				li.appendChild(row);
+				ul.appendChild(li);
+			});
 		});
-	});
+		window.mv_nodeitem_rendered[cbid] = true;
+		searchInput.addEventListener("input", function() {
+			mv_filterGroups(searchInput, opt, nodeList);
+		})
+		// checkbox 改变时更新计数
+		nodeList.addEventListener("change", () => {
+			mv_updateCount(opt, nodeList, searchInput);
+		});
+	}
 
-	searchInput.addEventListener("input", function() {
-		mv_filterGroups(this.value, opt, nodeList);
-	})
+	// 全选 / 全不选
+	function mv_selectAll(cbid, opt, flag) {
+		if (!window.mv_nodeitem_rendered[cbid]) return;
+		const nodeList = document.getElementById(cbid + ".node_list");
+		const searchInput = document.getElementById(cbid + ".search");
+		const cbs = nodeList.querySelectorAll("input[type=checkbox]");
+		cbs.forEach(cb=>{
+			if (cb.offsetParent !== null) cb.checked = flag;
+		});
+		mv_updateCount(opt, nodeList, searchInput);
+	};
 
-	// checkbox 改变时更新计数
-	nodeList.addEventListener("change", () => {
-		mv_updateCount(opt, nodeList);
-	});
 
-	// 初始化折叠所有组和计数
-	mv_collapseAllGroups(opt, nodeList)
-	mv_updateCount(opt, nodeList);
+	function mv_onControlVisible(cbid, cb) {
+		var root = document.getElementById(cbid);
+		if (!root) return;
+		var container = root.closest(".cbi-value");
+		if (!container) return;
+		if (container.offsetParent !== null) {
+			cb();
+			return;
+		}
+		var observer = new MutationObserver(function () {
+			if (container.offsetParent !== null) {
+				observer.disconnect();
+				cb();
+			}
+		});
+		observer.observe(container, {
+			attributes: true,
+			attributeFilter: ["style", "class"]
+		});
+	}
 
-})();
+	function mv_multivalue_init(cbid, opt, nodeList, searchInput) {
+		mv_onControlVisible(cbid, function () {
+			var root = document.getElementById(cbid);
+			if (!root || root.dataset.rendered) return;
+			root.dataset.rendered = "1";
+			mv_render_multivalue_list(cbid, opt, nodeList, searchInput)
+		});
+	}
 //]]>
 </script>
