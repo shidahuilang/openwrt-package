@@ -26,7 +26,6 @@ luci-app-amlogic
 luci-app-autoipsetadder
 luci-app-autotimeset
 luci-app-chatgpt
-luci-app-cifs-mount
 luci-app-clash
 luci-app-cloudflared
 luci-app-cloudflarespeedtest
