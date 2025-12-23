@@ -74,7 +74,7 @@ function gen_outbound(flag, node, tag, proxy_table)
 				local relay_port = node.port
 				new_port = get_new_port()
 				local config_file = string.format("%s_%s_%s.json", flag, tag, new_port)
-				if tag and node_id and tag ~= node_id then
+				if tag and node_id and not tag:find(node_id) then
 					config_file = string.format("%s_%s_%s_%s.json", flag, tag, node_id, new_port)
 				end
 				if run_socks_instance then
@@ -146,6 +146,7 @@ function gen_outbound(flag, node, tag, proxy_table)
 			streamSettings = (node.streamSettings or node.protocol == "vmess" or node.protocol == "vless" or node.protocol == "socks" or node.protocol == "shadowsocks" or node.protocol == "trojan") and {
 				sockopt = {
 					mark = 255,
+					tcpFastOpen = (node.tcp_fast_open == "1") and true or nil,
 					tcpMptcp = (node.tcpMptcp == "1") and true or nil,
 					dialerProxy = (fragment or noise) and "dialerproxy" or nil
 				},
