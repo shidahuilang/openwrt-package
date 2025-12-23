@@ -1,19 +1,24 @@
 <%+header%>
-
 <script>
-    (function(){
-    })();
+  (function () {
+    window.ddnstoConfig = {
+      token: "<%=token or ''%>",
+      prefix: "<%=prefix or '/cgi-bin/luci/admin/services/ddnsto'%>",
+      api_base: "<%=api_base or '/cgi-bin/luci'%>",
+      lang: "<%=lang or 'zh-cn'%>"
+    };
+ 
+    window.IstoreosFormConfig = {
+      getApi: "/cgi-bin/luci/admin/services/ddnsto/form/",
+      logApi: "/cgi-bin/luci/admin/services/ddnsto/log",
+      submitApi: "/cgi-bin/luci/admin/services/ddnsto/submit/"
+    };
+  })();
 </script>
-<div id="app">
+
+<div class="ddnsto-host">
+  <div id="app" class="ddnsto-root" data-ddnsto-shadow></div>
 </div>
 
-<script>
-  window.IstoreosFormConfig = {
-    getApi:"/cgi-bin/luci/admin/services/ddnsto/form/",
-    logApi:"/cgi-bin/luci/admin/services/ddnsto/log",
-    submitApi:"/cgi-bin/luci/admin/services/ddnsto/submit/",
-  }
-</script>
 <script type="module" crossorigin src="/luci-static/ddnsto/index.js?v=<%=math.random(1,100000)%>"></script>
-<link rel="stylesheet" href="/luci-static/ddnsto/style.css?v=<%=math.random(1,100000)%>">
 <%+footer%>
