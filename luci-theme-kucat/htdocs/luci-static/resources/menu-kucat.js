@@ -27,8 +27,8 @@
  */
 const KucatAnimations = {
     durations: {
-        fast: 200,
-        normal: 300,
+        fast: 100,
+        normal: 200,
         slow: 400
     },
 
@@ -145,13 +145,16 @@ return baseclass.extend({
     initSidebar: function() {
         var showSide = document.querySelector('.showSide');
         var darkMask = document.querySelector('.darkMask');
-
+        var mainRight = document.querySelector('.main-right');
         if (showSide) {
             showSide.addEventListener('click', L.bind(this.toggleSidebar, this));
         }
         
         if (darkMask) {
             darkMask.addEventListener('click', L.bind(this.toggleSidebar, this));
+        }
+	if (mainRight) {
+            mainRight.addEventListener('click', L.bind(this.handleMainClick, this));
         }
     },
 
@@ -217,7 +220,14 @@ return baseclass.extend({
             this.openSidebar();
         }
     },
-
+    handleMainClick: function(ev) {
+    if (window.innerWidth <= 920 && document.body.classList.contains('sidebar-open')) {
+        if (!ev.target.closest('.showSide')) {
+            this.closeSidebar();
+            ev.stopPropagation();
+        }
+    }
+    },
     /**
      * Open sidebar (mobile)
      */

@@ -281,22 +281,31 @@ class="lang_{{ dispatcher.lang }} {{ ctx.authsession ? 'logged-in' : '' }} {{ le
             <div class="mainmenu" id="mainmenu" style="display:none"></div>
         </div>
         <div class="main-right">
-            <header class="pd-primary">
+	<span></span>
+             <header class="pd-primary">
                 <div class="fill">
                     <div class="container">
                         <div class="flex1">
                             <a class="showSide"></a>
-                            <a class="brand" href="#">{{ hostname }}</a>
                             {% if (dayword == '1'): %}
-                            <a class="showWord" href="#">{{ showword }}</a>
+                            <a class="showWord" href="#" id="bshowWord">{{ showword }}</a>
                             {% endif %}
                         </div>
                         <div class="status" id="indicators"></div>
-
                         <span><a class="pdboy-qlogout" href="{{ dispatcher.build_url("admin/logout") }}" title="{{ _('Log_out') }}"></a></span>
                     </div>
                 </div>
-            </header>
+          </header>
+	   <div class="bfill">
+                    <div class="bcontainer">
+                        <div class="flex1">
+                            <a class="brand" href="#">{{ hostname }}</a>
+                            {% if (dayword == '1'): %}
+                            <a class="showWord" href="#" id="bshowWord">{{ showword }}</a>
+                            {% endif %}
+                        </div>
+                    </div>
+           </div>
 		<div class="modemenu-buttons" style="display:none">
 			<ul id="modemenu"></ul>
 		</div>

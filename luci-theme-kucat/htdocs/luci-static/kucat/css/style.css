@@ -400,61 +400,42 @@ body {
     white-space: normal
 }
 
-.h1,
-.h2,
-.h3,
-.h4,
-.h5,
-.h6,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-    font-family: inherit;
-    font-weight: 400;
-    line-height: 1.2 !important;
-    color: inherit;
-    clear: inherit;
-    text-transform: capitalize
+.h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
+
+  color: var(--primary-title-color);
+  font-family: inherit;
+  font-weight: 400;
+  line-height: 1.1rem;
+  color: inherit;
 }
+
 
 h1 {
     font-size: var(--font-d);
     padding-bottom: 10px
 }
-
 h2 {
-    font-size: 1.5em;
-    font-weight: 700;
-    text-transform: capitalize;
-    color: var(--primary-title-color);
-    padding: 0.5rem 1.5rem 0.2rem
+  font-size: 1.4rem;
+  padding: 1rem 2rem;
 }
 
 h3 {
-    font-size: var(--font-d);
-    display: block;
-    color: var(--primary-title-color);
-    font-weight: 700;
-    letter-spacing: 0.1rem;
+    font-size: 1.1rem ;
     white-space: nowrap;
     background-color: rgba(255, 255, 255, 0);
-    margin: 0.5rem 0 0 1rem
+    margin: 0;
+    padding: 1rem 2rem !important;
 }
 
 h4 {
     font-weight: 600;
     font-size: var(--font-z);
-    color: var(--primary-title-color);
     margin: 0;
     padding: 0.75rem 1.25rem 10px
 }
 
 h5 {
     font-size: var(--font-z);
-    color: var(--primary-title-color);
     padding-bottom: 10px;
     margin: 1rem 0 0
 }
@@ -498,7 +479,7 @@ h5 {
 }
 
 a {
-    color: var(--body-color);
+    color: var(--menu-fontcolor);
     font-size: var(--font-x);
     background-color: transparent;
     text-decoration: none
@@ -512,7 +493,6 @@ a:hover {
 
 code {
     font-size: var(--font-x);
-    font-size-adjust: .35;
     color: #101010;
     border-radius: var(--radius2);
     background: #ddd;
@@ -615,15 +595,15 @@ footer a {
 }
 
 .main-right {
-    padding-top: 4.8rem;
-    height: 100%;
-    flex-grow: 1;
-    overflow-x: hidden;
-    overflow-y: auto;
+  height: 100%;
+  flex-grow: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
     display: flex;
-    flex-direction: column;
+  flex-direction: column;
     transition: all 0.2s
 }
+
 
 .main-right>#maincontent {
     position: relative;
@@ -631,6 +611,7 @@ footer a {
     z-index: 50;
     flex: 1;
     display: flex;
+    padding-top: 2rem;
     flex-direction: column
 }
 
@@ -641,20 +622,24 @@ footer a {
 }
 
 header.pd-primary {
-    position: fixed;
-    top: 0;
-    right: 0;
-    width: calc(100% - 15rem);
-    z-index: 100;
-    box-shadow: 0 0.3rem 0.5rem var(--input-boxcolor);
-    background-color: rgba(var(--primary-rgbm),  var(--primary-rgbm-ts));
-    background-image: var(--bgqs-image);
+  position: fixed;
+  float: left;
+  right: 0;
+  width: auto;
+  z-index: 1000;
 }
 
+.main-right>span {
+  padding: 6px;
+  background-color: rgba(var(--primary-rgbm), 0.9);
+  background: linear-gradient(90deg, rgba(var(--primary-rgbm), 1) 0%, rgba(var(--primary-rgbbody), 1) 100%);
+  background-position: 50% 0;
+  border: none;
+  opacity: 0.9;
+  margin: 0;
+}
 header .fill {
-    border-bottom: 0 solid rgba(255, 255, 255, 0.08) !important;
-    display: flex;
-    padding: 1rem 0
+  margin: 1rem 1rem 0 0;
 }
 
 .pd-primary .fill .container {
@@ -663,24 +648,36 @@ header .fill {
     align-items: center;
     width: 100%;
     background-color: rgba(255, 255, 255, 0) !important;
-    padding: 0 1rem
 }
 
-header .fill .container .flex1 {
+.pd-primary .fill .container .flex1 {
+    margin-left: 0.5rem;
     white-space: nowrap;
     flex: 1
 }
 
-header .fill .container .flex1 .brand {
-    color: var(--menu-color);
+.main-right .bfill {
+  padding: 0.6rem 0;
+  background-color: rgba(var(--primary-rgbbody), var(--primary-rgbm-ts));
+  display: none
+}
+
+.bfill .bcontainer .flex1 .brand {
+    color: var(--menu-fontcolor);
     font-family: var(--font-sans);
-    font-weight: 700;
-    font-size: 1.5rem;
+    font-weight: 600;
+    font-size: 1.3rem;
+    padding-left: 4rem;
+    padding-right: 0.5rem;
+    line-height: 1.5;
     text-decoration: none;
     cursor: default;
     display: none
 }
 
+.bfill .bcontainer .showWord {
+        display: none;
+}
 header .fill .status span {
     display: inline-block;
     font-size: .875rem;
@@ -755,6 +752,7 @@ span[data-indicator="uci-changes"]:before {
     font-size: 1.5rem !important;
     font-family: kucat !important;
     content: "\e923";
+    text-shadow: 1px 1px 2px var(--input-boxcolor);
     color: #ffb923;
     text-decoration: none
 }
@@ -763,7 +761,8 @@ span[data-indicator="uci-changes"]:before {
     font-size: 1.5rem !important;
     font-family: kucat !important;
     content: "\e936";
-    color: var(--menu-hover-color);
+    text-shadow: 1px 1px 2px var(--input-boxcolor);
+    color: #0fcb16;
     text-decoration: none
 }
 
@@ -771,6 +770,7 @@ span[data-indicator="uci-changes"]:before {
     font-family: kucat !important;
     font-size: 1.5rem !important;
     content: "\e932";
+    text-shadow: 1px 1px 2px var(--input-boxcolor);
     color: #aaa !important;
     text-decoration: none
 }
@@ -781,7 +781,7 @@ span[data-indicator="uci-changes"]:hover,
 #indicators span[data-indicator="poll-status"]:hover,
 .pdboy-qlogout:hover,
 .showSide:hover {
-    background-color: var(--menu-hover-barbgcolor) !important;
+    background-color: rgba(var(--primary-rgbm),0.1) !important;
     color: var(--menu-hover-color);
     border-radius: var(--radius1);
     text-decoration: none
@@ -793,16 +793,17 @@ span[data-indicator="uci-changes"],
 #indicators span[data-indicator="poll-status"],
 .pdboy-qlogout {
     line-height: 1;
-    cursor: pointer !important;
+    padding: 0.8rem;
+    cursor: pointer ;
     font-weight: 400 !important;
     display: inline-block;
     margin: 0;
-    padding: 1rem
 }
 
 .pdboy-qlogout:before {
     font-size: 1.5rem !important;
     content: "\e935";
+    text-shadow: 1px 1px 2px var(--input-boxcolor);
     color: red
 }
 
@@ -823,26 +824,23 @@ span[data-indicator="uci-changes"],
 .showWord:after {
     font-size: 1.1rem;
     line-height: 1.2;
-    color: var(--menu-color);
+    color: var(--menu-fontcolor);
     text-decoration: none;
-    padding: 1rem
+    padding-right: 0.5rem
 }
 
 .showWord {
     font-family: var(--font-sans);
-    color: var(--menu-color);
+    color: var(--menu-fontcolor);
     font-size: 1.1rem !important;
+    text-shadow: 1px 1px 2px var(--input-boxcolor);
     line-height: 1.2;
+      line-height: 1;
     flex: auto;
-    cursor: pointer;
+    cursor: default;
     display: inline-block;
     text-decoration: none !important;
     vertical-align: text-bottom
-}
-
-.showWord:hover,
-.showWord:focus {
-    text-decoration: none !important
 }
 
 .main .main-left .nav {
@@ -1004,7 +1002,7 @@ body[class*="node-"]>.main>.main-left>.nav>.slide>.menu.active::before {
 .main .main-left .sidenav-header .brand {
     color: var(--menu-fontcolor);
     font-family: var(--font-sans);
-    font-weight: 900;
+    font-weight: 600;
     font-size: 1.3rem;
     text-decoration: none;
     letter-spacing: 1px;
@@ -1139,7 +1137,7 @@ li {
     border-radius: var(--radius1);
     background-color: rgba(var(--primary-rgbbody), 0.9);
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.16), 0 0 2px 0 var(--input-boxcolor);
-    padding: 1rem
+    padding: 0.7rem 1rem;
 }
 
 .alert-message>* {
@@ -1220,6 +1218,7 @@ input,
     line-height: 1;
     background-image: none;
     background-color: var(--input-bgcolor);
+    background-color: transparent;
     color: var(--body-color);
     border: 1px solid var(--inputborder-color);
     border-radius: var(--radius2);
@@ -1278,6 +1277,7 @@ select {
 
 select,
 .cbi-dropdown {
+    cursor: pointer;
     width: inherit
 }
 
@@ -1291,6 +1291,7 @@ input[type="checkbox"] {
     position: relative;
     width: 25px !important;
     height: 25px !important;
+      cursor: pointer;
     -webkit-appearance: none;
     outline: none;
     transition: 0.1s;
@@ -1348,6 +1349,11 @@ input[type='file'] {
     line-height: 1.5rem
 }
 
+.cbi-input-textarea:hover,
+textarea:hover,
+select:not([multiple="multiple"]):hover,
+input:not(.cbi-button):hover,
+.cbi-dropdown:hover,
 .cbi-input-textarea:focus,
 textarea:focus,
 select:not([multiple="multiple"]):focus,
@@ -1659,6 +1665,7 @@ textarea {
     -webkit-transition: color 100ms ease, border-color 100ms ease, opacity 100ms ease;
     outline: none;
     background-color: var(--input-bgcolor);
+    background-color: transparent;
     color: var(--body-color);
     border: 1px solid var(--inputborder-color);
     word-wrap: break-word;
@@ -1706,6 +1713,7 @@ textarea {
     border-top: 1px solid var(--inputborder-color);
     border-bottom: 1px solid var(--inputborder-color);
     background-color: var(--input-bgcolor);
+    background-color: transparent;
     border-radius: var(--radius2) 0 0 var(--radius2);
     box-sizing: border-box;
     padding: 0.5rem 0.75rem
@@ -1734,6 +1742,7 @@ textarea {
     border-radius: 0 var(--radius2) var(--radius2) 0;
     outline: 0;
     background-color: var(--input-bgcolor);
+    background-color: transparent;
     box-sizing: border-box;
     margin: 0;
     padding: 5px !important
@@ -2186,16 +2195,15 @@ fieldset>fieldset {
 .panel-title {
     padding: 1rem 1.5rem
 }
-
-.cbi-section>h3:first-child,
-.panel-title {
+.cbi-section > h3:first-child, .panel-title {
     width: 100%;
     display: block;
     color: var(--primary-title-color);
     font-size: var(--font-d);
     letter-spacing: .1rem;
-    margin: 0rem;
-    padding: 20px
+    line-height: 1;
+    margin: 0;
+    padding: 1.25rem 2rem;
 }
 
 .cbi-section>h3:first-child,
@@ -2255,8 +2263,9 @@ table .tr>.th.cbi-section-table-cell {
     width: auto;
     padding: 0.5rem
 }
-tr>td, tr>th, .tr>.td, .tr>.th, .cbi-section-table-row::before, #cbi-wireless>#wifi_assoclist_table>.tr:nth-child(2) {
-  padding: 0.7rem 1rem;
+
+tr > td, tr > th, .tr > .td, .tr > .th, .cbi-section-table-row::before, #cbi-wireless > #wifi_assoclist_table > .tr:nth-child(2), .cbi-tab-descr {
+  padding: 1rem 1.25rem;
 }
 table .tr>.td.cbi-value-field>[id*="ifc-description"] {
     text-align: left;
@@ -2279,21 +2288,26 @@ td.cbi-value-field var,
     align-self: flex-end;
     flex: 1 1 auto
 }
-
-#cbi-wireless .td,
-.table[width="100%"]>.tr:first-child>.td,
-[data-page^="admin-network-diagnostics"] .tr>.td,
-.tr.table-titles>.th,
-.tr.cbi-section-table-titles>.th {
-    font-size: var(--font-z);
+#cbi-wireless .td, 
+#cbi-network .tr:first-child > .td, 
+.table[width="100%"] > .tr:first-child > .td, 
+[data-page="admin-network-diagnostics"] .tr > .td, 
+.tr.table-titles > 
+.th, .tr.cbi-section-table-titles > .th {
+    border-top: 0 !important;
+    padding: 1.1em 1rem;
+    font-size: var(--font-x);
     color: var(--title-color) !important;
     border-top: 0 !important;
 }
-
-.tr.table-titles>.th,
-.tr.cbi-section-table-titles>.th {
-    background-color: var(--menu-item-titlebg-color) !important;
+.cbi-section-table .tr .td:first-child, .cbi-section-table .tr .th:first-child, .table .tr .td:first-child, .table .tr .th:first-child, .table .tr:before {
+  padding-left: 1.5rem !important;
 }
+table > tbody > tr, div > .table > .tr, .cbi-map >.cbi-section .cbi-value {
+  background-color: rgba(255, 255, 255, 0);
+  transition: background-color .25s;
+}
+
 .cbi-section-table .cbi-section-table-titles .cbi-section-table-cell {
     width: auto !important
 }
@@ -2713,12 +2727,15 @@ label[data-index][data-depends] {
 
 .showSide {
     display: none;
-    color: var(--menu-hover-color);
+    color: var(--menu-fontcolor);
+    color: #13bcff;
+    border-radius: var(--radius1);
+    /* background-color: rgba(var(--primary-rgbm), 0.1) !important; */
     line-height: 1.1;
     position: inherit;
     cursor: pointer;
     text-decoration: none;
-    padding: 0.9rem
+    padding: 0.8rem
 }
 .darkMask {
   position: fixed;
@@ -2738,7 +2755,6 @@ label[data-index][data-depends] {
 #command-rc-output>pre,
 [data-page^="admin-services-wol"] .notice code {
     font-size: var(--font-x);
-    font-size-adjust: .35;
     line-height: normal;
     display: block;
     overflow-y: hidden;
@@ -2967,7 +2983,7 @@ body.lang_pl.node-main-login .cbi-value-title {
     -ms-flex-pack: center;
     justify-content: center;
     text-indent: 0rem;
-    background-color: var(--input-bgcolor);
+    background: transparent;
     width: 14rem;
     min-width: 100% !important;
     margin: 0
@@ -3416,6 +3432,25 @@ body.lang_pl.node-main-login .cbi-value-title {
   width: 300px!important;
 }
 
+.bandix-container select,
+.bandix-container input {
+    background-color: var(--input-bgcolor);
+    color: var(--body-color);
+    padding: 0 20px 0 10px;
+    border: 1px solid var(--inputborder-color);
+
+}
+
+
+.bandix-container button {
+ color: var(--menu-color);
+}
+
+.bandix-container button:hover:not(.active) {
+  color: var(--primarytextcolor);
+
+}
+
 #dialog_reslov .dialog_box {
     width: 90% !important;
     background-color: rgba(var(--primary-rgbbody), 1)
@@ -3817,19 +3852,18 @@ input,
 }
 
 @media only screen and (max-width: 920px) {
-
-    header>.fill>.container>.flex1>.brand {
+    .main-right .bfill,
+    .bfill .bcontainer .showWord,
+    .bfill .bcontainer .flex1 .brand {
         display: inline-block
     }
 
-    header .fill .container .flex1 .brand {
+    /* 
+    .bfill .bcontainer .flex1 .brand {
         color: var(--menu-hover-color)
-    }
-
-    .main .main-left .sidenav-header .brand,
-    .showWord {
+    } */
+    .fill .container .showWord {
         display: none;
-        text-decoration: none
     }
 
     .main-left {
@@ -3848,8 +3882,9 @@ input,
     }
 
     .showSide:hover {
-        background-color: var(--menu-item-hover-bgcolor);
+        /* background-color: var(--menu-item-hover-bgcolor); */
         border-radius: var(--radius2);
+	color: #13bcff;
         text-decoration: none
     }
 
@@ -3858,10 +3893,17 @@ input,
         overflow-y: hidden
     }
 
-    .showSide:before {
-        content: "\e20e";
-        font-size: 1.7rem !important
+    .sidebar-open .showSide:before {
+        content: "\e92f";
+	text-shadow: 1px 1px 2px var(--input-boxcolor);
+        font-size: 1.7rem 
     }
+    .showSide:before {
+        content: "\e930";
+	text-shadow: 1px 1px 2px var(--input-boxcolor);
+        font-size: 1.7rem 
+    }
+
 
     .node-main-login .showSide {
         display: none !important
@@ -3982,7 +4024,7 @@ input,
 
     .td[width="33%"],
     .td[width="33%"]~.td {
-        padding: 10px
+        padding: 0.9rem
     }
 
     .cbi-map-descr,
@@ -4000,13 +4042,8 @@ input,
 
     .td,
     .th {
-        line-height: 1;
         margin: 0;
         padding: 0.5rem;
-    }
-
-    h2 {
-        padding: 0.5rem 0.5rem 0.2rem
     }
 
     #upgrade_log {
@@ -4114,7 +4151,6 @@ input,
         width: 100%
     }
 
-    /* header .fill .container .flex1 .brand, */
     .mobile-hide,
     .node-main-login footer,
     .hide-sm,
