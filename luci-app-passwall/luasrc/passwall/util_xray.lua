@@ -268,6 +268,7 @@ function gen_outbound(flag, node, tag, proxy_table)
 								id = node.uuid,
 								level = 0,
 								security = (node.protocol == "vmess") and node.security or nil,
+								testpre = (node.protocol == "vless") and tonumber(node.preconns) or nil,
 								encryption = (node.protocol == "vless") and ((node.encryption and node.encryption ~= "") and node.encryption or "none") or nil,
 								flow = (node.protocol == "vless"
 									and (node.tls == "1" or (node.encryption and node.encryption ~= "" and node.encryption ~= "none"))
@@ -1397,7 +1398,7 @@ function gen_config(var)
 					address = remote_dns_udp_server or remote_dns_tcp_server,
 					port = tonumber(remote_dns_udp_port) or tonumber(remote_dns_tcp_port),
 					network = remote_dns_udp_server and "udp" or "tcp",
-					nonIPQuery = "drop"
+					nonIPQuery = "reject"
 				}
 			})
 
