@@ -659,7 +659,7 @@ header .fill {
 }
 
 .bfill .bcontainer .flex1 .brand {
-    color: var(--menu-fontcolor);
+    color: var(--primary-title-color);
     font-family: var(--font-sans);
     font-weight: 600;
     font-size: 1.3rem;
@@ -777,7 +777,7 @@ span[data-indicator="uci-changes"]:hover,
 #indicators span[data-indicator="poll-status"]:hover,
 .pdboy-qlogout:hover,
 .showSide:hover {
-    background-color: rgba(var(--primary-rgbm),0.1) !important;
+    background-color: rgba(var(--primary-rgbm),0.3) !important;
     color: var(--menu-hover-color);
     border-radius: var(--radius1);
     text-decoration: none
@@ -789,11 +789,13 @@ span[data-indicator="uci-changes"],
 #indicators span[data-indicator="poll-status"],
 .pdboy-qlogout {
     line-height: 1;
-    padding: 0.8rem;
+    border-radius: var(--radius1);
+    border: 1px solid var(--inputborder-color);
+    padding: 0.4rem;
     cursor: pointer ;
     font-weight: 400 !important;
     display: inline-block;
-    margin: 0;
+    margin-left: 0.1rem;
 }
 
 .pdboy-qlogout:before {
@@ -820,14 +822,14 @@ span[data-indicator="uci-changes"],
 .showWord:after {
     font-size: 1.1rem;
     line-height: 1.2;
-    color: var(--menu-fontcolor);
+      color: var(--primary-title-color);
     text-decoration: none;
     padding-right: 0.5rem
 }
 
 .showWord {
     font-family: var(--font-sans);
-    color: var(--menu-fontcolor);
+      color: var(--primary-title-color);
     font-size: 1.1rem !important;
     text-shadow: 1px 1px 2px var(--input-boxcolor);
     line-height: 1.2;
@@ -1214,6 +1216,7 @@ input,
     line-height: 1;
     background-image: none;
     background-color: var(--input-bgcolor);
+    background-color: transparent;
     color: var(--body-color);
     border: 1px solid var(--inputborder-color);
     border-radius: var(--radius2);
@@ -1242,10 +1245,10 @@ button,
     font-size: var(--font-z);
     color: var(--menu-color);
     background-color: rgba(var(--primary-rgbm), 0.8);
-    border: 1px solid var(--inputborder-color);
-    box-shadow: 0 0.1rem 0.3rem var(--input-boxcolor);
     border-radius: var(--radius2);
     background-image: var(--bgqs-image);
+    border: 1px solid var(--inputborder-color);
+    box-shadow: 0 0.1rem 0.3rem var(--input-boxcolor);
     transition: box-shadow 0.3s ease;
     margin: 0.25rem
 }
@@ -1354,7 +1357,7 @@ textarea:focus,
 select:not([multiple="multiple"]):focus,
 input:not(.cbi-button):focus,
 .cbi-dropdown:focus {
-    border: 1px solid rgba(var(--primary-rgbm), 0.7);
+    border: 1px solid rgba(var(--primary-rgbm), 0.9);
     color: var(--inputtext-color);
     box-shadow: 0 1px 6px var(--input-boxhovercolor)
 }
@@ -1391,7 +1394,7 @@ button:hover,
 .btn:hover,
 .cbi-button:hover
  {
-    color: var(--menu-hover-color)!important;
+    color: var(--menu-hover-color)!important; 
     box-shadow: 0 0.2rem 0.4rem var(--input-boxhovercolor);
     -webkit-box-shadow: 0 0.2rem 0.4rem var(--input-boxhovercolor);
     -moz-box-shadow: 0 0.2rem 0.4rem var(--input-boxhovercolor)
@@ -1442,6 +1445,7 @@ textarea,
 .cbi-dropdown[open]>ul.dropdown {
     overflow: auto;
     position: absolute;
+    border: none;
     z-index: 1100;
     display: block;
     width: auto;
@@ -1450,8 +1454,7 @@ textarea,
     max-height: 200px !important;
     box-shadow: 0 0 4px var(--inputborder-color);
     border-radius: var(--radius2);
-    border: 0px solid var(--inputborder-color);
-    background-color: rgba(var(--primary-rgbbody), 0.95);
+    background-color: rgba(var(--primary-rgbbody), 1);
     color: var(--inputtext-color);
     margin-left: 0 !important;
     margin-top: 0rem;
@@ -1471,6 +1474,10 @@ textarea,
 
 .cbi-section-remove {
     padding: .5rem
+}
+
+.cbi-section-create input {
+  width: 10rem !important;
 }
 
 .primary {
@@ -1563,7 +1570,9 @@ textarea,
 }
 
 .tabs>li:hover {
-    background: rgba(var(--primary-rgbm), 0.7);
+  background: rgba(var(--primary-rgbm), 0.6);
+  border-left: 0.18751rem solid var(--menu-item-hover-bgcolor) !important; 
+  border-right: 0.18751rem solid var(--menu-item-hover-bgcolor) !important; 
     box-shadow: 0 0.3rem 0.5rem var(--input-boxhovercolor)
 }
 
@@ -1576,10 +1585,8 @@ textarea,
 .tabs,
 .cbi-tabmenu {
     border: none;
-    color: var(--menu-hover-color);
     border-right: 0.18751rem solid rgba(255, 255, 255, 0);
     letter-spacing: 1px;
-    /*white-space: nowrap; */
     margin-bottom: 0.5rem;
     overflow-x: auto;
 }
@@ -1596,18 +1603,15 @@ ul.tabs, .tabmenu .tabs, #tabmenu .tabs, ul.cbi-tabmenu {
   padding-top: 1rem;
   padding-bottom: 0.3rem;
 }
-.tabs>li,
-.cbi-tabmenu li {
-    display: inline-block;
-    font-size: var(--font-z);
-    border-left: 0.18751rem solid var(--menu-item-titlebg-color) !important;
-    border-right: 0.18751rem solid var(--menu-item-titlebg-color) !important;
-    border-radius: var(--radius2);
-    line-height: 1.3;
-    box-shadow: 0 0.1rem 0.3rem var(--input-boxcolor);
-    background: var(--menu-item-titlebg-color);
-    margin: 0.2rem 0rem 0.2rem 0.4rem !important;
-    padding: 0.4rem 0.2rem
+.tabs>li, .cbi-tabmenu li {
+  display: inline-block;
+  font-size: var(--font-z);
+  border-left: 0.18751rem solid rgba(255, 255, 255, 0);
+  border-right: 0.18751rem solid rgba(255, 255, 255, 0) ;
+  border-radius: var(--radius2);
+  line-height: 1.3;
+  margin: 0.2rem 0rem 0.2rem 0.4rem !important;
+  padding: 0.4rem 0.2rem;
 }
 
 .cbi-tabmenu li a {
@@ -1618,9 +1622,19 @@ ul.tabs, .tabmenu .tabs, #tabmenu .tabs, ul.cbi-tabmenu {
 
 .cbi-tabmenu>li:hover {
     color: var(--menu-hover-color);
-    background: rgba(var(--primary-rgbm), 0.7);
+    background: rgba(var(--primary-rgbm), 0.6);
     box-shadow: 0 0.3rem 0.5rem var(--input-boxhovercolor);
+  border-left: 0.18751rem solid var(--menu-item-hover-bgcolor) !important; 
+  border-right: 0.18751rem solid var(--menu-item-hover-bgcolor) !important; 
     margin-bottom: 0
+}
+
+.tabs li[class~="active"],
+.cbi-tabmenu>li[class~="cbi-tab"] {
+    background: rgba(var(--primary-rgbm), 0.9);
+    border-left: 0.18751rem solid var(--primary-solid) !important;
+    border-right: 0.18751rem solid var(--primary-solid) !important;
+    box-shadow: 0 0.05rem 0.2rem var(--input-boxhovercolor)
 }
 
 
@@ -1691,6 +1705,14 @@ textarea {
     outline: 0;
     cursor: move;
     user-select: text
+}
+
+.cbi-dynlist>.item:focus,
+.cbi-dynlist>.item:hover
+ {
+    /* border: 1px solid var(--inputborder-color); */
+    box-shadow: 0 0.1rem 0.3rem var(--input-boxcolor);
+    transition: box-shadow 0.3s ease;
 }
 
 .cbi-dynlist>.item.dragging {
@@ -1778,13 +1800,13 @@ textarea {
 }
 
 .cbi-dynlist>.add-item .cbi-button-add {
-    width: 2.5rem !important;
-    font-size: 1.5rem;
-    line-height: 1;
-    background-color: rgba(var(--primary-rgbm), 0.9);
-    border: 1px solid rgba(var(--primary-rgbm), 1);
-    margin: 0;
-    padding: 3px !important
+  width: 2.5rem !important;
+  font-size: 1.8rem;
+  line-height: 1.9rem;
+  background-color: rgba(var(--primary-rgbm), 0.9);
+  border: 1px solid rgba(var(--primary-rgbm), 1);
+  margin: 0;
+  padding: 0px 3px 3px 3px !important;
 }
 
 .cbi-dropdown {
@@ -1867,7 +1889,7 @@ textarea {
     min-height: 1.8rem;
     white-space: nowrap;
     text-overflow: ellipsis;
-    margin: 0 0.2rem;
+    margin: 0 0.2rem 0 0.4rem;
 }
 
 .cbi-dropdown.btn>span, .cbi-dropdown.btn>ul>li {
@@ -1915,13 +1937,14 @@ textarea {
 }
 
 .cbi-dropdown[open]>ul.dropdown>li {
-    color: var(--inputtext-color);
-    margin: 0.1rem auto;
-    padding: 0.5rem 0.75rem
+  color: var(--inputtext-color);
+  margin: 0.1rem 0;
+  padding: 0.5rem 0.75rem;
+  height: 1.8rem;
 }
 
 .cbi-dropdown[open]>ul.dropdown>li:hover {
-    background: rgba(var(--primary-rgbm), 0.5);
+    background: rgba(var(--primary-rgbm), 0.6);
     color: var(--menu-hover-color);
     cursor: pointer;
     outline: none
@@ -1946,8 +1969,9 @@ textarea {
     position: relative;
     display: inline-flex;
     width: 30rem;
+    cursor: pointer;
     align-items: center;
-    min-height: 1.8rem
+    min-height: 2.2rem
 }
 
 .cbi-page-actions>.cbi-dropdown.btn,
@@ -2309,6 +2333,7 @@ td.cbi-value-field var,
 table > tbody > tr, div > .table > .tr, .cbi-map >.cbi-section .cbi-value {
   background-color: rgba(255, 255, 255, 0);
   transition: background-color .25s;
+  margin: 0.1rem 0;
 }
 
 .cbi-section-table .cbi-section-table-titles .cbi-section-table-cell {
@@ -2638,7 +2663,6 @@ td>.ifacebadge,
 
 .cbi-button-down,
 .cbi-button-up {
-    font-size: 1rem;
     display: inline-block;
     cursor: pointer;
     background-repeat: no-repeat;
@@ -2649,6 +2673,10 @@ td>.ifacebadge,
     background-size: 25px 30px
 }
 
+.cbi-button-down:hover,
+.cbi-button-up:hover {
+    color: transparent !important;
+}
 .cbi-button-up {
     background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzY4IiBoZWlnaHQ9Ijc2OCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2ZXJzaW9uPSIxLjEiPgogPHRpdGxlLz4KCiA8Zz4KICA8dGl0bGU+TGF5ZXIgMTwvdGl0bGU+CiAgPGcgaWQ9Imljb21vb24taWdub3JlIi8+CiAgPHBhdGggZmlsbD0iI2ZmZmZmZiIgaWQ9InN2Z18xIiBkPSJtNTk4LjYzLDQ1Ny4zNzVsLTE5MiwtMTkyYy0xMi41MTIsLTEyLjUxMiAtMzIuNzY4LC0xMi41MTIgLTQ1LjI0OCwwbC0xOTIsMTkyYy0xMi41MTIsMTIuNTEyIC0xMi41MTIsMzIuNzY4IDAsNDUuMjQ4czMyLjc2OCwxMi41MTIgNDUuMjQ4LDBsMTY5LjM3NiwtMTY5LjM3NmwxNjkuMzc2LDE2OS4zNzZjMTIuNTEyLDEyLjUxMiAzMi43NjgsMTIuNTEyIDQ1LjI0OCwwczEyLjUxMiwtMzIuNzY4IDAsLTQ1LjI0OHoiLz4KIDwvZz4KPC9zdmc+)
 }
@@ -2674,7 +2702,6 @@ td>.ifacebadge,
 }
 
 .zonebadge .ifacebadge {
-    /* color: var(--title-color); */
     background-color: #bbb;
     border: 1px solid var(--input-boxhovercolor);
     margin: .1rem .2rem
@@ -2733,19 +2760,20 @@ label>input[type="radio"] {
 label[data-index][data-depends] {
     padding-right: 2em
 }
-
 .showSide {
-    display: none;
-    color: var(--menu-fontcolor);
-    color: #13bcff;
-    border-radius: var(--radius1);
-    /* background-color: rgba(var(--primary-rgbm), 0.1) !important; */
-    line-height: 1.1;
-    position: inherit;
-    cursor: pointer;
-    text-decoration: none;
-    padding: 0.8rem
+  display: none;
+  color: var(--menu-fontcolor);
+  color: #13bcff;
+  border-radius: var(--radius1);
+  border: 1px solid var(--inputborder-color);
+  line-height: 1;
+  position: inherit;
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+  text-decoration: none;
+  padding: 0.3rem;
 }
+
 .darkMask {
   position: fixed;
   z-index: 99;
@@ -2992,7 +3020,7 @@ body.lang_pl.node-main-login .cbi-value-title {
     -ms-flex-pack: center;
     justify-content: center;
     text-indent: 0rem;
-    background: transparent;
+    background: transparent!important;
     width: 14rem;
     min-width: 100% !important;
     border-radius: 0;
@@ -3159,6 +3187,12 @@ body.lang_pl.node-main-login .cbi-value-title {
       color: var(--menu-fontcolor);
 }
 
+[data-page^="admin-system-kucat-config"] .tr[data-title]::before,
+[data-page^="admin-system-kucat-config"] .tr.cbi-section-table-titles.named::before,
+[data-page^="admin-system-kucat-config"] .tr[data-title]::before,
+[data-page^="admin-system-kucat-config"] .tr.cbi-section-table-titles.named::before {
+   display:none;
+}
 [data-page^="admin-nlbw-usage"]>.main .tr.table-totals,
 [data-page^="admin-nlbw-usage"]>.main .cbi-progressbar {
     background-color: var(--inputbg-color) !important
@@ -3403,8 +3437,7 @@ body.lang_pl.node-main-login .cbi-value-title {
 
 [data-page^="admin-services-openclash"] .cbi-tabmenu {
     background-color: rgba(var(--primary-rgbbody), 0.2) !important;
-    border: 0px solid #ddd !important;
-
+    border: none!important;
 }
 [data-page^="admin-services-openclash"] #tab {
     border: 0px solid #ddd !important;
@@ -3439,23 +3472,45 @@ body.lang_pl.node-main-login .cbi-value-title {
   width: 300px!important;
 }
 
+.bandix-container input:hover,
+.bandix-container input:focus {
+  outline: none;
+  background-color: rgba(255, 255, 255, 0);
+  color: var(--body-color);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+} 
+
+.bandix-container .schedule-rules-empty,
 .bandix-container select,
 .bandix-container input {
-    background-color: var(--input-bgcolor);
+    background-color: rgba(255, 255, 255, 0);
     color: var(--body-color);
     padding: 0 20px 0 10px;
     border: 1px solid var(--inputborder-color);
 
 }
 
-
 .bandix-container button {
- color: var(--menu-color);
+  color: var(--primary-title-color);
+  background-color: rgba(255, 255, 255, 0);
+  box-shadow: none;
+  border: 1px solid rgba(255, 255, 255, 0);
 }
 
-.bandix-container button:hover:not(.active) {
-  color: var(--primarytextcolor);
+.bandix-container .history-tab.active,
+.bandix-container button.active,
+.bandix-container button:active{
+  color: var(--menu-color);
+  background-color: rgba(var(--primary-rgbm), 0.7);
+  border: 1px solid var(--inputborder-color);
+}
 
+.bandix-container .history-tab:hover:not(.active) ,
+.bandix-container button:hover:not(.active) ,
+.bandix-container button:hover{
+  color: var(--menu-hover-color);
+  background-color: var(--menu-item-titlebg-color);
+  border: 1px solid var(--inputborder-color);
 }
 
 #dialog_reslov .dialog_box {
@@ -3721,14 +3776,6 @@ input,
     overflow: visible!important
 }
 
-.tabs li[class~="active"],
-.cbi-tabmenu>li[class~="cbi-tab"] {
-    background-color: rgba(var(--primary-rgbm), 0.7);
-    border-left: 0.18751rem solid var(--primary-solid) !important;
-    border-right: 0.18751rem solid var(--primary-solid) !important;
-    box-shadow: 0 0.05rem 0.2rem var(--input-boxhovercolor)
-}
-
 .cbi-dynlist>.item.drag-over,
 .cbi-dynlist>.add-item>.cbi-input-text.drag-over,
 .cbi-dynlist>.add-item>.cbi-button-add.drag-over {
@@ -3889,8 +3936,7 @@ input,
     }
 
     .showSide:hover {
-        /* background-color: var(--menu-item-hover-bgcolor); */
-        border-radius: var(--radius2);
+        border-radius: var(--radius1);
 	color: #13bcff;
         text-decoration: none
     }
