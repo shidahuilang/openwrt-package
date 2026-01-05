@@ -272,9 +272,7 @@ function gen_outbound(flag, node, tag, proxy_table)
 								encryption = (node.protocol == "vless") and ((node.encryption and node.encryption ~= "") and node.encryption or "none") or nil,
 								flow = (node.protocol == "vless"
 									and (node.tls == "1" or (node.encryption and node.encryption ~= "" and node.encryption ~= "none"))
-									and (node.transport == "raw" or node.transport == "tcp" or node.transport == "xhttp")
-									and node.flow and node.flow ~= ""
-								) and node.flow or nil
+									and node.flow and node.flow ~= "") and node.flow or nil
 							}
 						}
 					}
@@ -344,7 +342,9 @@ function gen_config_server(node)
 			for i = 1, #node.uuid do
 				clients[i] = {
 					id = node.uuid[i],
-					flow = (node.protocol == "vless" and node.tls == "1" and (node.transport == "raw" or node.transport == "xhttp") and node.flow and node.flow ~= "") and node.flow or nil
+					flow = (node.protocol == "vless"
+					and (node.tls == "1" or (node.decryption and node.decryption ~= "" and node.decryption ~= "none")) 
+					and node.flow and node.flow ~= "") and node.flow or nil
 				}
 			end
 			settings = {
@@ -865,7 +865,7 @@ function gen_config(var)
 			end
 			table.insert(balancers, {
 				tag = balancer_tag,
-				selector = valid_nodes,
+				selector = api.clone(valid_nodes),
 				fallbackTag = fallback_node_tag,
 				strategy = strategy
 			})
@@ -1055,7 +1055,16 @@ function gen_config(var)
 					end
 					return outbound_tag, nil
 				elseif _node.protocol == "_balancing" then
-					return nil, gen_balancer(_node, rule_name)
+					local blc_tag = gen_balancer(_node, rule_name)
+					if rule_name == "default" then
+						for i, ob in ipairs(outbounds) do
+							if ob.protocol == "loopback" and ob.tag == "default" then
+								if i > 1 then table.insert(outbounds, 1, table.remove(outbounds, i)) end
+								break
+							end
+						end
+					end
+					return nil, blc_tag
 				elseif _node.protocol == "_iface" then
 					local outbound_tag
 					if _node.iface then
@@ -1070,7 +1079,11 @@ function gen_config(var)
 							}
 						}
 						outbound_tag = outbound.tag
-						table.insert(outbounds, outbound)
+						if rule_name == "default" then
+							table.insert(outbounds, 1, outbound)
+						else
+							table.insert(outbounds, outbound)
+						end
 						sys.call(string.format("mkdir -p %s && touch %s/%s", api.TMP_IFACE_PATH, api.TMP_IFACE_PATH, _node.iface))
 					end
 					return outbound_tag, nil
@@ -1197,6 +1210,21 @@ function gen_config(var)
 					end
 				end
 			end)
+
+			if default_outboundTag or default_balancerTag then
+				local rule = {
+					_flag = "default",
+					type = "field",
+					outboundTag = default_outboundTag,
+					balancerTag = default_balancerTag
+				}
+				if node.domainStrategy == "IPIfNonMatch" then
+					rule.ip = { "0.0.0.0/0", "::/0" }
+				else
+					rule.network = "tcp,udp"
+				end
+				table.insert(rules, rule)
+			end
 
 			routing = {
 				domainStrategy = node.domainStrategy or "AsIs",
