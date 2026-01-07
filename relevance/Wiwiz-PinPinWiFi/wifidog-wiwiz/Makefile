@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=wifidog-wiwiz
-PKG_VERSION:=20251114
+PKG_VERSION:=20260107
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 
 PKG_FIXUP:=autoreconf
@@ -87,8 +87,8 @@ define Package/wifidog-wiwiz/install
 	$(INSTALL_BIN) ./files/www/cgi-bin/showdevinfo $(1)/www/cgi-bin/showdevinfo
 	$(INSTALL_BIN) ./files/www/cgi-bin/kickmac $(1)/www/cgi-bin/kickmac
 	$(INSTALL_BIN) ./files/www/cgi-bin/cpi $(1)/www/cgi-bin/cpi
+	$(INSTALL_BIN) ./files/www/cgi-bin/wiwiz404 $(1)/www/cgi-bin/wiwiz404
 	$(INSTALL_DATA) ./files/www/index.html.wiwiz $(1)/www/index.html.wiwiz
-	$(INSTALL_DATA) ./files/www/error.html.wiwiz $(1)/www/error.html.wiwiz
 	$(INSTALL_DATA) ./files/www/mymac.htm $(1)/www/mymac.htm
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(INSTALL_BIN) ./files/etc/uci-defaults/199-noredir $(1)/etc/uci-defaults/199-noredir
@@ -105,8 +105,6 @@ define Package/wifidog-wiwiz/postinst
 cp -f $${IPKG_INSTROOT}/www/index.html $${IPKG_INSTROOT}/www/index.html.org
 cp -f $${IPKG_INSTROOT}/www/index.html.wiwiz $${IPKG_INSTROOT}/www/index.html
 rm -f $${IPKG_INSTROOT}/www/index.html.wiwiz
-cp -f $${IPKG_INSTROOT}/www/error.html.wiwiz $${IPKG_INSTROOT}/www/error.html
-rm -f $${IPKG_INSTROOT}/www/error.html.wiwiz
 endef
 
 $(eval $(call BuildPackage,wifidog-wiwiz))
