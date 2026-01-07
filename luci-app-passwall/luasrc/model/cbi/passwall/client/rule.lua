@@ -22,7 +22,7 @@ o:value("https://cdn.jsdelivr.net/gh/YW5vbnltb3Vz/domain-list-community@release/
 o:value("https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/gfw.txt", translate("Loyalsoldier/v2ray-rules-dat"))
 o:value("https://cdn.jsdelivr.net/gh/Loukky/gfwlist-by-loukky/gfwlist.txt", translate("Loukky/gfwlist-by-loukky"))
 o:value("https://cdn.jsdelivr.net/gh/gfwlist/gfwlist/gfwlist.txt", translate("gfwlist/gfwlist"))
-o.default = "https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/gfw.txt"
+o.default = o.keylist[2]
 
 ----chnroute  URL
 o = s:option(DynamicList, "chnroute_url", translate("China IPs(chnroute) Update URL"))
@@ -57,14 +57,14 @@ if has_xray or has_singbox then
 	o:value("https://github.com/MetaCubeX/meta-rules-dat/releases/latest/download/geoip.dat", translate("MetaCubeX/geoip"))
 	o:value("https://cdn.jsdelivr.net/gh/Loyalsoldier/geoip@release/geoip.dat", translate("Loyalsoldier/geoip (CDN)"))
 	o:value("https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.dat", translate("MetaCubeX/geoip (CDN)"))
-	o.default = "https://github.com/Loyalsoldier/geoip/releases/latest/download/geoip.dat"
+	o.default = o.keylist[1]
 
 	o = s:option(ListValue, "geosite_url", translate("Geosite Update URL"))
 	o:value("https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat", translate("Loyalsoldier/geosite"))
 	o:value("https://github.com/MetaCubeX/meta-rules-dat/releases/latest/download/geosite.dat", translate("MetaCubeX/geosite"))
 	o:value("https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/geosite.dat", translate("Loyalsoldier/geosite (CDN)"))
 	o:value("https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite.dat", translate("MetaCubeX/geosite (CDN)"))
-	o.default = "https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat"
+	o.default = o.keylist[1]
 
 	o = s:option(Value, "v2ray_location_asset", translate("Location of Geo rule files"), translate("This variable specifies a directory where geoip.dat and geosite.dat files are."))
 	o.default = "/usr/share/v2ray/"
@@ -72,9 +72,11 @@ if has_xray or has_singbox then
 	o.rmempty = false
 
 	if api.is_finded("geoview") then
-		o = s:option(Flag, "geo2rule", translate("Generate Rule List from Geo"), translate("Generate rule lists such as GFW, China domains, and China IP ranges based on Geo files."))
+		o = s:option(Flag, "geo2rule", translate("Generate Rule List from Geo"))
 		o.default = 0
 		o.rmempty = false
+		o.description = translate("Generate rule lists such as GFW, China domains, and China IP ranges based on Geo files.") .. "<br><font color='red'>" ..
+			translate("When manually updating with this option enabled, rules will be regenerated from existing Geo files even if no new version is available.") .. "</font>"
 
 		o = s:option(Flag, "enable_geoview", translate("Enable Geo Data Parsing"))
 		o.default = 0
