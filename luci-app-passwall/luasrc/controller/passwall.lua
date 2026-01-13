@@ -334,7 +334,7 @@ function connect_status()
 	local proxy_mode = uci:get(appname, "@global[0]", "tcp_proxy_mode") or "proxy"
 	local localhost_proxy = uci:get(appname, "@global[0]", "localhost_proxy") or "1"
 	local socks_server = (localhost_proxy == "0") and api.get_cache_var("GLOBAL_TCP_SOCKS_server") or ""
-	url = "-w %{http_code}:%{time_starttransfer} " .. url
+	url = "-w %{http_code}:%{time_pretransfer} " .. url
 	if socks_server and socks_server ~= "" then
 		if (chn_list == "proxy" and gfw_list == "0" and proxy_mode ~= "proxy" and baidu ~= nil) or (chn_list == "0" and gfw_list == "0" and proxy_mode == "proxy") then
 		-- 中国列表+百度 or 全局
