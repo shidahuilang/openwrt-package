@@ -8,8 +8,6 @@
 EEOF
 }
 
-touch /etc/config/netwizard
-
 uci -q batch <<-EOF >/dev/null
 	delete ucitrack.@netwizard[-1]
 	add ucitrack netwizard
