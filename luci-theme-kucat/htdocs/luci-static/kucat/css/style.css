@@ -1,6 +1,6 @@
 /*
  *  luci-theme-kucat 3.0 UCODE版
- *  Copyright (C) 2019-2025 The Sirpdboy Team <herboy2008@gmail.com> 
+ *  Copyright (C) 2019-2026 The Sirpdboy Team <herboy2008@gmail.com> 
  *
  *  Have a bug? Please create an issue here on GitHub!
  *      https://github.com/sirpdboy/luci-theme-kucat/issues
@@ -268,6 +268,7 @@ body {
     letter-spacing: 0.050em;
     font-size: var(--font-x);
     color: var(--body-color);
+    text-shadow: var(--font3d);
     background-position: top center;
     -webkit-background-size: cover;
     -moz-background-size: cover;
@@ -555,7 +556,7 @@ footer a {
     border-radius: 0.25rem;
     background-color: rgba(var(--primary-rgbbody), 1);
     color: var(--title-color);
-    box-shadow: 0 0.1rem 0.4rem var(--input-boxcolor);
+    box-shadow: var(--boxshadow);
     padding: 1rem 3rem !important
 }
 
@@ -583,7 +584,8 @@ footer a {
     z-index: 100;
     background-color: var(--menu-bgcolor);
     background-image: var(--bgqs-image);
-    box-shadow: 0 .1rem .5rem .2rem var(--input-boxcolor);
+    box-shadow: var(--boxshadow);
+    border-right: 1px solid var(--inputborder-color);
     overflow-x: auto;
     word-break: break-word;
     flex-shrink: 0;
@@ -1134,7 +1136,7 @@ li {
     overflow: unset;
     border-radius: var(--radius1);
     background-color: rgba(var(--primary-rgbbody), 0.9);
-    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.16), 0 0 2px 0 var(--input-boxcolor);
+    box-shadow: var(--boxshadow);
     padding: 0.7rem 1rem;
 }
 
@@ -1212,17 +1214,18 @@ button:-moz-focusring {
 select,
 input,
 .cbi-dropdown {
-    outline: 0;
-    line-height: 1;
-    background-image: none;
-    background-color: var(--input-bgcolor);
-    background-color: transparent;
-    color: var(--body-color);
-    border: 1px solid var(--inputborder-color);
-    border-radius: var(--radius2);
-    transition: box-shadow 0.3s ease;
-    margin: 0.25rem auto;
-    padding: 0.5rem 0.75rem
+
+  border: none;
+  background-image: none;
+  box-shadow: none;
+  color: var(--body-color);
+  transition: box-shadow 0.3s ease;
+  padding: 0.2rem;
+  border-bottom: 1px solid var(--inputborder-color);
+  border-radius: 0;
+  outline: 0;
+  background-color: transparent;
+  text-shadow: var(--font3d);
 }
 
 .btn,
@@ -1244,14 +1247,32 @@ button,
     white-space: nowrap;
     font-size: var(--font-z);
     color: var(--menu-color);
-    background-color: rgba(var(--primary-rgbm), 0.8);
+    background-color: rgba(var(--primary-rgbm), 0.9);
+    min-height: 2.2rem!important;
+    margin-left: 0.25rem;
+    line-height: 2.2rem!important;
     border-radius: var(--radius2);
-    background-image: var(--bgqs-image);
-    border: 1px solid var(--inputborder-color);
-    box-shadow: 0 0.1rem 0.3rem var(--input-boxcolor);
-    transition: box-shadow 0.3s ease;
-    margin: 0.25rem
+    padding: 0 0.75rem;
+    transition: all 0.3s ease ;
 }
+
+.main .btn,
+.main button,
+.main .cbi-button {
+    padding: 0rem 0.75rem;
+}
+
+select:not([multiple="multiple"]):hover,
+input:not(.cbi-button):hover,
+.cbi-dropdown:hover,
+select:not([multiple="multiple"]):focus,
+input:not(.cbi-button):focus,
+.cbi-dropdown:focus {
+
+    color: var(--inputtext-color);
+    border-bottom: 1px solid rgba(var(--primary-rgbm), 0.9);
+}
+
 
 select,
 input {
@@ -1289,7 +1310,9 @@ input[type="checkbox"] {
     position: relative;
     width: 25px !important;
     height: 25px !important;
-      cursor: pointer;
+    cursor: pointer;
+    border: 1px solid var(--inputborder-color);
+    border-radius: var(--radius2);
     -webkit-appearance: none;
     outline: none;
     transition: 0.1s;
@@ -1347,20 +1370,6 @@ input[type='file'] {
     line-height: 1.5rem
 }
 
-.cbi-input-textarea:hover,
-textarea:hover,
-select:not([multiple="multiple"]):hover,
-input:not(.cbi-button):hover,
-.cbi-dropdown:hover,
-.cbi-input-textarea:focus,
-textarea:focus,
-select:not([multiple="multiple"]):focus,
-input:not(.cbi-button):focus,
-.cbi-dropdown:focus {
-    border: 1px solid rgba(var(--primary-rgbm), 0.9);
-    color: var(--inputtext-color);
-    box-shadow: 0 1px 6px var(--input-boxhovercolor)
-}
 
 .cbi-dropdown,
 select[multiple="multiple"] {
@@ -1382,22 +1391,27 @@ select[multiple="multiple"] {
 
 button:focus,
 .btn:focus,
-.cbi-button:focus {
-
-    color: var(--menu-hover-color)!important;
-    box-shadow: 0 0.3rem 0.5rem var(--input-boxhovercolor);
-    -webkit-box-shadow: 0 0.3rem 0.5rem var(--input-boxhovercolor);
-    -moz-box-shadow: 0 0.3rem 0.5rem var(--input-boxhovercolor)
-}
-
+.cbi-button:focus,
 button:hover,
 .btn:hover,
 .cbi-button:hover
  {
-    color: var(--menu-hover-color)!important; 
-    box-shadow: 0 0.2rem 0.4rem var(--input-boxhovercolor);
-    -webkit-box-shadow: 0 0.2rem 0.4rem var(--input-boxhovercolor);
-    -moz-box-shadow: 0 0.2rem 0.4rem var(--input-boxhovercolor)
+    color: var(--menu-hover-color); 
+    transform: translateY(-2px) ;
+    box-shadow: 0 0.3rem 0.5rem var(--input-boxhovercolor);
+    -webkit-box-shadow: 0 0.3rem 0.5rem var(--input-boxhovercolor);
+    -moz-box-shadow: 0 0.3rem 0.5rem var(--input-boxhovercolor)
+
+}
+
+button:not(:hover) ,
+.btn:not(:hover) ,
+.cbi-button:not(:hover) 
+ {
+    transform: translateY(0);
+    box-shadow: var(--boxshadow);
+    -webkit-box-shadow: var(--boxshadow);
+    -moz-box-shadow: var(--boxshadow);
 }
 
 .btn:active,
@@ -1452,7 +1466,7 @@ textarea,
     min-width: 100%;
     max-width: none;
     max-height: 200px !important;
-    box-shadow: 0 0 4px var(--inputborder-color);
+    box-shadow: var(--boxshadow);
     border-radius: var(--radius2);
     background-color: rgba(var(--primary-rgbbody), 1);
     color: var(--inputtext-color);
@@ -1477,7 +1491,7 @@ textarea,
 }
 
 .cbi-section-create input {
-  width: 10rem !important;
+  max-width: 12rem !important;
 }
 
 .primary {
@@ -1668,6 +1682,15 @@ ul.tabs, .tabmenu .tabs, #tabmenu .tabs, ul.cbi-tabmenu {
     padding: 0
 }
 
+input[type='file']:hover,
+input[type='radio']:hover,
+input[type="checkbox"]:hover,
+input[type='file']:focus,
+input[type='radio']:focus,
+input[type="checkbox"]:focus {
+
+    border: 1px solid rgba(var(--primary-rgbm), 0.9);
+}
 .cbi-input-textarea,
 textarea {
     min-width: 30rem;
@@ -1686,9 +1709,16 @@ textarea {
     padding: 10px
 }
 
+.cbi-input-textarea:hover,
+textarea:hover,
+.cbi-input-textarea:focus,
+textarea:focus
+ {
+    border: 1px solid rgba(var(--primary-rgbm), 0.9);
+}
+
 
 .cbi-dynlist {
-    line-height: 1.3;
     flex-direction: column;
     min-height: 30px;
     cursor: text
@@ -1700,8 +1730,10 @@ textarea {
     position: relative;
     width: 100%;
     pointer-events: auto;
+    height: 2.2rem;
     margin-top: 0.2rem;
     color: var(--inputtext-color);
+    border-bottom: 1px solid var(--inputborder-color);
     outline: 0;
     cursor: move;
     user-select: text
@@ -1710,8 +1742,8 @@ textarea {
 .cbi-dynlist>.item:focus,
 .cbi-dynlist>.item:hover
  {
-    /* border: 1px solid var(--inputborder-color); */
-    box-shadow: 0 0.1rem 0.3rem var(--input-boxcolor);
+
+    border-bottom: 1px solid rgba(var(--primary-rgbm), 0.9);
     transition: box-shadow 0.3s ease;
 }
 
@@ -1726,16 +1758,12 @@ textarea {
     text-overflow: ellipsis;
     white-space: nowrap;
     word-break: break-word;
-    line-height: 1;
     background-image: none;
     color: var(--inputtext-color);
     font-family: var(--font-sans);
-    border-left: 1px solid var(--inputborder-color);
-    border-top: 1px solid var(--inputborder-color);
-    border-bottom: 1px solid var(--inputborder-color);
-    background-color: var(--input-bgcolor);
+
     background-color: transparent;
-    border-radius: var(--radius2) 0 0 var(--radius2);
+    border-radius: 0 ;
     box-sizing: border-box;
     padding: 0.5rem 0.75rem
 }
@@ -1752,17 +1780,12 @@ textarea {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    font-size: 1.7rem;
     line-height: 1;
     width: 2.5rem !important;
     color: #E91E63;
-    border: 0px solid var(--inputborder-color);
-    border-right: 1px solid var(--inputborder-color);
-    border-top: 1px solid var(--inputborder-color);
-    border-bottom: 1px solid var(--inputborder-color);
-    border-radius: 0 var(--radius2) var(--radius2) 0;
+    border-radius: 0 ;
     outline: 0;
-    background-color: var(--input-bgcolor);
     background-color: transparent;
     box-sizing: border-box;
     margin: 0;
@@ -1815,7 +1838,6 @@ textarea {
     width: 30rem;
     align-items: center;
     min-height: 1.8rem;
-    padding: .2rem
 }
 
 [id^="cbid."][id$=".interface"].cbi-dropdown,
@@ -1854,11 +1876,6 @@ textarea {
     text-align: center;
     margin-left: .1rem;
     outline: 0;
-    padding: 0 .4rem
-}
-
-.cbi-dropdown>.open {
-    border-left: 0.1rem solid var(--inputborder-color);
 }
 
 .cbi-page-actions>.cbi-dropdown.btn>.open,
@@ -1869,7 +1886,7 @@ textarea {
 .diag-action>.cbi-dropdown.btn>.open,
 .cbi-page-actions>.cbi-dropdown.btn>.open {
     color: var(--menu-hover-color);
-    border-left: 0.1rem solid var(--menu-hover-color)
+    padding: 0 0.3rem;
 }
 
 .cbi-dropdown.btn>div {
@@ -1892,15 +1909,9 @@ textarea {
     margin: 0 0.2rem 0 0.4rem;
 }
 
-.cbi-dropdown.btn>span, .cbi-dropdown.btn>ul>li {
-  padding: 0 .4rem;
-}
 .cbi-dropdown.btn>ul>li {
   min-height: 1.5rem;
   height: 1.6rem
-}
-.cbi-dropdown>ul>li[display]:not([display="0"]) {
-    border-left: thin solid var(--input-boxhovercolor)
 }
 
 .cbi-dropdown[empty]>ul {
@@ -1940,18 +1951,19 @@ textarea {
   color: var(--inputtext-color);
   margin: 0.1rem 0;
   padding: 0.5rem 0.75rem;
-  height: 1.8rem;
+  min-height: 1.8rem;
+  max-height: 3rem;
 }
 
 .cbi-dropdown[open]>ul.dropdown>li:hover {
-    background: rgba(var(--primary-rgbm), 0.6);
+    background: rgba(var(--primary-rgbm), 0.5);
     color: var(--menu-hover-color);
     cursor: pointer;
     outline: none
 }
 
 .cbi-dropdown[open]>ul.dropdown>li[selected] {
-    background: rgba(var(--primary-rgbm), 0.8);
+    background: rgba(var(--primary-rgbm), 0.7);
     color: var(--menu-hover-color)
 }
 
@@ -1977,7 +1989,8 @@ textarea {
 .cbi-page-actions>.cbi-dropdown.btn,
 .diag-action .cbi-dropdown.btn {
     width: auto;
-    padding: .2rem
+    height: 2.2rem;
+    padding: .2rem;
 }
 
 .cbi-dropdown[open]>ul.dropdown>li label {
@@ -2055,7 +2068,7 @@ textarea {
     border-radius: var(--radius2) !important;
     background-color: rgba(var(--primary-rgbbody), 1) !important;
     color: var(--primary-title-color) !important;
-    box-shadow: 0 0.1rem 0.3rem var(--input-boxcolor);
+    box-shadow: var(--boxshadow);
     margin: 5em auto;
     padding: 1rem
 }
@@ -2441,13 +2454,10 @@ div>.table>.tr:nth-of-type(2n+1):hover {
 
 .cbi-value {
     display: inline-block;
+  line-height: 2.4rem;
     width: 100%;
 }
 
-.cbi-value>.cbi-value-field,
-.cbi-value>.cbi-value-title {
-  line-height: 2.3rem;
-}
 .cbi-value:first-child {
     padding-top: 1rem
 }
@@ -2473,7 +2483,9 @@ div>.table>.tr:nth-of-type(2n+1):hover {
 .cbi-value strong {
     font-weight: 400
 }
-
+.cbi-value-field >* {
+  line-height: 1.3rem;
+}
 .cbi-value ul {
     line-height: 1.25
 }
@@ -2501,11 +2513,6 @@ div>.table>.tr:nth-of-type(2n+1):hover {
 #cbi-network-switch_vlan .cbi-input-text {
     max-width: 3rem
 }
-
-#cbi-network .cbi-value>.cbi-value-field, #cbi-network  .cbi-value>.cbi-value-title{
-    line-height: 1.2;
-}
-
 
 .cbi-input-invalid {
     color: red;
@@ -2934,7 +2941,7 @@ body.lang_pl.node-main-login .cbi-value-title {
 .node-main-login>.main>.main-right #maincontent>.container>form {
     -webkit-backdrop-filter: blur(6px) !important;
     backdrop-filter: blur(6px) !important;
-    box-shadow: 0 .1rem .4rem .2rem var(--input-boxcolor);
+    box-shadow: var(--boxshadow);
     background-color: rgba(var(--primary-rgbbody), 0.5) !important;
     border-radius: var(--radius1);
     border: none;
@@ -2956,11 +2963,12 @@ body.lang_pl.node-main-login .cbi-value-title {
 }
 
 .node-main-login>.main>.main-right #maincontent>.container>form .alert-message {
-    background-color: #b98413 !important
+    background-color: #b98413 !important;
+    margin-top: 1rem;
 }
 
 .node-main-login>.main .cbi-map {
-    padding: 1rem !important;
+    padding-top: 1rem !important;
     overflow: hidden;
 }
 
@@ -2987,7 +2995,6 @@ body.lang_pl.node-main-login .cbi-value-title {
 .node-main-login>.main .container .cbi-value-field input:focus {
     color: var(--body-color);
     outline: 0;
-    background-color: rgba(248, 248, 248, 0.2) !important;
     box-shadow: 0 3px 9px rgba(50, 50, 9, 0), 3px 4px 8px rgba(94, 114, 228, .1)
 }
 
@@ -3025,8 +3032,6 @@ body.lang_pl.node-main-login .cbi-value-title {
     min-width: 100% !important;
     border-radius: 0;
     padding: 0 20px 0 20px;
-    border: none;
-    border-bottom: 1px solid var(--inputborder-color);
     margin: 0
 }
 
@@ -3042,25 +3047,14 @@ body.lang_pl.node-main-login .cbi-value-title {
     font-size: 1.3rem;
     position: absolute;
     z-index: 100;
+    text-shadow: none;
     left: 10px;
-    top: 10px
+    top: 7px
 }
 
-
 .node-main-login>.main .cbi-value.cbi-value-last .cbi-value-field:before {
-    font-family: kucat !important;
-    speak: none;
-    font-variant: normal;
-    text-transform: none;
-    line-height: 1;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+
     content: "\e93c";
-    font-size: 1.3rem;
-    position: absolute;
-    z-index: 100;
-    left: 10px;
-    top: 10px
 }
 
 .node-main-login>.main .cbi-value.cbi-value .cbi-value-field,
@@ -3468,7 +3462,8 @@ body.lang_pl.node-main-login .cbi-value-title {
 .history-tooltip {
   background-color: rgba(var(--primary-rgbbody),1)!important;
   color: var(--body-color) !important;
-  border: 1px solid var(--input-boxcolor)!important;
+  border: 1px solid rgba(255, 255, 255, 0)!important;
+  border-bottom: 1px solid var(--inputborder-color)!important;
   width: 300px!important;
 }
 
@@ -3477,7 +3472,7 @@ body.lang_pl.node-main-login .cbi-value-title {
   outline: none;
   background-color: rgba(255, 255, 255, 0);
   color: var(--body-color);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: none;
 } 
 
 .bandix-container .schedule-rules-empty,
@@ -3486,7 +3481,9 @@ body.lang_pl.node-main-login .cbi-value-title {
     background-color: rgba(255, 255, 255, 0);
     color: var(--body-color);
     padding: 0 20px 0 10px;
-    border: 1px solid var(--inputborder-color);
+    border-radius: 0!important;
+    border: 1px solid rgba(255, 255, 255, 0);
+    border-bottom: 1px solid var(--inputborder-color);
 
 }
 
@@ -3494,6 +3491,7 @@ body.lang_pl.node-main-login .cbi-value-title {
   color: var(--primary-title-color);
   background-color: rgba(255, 255, 255, 0);
   box-shadow: none;
+  padding: 0 0.75rem;
   border: 1px solid rgba(255, 255, 255, 0);
 }
 
@@ -3705,12 +3703,6 @@ pre {
 .controls>*>.btn:not([aria-label$="page"]) {
   flex-grow: initial !important;
   margin-top: .25rem;
-    padding: 0.5rem 1.2rem;
-}
-
-[data-theme="dark"] .pdboy-light:before,
-[data-theme="light"] .pdboy-dark:before {
-    color: #aaa !important
 }
 
 .cbi-section.fade-in .cbi-title>div:last-child span:after,
@@ -3922,8 +3914,6 @@ input,
 
     .main-left {
         visibility: hidden;
-        box-shadow: rgba(0, 0, 0, 0.75) 0 0 20px -5px;
-        -webkit-box-shadow: rgba(0, 0, 0, 0.75) 0 0 20px -5px;
         position: fixed;
         background-image: var(--bgqs-image);
         width: calc(0% + 15rem);

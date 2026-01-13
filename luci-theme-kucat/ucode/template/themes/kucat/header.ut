@@ -1,9 +1,9 @@
 {#
     luci-theme-kucat: 
-    Copyright (C) 2019-2025 The Sirpdboy <herboy2008@gmail.com> 
+    Copyright (C) 2019-2026 The Sirpdboy <herboy2008@gmail.com> 
     Have a bug? Please create an issue here on GitHub!
     https://github.com/sirpdboy/luci-theme-kucat/issues
-    
+
     luci-theme-material: 
     Copyright 2015 Lutty Yang <lutty@wcan.in>
     luci-theme-bootstrap:
@@ -36,14 +36,14 @@ let showword = "";
 
 let primary_rgbm = '45,102,147', primary_rgbbody = '244,245,247',primary_rgbm_ts = '0.8', primary_opacity = '0', primary_rgbs = '132,188,218', primary_rgbs_ts = '0.1', mode = 'auto';
 let gohome = bar + "status/", gouser = bar + "system/", gossr = bar + "services/", bgqs = '1', setbar = '1', dayword = '0';
-let background = '0', bkuse = '0', bklock = '1', fontd = '0.92rem', fontz = '0.875rem', fontx = '0.825rem';
+let background = '0', bkuse = '0', bklock = '1', fontd = '0.92rem', fontz = '0.875rem', fontx = '0.825rem' , font3d = '0', boxshadow = '0';
 let bg_url = media + "/img/bg1.jpg";
 
 if (access('/etc/config/kucat')) {
         kucat = "kucat";
         config_exists = true;
 }
-    
+
 if (config_exists && kucat) {
     try {
         let config = uci_cursor.get_all(kucat, "@basic[0]");
@@ -66,6 +66,8 @@ if (config_exists && kucat) {
         fontd = config.font_d || '0.92rem';
         fontz = config.font_z || '0.875rem';
         fontx = config.font_x || '0.825rem';
+        font3d = config.font3d || "0";
+        boxshadow = config.boxshadow || "0";
     } catch (e) {} 
 } else {}
 let ufilter = "blur(" + primary_opacity + "px)";
@@ -88,7 +90,7 @@ function getSecureRandom(max) {
                     (ord(substr(random_bytes, 1, 1)) << 16) |
                     (ord(substr(random_bytes, 2, 1)) << 8) |
                     ord(substr(random_bytes, 3, 1));
-                
+
                 return random_int % max;
             }
         } catch (e) {
@@ -104,7 +106,7 @@ function getSecureRandom(max) {
 function fetchPIC(path, themeDir) {
         const imageTypes = " jpg jpeg png gif webp ";
         let backgroundTable = [];
-        
+
         let files = lsdir(path) || [];
         for (let i = 0; i < length(files); i++) {
             let f = files[i];
@@ -166,6 +168,23 @@ if (bkuse == "1") {
     }
 }
 
+if (font3d == '0') {
+        textfont = 'none';
+} else {
+     if (automode == 'dark') {
+        // textfont = '0 0.5px 0.5px rgba(0, 0, 0, 0.3), 0 1px 1px rgba(0, 0, 0, 0.4), 0 1.5px 1.5px rgba(0, 0, 0, 0.5), 0 2px 3px rgba(0, 0, 0, 0.6), 0 0.5px 0 rgba(255, 255, 255, 0.1)';
+	textfont = '0 0.25px 0.25px rgba(0, 0, 0, 0.8),0 0.5px 0.5px rgba(0, 0, 0, 0.5),0 0 0.25px rgba(255, 255, 255, 0.05)';
+     }else {
+	textfont = '0 0.25px 0.25px rgba(255, 255, 255, 0.8),0 0.5px 0.5px rgba(255, 255, 255, 0.5),0 0 0.25px rgba(0, 0, 0, 0.05)';
+     }
+}
+
+if (boxshadow == '0') {
+        bgshadow = 'none';
+} else {
+        bgshadow = '0 .1rem .5rem .2rem var(--input-boxcolor)';
+}
+
 if (dayword == "1") {
         let tmpshowword = ubus.call("luci.kucatget", "get_word") || {};
         if (tmpshowword && tmpshowword.word) {
@@ -218,7 +237,7 @@ if (dayword == "1") {
     <style title="text/css">
     :root {
         --primary-rgbm: {{ primary_rgbm }};--primary-rgbm-ts: {{ primary_rgbm_ts }};--primary-rgbs: {{ primary_rgbs }};--primary-rgbs-ts: {{ primary_rgbs_ts }};
-        --font-d: {{ fontd }};--font-z: {{ fontz }};--font-x: {{ fontx }};--ufilter: {{ ufilter }};
+        --font-d: {{ fontd }};--font-z: {{ fontz }};--font-x: {{ fontx }};--ufilter: {{ ufilter }}; --font3d: {{ textfont }};  --boxshadow: {{ bgshadow }}; 
         {% if (automode == 'dark'): %}
             --menu-item-titlebg-color: rgba(var(--primary-rgbm),0.3);--body-hover-bgcolor: rgba(255,255,255,0.05);--menu-hover-color: #f5f5f5f5;--menu-fontcolor: #bbb;--primarytextcolor: #bbb;--primary-title-color: #ccc;--menu-color: #ddd;--title-color: #ddd;--body-color: #bbb;
             --primary-rgbbody:33,45,60;--inputtext-color: #ccc;  --inputborder-color: rgba(255,255,255,0.2);  --input-bgcolor: rgba(0,0,0,0.12);  --input-boxcolor: rgba(255,255,255,0.22);  --input-boxhovercolor: rgba(255,255,255,0.32);  --input-checkcolor: rgba(255,255,255,0.7);--filter-color:invert(90%);
