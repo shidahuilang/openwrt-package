@@ -7,11 +7,7 @@
 			"path": "netwizard/netwizard"
 		},
 		"depends": {
-			"acl": [ "luci-app-netwizard" ],
-			"fs": {
-				"/etc/config/netwizard": true,
-				"/etc/netwizard_hide": false
-			}
+			"acl": [ "luci-app-netwizard" ]
 		}
 	}
 }
