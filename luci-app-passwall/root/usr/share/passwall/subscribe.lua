@@ -43,7 +43,7 @@ local ss_type_default = get_core("ss_type", {{has_ss,"shadowsocks-libev"},{has_s
 local trojan_type_default = get_core("trojan_type", {{has_trojan_plus,"trojan-plus"},{has_singbox,"sing-box"},{has_xray,"xray"}})
 local vmess_type_default = get_core("vmess_type", {{has_xray,"xray"},{has_singbox,"sing-box"}})
 local vless_type_default = get_core("vless_type", {{has_xray,"xray"},{has_singbox,"sing-box"}})
-local hysteria2_type_default = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{has_singbox,"sing-box"}})
+local hysteria2_type_default = get_core("hysteria2_type", {{has_hysteria2,"hysteria2"},{has_singbox,"sing-box"},{has_xray,"xray"}})
 ----
 local domain_strategy_default = uci:get(appname, "@global_subscribe[0]", "domain_strategy") or ""
 local domain_strategy_node = ""
@@ -1379,8 +1379,9 @@ local function processData(szType, content, add_mode, group)
 		result.hysteria2_tls_pinSHA256 = params.pinSHA256
 		result.hysteria2_hop = params.mport
 
-		if hysteria2_type_default == "sing-box" and has_singbox then
-			result.type = 'sing-box'
+		if (hysteria2_type_default == "sing-box" and has_singbox) or (hysteria2_type_default == "xray" and has_xray) then
+			local is_singbox = hysteria2_type_default == "sing-box" and has_singbox
+			result.type = is_singbox and 'sing-box' or 'Xray'
 			result.protocol = "hysteria2"
 			if params["obfs-password"] or params["obfs_password"] then
 				result.hysteria2_obfs_type = "salamander"
@@ -1549,8 +1550,10 @@ local function curl(url, file, ua, mode)
 		"-skL", "-w %{http_code}", "--retry 3", "--connect-timeout 3"
 	}
 	if ua and ua ~= "" and ua ~= "curl" then
+		ua = (ua == "passwall") and ("passwall/" .. api.get_version()) or ua
 		curl_args[#curl_args + 1] = '--user-agent "' .. ua .. '"'
 	end
+	curl_args[#curl_args + 1] = get_headers()
 	local return_code, result
 	if mode == "direct" then
 		return_code, result = api.curl_direct(url, file, curl_args)
@@ -1560,6 +1563,57 @@ local function curl(url, file, ua, mode)
 		return_code, result = api.curl_auto(url, file, curl_args)
 	end
 	return tonumber(result)
+end
+
+function get_headers()
+	local cache_file = "/tmp/etc/" .. appname .. "_tmp/sub_curl_headers"
+	if fs.access(cache_file) then
+		return luci.sys.exec("cat " .. cache_file)
+	end
+	local headers = {}
+
+	local function readfile(path)
+		local f = io.open(path, "r")
+		if not f then return nil end
+		local c = f:read("*a")
+		f:close()
+		return api.trim(c)
+	end
+
+	headers[#headers + 1] = "x-device-os: OpenWrt"
+
+	local rel = readfile("/etc/openwrt_release")
+	local os_ver = rel and rel:match("DISTRIB_RELEASE='([^']+)'")
+	if os_ver then
+		headers[#headers + 1] = "x-ver-os: " .. os_ver
+	end
+
+	local model = readfile("/tmp/sysinfo/model")
+	if model then
+		headers[#headers + 1] = "x-device-model: " .. model
+	end
+
+	local mac = readfile("/sys/class/net/eth0/address")
+	if mac and model then
+		local raw = mac .. "-" .. model
+		local p = io.popen("printf '%s' '" .. raw:gsub("'", "'\\''") .. "' | sha256sum")
+		if p then
+			local hash = p:read("*l")
+			p:close()
+			hash = hash and hash:match("^%w+")
+			if hash then
+				headers[#headers + 1] = "x-hwid: " .. hash
+			end
+		end
+	end
+
+	local out = {}
+	for i = 1, #headers do
+		out[i] = "-H '" .. headers[i]:gsub("'", "'\\''") .. "'"
+	end
+	local headers_str = table.concat(out, " ")
+	local f = io.open(cache_file, "w"); if f then f:write(headers_str); f:close() end
+	return headers_str
 end
 
 local function truncate_nodes(group)
