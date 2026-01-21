@@ -631,7 +631,7 @@ return view.extend({
 
         o = s.taboption('othersetup', form.Flag, 'synflood', _('Enable SYN-flood Defense'),
             _('Enable Firewall SYN-flood defense [Suggest opening]'));
-        o.default = '1';
+        o.default = '0';
         o.rmempty = false;
 	
         o = s.taboption('othersetup', form.Flag, 'updatacheck', _('Enable detection update prompts'));
