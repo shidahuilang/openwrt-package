@@ -20,9 +20,9 @@ function getUrlParameter(name) {
     return null;
 }
 
-function  _wiwiz_setmac(m) {
-	console.log("_wiwiz_setmac() mac = "+ m);
-    location.href = rd + "&mac=" + m;
+function  _wiwiz_setmac(m, r) {
+	console.log("_wiwiz_setmac() m = "+ m + ", r = " + r);
+    location.href = rd + "&mac=" + encodeURIComponent(m) + "&rt_mac=" + encodeURIComponent(r);
 }
 
 var rd = getUrlParameter("rd");
