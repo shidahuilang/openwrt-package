@@ -6,14 +6,14 @@
                 "luci.netwizard": ["*"],
                 "file": ["exec"]
       },
-      "uci": [ "*" ]
+      "uci": [ "netwizard", "wireless" ]
     },
     "write": {
       "ubus": {
                 "luci.netwizard": ["*"],
                 "file": ["exec"]
         },
-	"uci": [ "*" ]
+	"uci": [ "netwizard" ]
     }
   }
 }

@@ -9,8 +9,6 @@ UCIADDLIST='uci -q add_list'
 LOCK=/var/lock/netwizard-boot.lock
 LOCK_TIMEOUT=300
 
-. /lib/functions/uci-defaults.sh
-
 log() {
     echo "netwizard:$1"
 }
@@ -198,7 +196,7 @@ sethttps() {
             $UCIADDLIST uhttpd.main.listen_https='0.0.0.0:443'
             $UCIADDLIST uhttpd.main.listen_https='[::]:443'
             $UCISET uhttpd.main.redirect_https='1'
-            hostname=$(uci -q get system.@system[0].hostname | awk '{print tolower($0)}' 2>/dev/null || echo 'openwrt')
+            hostname=$(uci -q get system.@system[0].hostname | awk '{print tolower($0)}' || echo 'openwrt')
             $UCISET network.lan.hostname=${hostname}
             $UCISET dhcp.@dnsmasq[0].domain="${hostname}.lan"
             
@@ -289,33 +287,39 @@ configure_network() {
     
     if [ "x$showhide" = "x1" ]; then
         touch /etc/netwizard_hide 2>/dev/null
-        $UCISET advancedplus.@basic[0].wizard="1" 2>/dev/null
+        $UCISET advancedplus.@basic[0].wizard="1"
         exit 0
     else
         rm -rf /etc/netwizard_hide 2>/dev/null
-        $UCISET advancedplus.@basic[0].wizard="0" 2>/dev/null
+        $UCISET advancedplus.@basic[0].wizard="0"
     fi
     
     if [ -z "$wan_proto" ]; then
-        wan_proto=$(uci -q get network.wan.proto 2>/dev/null)
+        wan_proto=$(uci -q get network.wan.proto)
         [ -z "$wan_proto" ] && wan_proto="siderouter"
     fi
     
     touch $LOCK
     
-    ifname=$(uci -q get network.lan.ifname 2>/dev/null)
+    ifname=$(uci -q get network.lan.ifname)
     [ "x$ifname" = "x" ] && ifname="device" || ifname="ifname"
     
-    [ -n "$wan_interface" ] || wan_interface=$(uci -q get network.wan.$ifname 2>/dev/null)
+    [ -n "$wan_interface" ] || wan_interface=$(uci -q get network.wan.$ifname)
     
-    $UCIDEL network.lan.gateway 2>/dev/null
-    $UCIDEL network.lan.dns 2>/dev/null
-    $UCIDEL firewall.@zone[0].masq 2>/dev/null
-    $UCIDEL firewall.@forwarding[0] 2>/dev/null
+    $UCIDEL network.lan.gateway
+    $UCIDEL network.lan.dns
+    $UCIDEL firewall.@zone[0].masq
+    $UCIDEL firewall.@forwarding[0]
     
-    [ -n "$(uci -q get network.wan 2>/dev/null)" ] && $UCIDEL network.wan && $UCIDEL firewall.@zone[1] 2>/dev/null
-    [ -n "$(uci -q get network.wan6 2>/dev/null)" ] && $UCIDEL network.wan6 2>/dev/null
-    [ -n "$(uci -q get network.lan6 2>/dev/null)" ] && $UCIDEL network.lan6 2>/dev/null
+    [ -n "$(uci -q get network.wan)" ] && {
+       $UCIDEL network.wan 
+       WAN_INDEX=$(uci show firewall | grep -E "@zone\[[0-9]+\].name='wan'" | sed -n 's/.*@zone\[\([0-9]*\)\].name.*/\1/p')
+       if [ -n "$WAN_INDEX" ]; then 
+           $UCIDEL firewall.@zone[$WAN_INDEX]
+       fi
+    }
+    [ -n "$(uci -q get network.wan6)" ] && $UCIDEL network.wan6
+    [ -n "$(uci -q get network.lan6)" ] && $UCIDEL network.lan6
     
     netname=$(ls /sys/class/net/ 2>/dev/null | grep -E '^(eth[0-9]+|en[op][0-9]+s[0-9]+|usb[0-9]+|wlan[0-9]+|wl[0-9]+)' | sort)
     netsum=$(echo "$netname" | wc -l 2>/dev/null || echo 0)
@@ -339,26 +343,18 @@ configure_network() {
             fi
         done
         lannet=$(echo "$lannet" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-        [ -n "$wan_interface" ] && ucidef_set_interface_wan "$wan_interface"
     fi
     
     if [ -n "$wan_interface" ] && [ "$wan_proto" != "siderouter" ]; then
         $UCISET network.wan=interface
-        $UCISET network.wan=interface
         $UCISET network.wan6=interface
         $UCISET network.wan6.proto='dhcpv6'
         $UCISET network.wan6.delegate='1'
-        $UCIDEL dhcp.wan.master 2>/dev/null
-        $UCIDEL dhcp.lan.master 2>/dev/null
+        $UCIDEL dhcp.wan.master
+        $UCIDEL dhcp.lan.master
         $UCISET network.wan.metric='1'
         $UCISET network.wan.$ifname="${wan_interface}"
-        
-        if [ "$wan_proto" = "pppoe" ]; then
-            $UCISET network.wan6.$ifname="@wan"
-        else
-            $UCISET network.wan6.$ifname="${wan_interface}"
-        fi
-        
+        [ "$wan_proto" == "pppoe" ] && $UCISET network.wan6.$ifname="@wan" || $UCISET network.wan6.$ifname="${wan_interface}"
         # firewall
 	$UCIDEL dhcp.wan.ra_flags
         $UCIADD firewall zone
@@ -368,13 +364,13 @@ configure_network() {
         $UCISET firewall.@zone[-1].forward='REJECT'
 
         if [ "x$ifname" = "xdevice" ]; then
-            $UCIADDLIST firewall.@zone[1].network='wan6'
-            $UCIADDLIST firewall.@zone[1].network='wan'
+            $UCIADDLIST firewall.@zone[-1].network='wan6'
+            $UCIADDLIST firewall.@zone[-1].network='wan'
         else
-            $UCISET firewall.@zone[1].network='wan wan6'
+            $UCISET firewall.@zone[-1].network='wan wan6'
         fi
         
-        $UCISET firewall.@zone[1].masq='1'
+        $UCISET firewall.@zone[-1].masq='1'
     fi
     
     $UCISET firewall.@defaults[0].drop_invalid='1'
@@ -394,8 +390,8 @@ configure_network() {
                     $UCIADDLIST network.wan.dns="$dns"
                 done
             else
-                $UCIDEL network.wan.peerdns 2>/dev/null
-                $UCIDEL network.wan.dns 2>/dev/null
+                $UCIDEL network.wan.peerdns
+                $UCIDEL network.wan.dns
             fi
             ;;
             
@@ -418,7 +414,7 @@ configure_network() {
                             $UCIADD network.wan.dns="$dns"
                         done
                     else
-                        $UCIDEL network.wan.dns 2>/dev/null
+                        $UCIDEL network.wan.dns
                     fi
                     ;;
                     
@@ -431,8 +427,8 @@ configure_network() {
                             $UCIADDLIST network.wan.dns="$dns"
                         done
                     else
-                        $UCIDEL network.wan.peerdns 2>/dev/null
-                        $UCIDEL network.wan.dns 2>/dev/null
+                        $UCIDEL network.wan.peerdns
+                        $UCIDEL network.wan.dns
                     fi
                     ;;
             esac
@@ -441,9 +437,9 @@ configure_network() {
             ;;
             
         siderouter)
-            $UCIDEL firewall.@zone[0].network 2>/dev/null
+            $UCIDEL firewall.@zone[0].network
             $UCIADDLIST firewall.@zone[0].network='lan'
-            $UCIDEL dhcp.lan.ra_slaac 2>/dev/null
+            $UCIDEL dhcp.lan.ra_slaac
             
             case "${lan_proto}" in
                 static)
@@ -462,22 +458,22 @@ configure_network() {
                             $UCIADDLIST network.lan.dns="$dns"
                         done
                     else
-                        $UCIDEL network.lan.dns 2>/dev/null
+                        $UCIDEL network.lan.dns
                     fi
                     ;;
                     
                 dhcp)
                     $UCISET network.lan.proto='dhcp'
-                    $UCIDEL network.lan.ipaddr 2>/dev/null
-                    $UCIDEL network.lan.netmask 2>/dev/null
+                    $UCIDEL network.lan.ipaddr
+                    $UCIDEL network.lan.netmask
                     if [ -n "$lan_dns" ]; then
                         $UCISET network.lan.peerdns='0'
                         for dns in ${lan_dns}; do
                             $UCIADDLIST network.lan.dns="$dns"
                         done
                     else
-                        $UCIDEL network.lan.peerdns 2>/dev/null
-                        $UCIDEL network.lan.dns 2>/dev/null
+                        $UCIDEL network.lan.peerdns
+                        $UCIDEL network.lan.dns
                     fi
                     ;;
             esac
@@ -487,7 +483,7 @@ configure_network() {
             fi
             
             $UCISET firewall.@zone[0].masq='1'
-            $UCIDEL firewall.@zone[0].network 2>/dev/null
+            $UCIDEL firewall.@zone[0].network
             $UCIADDLIST firewall.@zone[0].network='lan'
             
             [ $(uci show network 2>/dev/null | grep utun | wc -l) -gt 1 ] && $UCIADDLIST firewall.@zone[0].network='utun'
@@ -502,15 +498,10 @@ configure_network() {
             else
                 setipv6 0
             fi
-            
-            $UCIDEL network.wan 2>/dev/null
-            $UCIDEL network.wan6 2>/dev/null
-            $UCIDEL firewall.@zone[1].network 2>/dev/null
             ;;
     esac
-    
-    [ -n "$lannet" ] && ucidef_set_interface_lan "$lannet"
-    
+
+    [ "x$ifname" = "xdevice" ] && $UCISET network.@$ifname[0].ports="${lannet}" || $UCISET network.lan.$ifname="${lannet}"
     if [ "$wan_proto" != "siderouter" ]; then
         [ -n "${lan_ipaddr}" ] && $UCISET network.lan.ipaddr="${lan_ipaddr}"
         [ -n "${lan_netmask}" ] && $UCISET network.lan.netmask="${lan_netmask}"
@@ -518,19 +509,17 @@ configure_network() {
     
     setsynflood
     sethttps "$cfg"
-    
     sed -i "/dhcp_option '6/d" /etc/config/dhcp 2>/dev/null
     sed -i "/list dns/d" /etc/config/dhcp 2>/dev/null
-    
     if [ "x$lan_dhcp" = "x1" ]; then
-        $UCIDEL dhcp.lan.force 2>/dev/null
+        $UCIDEL dhcp.lan.force
         $UCISET dhcp.lan.ignore='1'
         $UCISET dhcp.lan.dynamicdhcp='0'
         $UCISET dhcp.lan.ra_slaac="1"
-        $UCIDEL dhcp.@dnsmasq[0].authoritative 2>/dev/null
+        $UCIDEL dhcp.@dnsmasq[0].authoritative
     else
-        $UCIDEL dhcp.lan.ignore 2>/dev/null
-        $UCIDEL dhcp.lan.dynamicdhcp 2>/dev/null
+        $UCIDEL dhcp.lan.ignore
+        $UCIDEL dhcp.lan.dynamicdhcp
         $UCISET dhcp.lan.force='1'
         $UCISET dhcp.@dnsmasq[0].authoritative='1'
         
@@ -549,7 +538,7 @@ configure_network() {
         idx=0
         max_wifi_ifaces=10
         while [ $idx -lt $max_wifi_ifaces ] && uci -q get wireless.@wifi-iface[$idx] >/dev/null; do
-            if [ "$(uci -q get wireless.@wifi-iface[$idx].mode 2>/dev/null)" = "ap" ]; then
+            if [ "$(uci -q get wireless.@wifi-iface[$idx].mode)" = "ap" ]; then
                 $UCISET wireless.@wifi-iface[$idx].ssid="${wifi_ssid}"
                 $UCISET wireless.@wifi-iface[$idx].key="${wifi_key}"
                 $UCISET wireless.@wifi-iface[$idx].encryption='psk2'
@@ -559,7 +548,7 @@ configure_network() {
         
         for radio in radio0 radio1 radio2 radio3; do
             if uci -q get wireless.${radio} >/dev/null 2>&1; then
-                if [ "$(uci -q get wireless.${radio}.band 2>/dev/null)" = "5g" ]; then
+                if [ "$(uci -q get wireless.${radio}.band)" = "5g" ]; then
                     $UCISET wireless.default_${radio}.ssid="${wifi_ssid}_5G"
                 else
                     $UCISET wireless.default_${radio}.ssid="${wifi_ssid}_2.4G"
@@ -572,8 +561,7 @@ configure_network() {
         
         $UCISET netwizard.default.old_wifi_ssid="${wifi_ssid}"
         $UCISET netwizard.default.old_wifi_key="${wifi_key}"
-        
-        [ -n "$(uci changes wireless 2>/dev/null)" ] && uci commit wireless
+        uci commit wireless
     fi
     
     # 提交所有配置
@@ -589,12 +577,12 @@ COMMIT_EOF
     
     if [ $? -eq 0 ]; then
         {
-            sleep 2
+
+            /etc/init.d/network restart 2>/dev/null
             /etc/init.d/system reload 2>/dev/null
             /etc/init.d/rpcd reload 2>/dev/null
             /etc/init.d/uhttpd reload 2>/dev/null
-            /etc/init.d/network restart 2>/dev/null
-            sleep 3
+            sleep 1
             /etc/init.d/dnsmasq reload 2>/dev/null
             /etc/init.d/firewall reload 2>/dev/null
         } >/dev/null 2>&1 &
@@ -616,10 +604,7 @@ boot() {
 }
 
 start() {
-    if check_lock; then
-        exit 0
-    fi
-    
+    [ -f $LOCK ] && exit 0
     [ "x$XBOOT" = "x1" ] && exit 0
     
     # 检查依赖
@@ -640,35 +625,4 @@ start() {
 
 stop() {
     rm -f $LOCK 2>/dev/null
-}
-
-test_ipv6() {
-    log "Testing IPv6 connectivity..."
-    
-    local wan_proto
-    wan_proto=$(uci -q get network.wan.proto 2>/dev/null || echo "siderouter")
-    
-    if ip -6 addr show dev br-lan 2>/dev/null | grep -q inet6; then
-        log "LAN has IPv6 address"
-        ip -6 addr show dev br-lan 2>/dev/null | grep inet6
-    else
-        log "LAN has no IPv6 address"
-    fi
-    
-    if [ "$wan_proto" != "siderouter" ]; then
-        if ip -6 addr show dev wan 2>/dev/null | grep -q inet6; then
-            log "WAN has IPv6 address"
-            ip -6 addr show dev wan 2>/dev/null | grep inet6
-        else
-            log "WAN has no IPv6 address"
-        fi
-    fi
-    
-    if ping6 -c 2 -W 3 2001:4860:4860::8888 >/dev/null 2>&1; then
-        log "IPv6 connectivity test PASSED"
-        return 0
-    else
-        log "IPv6 connectivity test FAILED"
-        return 1
-    fi
 }
