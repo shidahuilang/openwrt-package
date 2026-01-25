@@ -363,7 +363,7 @@ do
 
 	#make /tmp/hsbuilder_wdconf.tmp
 	echo 'GatewayID '$GW_ID >                             $WD_CONF_TMP
-	echo 'ExternalInterface '$ETNIF >>                     $WD_CONF_TMP
+	#echo 'ExternalInterface '$ETNIF >>                     $WD_CONF_TMP
 	echo 'GatewayInterface '$GWIF >>                     $WD_CONF_TMP
 	echo 'GatewayInterfaceMac '$GWIFMAC >>               $WD_CONF_TMP
 
