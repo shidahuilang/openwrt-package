@@ -1,5 +1,6 @@
 #!/usr/bin/lua
 
+require "luci.sys"
 local ucursor = require "luci.model.uci".cursor()
 local json = require "luci.jsonc"
 
@@ -16,9 +17,36 @@ local socks_server = ucursor:get_all("shadowsocksr", "@socks5_proxy[0]") or {}
 local xray_fragment = ucursor:get_all("shadowsocksr", "@global_xray_fragment[0]") or {}
 local xray_noise = ucursor:get_all("shadowsocksr", "@xray_noise_packets[0]") or {}
 local outbound_settings = nil
+local xray_version = nil
+local xray_version_val = 0
 
 local node_id = server_section
 local remarks = server.alias or ""
+
+-- 确保正确判断程序是否存在
+local function is_finded(e)
+	return luci.sys.exec(string.format('type -t -p "%s" 2>/dev/null', e)) ~= ""
+end
+
+-- 获取 Xray 版本号
+if is_finded("xray") then
+	local version = luci.sys.exec("xray version 2>&1")
+	if version and version ~= "" then
+		xray_version = version:match("Xray%s+([%d%.]+)")
+	end
+end
+
+-- 将 Xray 版本号转换为数字
+if xray_version and xray_version ~= "" then
+	local major, minor, patch =
+		xray_version:match("(%d+)%.?(%d*)%.?(%d*)")
+
+	major = tonumber(major) or 0
+	minor = tonumber(minor) or 0
+	patch = tonumber(patch) or 0
+
+	xray_version_val = major * 10000 + minor * 100 + patch
+end
 
 function vmess_vless()
 	outbound_settings = {
@@ -238,12 +266,27 @@ end
 						end
 					end)() or nil,
 					fingerprint = server.fingerprint,
-					allowInsecure = (server.insecure == "1" or server.insecure == true or server.insecure == "true"),
+					allowInsecure = (function()
+						if xray_version_val < 260131 then
+							return server.insecure == "1"
+						end
+						return nil
+					end)(),
 					serverName = server.tls_host,
 					certificates = server.certificate and {
 						usage = "verify",
 						certificateFile = server.certpath
 					} or nil,
+					pinnedPeerCertSha256 = (function()
+						if xray_version_val < 260131 then return nil end
+						if not server.tls_CertSha then return "" end
+						return server.tls_CertSha
+					end)(),
+					verifyPeerCertByName = (function()
+						if xray_version_val < 260131 then return nil end
+						if not server.tls_CertByName then return "" end
+						return server.tls_CertByName
+					end)(),
 					echConfigList = (server.enable_ech == "1") and server.ech_config or nil,
 					echForceQuery = (server.enable_ech == "1") and (server.ech_ForceQuery or "none") or nil
 				} or nil,
