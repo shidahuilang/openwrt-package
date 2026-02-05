@@ -10,8 +10,8 @@ THEME_TITLE:=Kucat Theme
 PKG_NAME:=luci-theme-$(THEME_NAME)
 LUCI_TITLE:=Kucat Theme by sirpdboy
 LUCI_DEPENDS:=+wget +curl +jsonfilter
-PKG_VERSION:=3.2.7
-PKG_RELEASE:=20260114
+PKG_VERSION:=3.2.8
+PKG_RELEASE:=20260204
 
 define Package/luci-theme-$(THEME_NAME)/conffiles
 /www/luci-static/resources/background/

@@ -156,15 +156,15 @@ if (bkuse == "1") {
     if (bklock == "0") {
         let bg_lock_result = Getwallpaper(media + "/background/", '0');
         bg_lock = bg_lock_result.url;
-        bk_use = "background-image: url(" + bg_lock + ")";
-        loginbk_use = "background-image: url(" + bg_url + ")";
+        bk_use = "background-image: url('" + bg_lock + "')";
+        loginbk_use = "background-image: url('" + bg_url + "')";
     } else {
-        bk_use = "background-image: url(" + bg_url + ")";
-        loginbk_use = "background-image: url(" + bg_url + ")";
+        bk_use = "background-image: url('" + bg_url + "')";
+        loginbk_use = "background-image: url('" + bg_url + "')";
     }
 } else {
     if (bklock == "0") {
-        loginbk_use = "background-image: url(" + bg_url + ")";
+        loginbk_use = "background-image: url('" + bg_url + "')";
     }
 }
 

@@ -3194,28 +3194,27 @@ body.lang_pl.node-main-login .cbi-value-title {
 
 [data-page^="admin-status-routes"] #view table,
 [data-page^="admin-status-processes"] #view table,
-[data-page^="admin-status-realtime"] #view table[id*=connections] {
-    border: 1px;
-    font-weight: 400;
-    font-style: normal;
+[data-page^="admin-status-realtime"] #view table[id*=connections]  {
+
     line-height: 1;
     font-family: inherit;
     text-align: left;
     min-width: inherit;
     overflow-x: auto;
     overflow-y: hidden;
-    background-color: rgba(var(--primary-rgbbody), 0.5);
+    background-color: rgba(var(--primary-rgbbody), 0.1);
     -webkit-overflow-scrolling: touch;
     margin-bottom: 20px;
     margin-top: 5px;
 }
 
+[data-page^="admin-status-realtime"] #view>div,
 [data-page^="admin-status-channel"] #view>div:first-child,
 [data-page^="admin-status-channel"] #view>div>div>div>div,
 [data-page^="admin-status-channel"] #view>div>div>div>div>div,
 [data-page^="admin-status-realtime"] #view>div>div>div>div,
-[data-page^="admin-status-realtime"] #view>div>div>div {
-    background-color: rgba(var(--primary-rgbbody), 0.5) !important;
+[data-page^="admin-status-realtime"] #view>div>div>div{
+    background-color: rgba(var(--primary-rgbbody), 0.1) !important;
     border-radius: var(--radius2);
     border: 0px solid #000 !important
 }
@@ -3297,6 +3296,13 @@ body.lang_pl.node-main-login .cbi-value-title {
     box-shadow: 0 0.1rem 0.3rem var(--input-boxcolor)
 }
 
+[data-page^="admin-services-passwall"] #add_link_div,
+[data-page^="admin-services-passwall"] #reassign_group_div,
+[data-page^="admin-services-passwall"] .up-modal {
+    background: rgba(var(--primary-rgbbody), 95) !important;
+    border: none!important;
+}
+
 [data-page^="admin-services-shadowsocksr"]>.block:active,
 .block:active,
 [data-page^="admin-services-bypass"]>.main .block:active,
@@ -3318,7 +3324,8 @@ body.lang_pl.node-main-login .cbi-value-title {
     margin-right: 0 !important
 }
 
-[data-page^="admin-services-openclash"] .cbi-section .oc {
+[data-page^="admin-services-openclash"] .cbi-section .oc,
+[data-page^="admin-services-openclash"] #cbi-openclash {
     --bg-white: rgba(var(--primary-rgbbody), 0.4);
     --bg-light: rgba(255, 255, 255, 0);
     --bg-gray: rgba(var(--primary-rgbm), 0.02);
@@ -3326,7 +3333,7 @@ body.lang_pl.node-main-login .cbi-value-title {
     --text-secondary: var(--body-color);
     --border-color: rgba(255, 255, 255, 0);
     --border-light: rgba(255, 255, 255, 0);
-    --text-primary: var(--inputtext-color)
+    --text-primary: var(--inputtext-color);
 }
 
 [data-page^="admin-services-openclash"] .oc .plugin-toggle-slider {
@@ -3366,12 +3373,10 @@ body.lang_pl.node-main-login .cbi-value-title {
     width: 15rem !important;
     padding: .2813rem
 }
-
-[data-page^="admin-services-openclash"] [id="container.openclash.config.debug"] fieldset {
+[data-page^="admin-services-openclash"] fieldset {
     border: none !important;
     padding: 1rem !important
 }
-
 [data-page^="admin-services-openclash"] #debug-rc-output>textarea {
     font-family: 'Google Sans' !important
 }
@@ -3380,13 +3385,8 @@ body.lang_pl.node-main-login .cbi-value-title {
     font-size: inherit;
     background-color: rgba(0, 0, 0, 0.8) !important;
     color: var(--body-color) !important;
+    color: #bbb !important;
     font-family: 'Google Sans' !important
-}
-
-[data-page^="admin-services-openclash"] .cbi-button-up,
-[data-page^="admin-services-openclash"] .cbi-button-down {
-    font-size: 0;
-    padding: .8rem 1.5rem
 }
 
 [data-page^="admin-services-openclash"] select#CORE_VERSION,
@@ -3429,6 +3429,7 @@ body.lang_pl.node-main-login .cbi-value-title {
     box-shadow: none !important
 }
 
+[data-page^="admin-services-openclash"] .diag-style,
 [data-page^="admin-services-openclash"] .cbi-tabmenu {
     background-color: rgba(var(--primary-rgbbody), 0.2) !important;
     border: none!important;
@@ -3437,7 +3438,13 @@ body.lang_pl.node-main-login .cbi-value-title {
     border: 0px solid #ddd !important;
     box-shadow: none !important
 }
-
+[data-page^="admin-services-openclash"] ul>li>a {
+    height: auto!important;
+}
+[data-page^="admin-services-openclash"] .diag-style>div {
+    white-space: normal!important;
+    min-width: 200px;
+}
 #cbi-nikki-proxy .cbi-value-field,
 #cbi-nikki-proxy .cbi-section-table-row>.cbi-value-field .cbi-dropdown,
 #cbi-nikki-proxy .cbi-value-field .cbi-dropdown,
@@ -3459,7 +3466,8 @@ body.lang_pl.node-main-login .cbi-value-title {
     max-width: 14rem;
     width: 10rem
 }
-.history-tooltip {
+.bandix-container .traffic-increments-tooltip
+.bandix-container .history-tooltip {
   background-color: rgba(var(--primary-rgbbody),1)!important;
   color: var(--body-color) !important;
   border: 1px solid rgba(255, 255, 255, 0)!important;
@@ -3487,7 +3495,7 @@ body.lang_pl.node-main-login .cbi-value-title {
 
 }
 
-.bandix-container button {
+.bandix-container .cbi-button-neutral {
   color: var(--primary-title-color);
   background-color: rgba(255, 255, 255, 0);
   box-shadow: none;
@@ -3495,12 +3503,28 @@ body.lang_pl.node-main-login .cbi-value-title {
   border: 1px solid rgba(255, 255, 255, 0);
 }
 
+.bandix-container .cbi-button-positive,
 .bandix-container .history-tab.active,
 .bandix-container button.active,
 .bandix-container button:active{
   color: var(--menu-color);
   background-color: rgba(var(--primary-rgbm), 0.7);
   border: 1px solid var(--inputborder-color);
+}
+
+.bandix-container .usage-ranking-list {
+    max-height: 100%!important;
+    gap: 5px;
+}
+
+.bandix-container .form-input,
+.bandix-container select,
+.bandix-container input {
+  border-radius: 0!important; 
+}
+
+.show .bandix-modal {
+  background-color: rgba(var(--primary-rgbbody), 1)!important
 }
 
 .bandix-container .history-tab:hover:not(.active) ,
