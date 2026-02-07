@@ -72,6 +72,7 @@
 #include "auth.h"
 #include "centralserver.h"
 #include "client_list.h"
+#include "util.h"
 
 extern pthread_mutex_t client_list_mutex;
 

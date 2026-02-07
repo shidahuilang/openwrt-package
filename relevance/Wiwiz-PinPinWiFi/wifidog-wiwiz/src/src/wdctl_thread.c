@@ -412,6 +412,20 @@ wdctl_reset(int fd, const char *arg)
 }
 
 /* start: added by Wiwiz */
+int split(char dst[][80], char* str, const char* spl)
+{
+    int n = 0;
+    char *result = NULL;
+    char *p;
+    result = strtok_r(str, spl, &p);
+    while( result != NULL )
+    {
+        strcpy(dst[n++], result);
+        result = strtok_r(NULL, spl, &p);
+    }
+    return n;
+}
+
 static void
 wdctl_auth(int fd, const char *arg)
 {
@@ -465,19 +479,4 @@ wdctl_auth(int fd, const char *arg)
 
 	debug(LOG_DEBUG, "Exiting wdctl_auth...");
 }
-
-int split(char dst[][80], char* str, const char* spl)
-{
-    int n = 0;
-    char *result = NULL;
-    char *p;
-    result = strtok_r(str, spl, &p);
-    while( result != NULL )
-    {
-        strcpy(dst[n++], result);
-        result = strtok_r(NULL, spl, &p);
-    }
-    return n;
-}
-
 /* end: added by Wiwiz */

@@ -754,6 +754,7 @@ int httpdAddCContent(server, dir, name, indexFlag, preload, function)
 	httpd	*server;
 	char	*dir;
 	char	*name;
+	int	indexFlag;
 	int	(*preload)();
 	void	(*function)();
 {
@@ -804,6 +805,7 @@ int httpdAddStaticContent(server, dir, name, indexFlag, preload, data)
 	httpd	*server;
 	char	*dir;
 	char	*name;
+	int	indexFlag;
 	int	(*preload)();
 	char	*data;
 {
