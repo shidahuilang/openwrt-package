@@ -32,8 +32,10 @@ for DEV in $keys; do
 
         #echo MODE = $MODE, IFNAME = $IFNAME
         if [ "$MODE" == "ap" ]; then
-            ACCOCLIST="$(iwinfo $IFNAME accoclist | grep dBm | grep ':' | awk '{print $1}')"
-            echo "$ACCOCLIST"
+            ACCOCLIST="$(iwinfo $IFNAME assoclist | grep dBm | grep ':' | awk '{print $1}')"
+            if [ "$ACCOCLIST" != "" ]; then
+                echo "$ACCOCLIST"
+            fi
         fi
 
         json_select ..

@@ -49,7 +49,7 @@ dokick() {
 
             echo MODE = $MODE, IFNAME = $IFNAME
             if [ "$MODE" == "ap" ]; then
-                ACCOCLIST=$(iwinfo $IFNAME accoclist | grep dBm | grep ':' | awk '{print $1}')
+                ACCOCLIST=$(iwinfo $IFNAME assoclist | grep dBm | grep ':' | awk '{print $1}')
                 FINDMAC=$(echo "$ACCOCLIST" | grep -i "$MAC")
                 if [ "$FINDMAC" != "" ]; then
                     echo found $MAC
