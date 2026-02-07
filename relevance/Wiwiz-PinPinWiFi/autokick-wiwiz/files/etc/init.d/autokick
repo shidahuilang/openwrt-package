@@ -1,20 +1,11 @@
 #!/bin/sh /etc/rc.common
+#!/bin/sh /etc/rc.common
+USE_PROCD=1
 START=399
-EXTRA_COMMANDS="status"
-EXTRA_HELP="        status Print the status of the service"
 
-start() {
-	 (/usr/bin/autokick.sh)&
-}
-
-stop() {
-	s=$(ps w | grep -F 'autokick.sh' | grep -v grep)
-	if [ "$s" != "" ]; then
-		kill $(echo "$s" | awk '{print $1}')
-	fi	
-	killall autokick.sh 2>/dev/null
-}
-
-status() {
-	echo ''
+start_service() {
+    procd_open_instance
+    procd_set_param command /usr/bin/autokick.sh
+    procd_set_param respawn
+    procd_close_instance
 }

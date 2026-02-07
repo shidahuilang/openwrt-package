@@ -33,6 +33,6 @@ msgstr "服务器地址"
 msgid "Server Port"
 msgstr "服务器端口"
 
-msgid "DCC2 Ver 1.2.3 <a href='http://www.wiwiz.com/pinpinwifi/wiwiz-ipk.htm' target='_blank'>Readme</a>"
-msgstr "DCC2远程管理 Ver 1.2.3 <a href='http://www.wiwiz.com/pinpinwifi/wiwiz-ipk.htm' target='_blank'>使用说明</a>"
+msgid "Readme"
+msgstr "使用说明"
 
