@@ -99,7 +99,7 @@ if [ "$1" = "-dest" ]; then
 	fi
 	shift 2
 fi
-log1 "hsbuilder_helper.sh started: $(date)"
+log1 "hsbuilder_helper.sh started: $(date "+%Y-%m-%d %H:%M:%S")"
 
 WDLOG=$(uci get wiwiz.portal.wdlog 2>/dev/null)
 if [ "$WDLOG" = "1" ]; then
@@ -117,7 +117,7 @@ if [ "$_s" == "" ]; then
 	sleep 3
 	$WIFIDOG_START
 #	wdctl restart
-	log1 "Helper: $(date) Wifidog not respond. Restarted."
+	log1 "Helper: $(date "+%Y-%m-%d %H:%M:%S") Wifidog not respond. Restarted."
 #		sleep 5
 #		passAuthed
 	exit 0
@@ -142,7 +142,7 @@ if [ "$IS_LOAD_HIGH" = "true" ]; then
 	sleep 3
 	$WIFIDOG_START
 #	wdctl restart
-	log1 "Helper: $(date) Wifidog too busy! Restarted (wdctl). LOAD=$LOAD"
+	log1 "Helper: $(date "+%Y-%m-%d %H:%M:%S") Wifidog too busy! Restarted (wdctl). LOAD=$LOAD"
 #	sleep 5
 #	passAuthed
 	exit 0
@@ -154,7 +154,7 @@ if [ "$_p" = "" ]; then
 	#	cp -f $DEST/usr/local/hsbuilder/wifidog.conf $WIFIDOG_CONFPATH/wifidog.conf
 	#fi
 	$WIFIDOG_START
-	log1 "Helper: $(date) Wifidog not running! Started."
+	log1 "Helper: $(date "+%Y-%m-%d %H:%M:%S") Wifidog not running! Started."
 #	sleep 5
 #	passAuthed
 	exit 0
@@ -168,7 +168,7 @@ else
 		done
 		
 		$WIFIDOG_START
-		log1 "Helper: $(date) Wifidog not running! Restarted."
+		log1 "Helper: $(date "+%Y-%m-%d %H:%M:%S") Wifidog not running! Restarted."
 #		sleep 5
 #		passAuthed
 		exit 0
@@ -180,7 +180,7 @@ if [ "$_p" = "" ]; then
 	killall -9 wifidog 2>/dev/null
 	sleep 3
 	$WIFIDOG_START
-	log1 "Helper: $(date) Firewall not ok, wifidog restarted."
+	log1 "Helper: $(date "+%Y-%m-%d %H:%M:%S") Firewall not ok, wifidog restarted."
 	exit 0	
 fi
 
