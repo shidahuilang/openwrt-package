@@ -297,7 +297,7 @@ do
 	touch $USERBLOCKPORT
 	touch $DOMAINNAME
 	touch $IPLIST.lasttime
-	log1 "hsbuilder.sh $MY_VERSION: $(date)"
+	log1 "hsbuilder.sh $MY_VERSION: $(date "+%Y-%m-%d %H:%M:%S")"
 
 	AS_HOSTNAME_X=$AS_HOSTNAME
 	if [ "$AS_HOSTNAME_X" = "" ]; then
