@@ -3,7 +3,6 @@ luci-app-design-config
 luci-theme-alpha
 luci-theme-argon
 luci-theme-argone
-luci-theme-atmaterial_new
 luci-theme-bootstrap
 luci-theme-design
 luci-theme-edge
@@ -12,4 +11,3 @@ luci-theme-neobird
 luci-theme-neobird2
 luci-theme-opentomcat
 luci-theme-opentopd
-luci-theme-tomato
