@@ -197,25 +197,21 @@ if (dayword == "1") {
 <html lang="{{ dispatcher.lang }}">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1.5, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{{ hostname }}{{ node?.title ? ` - ${striptags(node.title)}` : '' }} - LuCI</title>
     <meta name="robots" content="noindex, nofollow">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
     <meta http-equiv="X-XSS-Protection" content="1; mode=block">
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
     <meta name="format-detection" content="telephone=no, email=no">
-    <meta name="x5-fullscreen" content="true">
-    <meta name="full-screen" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="{{ hostname }} - LuCI">
     <meta name="format-detection" content="telephone=no, email=no, address=no">
-
+ 
     <meta name="theme-color" content="#ffffff"> 
-    <meta name="color-scheme" content="light dark">
     <meta name="msapplication-TileColor" content="{{ (mode == 'dark' && '#1a1a1a' || '#ffffff' ) }}">
     <meta name="msapplication-TileImage" content="{{ media }}/icon/ms-icon-144x144.png">
     <meta name="application-name" content="{{ hostname }} - LuCI">
@@ -240,10 +236,10 @@ if (dayword == "1") {
         --font-d: {{ fontd }};--font-z: {{ fontz }};--font-x: {{ fontx }};--ufilter: {{ ufilter }}; --font3d: {{ textfont }};  --boxshadow: {{ bgshadow }}; 
         {% if (automode == 'dark'): %}
             --menu-item-titlebg-color: rgba(var(--primary-rgbm),0.3);--body-hover-bgcolor: rgba(255,255,255,0.05);--menu-hover-color: #f5f5f5f5;--menu-fontcolor: #bbb;--primarytextcolor: #bbb;--primary-title-color: #ccc;--menu-color: #ddd;--title-color: #ddd;--body-color: #bbb;
-            --primary-rgbbody:33,45,60;--inputtext-color: #ccc;  --inputborder-color: rgba(255,255,255,0.2);  --input-bgcolor: rgba(0,0,0,0.12);  --input-boxcolor: rgba(255,255,255,0.22);  --input-boxhovercolor: rgba(255,255,255,0.32);  --input-checkcolor: rgba(255,255,255,0.7);--filter-color:invert(90%);
+            --primary-rgbbody:33,45,60;--inputtext-color: #ccc;  --inputborder-color: rgba(255,255,255,0.32);  --input-bgcolor: rgba(0,0,0,0.22);  --input-boxcolor: rgba(255,255,255,0.32);  --input-boxhovercolor: rgba(255,255,255,0.42);  --input-checkcolor: rgba(255,255,255,0.7);--filter-color:invert(90%);
         {% else %}
             --menu-item-titlebg-color: rgba(var(--primary-rgbm),0.5);--body-hover-bgcolor: rgba(50,50,50,0.05);--menu-hover-color: #fff;--menu-fontcolor: #f5f5f5f5;--primarytextcolor: #505063;--primary-title-color: #4d4d5d;--menu-color: #eee;--title-color: #3c3c3c;--body-color: #424242;
-            --primary-rgbbody:244,245,247;--inputtext-color: #383838;  --inputborder-color: rgba(0,0,0,0.2);  --input-bgcolor: rgba(255,255,255,0.2);  --input-boxcolor: rgba(0,0,0,0.22);  --input-boxhovercolor: rgba(0,0,0,0.32);  --input-checkcolor: rgba(var(--primary-rgbm),1);--filter-color:invert(10%);
+            --primary-rgbbody:244,245,247;--inputtext-color: #383838;  --inputborder-color: rgba(0,0,0,0.32);  --input-bgcolor: rgba(255,255,255,0.22);  --input-boxcolor: rgba(0,0,0,0.32);  --input-boxhovercolor: rgba(0,0,0,0.42);  --input-checkcolor: rgba(var(--primary-rgbm),1);--filter-color:invert(10%);
 	{% endif %}
         {% if (bgqs == '0'): %}
             --bgqs-image: -webkit-linear-gradient(135deg, rgba(255, 255, 255, 0.1) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.1) 75%, transparent 75%, transparent);
@@ -259,7 +255,7 @@ if (dayword == "1") {
     }
      @media screen and (max-width: 920px) { .main-left {background-color:rgba(var(--primary-rgbbody), 0.95);width: calc(0% + 15rem);}}
     {% endif -%}
-    
+
 	{% if (setbar == "1"): %}
 	header.bar-primary .container-bar-left {width: 300px;display: block;}
 	header.bar-primary .container-bar-right { width: 0; display: none;}
@@ -311,7 +307,7 @@ class="lang_{{ dispatcher.lang }} {{ ctx.authsession ? 'logged-in' : '' }} {{ le
                             {% endif %}
                         </div>
                         <div class="status" id="indicators"></div>
-                        <span><a class="pdboy-qlogout" href="{{ dispatcher.build_url("admin/logout") }}" title="{{ _('Log_out') }}"></a></span>
+                        <span class="logout-container"><a class="pdboy-qlogout" href="{{ dispatcher.build_url("admin/logout") }}" title="{{ _('Log out') }}"></a></span>
                     </div>
                 </div>
           </header>

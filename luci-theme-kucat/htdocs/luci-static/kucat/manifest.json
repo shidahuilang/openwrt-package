@@ -2,7 +2,7 @@
     "name": "EzOpWRT Admin",
     "short_name": "LuCI",
     "description":"Kucat for OpenWRT by sirpdboy.",
-    "start_url": ".",
+    "start_url": "/cgi-bin/luci/",
     "scope": "/",
     "orientation":"any",
     "splash_pages": null,

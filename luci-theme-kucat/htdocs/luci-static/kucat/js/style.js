@@ -1,6 +1,6 @@
 /*
  *  luci-theme-kucat
- *  Copyright (C) 2019-2026 The Sirpdboy Team <herboy2008@gmail.com> 
+ *  Copyright (C) 2021-2026 The Sirpdboy Team <herboy2008@gmail.com> 
  *
  *  Have a bug? Please create an issue here on GitHub!
  *      https://github.com/sirpdboy/luci-theme-kucat/issues
@@ -30,31 +30,3 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.ctrlKey && e.key === 'ArrowRight') pdclosebar();
     });
 });
-
-function initScrollContainers() {
-    document.querySelectorAll('.cbi-section, .mainmenu').forEach(section => {
-        const content = section.querySelector('.content');
-        if (!content) return;
-
-        const checkOverflow = () => {
-            section.classList.toggle(
-                'auto-scroll-container',
-                content.scrollHeight > section.clientHeight
-            );
-        };
-
-        checkOverflow();
-        new MutationObserver(checkOverflow).observe(content, { childList: true, subtree: true });
-
-        section.addEventListener('touchstart', () => {
-            section.classList.add('touch-active');
-        }, { passive: true });
-
-        section.addEventListener('touchend', () => {
-            setTimeout(() => section.classList.remove('touch-active'), 1000);
-        }, { passive: true });
-    });
-}
-
-
-document.addEventListener('DOMContentLoaded', initScrollContainers);
