@@ -1,3 +1,4 @@
+// Copyright 2023-2026 sirpdboy
 'use strict';
 'require baseclass';
 'require rpc';
@@ -23,7 +24,7 @@ return baseclass.extend({
     render: function() {
         callUciGet('netwizard', 'default', 'updatacheck')
             .then((res) => {
-                const updatacheck = res?.value;
+                const updatacheck = res?.value ?? '0';
                 console.log('Update check setting:', updatacheck);
                 
                 // 只有当配置为1时才检测更新
@@ -34,6 +35,7 @@ return baseclass.extend({
                 }
             })
             .catch((err) => {
+                const updatacheck = '0';
             });
         
         return null;
