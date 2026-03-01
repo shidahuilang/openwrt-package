@@ -1,3 +1,4 @@
+// Copyright 2023-2026 sirpdboy
 'use strict';
 'require view';
 'require form';
@@ -370,7 +371,7 @@ return view.extend({
             E('h2', { 'style': 'margin-top: 4%;margin-bottom: 15px;text-align: center;padding: 1rem;font-size: 1.8rem;font-weight: 600;' },
                 _('Select Network Connection Mode')),
             E('p', { 'style': 'margin-bottom: 1rem;text-align: center;font-size: 1.1rem;' },
-                _('Choose the connection mode that matches your network environment:'))
+                _('Choose the connection mode that matches your network environment'))
         ]);
         
         var modeGrid = E('div', { 'class': 'mode-grid' });
@@ -573,7 +574,7 @@ return view.extend({
         o.rmempty = false;
 
         o = s.taboption('wansetup', form.DynamicList, 'wan_dns', _('Use custom DNS servers'));
-        o.value('', _('none'));
+        o.value('', _('Auto-fetch'));
         o.value('223.5.5.5', _('Ali DNS: 223.5.5.5'));
         o.value('180.76.76.76', _('Baidu DNS: 180.76.76.76'));
         o.value('114.114.114.114', _('114 DNS: 114.114.114.114'));
@@ -608,17 +609,10 @@ return view.extend({
         o.depends('dnsset', '1');
         o.rmempty = false;
 
-        o = s.taboption('wansetup', form.Flag, 'forwarding', _('Forcefully Forwarding'),
-            _('Forcefully add LAN to WAN forwarding'));
-        o.default = '1';
-        o.depends('wan_proto', 'pppoe');
-        o.depends('wan_proto', 'dhcp');
-        o.rmempty = false;
-
-        o = s.taboption('wansetup', form.Flag, 'https', _('Redirect to HTTPS'),
-            _('Enable automatic redirection of HTTP requests to HTTPS port.'));
-        o.default = '0';
-        o.rmempty = false;
+        // o = s.taboption('wansetup', form.Flag, 'https', _('Redirect to HTTPS'),
+        // _('Enable automatic redirection of HTTP requests to HTTPS port.'));
+        // o.default = '0';
+        // o.rmempty = false;
         
         if (this.has_wifi) {
             var wifi_ssid = s.taboption('wifisetup', form.Value, 'wifi_ssid', _('<abbr title="Extended Service Set Identifier">ESSID</abbr>'));
@@ -631,7 +625,7 @@ return view.extend({
 
         o = s.taboption('othersetup', form.Flag, 'synflood', _('Enable SYN-flood Defense'),
             _('Enable Firewall SYN-flood defense [Suggest opening]'));
-        o.default = '0';
+        o.default = '1';
         o.rmempty = false;
 	
         o = s.taboption('othersetup', form.Flag, 'updatacheck', _('Enable detection update prompts'));
