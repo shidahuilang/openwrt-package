@@ -30,8 +30,8 @@ msgstr "其他设置"
 msgid "Select Network Connection Mode"
 msgstr "选择网络连接模式"
 
-msgid "Choose the connection mode that matches your network environment:"
-msgstr "选择与您的网络环境匹配的连接模式："
+msgid "Choose the connection mode that matches your network environment"
+msgstr "选择与您的网络环境匹配的连接模式"
 
 msgid "PPPoE Dial-up"
 msgstr "宽带拨号连接"
@@ -273,8 +273,8 @@ msgstr "配置已保存成功，可以手动访问路由器管理界面。"
 msgid "Enable detection update prompts"
 msgstr "启用检测更新提示"
 
-msgid ""
-msgstr ""
+msgid "Auto-fetch"
+msgstr "自动获取"
 
 msgid ""
 msgstr ""
