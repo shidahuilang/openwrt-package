@@ -2,7 +2,29 @@
     "luci-theme-kucat": {
         "description": "Grant UCI access for luci-theme-kucat",
         "read": {
+		"file": {
+				"/www/luci-static/kucat/background/*": [ "list", "read" ],
+				"/www/luci-static/resources/background/*": [ "list", "read" ],
+				"/usr/libexec/rpcd/luci.kucatget": [ "exec" ],
+				"/www/luci-static/kucat/img/*": [ "list", "read" ],
+				"/tmp/*": [ "read" ] ,
+				"/var/kucat/*": [ "read" ] ,
+				"/etc/config/kucat": [ "read" ]
+			},
             "uci": [ "kucat" ]
-        }
+        },
+		"write": {
+			"file": {
+				"/tmp/*": [ "write", "read", "delete", "exec" ],
+				"/usr/libexec/rpcd/luci.kucatget": [ "exec" ],
+				"/www/luci-static/kucat/background/*": [ "write", "read", "delete", "upload" ],  
+				"/www/luci-static/resources/background/*": [ "write", "read", "delete", "upload" ],
+				"/www/luci-static/kucat/img/*": [ "write", "read", "delete", "upload" ],
+				"/etc/config/kucat": [ "write" ],
+				"/var/kucat/*": [ "write" ]
+			},
+			"uci": [ "kucat" ]
+		}
+	}
     }
 }

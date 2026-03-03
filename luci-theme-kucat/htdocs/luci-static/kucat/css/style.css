@@ -284,6 +284,9 @@ body {
     background-repeat: no-repeat
 }
 
+html, body, .main, .main-right {
+    overscroll-behavior: auto; 
+}
 .tr {
     display: table-row
 }
@@ -449,14 +452,32 @@ h5 {
     max-height: 200px;
     transition: overflow 0.3s
 }
+
+
 ::-webkit-scrollbar-track {
     box-shadow: inset 0 0 0px rgba(240, 240, 240, .5);
     background-color: rgba(var(--primary-rgbbody), var(--primary-rgbm-ts))
 }
 
+
 ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px
+    width: 4px;
+    height: 4px;
+    transition: width 0.2s ease, height 0.2s ease; 
+}
+
+
+:hover::-webkit-scrollbar,
+*:hover::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    transition: width 0.2s ease, height 0.2s ease; 
+}
+
+body:hover::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    transition: width 0.2s ease, height 0.2s ease; 
 }
 
 ::-webkit-scrollbar-thumb {
@@ -466,11 +487,12 @@ h5 {
     border-radius: var(--radius0);
     background-clip: content-box;
     background: rgba(var(--primary-rgbm), 0.4);
-    border: 1px solid rgba(var(--primary-rgbm), 0.8)
+    border: 1px solid rgba(var(--primary-rgbm), 0.8);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(var(--primary-rgbm), 0.9)
+    background-color: rgba(var(--primary-rgbm), 0.9);
+    border: 2px solid rgba(var(--primary-rgbm), 0.4);
 }
 
 ::selection {
@@ -901,6 +923,7 @@ span[data-indicator="uci-changes"],
 }
 
 .main .main-left .nav>li {
+    margin: 0 2px;
     padding: 0rem
 }
 
@@ -1301,7 +1324,6 @@ select {
   -moz-appearance: none;
     background-size: 24px 26px;
     background-repeat: no-repeat;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2323888' stroke-width='1.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='%23888'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
     background-position: right center
 }
@@ -2353,6 +2375,10 @@ td.cbi-value-field var,
     font-size: var(--font-x);
     border-top: 0 !important;
 }
+
+#cbi-network .tr:first-child > .td {
+        width: 30%;
+} 
 .cbi-section-table .tr .td:first-child, .cbi-section-table .tr .th:first-child, .table .tr .td:first-child, .table .tr .th:first-child, .table .tr:before {
   padding-left: 1.5rem !important;
 }
@@ -4134,9 +4160,6 @@ input,
         text-align: left;
         padding: 0 1rem
     }
-    .bfill .bcontainer .flex1 .brand {
-      display: none;
-    }
     .td,
     .th {
         margin: 0;
@@ -4289,6 +4312,9 @@ input,
         width: 100% !important
     }
 
+    .bfill .bcontainer .flex1 .brand {
+      display: none;
+    }
     .cbi-section>div {
         width: 100%
     }
