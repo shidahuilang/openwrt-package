@@ -1,0 +1,205 @@
+#!/bin/sh
+# UBUS RPC module for Task Plan
+# Path: /usr/libexec/rpcd/luci.taskplan
+
+. /usr/share/libubox/jshn.sh
+
+LOG_FILE="/etc/taskplan/taskplan.log"
+CONFIG_FILE="/etc/config/taskplan"
+CRON_FILE="/etc/crontabs/root"
+
+# 主函数 - 处理所有RPC调用
+main() {
+    local method
+    
+    # 读取输入
+    json_load "$1"
+    json_get_var method method
+    
+    case "$method" in
+        status)
+            status
+            ;;
+        list)
+            list
+            ;;
+        task_list)
+            task_list
+            ;;
+        start)
+            start_service
+            ;;
+        stop)
+            stop_service
+            ;;
+        restart)
+            restart_service
+            ;;
+        reload)
+            reload_service
+            ;;
+        *)
+            json_init
+            json_add_int "error" 1
+            json_add_string "message" "Unknown method: $method"
+            json_dump
+            ;;
+    esac
+}
+
+# 获取服务状态
+status() {
+    local running=0
+    local cron_tasks=0
+    local log_content=""
+    local scheduled=0
+    local startup=0
+    
+    # 检查进程是否运行
+    if pidof taskplan >/dev/null 2>&1 || pgrep -f taskplan >/dev/null 2>&1; then
+        running=1
+    fi
+    
+    # 统计cron任务
+    if [ -f "$CRON_FILE" ]; then
+        cron_tasks=$(grep -c "taskplanhandler" "$CRON_FILE" 2>/dev/null || echo 0)
+    fi
+    
+    # 统计配置
+    if [ -f "$CONFIG_FILE" ]; then
+        scheduled=$(grep -c "stime" "$CONFIG_FILE" 2>/dev/null || echo 0)
+        startup=$(grep -c "ltime" "$CONFIG_FILE" 2>/dev/null || echo 0)
+    fi
+    
+    # 获取日志最后50行
+    if [ -f "$LOG_FILE" ]; then
+        log_content=$(tail -n 50 "$LOG_FILE" 2>/dev/null)
+    fi
+    
+    json_init
+    json_add_int "running" $running
+    json_add_int "cron_tasks" $cron_tasks
+    json_add_int "scheduled_tasks" $scheduled
+    json_add_int "startup_tasks" $startup
+    json_add_string "log" "$log_content"
+    json_dump
+}
+
+# 获取配置统计
+list() {
+    local ssum=0
+    local lsum=0
+    
+    if [ -f "$CONFIG_FILE" ]; then
+        ssum=$(grep -c "stime" "$CONFIG_FILE" 2>/dev/null || echo 0)
+        lsum=$(grep -c "ltime" "$CONFIG_FILE" 2>/dev/null || echo 0)
+    fi
+    
+    json_init
+    json_add_int "scheduled" $ssum
+    json_add_int "startup" $lsum
+    json_dump
+}
+
+# 获取任务列表
+task_list() {
+    json_init
+    json_add_array "tasks"
+    
+    # 获取定时任务
+    if [ -f "$CONFIG_FILE" ]; then
+        local index=0
+        while true; do
+            local section=$(uci -q get taskplan.@stime[$index] 2>/dev/null)
+            [ -z "$section" ] && break
+            
+            local enable=$(uci -q get taskplan.@stime[$index].enable || echo 0)
+            local remarks=$(uci -q get taskplan.@stime[$index].remarks || echo "")
+            local stype=$(uci -q get taskplan.@stime[$index].stype || echo "")
+            local month=$(uci -q get taskplan.@stime[$index].month || echo "*")
+            local week=$(uci -q get taskplan.@stime[$index].week || echo "*")
+            local hour=$(uci -q get taskplan.@stime[$index].hour || echo "*")
+            local minute=$(uci -q get taskplan.@stime[$index].minute || echo "*")
+            
+            json_add_object
+            json_add_string "type" "scheduled"
+            json_add_int "index" $index
+            json_add_int "enable" $enable
+            json_add_string "remarks" "$remarks"
+            json_add_string "stype" "$stype"
+            json_add_string "schedule" "$minute $hour $week $month"
+            json_close_object
+            
+            index=$((index + 1))
+        done
+        
+        # 获取启动任务
+        local index=0
+        while true; do
+            local section=$(uci -q get taskplan.@ltime[$index] 2>/dev/null)
+            [ -z "$section" ] && break
+            
+            local enable=$(uci -q get taskplan.@ltime[$index].enable || echo 0)
+            local remarks=$(uci -q get taskplan.@ltime[$index].remarks || echo "")
+            local stype=$(uci -q get taskplan.@ltime[$index].stype || echo "")
+            local delay=$(uci -q get taskplan.@ltime[$index].delay || echo "10")
+            
+            json_add_object
+            json_add_string "type" "startup"
+            json_add_int "index" $index
+            json_add_int "enable" $enable
+            json_add_string "remarks" "$remarks"
+            json_add_string "stype" "$stype"
+            json_add_int "delay" $delay
+            json_close_object
+            
+            index=$((index + 1))
+        done
+    fi
+    
+    json_close_array
+    json_dump
+}
+
+# 启动服务
+start_service() {
+    /etc/init.d/taskplan start >/dev/null 2>&1
+    local ret=$?
+    json_init
+    json_add_int "result" $ret
+    [ $ret -eq 0 ] && json_add_string "message" "Service started"
+    json_dump
+}
+
+# 停止服务
+stop_service() {
+    /etc/init.d/taskplan stop >/dev/null 2>&1
+    local ret=$?
+    json_init
+    json_add_int "result" $ret
+    [ $ret -eq 0 ] && json_add_string "message" "Service stopped"
+    json_dump
+}
+
+# 重启服务
+restart_service() {
+    /etc/init.d/taskplan restart >/dev/null 2>&1
+    local ret=$?
+    json_init
+    json_add_int "result" $ret
+    [ $ret -eq 0 ] && json_add_string "message" "Service restarted"
+    json_dump
+}
+
+# 重新加载
+reload_service() {
+    /etc/init.d/taskplan reload >/dev/null 2>&1
+    local ret=$?
+    json_init
+    json_add_int "result" $ret
+    [ $ret -eq 0 ] && json_add_string "message" "Service reloaded"
+    json_dump
+}
+
+# 执行主函数
+main "$@"

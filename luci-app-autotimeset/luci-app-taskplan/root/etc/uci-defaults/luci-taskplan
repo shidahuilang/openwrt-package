@@ -1,10 +1,15 @@
 #!/bin/sh
-chmod +x  /etc/init.d/taskplan /usr/bin/taskplanhandler /etc/init.d/taskplanrun
-uci -q batch <<-EOF >/dev/null
-	delete ucitrack.@taskplan[-1]
-	add ucitrack taskplan 
-	set ucitrack.@taskplan[-1].init="taskplan"
-	commit ucitrack
+if [ ! -f /etc/config/taskplan ]; then
+    cat > /etc/config/taskplan << EOF
+config global 'global'
+	option customscript ' '
+	option customscript2 ' '
+
 EOF
+fi
+mkdir -p /etc/taskplan
+touch /etc/taskplan/taskplan.log
+chmod +x /usr/libexec/rpcd/luci.taskplan /etc/init.d/taskplan /etc/taskplan/taskplanrun /usr/bin/taskplanhandler
 rm -rf /tmp/luci-modulecache /tmp/luci-indexcache*
+
 exit 0

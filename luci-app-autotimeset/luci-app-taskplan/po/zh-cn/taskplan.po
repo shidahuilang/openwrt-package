@@ -1,18 +1,15 @@
+# Translation file for taskplan.js
+# Copyright (C) 2022-2026 Sirpdboy <herboy2008@gmail.com>
+# Licensed to the public under the Apache License 2.0
+#
 
-msgid "<b>The original [Timing Settings] includes scheduled task execution and startup task execution. Presets include over 10 functions, including restart, shutdown, network restart, memory release, system cleaning, network sharing, network shutdown, automatic detection of network disconnects and reconnection, MWAN3 load balancing detection of reconnection, and custom scripts</b></br>"
-msgstr "<b>任务计划包括定时任务执行和开机启动任务执行，预置：重启、关机、重启网络、释放内存、系统清理、网络共享、关闭网络、自动检测断网重连、自动检测断网重启、MWAN3负载均衡检测重连、自定义脚本等10多个功能.</b></br>"
 
-msgid "N1-N5 is continuous, N1, N3, N5 is discontinuous, */N represents every N hours or every N minutes.The week can only be 0~6, the hour can only be 0~23, the minute can only be 0~59, the unavailable time is 48 hours."
-msgstr "N1-N5连续，N1,N3,N5不连续，*/N表示每N小时或每N分钟。月份范围0-11，星期范围0～6，小时范围0～23，分钟范围0～59，不可用72小时或者90分钟等连续范围。"
+msgid ""
+msgstr ""
+"Project-Id-Version: luci-app-taskplan\n"
+"Language: zh_Hans\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 
-msgid "Scheduled task"
-msgstr "定时执行任务"
-
-msgid "Startup task"
-msgstr "开机启动任务"
-
-msgid "The task to be executed upon startup, with a startup delay time unit of seconds."
-msgstr "开机启动执行的任务，启动延时时间单位为秒。"
 
 msgid "Control"
 msgstr "管控"
@@ -20,78 +17,94 @@ msgstr "管控"
 msgid "Task Plan"
 msgstr "任务设置"
 
-msgid "Test/Verify Settings"
-msgstr "测试/验证设置"
+# scheduled.js - 页面标题和说明
 
-msgid "Scheduled Type"
-msgstr "任务类型"
+msgid "Scheduled Tasks"
+msgstr "定时执行任务"
 
-msgid "Delayed Start(seconds)"
-msgstr "开机任务延时(秒)"
+msgid "Startup tasks"
+msgstr "开机启动任务"
 
-msgid "Log"
-msgstr "日志"
+msgid "<b>The original [Timing Settings] includes scheduled task execution and startup task execution. Presets include over 10 functions, including restart, shutdown, network restart, memory release, system cleaning, network sharing, network shutdown, automatic detection of network disconnects and reconnection, MWAN3 load balancing detection of reconnection, and custom scripts</b></br>"
+msgstr "<b>原【定时设置】包括定时任务执行和启动任务执行。预设了重启、关机、网络重启、释放内存、系统清理、网络共享、网络关闭、自动检测断网重连、MWAN3负载均衡检测重连、自定义脚本等10余种功能</b></br>"
 
-msgid "Scheduled Reboot"
-msgstr "重启机器"
+msgid "N1-N5 is continuous, N1, N3, N5 is discontinuous, */N represents every N hours or every N minutes.The week can only be 0~6, the hour can only be 0~23, the minute can only be 0~59, the unavailable time is 48 hours."
+msgstr "N1-N5为连续，N1、N3、N5为不连续，*/N表示每N小时或每N分钟。星期只能0~6，小时只能0~23，分钟只能0~59，不可用时间为48小时。"
 
-msgid "Scheduled Poweroff"
-msgstr "关闭机器"
-
-msgid "Scheduled ReNetwork"
-msgstr "重启网络"
-
-msgid "Scheduled RestartSamba"
-msgstr "重启网络共享"
-
-msgid "Scheduled Restartlan"
-msgstr "重启LAN"
-
-msgid "Scheduled Restartwan"
-msgstr "重启WAN"
-
-msgid "Scheduled Closewan"
-msgstr "关闭网络"
-
-msgid "Scheduled Clearmem"
-msgstr "释放内存"
-
-msgid "Scheduled Sysfree"
-msgstr "系统清理（会重启机器）"
-
-msgid "Scheduled DisReconn"
-msgstr "检测断网重连"
-
-msgid "Scheduled DisRereboot"
-msgstr "检测断网重启"
-
-msgid "Scheduled Restartmwan3"
-msgstr "检测MWAN3失联重启服务"
-
-msgid "Scheduled Wifidown"
-msgstr "关闭无线网络"
-
-msgid "Scheduled Wifiup"
-msgstr "启用无线网络"
-
+# scheduled.js - 全局脚本
 msgid "Edit Custom Script"
-msgstr "【自定义脚本】编辑"
+msgstr "编辑自定义脚本"
+
+msgid "Shell commands for [Customscript] task type"
+msgstr "【自定义脚本】任务类型的Shell命令"
 
 msgid "Edit Custom Script2"
-msgstr "【自定义脚本2】编辑"
+msgstr "编辑自定义脚本2"
+
+msgid "Shell commands for [Customscript2] task type"
+msgstr "【自定义脚本2】任务类型的Shell命令"
+
+# scheduled.js - 任务列表
+msgid "Remarks"
+msgstr "备注"
+
+msgid "Task description"
+msgstr "任务描述"
+
+msgid "Enable"
+msgstr "启用"
+
+msgid "Scheduled Type"
+msgstr "定时类型"
+
+
+# scheduled.js - 任务类型值
+msgid "Scheduled Reboot"
+msgstr "定时重启"
+
+msgid "Scheduled Poweroff"
+msgstr "定时关机"
+
+msgid "Scheduled ReNetwork"
+msgstr "定时重启网络"
+
+msgid "Scheduled RestartSamba"
+msgstr "定时重启Samba"
+
+msgid "Scheduled Restartwan"
+msgstr "定时重启WAN"
+
+msgid "Scheduled Closewan"
+msgstr "定时关闭WAN"
+
+msgid "Scheduled Clearmem"
+msgstr "定时清理内存"
+
+msgid "Scheduled Sysfree"
+msgstr "定时系统清理"
+
+msgid "Scheduled DisReconn"
+msgstr "定时断网重连"
+
+msgid "Scheduled DisRereboot"
+msgstr "定时断网重启"
+
+msgid "Scheduled Restartmwan3"
+msgstr "定时重启MWAN3"
+
+msgid "Scheduled Wifiup"
+msgstr "定时开启WiFi"
+ 
+msgid "Scheduled Wifidown"
+msgstr "定时关闭WiFi"
 
 msgid "Scheduled Customscript"
-msgstr "自定义脚本"
+msgstr "定时 自定义脚本"
 
 msgid "Scheduled Customscript2"
-msgstr "自定义脚本2"
+msgstr "定时 自定义脚本2"
 
-msgid "The execution content of the [Scheduled Customscript] in the task name"
-msgstr "任务名称中【自定义脚本】执行内容"
-
-msgid "The execution content of the [Scheduled Customscript2] in the task name"
-msgstr "任务名称中【自定义脚本2】执行内容"
-
+# scheduled.js - 时间设置
 msgid "Month(0~11)"
 msgstr "月份(0~11)"
 
@@ -101,9 +114,200 @@ msgstr "星期(0~6)"
 msgid "Everyday"
 msgstr "每天"
 
+msgid "Sunday"
+msgstr "星期日"
+
+msgid "Monday"
+msgstr "星期一"
+
+msgid "Tuesday"
+msgstr "星期二"
+
+msgid "Wednesday"
+msgstr "星期三"
+
+msgid "Thursday"
+msgstr "星期四"
+
+msgid "Friday"
+msgstr "星期五"
+
+msgid "Saturday"
+msgstr "星期六"
+
 msgid "Hour(0~23)"
 msgstr "小时(0~23)"
+
+msgid "1-8 is the continuous time from 1-8 clock; 11,12,16 clock are discontinuous; */3 represents every 3 hours; * every hour."
+msgstr "1-8是从1点到8点的连续时间；11、12、16点钟不连续；*/3表示每3小时一次；*每小时。"
 
 msgid "Minute(0~59)"
 msgstr "分钟(0~59)"
 
+msgid "1-30 is continuous 1-30 minutes; 7,8,9 minutes discontinuous ; */5 means every 5 minutes ; * every minutes."
+msgstr "1-30是连续的1-30分钟；7,8,9分钟不连续；*/5表示每5分钟一次；*每分钟。"
+
+msgid "Tasks updated"
+msgstr "任务已更新"
+
+# startup.js - 页面标题和说明
+msgid "Startup task"
+msgstr "启动任务"
+
+msgid "The task to be executed upon startup, with a startup delay time unit of seconds."
+msgstr "在启动时执行的任务，启动延迟时间单位为秒。"
+
+# startup.js - 任务类型
+msgid "Startup Type"
+msgstr "启动类型"
+
+msgid "Action to perform at system startup"
+msgstr "系统启动时要执行的操作"
+
+# startup.js - 延迟设置
+msgid "Delayed Start(seconds)"
+msgstr "延迟启动(秒)"
+
+msgid "Seconds to wait after boot before execution"
+msgstr "启动后等待执行的秒数"
+
+# startup.js - 提示
+msgid "⚠️ DANGEROUS - Will reboot system after boot"
+msgstr "⚠️ 危险 - 启动后会重启系统"
+
+msgid "⚠️ DANGEROUS - Will shutdown system after boot"
+msgstr "⚠️ 危险 - 启动后会关闭系统"
+
+msgid "⚠️ May disrupt connectivity"
+msgstr "⚠️ 可能会中断连接"
+
+msgid "✓ Safe - Restart file sharing"
+msgstr "✓ 安全 - 重启文件共享"
+
+msgid "✓ Safe - Restart WAN connection"
+msgstr "✓ 安全 - 重启WAN连接"
+
+msgid "⚠️ Will disable internet - use with delay"
+msgstr "⚠️ 会禁用网络 - 请使用延迟"
+
+msgid "✓ Safe - Clear memory cache"
+msgstr "✓ 安全 - 清理内存缓存"
+
+msgid "⚠️ Will clean system and reboot - careful"
+msgstr "⚠️ 会清理系统并重启 - 小心使用"
+
+msgid "✓ Safe - Check and reconnect internet"
+msgstr "✓ 安全 - 检查并重连网络"
+
+msgid "⚠️ May reboot if no internet - use delay"
+msgstr "⚠️ 无网络时可能重启 - 请使用延迟"
+
+msgid "✓ Safe - Restart MWAN3"
+msgstr "✓ 安全 - 重启MWAN3"
+
+msgid "✓ Safe - Enable WiFi"
+msgstr "✓ 安全 - 开启WiFi"
+
+msgid "✓ Safe - Disable WiFi"
+msgstr "✓ 安全 - 关闭WiFi"
+
+msgid "✓ Recommended - Run custom script 1"
+msgstr "✓ 推荐 - 运行自定义脚本1"
+
+msgid "✓ Recommended - Run custom script 2"
+msgstr "✓ 推荐 - 运行自定义脚本2"
+
+# log.js - 页面标题和按钮
+
+msgid "Log Viewer"
+msgstr "日志查看"
+
+msgid "Task Plan Log Viewer"
+msgstr "任务设置日志查看"
+
+msgid "Clear Log"
+msgstr "清空日志"
+
+msgid "Reverse Order"
+msgstr "反向显示"
+
+msgid "Download Log"
+msgstr "下载日志"
+
+msgid "Execution Log"
+msgstr "执行日志"
+
+msgid "Log cleared"
+msgstr "日志已清空"
+
+msgid "Failed to clear log: "
+msgstr "清空日志失败："
+
+msgid "Log is empty"
+msgstr "日志为空"
+
+# log.js - 状态卡片
+msgid "Service"
+msgstr "服务"
+
+msgid "Running"
+msgstr "运行中"
+
+msgid "Stopped"
+msgstr "已停止"
+
+msgid "Scheduled"
+msgstr "定时任务"
+
+msgid "Startup"
+msgstr "启动任务"
+
+msgid "Cron"
+msgstr "定时条目"
+
+msgid "Status"
+msgstr "状态"
+
+msgid "Type"
+msgstr "类型"
+
+msgid "Schedule"
+msgstr "调度时间"
+
+msgid "Delay"
+msgstr "延迟"
+
+msgid "No scheduled tasks"
+msgstr "没有定时任务"
+
+msgid "No startup tasks"
+msgstr "没有启动任务"
+
+# log.js - 任务状态指示
+msgid "● Enabled"
+msgstr "● 已启用"
+
+msgid "○ Disabled"
+msgstr "○ 已禁用"
+
+# 通用
+msgid "Unknown"
+msgstr "未知"
+
+msgid "Error"
+msgstr "错误"
+
+msgid "Success"
+msgstr "成功"
+
+msgid "Failed"
+msgstr "失败"
+
+msgid "Please wait..."
+msgstr "请稍候..."
+
+msgid "Operation completed"
+msgstr "操作完成"
+
+msgid "Operation failed"
+msgstr "操作失败"
