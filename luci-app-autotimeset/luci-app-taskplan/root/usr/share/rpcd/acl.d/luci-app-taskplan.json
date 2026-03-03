@@ -1,11 +1,30 @@
 {
 	"luci-app-taskplan": {
-		"description": "Grant UCI access for luci-app-taskplan",
+		"description": "Grant access to Task Plan procedures",
 		"read": {
-			"uci": [ "taskplan" ]
+			"ubus": {
+				"luci.taskplan": [ "status", "list", "task_list" ]
+			},
+			"file": {
+				"/etc/taskplan/taskplan.log": [ "read" ],
+				"/etc/config/taskplan": [ "read" ],
+				"/etc/taskplan/taskplan.log": [ "read" ],
+				"/etc/taskplan/taskplancustomscript": [ "read" ],
+				"/etc/taskplan/taskplancustomscript2": [ "read" ]
+			}
 		},
 		"write": {
-			"uci": [ "taskplan" ]
+			"ubus": {
+				"luci.taskplan": [ "start", "stop", "restart", "reload" ]
+			},
+			"file": {
+				"/etc/config/taskplan": [ "write" ],
+				"/etc/taskplan/taskplancustomscript": [ "write" ],
+				"/etc/taskplan/taskplancustomscript2": [ "write" ]
+			},
+			"execute": {
+				"/etc/init.d/taskplan": [ "start", "stop", "restart", "reload" ]
+			}
 		}
 	}
 }
