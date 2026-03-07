@@ -1,4 +1,11 @@
 {
+	"admin/control": {
+		"title": "Control",
+		"order": 44,
+		"action": {
+			"type": "firstchild"
+		}
+	},
 	"admin/control/taskplan": {
 		"title": "Task Plan",
 		"order": 60,

@@ -44,7 +44,6 @@ return view.extend({
         ls.template = 'cbi/tblsection';
 
         var remarks = ls.option(form.Value, 'remarks', _('Remarks'));
-        remarks.description = _('Task description');
         remarks.optional = false;
 
         var enable = ls.option(form.Flag, 'enable', _('Enable'));
