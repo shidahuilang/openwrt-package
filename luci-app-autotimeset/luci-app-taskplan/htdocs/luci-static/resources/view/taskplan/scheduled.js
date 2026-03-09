@@ -18,7 +18,7 @@ return view.extend({
     },
 
     render: function(data) {
-        var m = new form.Map('taskplan', _('Scheduled task'), 
+        var m = new form.Map('taskplan', _('Scheduled Tasks'), 
             _('<b>The original [Timing Settings] includes scheduled task execution and startup task execution. Presets include over 10 functions, including restart, shutdown, network restart, memory release, system cleaning, network sharing, network shutdown, automatic detection of network disconnects and reconnection, MWAN3 load balancing detection of reconnection, and custom scripts</b></br>') +
             _('N1-N5 is continuous, N1, N3, N5 is discontinuous, */N represents every N hours or every N minutes.The week can only be 0~6, the hour can only be 0~23, the minute can only be 0~59, the unavailable time is 48 hours.'));
 
