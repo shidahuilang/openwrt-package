@@ -18,7 +18,7 @@ return view.extend({
     },
 
     render: function(data) {
-        var m = new form.Map('taskplan', _('Startup task'), 
+        var m = new form.Map('taskplan', _('Startup Tasks'), 
             _('<b>The original [Timing Settings] includes scheduled task execution and startup task execution. Presets include over 10 functions, including restart, shutdown, network restart, memory release, system cleaning, network sharing, network shutdown, automatic detection of network disconnects and reconnection, MWAN3 load balancing detection of reconnection, and custom scripts</b></br>') +
             _('The task to be executed upon startup, with a startup delay time unit of seconds.'));
 

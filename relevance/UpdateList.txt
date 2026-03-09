@@ -64,6 +64,7 @@ luci-app-cpulimit
 luci-app-ddnsto
 luci-app-diskman
 luci-app-dockerman
+luci-app-fastnet
 luci-app-fileassistant
 luci-app-filebrowser
 luci-app-filetransfer
