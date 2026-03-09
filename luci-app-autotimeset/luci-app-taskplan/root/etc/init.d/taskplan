@@ -95,8 +95,7 @@ run_taskplan()
             esac
         fi
     done
-    
-    echo 'wait' >> $TT
+
     echo 'exit 0' >> $TT
 }
 

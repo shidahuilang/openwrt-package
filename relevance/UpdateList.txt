@@ -35,6 +35,7 @@ luci-app-control-weburl
 luci-app-cpulimit
 luci-app-ddnsto
 luci-app-diskman
+luci-app-fastnet
 luci-app-fileassistant
 luci-app-filebrowser
 luci-app-floatip

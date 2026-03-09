@@ -16,12 +16,10 @@ msgstr "管控"
 msgid "Task Plan"
 msgstr "任务设置"
 
-# scheduled.js - 页面标题和说明
-
 msgid "Scheduled Tasks"
 msgstr "定时执行任务"
 
-msgid "Startup tasks"
+msgid "Startup Tasks"
 msgstr "开机启动任务"
 
 msgid "<b>The original [Timing Settings] includes scheduled task execution and startup task execution. Presets include over 10 functions, including restart, shutdown, network restart, memory release, system cleaning, network sharing, network shutdown, automatic detection of network disconnects and reconnection, MWAN3 load balancing detection of reconnection, and custom scripts</b></br>"
@@ -30,7 +28,6 @@ msgstr "<b>原【定时设置】包括定时任务执行和启动任务执行。
 msgid "N1-N5 is continuous, N1, N3, N5 is discontinuous, */N represents every N hours or every N minutes.The week can only be 0~6, the hour can only be 0~23, the minute can only be 0~59, the unavailable time is 48 hours."
 msgstr "N1-N5为连续，N1、N3、N5为不连续，*/N表示每N小时或每N分钟。星期只能0~6，小时只能0~23，分钟只能0~59，不可用时间为48小时。"
 
-# scheduled.js - 全局脚本
 msgid "Edit Custom Script"
 msgstr "编辑自定义脚本"
 
