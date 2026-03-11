@@ -9,10 +9,19 @@ s.anonymous=true
 
 s:option(Flag, "enabled", translate("Enable")).rmempty=false
 
+local kai_model = require "luci.model.kai"
+local blocks = kai_model.blocks()
+local home = kai_model.home()
+
 local data_dir = s:option(Value, "data_dir", translate("Data directory"))
-data_dir.placeholder = ""
 data_dir.rmempty = false
 data_dir.description = translate("Required. KAI session will store cwd/cache/data/config/state under this directory (subfolders: cwd, cache, data, config, state).")
+
+local paths, default_path = kai_model.find_paths(blocks, home, "Configs")
+for _, val in pairs(paths) do
+	data_dir:value(val, val)
+end
+data_dir.default = default_path
 
 local port = s:option(Value, "port", translate("API port"))
 port.default = "8197"
