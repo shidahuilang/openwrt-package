@@ -14,13 +14,15 @@ log() {
 }
 
 validate_ip() {
-    echo "$1" | grep -Eq '^([0-9]{1,3}\.){3}[0-9]{1,3}$'
-    return $?
+    echo "$1" | grep -Eq '^([0-9]{1,3}\.){3}[0-9]{1,3}$' && return 0 || return 1
 }
 
 validate_cidr() {
-    echo "$1" | grep -Eq '^([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}$'
-    return $?
+    echo "$1" | grep -Eq '^([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}$' && return 0 || return 1
+}
+
+validate_interface() {
+    [ -n "$1" ] && [ -d "/sys/class/net/$1" ] && return 0 || return 1
 }
 
 # 检查锁文件
@@ -38,9 +40,43 @@ check_lock() {
     return 1
 }
 
+create_lock() {
+    touch "$LOCK" 2>/dev/null || {
+        log_error "Failed to create lock file"
+        return 1
+    }
+    return 0
+}
+
+remove_lock() {
+    rm -f "$LOCK" 2>/dev/null
+}
+
+check_dependencies() {
+    local missing=""
+    
+    for cmd in $REQUIRED_COMMANDS; do
+        if ! command -v "$cmd" >/dev/null 2>&1; then
+            missing="$missing $cmd"
+        fi
+    done
+    
+    if [ -n "$missing" ]; then
+        log_error "Required commands not found:$missing"
+        return 1
+    fi
+    
+    return 0
+}
 setipv6() {
     case $1 in
         0)
+	       bINDEX=$(uci show network | grep -E "@device\[[0-9]+\].name='br-lan'" | sed -n 's/.*@device\[\([0-9]*\)\].name.*/\1/p')
+	       if [ -n "$bINDEX" ]; then 
+	           $UCISET network.@device[$bINDEX].ipv6='0'
+	       fi
+	       	nINDEX=$(uci show network | grep -E "@device\[[0-9]+\].name=\'$wan_interface\'" | sed -n 's/.*@device\[\([0-9]*\)\].name.*/\1/p')
+	       [ -n "$nINDEX" ] && $UCIDEL network.@device[$nINDEX]
             uci -q batch <<EOF
                 delete network.wan6
                 delete dhcp.lan.ra
@@ -60,11 +96,20 @@ setipv6() {
 EOF
             ;;
         1) #pppoe
+	       bINDEX=$(uci show network | grep -E "@device\[[0-9]+\].name='br-lan'" | sed -n 's/.*@device\[\([0-9]*\)\].name.*/\1/p')
+	       if [ -n "$bINDEX" ]; then 
+	           $UCISET network.@device[$bINDEX].ipv6='1'
+	       fi
+	       	nINDEX=$(uci show network | grep -E "@device\[[0-9]+\].name=\'$wan_interface\'" | sed -n 's/.*@device\[\([0-9]*\)\].name.*/\1/p')
+	       [ -n "$nINDEX" ] && $UCIDEL network.@device[$nINDEX]
+	       $UCIADD network device
+	       $UCISET network.@device[-1].ipv6='1'
+	       $UCISET network.@device[-1].name=$wan_interface
             uci -q batch <<EOF
                 set dhcp.lan.ra='hybrid'
                 set dhcp.lan.dhcpv6='hybrid'
                 del network.lan.delegate
-                set network.wan.ipv6='0'
+                set network.wan.ipv6='1'
                 set network.wan.delegate='0'
                 delete dhcp.@dnsmasq[0].filter_aaaa
                 set dhcp.lan.ndp='relay'
@@ -85,6 +130,15 @@ EOF
 EOF
             ;;
         2) #siderouter
+	       bINDEX=$(uci show network | grep -E "@device\[[0-9]+\].name='br-lan'" | sed -n 's/.*@device\[\([0-9]*\)\].name.*/\1/p')
+	       if [ -n "$bINDEX" ]; then 
+	           $UCISET network.@device[$bINDEX].ipv6='1'
+	       fi
+	       	nINDEX=$(uci show network | grep -E "@device\[[0-9]+\].name=\'$wan_interface\'" | sed -n 's/.*@device\[\([0-9]*\)\].name.*/\1/p')
+	       [ -n "$nINDEX" ] && $UCIDEL network.@device[$nINDEX]
+	       $UCIADD network device
+	       $UCISET network.@device[-1].ipv6='1'
+	       $UCISET network.@device[-1].name=$wan_interface
             uci -q batch <<EOF
                 del dhcp.lan.ra_default
                 del dhcp.lan.ra_slaac
@@ -112,13 +166,22 @@ EOF
 EOF
             ;;
         3)  #dhcp
+	       bINDEX=$(uci show network | grep -E "@device\[[0-9]+\].name='br-lan'" | sed -n 's/.*@device\[\([0-9]*\)\].name.*/\1/p')
+	       if [ -n "$bINDEX" ]; then 
+	           $UCISET network.@device[$bINDEX].ipv6='1'
+	       fi
+	       	nINDEX=$(uci show network | grep -E "@device\[[0-9]+\].name=\'$wan_interface\'" | sed -n 's/.*@device\[\([0-9]*\)\].name.*/\1/p')
+	       [ -n "$nINDEX" ] && $UCIDEL network.@device[$nINDEX]
+	       $UCIADD network device
+	       $UCISET network.@device[-1].ipv6='1'
+	       $UCISET network.@device[-1].name=$wan_interface
             uci -q batch <<EOF
                 set dhcp.lan.ra='hybrid'
                 set dhcp.lan.dhcpv6='hybrid'
                 set dhcp.lan.ndp='relay'
                 set dhcp.lan.ra_management='1'
                 del network.lan.delegate
-                set network.wan.ipv6='0'
+                set network.wan.ipv6='1'
                 del network.wan.delegate
                 del network.wan6.delegate
                 delete dhcp.wan.master
@@ -147,6 +210,16 @@ setsynflood() {
 }
 
 setforwarding() {
+    idx=0
+    while uci -q get firewall.@forwarding[$idx] >/dev/null 2>&1; do
+            local src=$(uci -q get firewall.@forwarding[$idx].src)
+            local dest=$(uci -q get firewall.@forwarding[$idx].dest)
+            if [ "$src" = "lan" ] && [ "$dest" = "wan" ]; then
+                $UCIDEL firewall.@forwarding[$idx]
+                break
+            fi
+            idx=$((idx + 1))
+    done
     $UCIADD firewall forwarding
     $UCISET firewall.@forwarding[-1].src='lan'
     $UCISET firewall.@forwarding[-1].dest='wan'
@@ -256,7 +329,7 @@ configure_network() {
     local wan_proto wan_ipaddr wan_netmask wan_gateway wan_dns wan_pppoe_user wan_pppoe_pass
     local ipv6 wifi_ssid wifi_key old_wifi_ssid old_wifi_key showhide
     local lan_ipaddr lan_netmask lan_gateway lan_dns lan_dhcp wan_interface lan_proto
-    local dns_tables synflood
+    local dns_tables synflood https
     local ifname lannet netname netsum i
     
     # 获取配置
@@ -273,6 +346,7 @@ configure_network() {
     config_get lan_gateway "$cfg" lan_gateway
     config_get lan_dns "$cfg" lan_dns
     config_get dns_tables "$cfg" dns_tables
+    config_get https "$cfg" https '0'
     config_get wan_ipaddr "$cfg" wan_ipaddr
     config_get wan_netmask "$cfg" wan_netmask
     config_get wan_gateway "$cfg" wan_gateway
@@ -302,7 +376,6 @@ configure_network() {
         [ -z "$wan_proto" ] && wan_proto="siderouter"
     fi
     
-    touch $LOCK
     
     ifname=$(uci -q get network.lan.ifname)
     [ "x$ifname" = "x" ] && ifname="device" || ifname="ifname"
@@ -312,17 +385,12 @@ configure_network() {
     $UCIDEL network.lan.gateway
     $UCIDEL network.lan.dns
     $UCIDEL firewall.@zone[0].masq
-    forwardingidx=$(uci show firewall | grep -E "@forwarding\[[0-9]+\].src='lan'" | sed -n 's/.*@forwarding\[\([0-9]*\)\].src.*/\1/p')
-       if [ -n "$forwardingidx" ]; then 
-           $UCIDEL firewall.@forwarding[$forwardingidx]
-       fi
+
 
     [ -n "$(uci -q get network.wan)" ] && {
        $UCIDEL network.wan 
        WAN_INDEX=$(uci show firewall | grep -E "@zone\[[0-9]+\].name='wan'" | sed -n 's/.*@zone\[\([0-9]*\)\].name.*/\1/p')
-       if [ -n "$WAN_INDEX" ]; then 
-           $UCIDEL firewall.@zone[$WAN_INDEX]
-       fi
+       [ -n "$WAN_INDEX" ] && $UCIDEL firewall.@zone[$WAN_INDEX]
     }
     [ -n "$(uci -q get network.wan6)" ] && $UCIDEL network.wan6
     [ -n "$(uci -q get network.lan6)" ] && $UCIDEL network.lan6
@@ -332,7 +400,6 @@ configure_network() {
     
     if [ "$netsum" -eq 0 ]; then
         restore_configs "$backup_dir"
-        rm -f $LOCK 2>/dev/null
         log "No network interfaces found"
         return 1
     elif [ "$netsum" -eq 1 ]; then
@@ -361,20 +428,16 @@ configure_network() {
         $UCISET network.wan.metric='1'
         $UCISET network.wan.$ifname="${wan_interface}"
         [ "$wan_proto" == "pppoe" ] && $UCISET network.wan6.$ifname="@wan" || $UCISET network.wan6.$ifname="${wan_interface}"
-        # firewall
+        # firewall  ipv6
 	$UCIDEL dhcp.wan.ra_flags
+
         $UCIADD firewall zone
         $UCISET firewall.@zone[-1].name='wan'
         $UCISET firewall.@zone[-1].input='REJECT'
         $UCISET firewall.@zone[-1].output='ACCEPT'
         $UCISET firewall.@zone[-1].forward='REJECT'
-	
-        if [ "x$ifname" = "xdevice" ]; then
-            $UCIADDLIST firewall.@zone[-1].network='wan6'
-            $UCIADDLIST firewall.@zone[-1].network='wan'
-        else
-            $UCISET firewall.@zone[-1].network='wan wan6'
-        fi
+        $UCIADDLIST firewall.@zone[-1].network='wan6'
+        $UCIADDLIST firewall.@zone[-1].network='wan'
         $UCISET firewall.@zone[-1].masq='1'
 	$UCISET firewall.@zone[-1].masq6='1'
 	$UCISET firewall.@zone[0].masq6='0'
@@ -509,25 +572,25 @@ configure_network() {
 
     [ "x$ifname" = "xdevice" ] && $UCISET network.@$ifname[0].ports="${lannet}" || $UCISET network.lan.$ifname="${lannet}"
     if [ -f /etc/config/dockerd ]; then 
-	       DOCKERINDEX=$(uci show firewall | grep -E "@zone\[[0-9]+\].name='docker'" | sed -n 's/.*@zone\[\([0-9]*\)\].name.*/\1/p')
-              if [ -n "$DOCKERINDEX" ]; then 
-                 $UCIDEL firewall.@zone[$DOCKERINDEX]
-	      fi
-	     $UCIADD firewall zone
-	     $UCISET firewall.@zone[-1].name='docker'
-	     $UCISET firewall.@zone[-1].input='ACCEPT'
-	     $UCISET firewall.@zone[-1].output='ACCEPT'
-	     $UCISET firewall.@zone[-1].forward='ACCEPT'
-             $UCIADDLIST firewall.@zone[-1].subnet='172.16.0.0/12'
-	      $UCISET firewall.docker_to_wan=forwarding
-	      $UCISET firewall.docker_to_wan.src='docker'
-	      $UCISET firewall.docker_to_wan.dest='wan'
-	      $UCISET firewall.docker_to_lan=forwarding
-	      $UCISET firewall.docker_to_lan.src='docker'
-	      $UCISET firewall.docker_to_lan.dest='lan'
-	      $UCISET firewall.lan_to_docker=forwarding
-	      $UCISET firewall.lan_to_docker.src='lan'
-	      $UCISET firewall.lan_to_docker.dest='docker'
+	     DOCKERINDEX=$(uci show firewall | grep -E "@zone\[[0-9]+\].name='docker'" | sed -n 's/.*@zone\[\([0-9]*\)\].name.*/\1/p')
+             [ -n "$DOCKERINDEX" ] && $UCIDEL firewall.@zone[$DOCKERINDEX]
+        uci -q batch <<EOF
+            add firewall zone
+            set firewall.@zone[-1].name='docker'
+            set firewall.@zone[-1].input='ACCEPT'
+            set firewall.@zone[-1].output='ACCEPT'
+            set firewall.@zone[-1].forward='ACCEPT'
+            add_list firewall.@zone[-1].subnet='172.16.0.0/12'
+            set firewall.docker_to_wan=forwarding
+            set firewall.docker_to_wan.src='docker'
+            set firewall.docker_to_wan.dest='wan'
+            set firewall.docker_to_lan=forwarding
+            set firewall.docker_to_lan.src='docker'
+            set firewall.docker_to_lan.dest='lan'
+            set firewall.lan_to_docker=forwarding
+            set firewall.lan_to_docker.src='lan'
+            set firewall.lan_to_docker.dest='docker'
+EOF
     fi
     if [ "$wan_proto" != "siderouter" ]; then
         [ -n "${lan_ipaddr}" ] && $UCISET network.lan.ipaddr="${lan_ipaddr}"
@@ -535,7 +598,7 @@ configure_network() {
     fi
     
     setsynflood
-    # sethttps "$cfg"
+    sethttps "$cfg"
     sed -i "/dhcp_option '6/d" /etc/config/dhcp 2>/dev/null
     sed -i "/list dns/d" /etc/config/dhcp 2>/dev/null
     if [ "x$lan_dhcp" = "x1" ]; then
@@ -592,7 +655,7 @@ configure_network() {
     fi
     
     # 提交所有配置
-    uci -q batch <<-COMMIT_EOF >/dev/null
+    uci -q batch <<'COMMIT_EOF' >/dev/null
         commit advancedplus
         commit uhttpd
         commit system
@@ -620,9 +683,6 @@ COMMIT_EOF
         restore_configs "$backup_dir"
         return 1
     fi
-    
-    rm -f $LOCK 2>/dev/null
-    return 0
 }
 
 boot() {
@@ -631,7 +691,8 @@ boot() {
 }
 
 start() {
-    [ -f $LOCK ] && exit 0
+    check_lock && exit 0
+    # 启动时跳过
     [ "x$XBOOT" = "x1" ] && exit 0
     
     # 检查依赖
@@ -641,15 +702,19 @@ start() {
             return 1
         fi
     done
-    
-    touch "$LOCK"
-    
+
+    create_lock || return 1
     config_load netwizard
     config_foreach configure_network netwizard
-    
-    rm -f $LOCK 2>/dev/null
+    remove_lock
 }
 
 stop() {
-    rm -f $LOCK 2>/dev/null
+    remove_lock
+}
+
+restart() {
+    stop
+    sleep 1
+    start
 }

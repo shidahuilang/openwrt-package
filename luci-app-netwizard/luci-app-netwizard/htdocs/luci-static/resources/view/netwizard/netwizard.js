@@ -609,10 +609,10 @@ return view.extend({
         o.depends('dnsset', '1');
         o.rmempty = false;
 
-        // o = s.taboption('wansetup', form.Flag, 'https', _('Redirect to HTTPS'),
-        // _('Enable automatic redirection of HTTP requests to HTTPS port.'));
-        // o.default = '0';
-        // o.rmempty = false;
+        o = s.taboption('wansetup', form.Flag, 'https', _('Redirect to HTTPS'),
+            _('Enable automatic redirection of HTTP requests to HTTPS port.'));
+        o.default = '0';
+        o.rmempty = false;
         
         if (this.has_wifi) {
             var wifi_ssid = s.taboption('wifisetup', form.Value, 'wifi_ssid', _('<abbr title="Extended Service Set Identifier">ESSID</abbr>'));
@@ -629,7 +629,7 @@ return view.extend({
         o.rmempty = false;
 	
         o = s.taboption('othersetup', form.Flag, 'updatacheck', _('Enable detection update prompts'));
-        o.default = '1';
+        o.default = '0';
         o.rmempty = false;
 	
         var originalSave = m.save;
