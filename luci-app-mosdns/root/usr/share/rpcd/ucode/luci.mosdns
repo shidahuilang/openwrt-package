@@ -1,0 +1,137 @@
+#!/usr/bin/env ucode
+
+'use strict';
+
+import { popen, writefile, stat, readfile } from 'fs';
+import { cursor } from 'uci';
+
+function to_array(val) {
+	let res =[];
+	if (type(val) == 'array') {
+		for (let i = 0; i < length(val); i++) {
+			if (type(val[i]) == 'string') {
+				let s = replace(val[i], /^\s+|\s+$/g, '');
+				if (s != "") push(res, s);
+			}
+		}
+	} else if (type(val) == 'string') {
+		let parts = split(val, /[ \t\n]+/);
+		for (let i = 0; i < length(parts); i++) {
+			if (parts[i] != "") push(res, parts[i]);
+		}
+	}
+	return res;
+}
+
+function exec_sys(cmd) {
+	let p = popen(cmd + " 2>&1", "r");
+	if (!p) return { code: -1, stdout: "" };
+	let stdout = p.read("all");
+	let code = p.close();
+	if (type(stdout) == 'string') {
+		stdout = replace(stdout, /^\s+|\s+$/g, '');
+	}
+	return { code: code, stdout: stdout || "" };
+}
+
+function restart_mosdns() {
+	let p = popen('(sleep 1; /etc/init.d/mosdns restart) >/dev/null 2>&1 &', 'r');
+	if (p) p.close();
+}
+
+function get_logfile_path_internal() {
+	let uci_cursor = cursor();
+	uci_cursor.load('mosdns');
+	let configfile = uci_cursor.get('mosdns', 'config', 'configfile');
+
+	if (configfile === '/var/etc/mosdns.json' || !configfile) {
+		return uci_cursor.get('mosdns', 'config', 'log_file');
+	} else {
+		let content = readfile(configfile);
+		if (content) {
+			let m = match(content, /file:\s*([^\r\n]+)/);
+			if (m && m[1]) {
+				let log_path = m[1];
+				log_path = replace(log_path, /^\s+|\s+$/g, '');
+				log_path = replace(log_path, /^["']|["']$/g, '');
+				if (log_path != "") {
+					return log_path;
+				}
+			}
+		}
+		return '/var/log/mosdns.log';
+	}
+}
+
+const methods = {
+	flush_cache: {
+		call: function() {
+			try {
+				let uci_cursor = cursor();
+				uci_cursor.load('mosdns');
+				let port = uci_cursor.get('mosdns', 'config', 'listen_port_api');
+				if (!port) return { error: "API listen port not configured." };
+
+				let res = exec_sys(`curl -s 127.0.0.1:${port}/plugins/lazy_cache/flush`);
+				if (res.code === 0) {
+					return { success: true };
+				} else {
+					return { success: false, error: res.stdout };
+				}
+			} catch (e) {
+				return { error: String(e) };
+			}
+		}
+	},
+
+	print_log: {
+		call: function() {
+			try {
+				let path = get_logfile_path_internal();
+				if (path && stat(path)) {
+					return { log: readfile(path) };
+				} else {
+					return { error: 'Log file not accessible or does not exist.' };
+				}
+			} catch (e) {
+				return { error: String(e) };
+			}
+		}
+	},
+
+	clean_log: {
+		call: function() {
+			try {
+				let path = get_logfile_path_internal();
+				if (path) {
+					writefile(path, '');
+					return { success: true };
+				} else {
+					return { error: 'Log file path could not be determined.' };
+				}
+			} catch (e) {
+				return { error: String(e) };
+			}
+		}
+	},
+
+	get_version: {
+		call: function() {
+			let res = exec_sys('mosdns version');
+			if (res.code === 0) {
+				return { version: res.stdout };
+			} else {
+				return { error: res.stdout };
+			}
+		}
+	},
+
+	restart: {
+		call: function() {
+			restart_mosdns();
+			return { code: 0, output: "mosdns is restarting in background." };
+		}
+	}
+};
+
+return { "luci.mosdns": methods };

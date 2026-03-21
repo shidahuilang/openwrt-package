@@ -3,18 +3,28 @@
 'require fs';
 'require poll';
 'require view';
+'require rpc';
+'require ui';
+
+var callPrintLog = rpc.declare({
+	object: 'luci.mosdns',
+	method: 'print_log',
+	expect: { '': {} }
+});
+
+var callCleanLog = rpc.declare({
+	object: 'luci.mosdns',
+	method: 'clean_log',
+	expect: { '': {} }
+});
 
 var scrollPosition = 0;
 var userScrolled = false;
 var logTextarea;
 
 function pollLog() {
-	return Promise.all([
-		fs.exec_direct('/usr/share/mosdns/mosdns.sh', ['printlog']).then(function (res) {
-			return res.trim().split(/\n/).join('\n');
-		}),
-	]).then(function (data) {
-		logTextarea.value = data[0] || _('No log data.');
+	return callPrintLog().then(function (res) {
+		logTextarea.value = res.log || _('No log data.');
 
 		if (!userScrolled) {
 			logTextarea.scrollTop = logTextarea.scrollHeight;
@@ -26,8 +36,13 @@ function pollLog() {
 
 return view.extend({
 	handleCleanLogs: function () {
-		return fs.exec('/usr/share/mosdns/mosdns.sh', ['cleanlog'])
-			.catch(function (e) { ui.addNotification(null, E('p', e.message)) });
+		return callCleanLog().then(function(res) {
+			if (res.success) {
+				logTextarea.value = ''; // Clear textarea on success
+			} else {
+				ui.addNotification(null, E('p', _('Failed to clean logs.') + (res.error ? ': ' + res.error : '')), 'error');
+			}
+		}).catch(function (e) { ui.addNotification(null, E('p', e.message)) });
 	},
 
 	render: function () {

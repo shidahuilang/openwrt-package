@@ -5,36 +5,33 @@
 			"file": {
 				"/etc/init.d/mosdns": [ "exec" ],
 				"/etc/mosdns/config_custom.yaml": [ "read" ],
-				"/etc/mosdns/rule/blocklist.txt": [ "read" ],
-				"/etc/mosdns/rule/cloudflare-cidr.txt": [ "read" ],
-				"/etc/mosdns/rule/ddnslist.txt": [ "read" ],
-				"/etc/mosdns/rule/greylist.txt": [ "read" ],
-				"/etc/mosdns/rule/hosts.txt": [ "read" ],
-				"/etc/mosdns/rule/local-ptr.txt": [ "read" ],
-				"/etc/mosdns/rule/redirect.txt": [ "read" ],
-				"/etc/mosdns/rule/streaming.txt": [ "read" ],
-				"/etc/mosdns/rule/whitelist.txt": [ "read" ],
+				"/etc/mosdns/rule/*": [ "read" ],
 				"/usr/bin/mosdns": [ "exec" ],
-				"/usr/share/mosdns/mosdns.sh": [ "exec" ]
+				"/usr/share/mosdns/mosdns.uc": [ "exec" ],
+				"/var/log/*": [ "read" ],
+				"/var/mosdns/*": [ "read" ]
 			},
 			"ubus": {
 				"file": [ "read" ],
-				"service": [ "list" ]
+				"service": [ "list" ],
+				"luci.mosdns": [
+					"clean_log",
+					"flush_cache",
+					"get_version",
+					"print_log",
+					"restart"
+				]
 			},
 			"uci": [ "mosdns" ]
 		},
 		"write": {
 			"file": {
 				"/etc/mosdns/config_custom.yaml": [ "write" ],
-				"/etc/mosdns/rule/blocklist.txt": [ "write" ],
-				"/etc/mosdns/rule/cloudflare-cidr.txt": [ "write" ],
-				"/etc/mosdns/rule/ddnslist.txt": [ "write" ],
-				"/etc/mosdns/rule/greylist.txt": [ "write" ],
-				"/etc/mosdns/rule/hosts.txt": [ "write" ],
-				"/etc/mosdns/rule/local-ptr.txt": [ "write" ],
-				"/etc/mosdns/rule/redirect.txt": [ "write" ],
-				"/etc/mosdns/rule/streaming.txt": [ "write" ],
-				"/etc/mosdns/rule/whitelist.txt": [ "write" ]
+				"/etc/mosdns/rule/*": [ "write" ],
+				"/usr/share/mosdns/*": [ "write" ],
+				"/usr/share/v2ray/*": [ "write" ],
+				"/var/log/*": [ "write" ],
+				"/var/mosdns/*": [ "write" ]
 			},
 			"ubus": {
 				"file": [ "write" ]
@@ -43,4 +40,3 @@
 		}
 	}
 }
-
