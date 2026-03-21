@@ -70,31 +70,42 @@ async function loadCodeMirrorResources() {
 	await loadScripts();
 }
 
+var callMosdns = rpc.declare({
+	object: 'luci.mosdns',
+	method: 'get_version',
+	expect: { '': {} }
+});
+
+var callFlushCache = rpc.declare({
+	object: 'luci.mosdns',
+	method: 'flush_cache',
+	expect: { '': {} }
+});
+
 return view.extend({
 	load: function () {
 		return Promise.all([
-			L.resolveDefault(fs.exec('/usr/bin/mosdns', ['version']), null),
+			L.resolveDefault(callMosdns(), null),
 		]);
 	},
 
-	handleFlushCache: function (m, section_id, ev) {
-		return fs.exec('/usr/share/mosdns/mosdns.sh', ['flush'])
-			.then(function (lazy_cache) {
-				var res = lazy_cache.code;
-				if (res === 0) {
-					ui.addNotification(null, E('p', _('Flushing DNS Cache Success.')), 'info');
-				} else {
-					ui.addNotification(null, E('p', _('Flushing DNS Cache Failed, Please check if MosDNS is running.')), 'error');
-				}
-			});
+	handleFlushCache: function () {
+		return callFlushCache().then(function(res) {
+			if (res.success) {
+				ui.addNotification(null, E('p', _('Flushing DNS Cache Success.')), 'info');
+			} else {
+				ui.addNotification(null, E('p', _('Flushing DNS Cache Failed, Please check if MosDNS is running.') + (res.error ? ': ' + res.error : '')), 'error');
+			}
+		});
 	},
 
-	render: function (basic) {
+		render: function (data) {
 		var m, s, o, v;
 		v = '';
 
-		if (basic[0] && basic[0].code === 0) {
-			v = basic[0].stdout.trim();
+		var version = (data[0] && data[0].version) ? data[0].version : null;
+		if (version) {
+			v = version;
 		}
 		m = new form.Map('mosdns', _('MosDNS') + '&#160;' + v,
 			_('MosDNS is a plugin-based DNS forwarder/traffic splitter.'));
@@ -147,6 +158,7 @@ return view.extend({
 		o.depends('configfile', '/var/etc/mosdns.json');
 
 		o = s.taboption('basic', form.Value, 'listen_address', _('Listen Address'));
+		o.default = '0.0.0.0';
 		o.depends('configfile', '/var/etc/mosdns.json');
 
 		o = s.taboption('basic', form.ListValue, 'log_level', _('Log Level'));
@@ -389,7 +401,7 @@ return view.extend({
 		/* api */
 		o = s.taboption('api', form.Value, 'listen_port_api', _('API Listen port'));
 		o.datatype = 'and(port,min(1))';
-		o.default = 9091;
+		o.default = 52001;
 		o.depends('configfile', '/var/etc/mosdns.json');
 
 		o = s.taboption('api', form.Button, '_flush_cache', null,
@@ -397,7 +409,7 @@ return view.extend({
 		o.title = '&#160;';
 		o.inputtitle = _('Flush DNS Cache');
 		o.inputstyle = 'apply';
-		o.onclick = L.bind(this.handleFlushCache, this, m);
+		o.onclick = L.bind(this.handleFlushCache, this);
 		o.depends('cache', '1');
 
 		/* configuration */

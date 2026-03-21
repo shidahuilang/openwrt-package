@@ -1,6 +1,6 @@
 #!/bin/sh /etc/rc.common
 # Copyright (C) 2020-2022, IrineSistiana
-# Copyright (C) 2023-2024, sbwml <admin@cooluc.com>
+# Copyright (C) 2023-2026, sbwml <admin@cooluc.com>
 
 START=75
 USE_PROCD=1
@@ -10,7 +10,8 @@ CONF=$(uci -q get mosdns.config.configfile)
 CRON_FILE=/etc/crontabs/root
 DUMP_FILE=/etc/mosdns/cache.dump
 DUMP_FILE_DEFAULT=/usr/share/mosdns/cache.dump
-MOSDNS_SCRIPT=/usr/share/mosdns/mosdns.sh
+MOSDNS_SCRIPT=/usr/share/mosdns/mosdns.uc
+REDIRECT_LOCK_FILE=/etc/mosdns/redirect.lock
 
 get_config() {
 	config_get enabled $1 enabled 0
@@ -41,7 +42,7 @@ get_config() {
 	config_get custom_stream_media_dns $1 custom_stream_media_dns 0
 	config_get stream_media_dns $1 stream_media_dns "tls://8.8.8.8"
 	config_get bootstrap_dns $1 bootstrap_dns "119.29.29.29"
-	config_get listen_port_api $1 listen_port_api 9091
+	config_get listen_port_api $1 listen_port_api 52001
 	config_get concurrent $1 concurrent 1
 	config_get insecure_skip_verify $1 insecure_skip_verify 0
 	config_get idle_timeout $1 idle_timeout 30
@@ -178,7 +179,8 @@ generate_config() {
 	json_add_string "type" "domain_set"
 	json_add_object "args"
 	json_add_array "files"
-	adlist=$($MOSDNS_SCRIPT adlist)
+	adlist=$($MOSDNS_SCRIPT get_adlist)
+	[ -z "$adlist" ] && adlist="/var/mosdns/disable-ads.txt" # fail-safe
 	for list in $adlist; do
 		json_add_string "" "$list"
 	done
@@ -256,7 +258,8 @@ generate_config() {
 	json_add_object "args"
 	json_add_int "concurrent" "$concurrent"
 	json_add_array "upstreams"
-	local_dns=$($MOSDNS_SCRIPT dns)
+	local_dns=$($MOSDNS_SCRIPT interface_dns)
+	[ -z "$local_dns" ] && local_dns="119.29.29.29 223.5.5.5" # fail-safe
 	for addr in $local_dns; do
 		enable_http3=0
 		if echo "$addr" | grep -q "^h3://"; then
@@ -692,15 +695,15 @@ service_triggers() {
 	procd_add_reload_trigger "mosdns"
 }
 
-restore_setting() {
-	rm -f /etc/mosdns/redirect.lock
-	sed -i "/list server/d" /etc/config/dhcp
-	uci set dhcp.@dnsmasq[0].noresolv='0'
-	uci del dhcp.@dnsmasq[0].cachesize
-	uci commit dhcp
-}
+dhcp_setting() {
+	[ ! -f "$REDIRECT_LOCK_FILE" ] && {
+		printf "rebind_protection=$(uci -q get dhcp.@dnsmasq[0].rebind_protection)\n"
+		printf "rebind_localhost=$(uci -q get dhcp.@dnsmasq[0].rebind_localhost)\n"
+		printf "noresolv=$(uci -q get dhcp.@dnsmasq[0].noresolv)\n"
+		printf "resolvfile=$(uci -q get dhcp.@dnsmasq[0].resolvfile)\n"
+		printf "cachesize=$(uci -q get dhcp.@dnsmasq[0].cachesize)\n"
+	} > $REDIRECT_LOCK_FILE
 
-redirect_setting() {
 	if [ "${CONF}" = "/var/etc/mosdns.json" ]; then
 		sed -i "/list server/d" /etc/config/dhcp
 		uci add_list dhcp.@dnsmasq[0].server="127.0.0.1#$listen_port"
@@ -716,11 +719,37 @@ redirect_setting() {
 		uci set dhcp.@dnsmasq[0].cachesize='0'
 		uci commit dhcp
 	fi
-	touch /etc/mosdns/redirect.lock
+}
+
+uci_set_or_del() {
+	local key="$1"
+	local val="$2"
+
+	if [ -n "$val" ]; then
+		uci set "$key=$val"
+	else
+		uci del "$key"
+	fi
+}
+
+restore_dhcp_setting() {
+	if [ -f "$REDIRECT_LOCK_FILE" ]; then
+		sed -i "/list server/d" /etc/config/dhcp
+		source "$REDIRECT_LOCK_FILE"
+
+		uci_set_or_del dhcp.@dnsmasq[0].rebind_protection "$rebind_protection"
+		uci_set_or_del dhcp.@dnsmasq[0].resolvfile "$resolvfile"
+		uci_set_or_del dhcp.@dnsmasq[0].rebind_localhost "$rebind_localhost"
+		uci_set_or_del dhcp.@dnsmasq[0].noresolv "$noresolv"
+		uci_set_or_del dhcp.@dnsmasq[0].cachesize "$cachesize"
+
+		uci commit dhcp
+		rm -f "$REDIRECT_LOCK_FILE"
+	fi
 }
 
 reload_dnsmasq() {
-	/etc/init.d/dnsmasq reload
+	[ "$(/etc/init.d/dnsmasq status)" = "running" ] && /etc/init.d/dnsmasq reload
 }
 
 reload_service() {
@@ -730,18 +759,14 @@ reload_service() {
 }
 
 setcron() {
-	sed -i '/mosdns.sh/d' $CRON_FILE 2>/dev/null
-	[ "$geo_auto_update" -eq 1 ] && echo "0 $geo_update_day_time * * $geo_update_week_time $MOSDNS_SCRIPT geodata" >> $CRON_FILE
+	sed -i '/mosdns.uc/d' $CRON_FILE 2>/dev/null
+	[ "$geo_auto_update" -eq 1 ] && echo "0 $geo_update_day_time * * $geo_update_week_time /usr/share/mosdns/mosdns.uc update" >> $CRON_FILE
 	crontab $CRON_FILE
 }
 
 delcron() {
-	sed -i '/mosdns.sh/d' $CRON_FILE 2>/dev/null
+	sed -i '/mosdns.uc/d' $CRON_FILE 2>/dev/null
 	crontab $CRON_FILE
-}
-
-v2dat_dump() {
-	$MOSDNS_SCRIPT v2dat_dump
 }
 
 start_service() {
@@ -749,12 +774,11 @@ start_service() {
 	config_foreach get_config "mosdns"
 	[ $enabled -ne 1 ] && return 1
 	delcron ; setcron
-	:> $($MOSDNS_SCRIPT logfile)
-	if [ "${log_level}" = "error" ] || [ "${log_level}" = "warn" ]; then
-		v2dat_dump > /dev/null 2>&1
-	else
-		v2dat_dump >> $($MOSDNS_SCRIPT logfile) 2>&1
-	fi
+
+	rm -rf /tmp/log/mosdns*
+
+	$MOSDNS_SCRIPT v2dat_dump
+
 	[ "${CONF}" = "/var/etc/mosdns.json" ] && generate_config
 
 	procd_open_instance mosdns
@@ -766,9 +790,11 @@ start_service() {
 	procd_set_param stderr 1
 	procd_set_param respawn
 	procd_close_instance mosdns
-	[ "$redirect" -ne 1 ] && [ -f "/etc/mosdns/redirect.lock" ] && restore_setting
-	[ "$redirect" -eq 1 ] && redirect_setting
+
+	[ "$redirect" -ne 1 ] && restore_dhcp_setting
+	[ "$redirect" -eq 1 ] && dhcp_setting
 	reload_dnsmasq
+
 	# dns hijack
 	if [ "$local_dns_redirect" -eq 1 ] && [ -f "/sbin/fw4" ]; then
 		! nft --check list table inet mosdns > "/dev/null" 2>&1 || \
@@ -777,13 +803,13 @@ start_service() {
 		nft add chain inet mosdns prerouting "{ type nat hook prerouting priority -95; policy accept; }"
 		nft add rule inet mosdns prerouting "meta nfproto { ipv4, ipv6 } udp dport 53 counter redirect to :$listen_port comment \"DNS HIJACK\""
 	fi
+
 	# Update Adlist
 	update_list=0
 	if [ "$adblock" -eq 1 ]; then
 		if [ -f "/etc/mosdns/rule/.ad_source" ]; then
-			for url in $ad_source;
-			do
-				if [ "$url" = "geosite.dat" ] || [ $(echo "$url" | grep -c -E "^file://") -eq 1 ]; then
+			for url in $ad_source; do
+				if [ "$url" = "geosite.dat" ] ||[ $(echo "$url" | grep -c -E "^file://") -eq 1 ]; then
 					continue
 				fi
 				if [ $(grep -c "$url" "/etc/mosdns/rule/.ad_source") -eq 0 ]; then
@@ -795,13 +821,17 @@ start_service() {
 			update_list=1
 		fi
 	fi
-	[ "$update_list" -eq 1 ] && $MOSDNS_SCRIPT adlist_update &> /dev/null &
+
+	[ "$update_list" -eq 1 ] && {
+		sleep 3
+		$MOSDNS_SCRIPT update_adlist
+	} &
 }
 
 stop_service() {
 	config_load "mosdns"
 	config_foreach get_config "mosdns"
-	[ "$enabled" -eq "0" ] && [ -f "/etc/mosdns/redirect.lock" ] && restore_setting
+	[ "$enabled" -eq "0" ] && restore_dhcp_setting
 	! nft --check list table inet mosdns > "/dev/null" 2>&1 || \
 		nft delete table inet mosdns
 	reload_dnsmasq

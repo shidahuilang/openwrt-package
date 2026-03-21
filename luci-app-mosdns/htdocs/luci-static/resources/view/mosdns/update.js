@@ -5,16 +5,22 @@
 'require view';
 
 return view.extend({
-	handleUpdate: function (m, section_id, ev) {
-		return fs.exec('/usr/share/mosdns/mosdns.sh', ['geodata'])
-			.then(function (i) {
-				var res = i.code;
-				if (res === 0) {
+	handleUpdate: function () {
+		ui.showModal(_('Updating...'), [
+			E('p', { 'class': 'spinning' }, _('Please wait, this may take a few moments...')),
+		]);
+		return fs.exec('/usr/share/mosdns/mosdns.uc', ['update'])
+			.then(function (res) {
+				ui.hideModal();
+				if (res.code === 0) {
 					ui.addNotification(null, E('p', _('Update success')), 'info');
 				} else {
-					ui.addNotification(null, E('p', i.stderr + '<br />' + i.stdout), 'warn');
+					ui.addNotification(null, E('p', res.stderr + '<br />' + res.stdout), 'warn');
 					ui.addNotification(null, E('p', _('Update failed, Please check the network status')), 'error');
 				}
+			}).catch(function (e) {
+				ui.hideModal();
+				ui.addNotification(null, E('p', _('Update failed: %s').format(e.message)), 'error');
 			});
 	},
 
@@ -68,7 +74,7 @@ return view.extend({
 		o.title = _('Database Update');
 		o.inputtitle = _('Check And Update');
 		o.inputstyle = 'apply';
-		o.onclick = L.bind(this.handleUpdate, this, m);
+		o.onclick = L.bind(this.handleUpdate, this);
 
 		return m.render();
 	}
