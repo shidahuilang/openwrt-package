@@ -2972,13 +2972,15 @@
                 try {
                     var parsedData = JSON.parse(cachedData);
 
-                    if (parsedData.sub_info && parsedData.sub_info !== "No Sub Info Found") {
-                        if (this.currentConfigFile === requestConfigFile) {
-                            this.displaySubscriptionInfo(parsedData);
-                        }
-                    } else if (parsedData.sub_info === "No Sub Info Found") {
-                        if (this.currentConfigFile === requestConfigFile) {
-                            this.showNoInfo();
+                    if (parsedData.providers) {
+                        if (parsedData.providers.length > 0) {
+                            if (this.currentConfigFile === requestConfigFile) {
+                                this.displaySubscriptionInfo(parsedData);
+                            }
+                        } else {
+                            if (this.currentConfigFile === requestConfigFile) {
+                                this.showNoInfo();
+                            }
                         }
                     }
 
@@ -3006,16 +3008,32 @@
                     if (SubscriptionManager.currentConfigFile !== requestConfigFile) {
                         return;
                     }
-                    if (x && x.status == 200 && status.sub_info && status.sub_info !== "No Sub Info Found") {
-                        SubscriptionManager.retryCount = 0;
-                        localStorage.setItem('sub_info_' + filename, JSON.stringify(status));
-                        SubscriptionManager.displaySubscriptionInfo(status);
-                    } else if (x && x.status == 200 && status.sub_info === "No Sub Info Found") {
-                        SubscriptionManager.retryCount = 0;
-                        localStorage.setItem('sub_info_' + filename, JSON.stringify(status));
-                        SubscriptionManager.showNoInfo();
+
+                    var needsErrorHandling = false;
+                    if (x && x.status == 200 && status.providers) {
+                        var newProvidersLength = (status.providers) ? status.providers.length : 0;
+                        var cachedProvidersLength = (parsedData && parsedData.providers) ? parsedData.providers.length : 0;
+
+                        if (newProvidersLength !== cachedProvidersLength && cachedProvidersLength > newProvidersLength) {
+                            needsErrorHandling = true;
+                        }
+
+                        if (!needsErrorHandling) {
+                            SubscriptionManager.retryCount = 0;
+                            localStorage.setItem('sub_info_' + filename, JSON.stringify(status));
+                            if (status.providers && status.providers.length === 0) {
+                                SubscriptionManager.showNoInfo();
+                                return;
+                            }
+                            SubscriptionManager.displaySubscriptionInfo(status);
+                            return;
+                        }
                     } else {
-                        SubscriptionManager.handleError();
+                        needsErrorHandling = true;
+                    }
+
+                    if (needsErrorHandling) {
+                        SubscriptionManager.handleError(cachedData);
                     }
                 }, true);
             }
@@ -3039,15 +3057,11 @@
 
             container.style.display = 'flex';
 
-            if (data && data.sub_info && data.sub_info !== "No Sub Info Found") {
-                if (data.providers && Array.isArray(data.providers) && data.providers.length > 0) {
-                    if (data.providers.length > 1 || data.providers[0].provider_name) {
-                        this.displayMultipleProviders(data.providers, progressSection);
-                    } else {
-                        this.displaySingleProvider(data.providers[0], progressSection);
-                    }
+            if (data && data.providers && data.providers.length > 0) {
+                if (data.providers.length > 1 || data.providers[0].provider_name) {
+                    this.displayMultipleProviders(data.providers, progressSection);
                 } else {
-                    progressSection.style.display = 'none';
+                    this.displaySingleProvider(data.providers[0], progressSection);
                 }
             } else {
                 progressSection.style.display = 'none';
@@ -3284,18 +3298,21 @@
             }
         },
 
-        handleError: function() {
-            if (this.retryCount >= this.maxRetries) {
+        handleError: function(cachedData) {
+            if (!cachedData) {
                 this.showNoInfo();
+            }
+
+            if (this.retryCount >= this.maxRetries) {
                 this.retryCount = 0;
-                if (this.currentConfigFile) {
+                if (this.currentConfigFile && cachedData) {
                     localStorage.removeItem('sub_info_' + this.extractFilename(this.currentConfigFile));
                 }
             } else {
                 this.retryCount++;
                 setTimeout(function() {
                     SubscriptionManager.getSubscriptionInfo();
-                }, 5000);
+                }, 15000);
             }
         },
 

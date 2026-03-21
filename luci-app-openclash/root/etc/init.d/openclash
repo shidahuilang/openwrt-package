@@ -1034,10 +1034,10 @@ firewall_lan_ac_traffic()
       rule_target_v4="! -d ${fakeip_range} ${src_ip} ${sport_ipt} ${interface_rule} ${dscp_ipt} -j ${target} -m comment --comment ${comment}"
       output_rule_target_v4="! -d ${fakeip_range} ${src_ip} ${sport_ipt} ${user_rule} ${interface_rule} ${dscp_ipt} -j ${target} -m comment --comment ${comment}"
 
-      rule_target_v6_="! -d ${fakeip_range6} ${src_ip} ${sport_ipt} ${interface_rule} ${dscp_ipt} -j ${target_} -m comment --comment ${comment}"
-      output_rule_target_v6_="! -d ${fakeip_range6} ${src_ip} ${sport_ipt} ${user_rule} ${interface_rule} ${dscp_ipt} -j ${target_} -m comment --comment ${comment}"
-      rule_target_v6="! -d ${fakeip_range6} ${src_ip} ${sport_ipt} ${interface_rule} ${dscp_ipt} -j ${target} -m comment --comment ${comment}"
-      output_rule_target_v6="! -d ${fakeip_range6} ${src_ip} ${sport_ipt} ${user_rule} ${interface_rule} ${dscp_ipt} -j ${target} -m comment --comment ${comment}"
+      rule_target_v6_="! -d ${fakeip_range6} ${src_ip_v6} ${sport_ipt} ${interface_rule} ${dscp_ipt} -j ${target_} -m comment --comment ${comment}"
+      output_rule_target_v6_="! -d ${fakeip_range6} ${src_ip_v6} ${sport_ipt} ${user_rule} ${interface_rule} ${dscp_ipt} -j ${target_} -m comment --comment ${comment}"
+      rule_target_v6="! -d ${fakeip_range6} ${src_ip_v6} ${sport_ipt} ${interface_rule} ${dscp_ipt} -j ${target} -m comment --comment ${comment}"
+      output_rule_target_v6="! -d ${fakeip_range6} ${src_ip_v6} ${sport_ipt} ${user_rule} ${interface_rule} ${dscp_ipt} -j ${target} -m comment --comment ${comment}"
 
       if [ "${family}" == "both" ] || [ "${family}" == "ipv4" ]; then
          if [ -z "${en_mode_tun}" ] || [ "${en_mode_tun}" -eq 2 ]; then
@@ -3860,7 +3860,6 @@ stop_service()
          rm -rf /tmp/clash_last_version \
                 /tmp/openclash_last_version \
                 /tmp/openclash.change \
-                /tmp/openclash_debug.log \
                 /tmp/openclash_announcement \
                 ${DNSMASQ_CONF_DIR}/dnsmasq_openclash_chnroute_pass.conf \
                 ${DNSMASQ_CONF_DIR}/dnsmasq_openclash_chnroute6_pass.conf \

@@ -2393,9 +2393,6 @@ msgstr "Información de suscripción"
 msgid "No Sub Info Found"
 msgstr "No se ha encontrado información de suscripción"
 
-msgid "Sub Info Get Error"
-msgstr "Error al obtener la información de suscripción"
-
 msgid "Router-Self Proxy"
 msgstr "Proxy para tráfico del propio router"
 

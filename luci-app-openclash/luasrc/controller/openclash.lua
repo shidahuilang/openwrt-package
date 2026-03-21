@@ -537,10 +537,10 @@ function fetch_sub_info(sub_url, sub_ua)
 	local info, upload, download, total, day_expire, http_code
 	local used, expire, day_left, percent, surplus
 
-	info = luci.sys.exec(string.format("curl -sLI -X GET -m 10 --retry 2 -w 'http_code=%%{http_code}' -H 'User-Agent: %s' '%s'", sub_ua, sub_url))
+	info = luci.sys.exec(string.format("curl -sLI -X GET -m 5 --retry 2 -w 'http_code=%%{http_code}' -H 'User-Agent: %s' '%s'", sub_ua, sub_url))
 	local http_match = string.match(info, "http_code=(%d+)")
 	if not info or not http_match or tonumber(http_match) ~= 200 then
-		info = luci.sys.exec(string.format("curl -sLI -X GET -m 10 --retry 2 -w 'http_code=%%{http_code}' -H 'User-Agent: Quantumultx' '%s'", sub_url))
+		info = luci.sys.exec(string.format("curl -sLI -X GET -m 5 --retry 2 -w 'http_code=%%{http_code}' -H 'User-Agent: Quantumultx' '%s'", sub_url))
 		http_match = string.match(info, "http_code=(%d+)")
 	end
 
@@ -735,13 +735,25 @@ function get_sub_url(filename)
 		function(s)
 			if s.name == filename and s.address and string.find(s.address, "http") then
 				string.gsub(s.address, '[^\n]+', function(w) table.insert(info_tb, w) end)
-				sub_url = info_tb[1]
+				if #info_tb == 1 then
+					local url, _ = parse_url_with_name(info_tb[1], filename)
+					sub_url = url
+				elseif #info_tb > 1 then
+					for _, raw in ipairs(info_tb) do
+						local url, name = parse_url_with_name(raw, filename)
+						table.insert(providers, {name = name, url = url})
+					end
+				end
 			end
 		end
 	)
 
 	if sub_url then
 		return {type = "single", url = sub_url}
+	end
+
+	if #providers > 0 then
+		return {type = "multiple", providers = providers}
 	end
 
 	return nil
@@ -766,36 +778,33 @@ function sub_info_get()
 	if filename and not is_start() then
 		url_result = get_sub_url(filename)
 
-		if not url_result then
-			sub_info = "No Sub Info Found"
-		elseif url_result.type == "single" then
-			local info = fetch_sub_info(url_result.url, sub_ua)
-			if info then
-				table.insert(providers_data, info)
-				sub_info = "Successful"
-			else
-				sub_info = "No Sub Info Found"
-			end
-		elseif url_result.type == "multiple" then
-			for i, provider in ipairs(url_result.providers) do
-				local info = fetch_sub_info(provider.url, sub_ua)
+		if url_result then
+			if url_result.type == "single" then
+				local info = fetch_sub_info(url_result.url, sub_ua)
 				if info then
-					info.provider_name = provider.name
 					table.insert(providers_data, info)
 				end
-			end
-
-			if #providers_data > 0 then
-				sub_info = "Successful"
 			else
-				sub_info = "No Sub Info Found"
+				for i, provider in ipairs(url_result.providers) do
+					local info = fetch_sub_info(provider.url, sub_ua)
+					if info then
+						info.provider_name = provider.name
+						table.insert(providers_data, info)
+					end
+				end
 			end
+		end
+	end
+
+	if #providers_data == 0 then
+		if not url_result then
+			luci.http.status(400, "Subscription information not found")
+			return
 		end
 	end
 
 	luci.http.prepare_content("application/json")
 	luci.http.write_json({
-		sub_info = sub_info,
 		providers = providers_data,
 		get_time = os.time(),
 		url_result = url_result
@@ -900,6 +909,27 @@ function action_log_level()
 	luci.http.prepare_content("application/json")
 	luci.http.write_json({
 		log_level = level;
+	})
+end
+
+function action_switch_log()
+	local level, info
+	if is_running() then
+		local daip = daip()
+		local dase = dase() or ""
+		local cn_port = cn_port()
+		level = luci.http.formvalue("log_level")
+		if not daip or not cn_port or not level then luci.http.status(500, "Switch Faild") return end
+		info = luci.sys.exec(string.format('curl -sL -m 3 --retry 2 -H "Content-Type: application/json" -H "Authorization: Bearer %s" -XPATCH http://"%s":"%s"/configs -d \'{\"log-level\": \"%s\"}\'', dase, daip, cn_port, level))
+		if info ~= "" then
+			luci.http.status(500, "Switch Faild")
+		end
+	else
+		luci.http.status(500, "Switch Faild")
+	end
+	luci.http.prepare_content("application/json")
+	luci.http.write_json({
+		info = info;
 	})
 end
 

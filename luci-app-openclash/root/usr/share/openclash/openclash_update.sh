@@ -228,7 +228,7 @@ LOG_ERROR()
 {
 	if [ -n "${1}" ]; then
 		echo -e "${1}" > $START_LOG
-		echo -e "${LOGTIME} [error] ${1}" >> $LOG_FILE
+		echo -e "${LOGTIME} [Error] ${1}" >> $LOG_FILE
 	fi
 }
 
@@ -236,7 +236,7 @@ LOG_TIP()
 {
 	if [ -n "${1}" ]; then
 		echo -e "${1}" > $START_LOG
-		echo -e "${LOGTIME} [tip] ${1}" >> $LOG_FILE
+		echo -e "${LOGTIME} [Tip] ${1}" >> $LOG_FILE
 	fi
 }
 

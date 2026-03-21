@@ -510,8 +510,8 @@ function o.write(self, section, value)
 		value = value:gsub("\r\n?", "\n")
 		local old_value = NXFS.readfile("/etc/openclash/custom/openclash_custom_chnroute_pass.list")
 		if value ~= old_value then
-				NXFS.writefile("/etc/openclash/custom/openclash_custom_chnroute_pass.list", value)
-			end
+			NXFS.writefile("/etc/openclash/custom/openclash_custom_chnroute_pass.list", value)
+		end
 	end
 end
 

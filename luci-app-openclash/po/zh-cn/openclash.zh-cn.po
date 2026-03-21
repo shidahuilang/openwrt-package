@@ -2391,9 +2391,6 @@ msgstr "订阅信息"
 msgid "No Sub Info Found"
 msgstr "无订阅信息"
 
-msgid "Sub Info Get Error"
-msgstr "订阅信息获取失败"
-
 msgid "Router-Self Proxy"
 msgstr "*路由本机代理"
 

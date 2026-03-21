@@ -432,9 +432,11 @@
     border: 1px solid #999999;
     border-radius: 6px;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
+    gap: 2px;
 }
 
 .sub_provider_fill {
@@ -458,6 +460,22 @@
     text-overflow: ellipsis;
     max-width: 100%;
     padding: 0 4px;
+    line-height: 1;
+}
+
+.sub_provider_percent {
+    position: relative;
+    z-index: 1;
+    font-size: 12px;
+    color: #333;
+    font-weight: 400;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    padding: 0 4px;
+    line-height: 1;
 }
 
 /* Dark mode support */
@@ -467,6 +485,10 @@
 }
 
 :root[data-darkmode="true"] .sub_provider_name {
+    color: #e0e0e0;
+}
+
+:root[data-darkmode="true"] .sub_provider_percent {
     color: #e0e0e0;
 }
 
@@ -481,6 +503,10 @@
     }
 
     .sub_provider_name {
+        font-size: 11px;
+    }
+
+    .sub_provider_percent {
         font-size: 11px;
     }
 }
@@ -498,6 +524,10 @@
     .sub_provider_name {
         font-size: 10px;
     }
+
+    .sub_provider_percent {
+        font-size: 10px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -510,6 +540,10 @@
     .sub_provider_name {
         font-size: 9px;
     }
+
+    .sub_provider_percent {
+        font-size: 9px;
+    }
 }
 
 @media (max-width: 320px) {
@@ -519,6 +553,10 @@
     }
 
     .sub_provider_name {
+        font-size: 8px;
+    }
+
+    .sub_provider_percent {
         font-size: 8px;
     }
 }
@@ -533,7 +571,7 @@
 
 <div class="sub_div">
     <span id='<%=idname%>' class="sub_tab"></span>
-    <button type="button" class="sub_setting" title='<%:Refresh%>' alt='<%:Refresh%>' onclick='return sub_info_refresh_<%=idname%>(this)'>
+    <button type="button" class="sub_setting" title='<%:Refresh%>' alt='<%:Refresh%>' onclick='return sub_info_refresh_<%=idname%>(true)'>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M23 4v6h-6"></path>
             <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
@@ -553,7 +591,7 @@
 
 var retry_<%=idname%> = 0;
 var s_<%=idname%>;
-sub_info_get_<%=idname%>();
+sub_info_refresh_<%=idname%>(false);
 
 setTimeout(function(){
     initDarkMode();
@@ -619,10 +657,6 @@ function progressbar_<%=idname%>(v, m, pc, np, f, t, tr) {
 };
 
 function progressbar_multi_<%=idname%>(providers) {
-    if (!providers || !Array.isArray(providers) || providers.length === 0) {
-        return '<span>No Providers</span>';
-    }
-
     var providerCount = providers.length;
     var itemWidth;
     var containerClass = 'sub_providers_container';
@@ -661,6 +695,7 @@ function progressbar_multi_<%=idname%>(providers) {
         container += '<div class="sub_provider_item" style="width: ' + itemWidth + '" title="' + titleText + '">' +
                     '<div class="sub_provider_fill ' + bgColorClass + '" style="width: ' + percent + '%"></div>' +
                     '<span class="sub_provider_name">' + providerName + '</span>' +
+                    '<span class="sub_provider_percent">' + ' (' + percent + '%)' + '</span>' +
                     '</div>';
     });
 
@@ -673,7 +708,7 @@ function progressbar_multi_<%=idname%>(providers) {
     }
 
     return container;
-}
+};
 
 function initDragScroll_<%=idname%>() {
     var container = document.getElementById('sub_providers_<%=idname%>');
@@ -722,103 +757,93 @@ function initDragScroll_<%=idname%>() {
     container.addEventListener('dragstart', function(e) {
         e.preventDefault();
     });
-}
-
-function sub_info_refresh_<%=idname%>()
-{
-	if (s_<%=idname%>) { clearTimeout(s_<%=idname%>);};
-	XHR.get('<%=luci.dispatcher.build_url("admin", "services", "openclash", "sub_info_get")%>', {filename: "<%=filename%>"}, function(x, status) {
-		if (x && x.status == 200 && status.sub_info != "" && status.sub_info != "No Sub Info Found") {
-			retry_<%=idname%> = 0;
-			localStorage.setItem("sub_info_<%=filename%>",JSON.stringify(status));
-			document.getElementById('<%=idname%>').className = "sub_tab_show";
-
-			if (status.providers && Array.isArray(status.providers) && status.providers.length > 0) {
-				if (status.providers.length === 1) {
-					var provider = status.providers[0];
-					document.getElementById('<%=idname%>').innerHTML = progressbar_<%=idname%>(
-						(provider.surplus ? provider.surplus : provider.used),
-						(provider.total),
-						(provider.percent),
-						false, false,
-						(provider.expire),
-						(provider.day_left)
-					);
-				} else {
-					document.getElementById('<%=idname%>').innerHTML = progressbar_multi_<%=idname%>(status.providers);
-				}
-			} else {
-				document.getElementById('<%=idname%>').innerHTML = progressbar_<%=idname%>(
-					(status.surplus ? status.surplus : status.used),
-					(status.total),
-					(status.percent),
-					false, false,
-					(status.expire),
-					(status.day_left)
-				);
-			}
-		} else if ( x && x.status == 200 && status.sub_info == "No Sub Info Found" ) {
-			retry_<%=idname%> = 0;
-			localStorage.setItem("sub_info_<%=filename%>",JSON.stringify(status));
-			document.getElementById('<%=idname%>').className = "sub_tab_show";
-			document.getElementById('<%=idname%>').innerHTML = "<span><%:No Sub Info Found%></span>";
-		} else {
-			if (document.getElementById('<%=idname%>').innerHTML == "" || retry_<%=idname%> > 2) {
-				document.getElementById('<%=idname%>').className = "sub_tab_show";
-				document.getElementById('<%=idname%>').innerHTML = "<span style=color:red><%:Sub Info Get Error%></span>";
-			}
-			if (retry_<%=idname%> > 2) {
-				retry_<%=idname%> = 0;
-				localStorage.removeItem("sub_info_<%=filename%>");
-			} else {
-				retry_<%=idname%> ++;
-				s_<%=idname%> = setTimeout("sub_info_refresh_<%=idname%>()",1000*120);
-				return
-			}
-		};
-		s_<%=idname%> = setTimeout("sub_info_refresh_<%=idname%>()",1000*1800);
-	});
 };
 
-function sub_info_get_<%=idname%>()
-{
-	if (localStorage.getItem("sub_info_<%=filename%>")) {
-		var save_info = JSON.parse(localStorage.getItem("sub_info_<%=filename%>"));
-		document.getElementById('<%=idname%>').className = "sub_tab_show";
-		if (save_info.sub_info == "No Sub Info Found") {
-			document.getElementById('<%=idname%>').innerHTML = "<span><%:No Sub Info Found%></span>";
-		}
-		else {
-			if (save_info.providers && Array.isArray(save_info.providers) && save_info.providers.length > 0) {
-				if (save_info.providers.length === 1) {
-					var provider = save_info.providers[0];
-					document.getElementById('<%=idname%>').innerHTML = progressbar_<%=idname%>(
-						(provider.surplus ? provider.surplus : provider.used),
-						(provider.total),
-						(provider.percent ? provider.percent : 0),
-						false, false,
-						(provider.expire),
-						(provider.day_left ? provider.day_left : 0)
-					);
-				} else {
-					document.getElementById('<%=idname%>').innerHTML = progressbar_multi_<%=idname%>(save_info.providers);
-				}
-			} else {
-				document.getElementById('<%=idname%>').innerHTML = progressbar_<%=idname%>(
-					(save_info.surplus ? save_info.surplus : save_info.used),
-					(save_info.total),
-					(save_info.percent ? save_info.percent : 0),
-					false, false,
-					(save_info.expire),
-					(save_info.day_left ? save_info.day_left : 0)
-				);
-			}
-		}
-	}
-	else {
-		sub_info_refresh_<%=idname%>();
-	};
-	s_<%=idname%> = setTimeout("sub_info_refresh_<%=idname%>()",1000*30);
+function dispaly_progressbar(id, status) {
+    document.getElementById(id).className = "sub_tab_show";
+    if (status && status.providers && status.providers.length > 0) {
+        if (status.providers.length === 1) {
+            var provider = status.providers[0];
+            document.getElementById(id).innerHTML = window["progressbar_" + id](
+                (provider.surplus ? provider.surplus : provider.used),
+                (provider.total),
+                (provider.percent),
+                false, false,
+                (provider.expire),
+                (provider.day_left)
+            );
+        } else {
+            document.getElementById(id).innerHTML = window["progressbar_multi_" + id](status.providers);
+        }
+    } else {
+        document.getElementById(id).innerHTML = "<span><%:No Sub Info Found%></span>";
+    }
+};
+
+function sub_info_refresh_<%=idname%>(force) {
+	if (s_<%=idname%>) { clearTimeout(s_<%=idname%>);};
+
+    if (force) {
+        localStorage.removeItem("sub_info_<%=filename%>");
+    }
+
+    var save_info = (localStorage.getItem("sub_info_<%=filename%>")) ? JSON.parse(localStorage.getItem("sub_info_<%=filename%>")) : null;
+    var shouldFetchNew = true;
+    if (save_info && !force) {
+        dispaly_progressbar('<%=idname%>', save_info);
+        if (save_info.get_time) {
+            var currentTime = Math.floor(Date.now() / 1000);
+            var cacheTime = parseInt(save_info.get_time);
+            var timeDiff = currentTime - cacheTime;
+            var halfHourInSeconds = 30 * 60;
+
+            if (timeDiff <= halfHourInSeconds) {
+                shouldFetchNew = false;
+            }
+        }
+    }
+
+    if (retry_<%=idname%> >= 3) {
+        localStorage.removeItem("sub_info_<%=filename%>");
+        retry_<%=idname%> = 0;
+        shouldFetchNew = false;
+    }
+
+    if (!shouldFetchNew) {
+        s_<%=idname%> = setTimeout("sub_info_refresh_<%=idname%>(false)", 60000*15);
+        return;
+    }
+
+    if (!save_info) {
+        document.getElementById('<%=idname%>').className = "sub_tab_show";
+        document.getElementById('<%=idname%>').innerHTML = "<span><%:Collecting data...%></span>";
+    }
+
+	XHR.get('<%=luci.dispatcher.build_url("admin", "services", "openclash", "sub_info_get")%>', {filename: "<%=filename%>"}, function(x, status) {
+        var needsErrorHandling = false;
+        if (x && x.status == 200 && status.providers) {
+            var save_info_length = (save_info && save_info.providers) ? save_info.providers.length : 0;
+            var newProvidersLength = (status && status.providers) ? status.providers.length : 0;
+            if (save_info_length !== newProvidersLength && save_info_length > newProvidersLength) {
+                needsErrorHandling = true;
+            }
+
+            if (!needsErrorHandling) {
+                retry_<%=idname%> = 0;
+                localStorage.setItem("sub_info_<%=filename%>", JSON.stringify(status));
+                dispaly_progressbar('<%=idname%>', status);
+            }
+		} else {
+            needsErrorHandling = true;
+		};
+
+        if (needsErrorHandling && retry_<%=idname%> <= 2) {
+            retry_<%=idname%>++;
+            s_<%=idname%> = setTimeout("sub_info_refresh_<%=idname%>(false)", 15000);
+        } else {
+            s_<%=idname%> = setTimeout("sub_info_refresh_<%=idname%>(false)", 60000*15);
+        };
+	});
 };
 
 function set_subinfo_url_<%=idname%>(btn, filename) {
@@ -872,14 +897,12 @@ function set_subinfo_url_<%=idname%>(btn, filename) {
 
         XHR.get('<%=luci.dispatcher.build_url("admin", "services", "openclash", "set_subinfo_url")%>', {filename: filename, url: new_url}, function(x, status) {
             if (x && x.status == 200 && status.info == "Success") {
-                sub_info_refresh_<%=idname%>();
+                sub_info_refresh_<%=idname%>(true);
                 alert("<%:Specify subscribe infos sources url successfully!%>");
-            }
-            else if (x && x.status == 200 && status.info == "Delete success") {
-                sub_info_refresh_<%=idname%>();
+            } else if (x && x.status == 200 && status.info == "Delete success") {
+                sub_info_refresh_<%=idname%>(true);
                 alert("<%:Delete Specify Subscribe infos sources url successfully!%>");
-            }
-            else {
+            } else {
                 alert("<%:Specify subscribe infos sources url failed:%>\n" + status.info);
             }
         });

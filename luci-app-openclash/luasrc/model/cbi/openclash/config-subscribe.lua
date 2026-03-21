@@ -123,6 +123,14 @@ end
 o = s:option(TextValue, "address", translate("Subscribe Address"))
 function o.cfgvalue(...)
 	return Value.cfgvalue(...) or translate("None")
+	
+end
+function o.validate(self, value)
+	if value then
+		value = value:gsub("\r\n?", "\n")
+		value = value:gsub("%c*$", "")
+	end
+	return value
 end
 
 ---- template

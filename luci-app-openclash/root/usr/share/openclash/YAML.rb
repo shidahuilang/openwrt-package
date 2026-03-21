@@ -84,19 +84,22 @@ module YAML
           indent = $1
           value = $2.strip
           if value.empty?
-            in_short_id = true
             (short_id_index + 1...lines.size).each do |i|
               line = lines[i]
+              next if line.strip.empty?
+              if line[/^\s*/].length <= short_id_indent_len
+                break
+              end
               if line =~ LIST_ITEM_REGEX
-                if in_short_id
-                  indent = $1
-                  value = $2.strip
-                  if value !~ QUOTED_VALUE_REGEX
-                    lines[i] = "#{indent}- \"#{value}\"\n"
-                  end
+                indent = $1
+                value = $2.strip
+                if value =~ KEY_REGEX
+                  break
+                end
+                if value !~ QUOTED_VALUE_REGEX
+                  lines[i] = "#{indent}- \"#{value}\"\n"
                 end
               elsif line =~ KEY_REGEX
-                in_short_id = false
                 break
               end
             end
