@@ -1302,8 +1302,6 @@ input:not(.cbi-button):hover,
 select:not([multiple="multiple"]):focus,
 input:not(.cbi-button):focus,
 .cbi-dropdown:focus {
-
-    color: var(--inputtext-color);
     border-bottom: 1px solid rgba(var(--primary-rgbm), 0.9);
 }
 
@@ -2146,6 +2144,11 @@ body.modal-overlay-active #modal_overlay {
     margin-bottom: .5em;
     max-width: 100%
 }
+
+.modal>ul {
+    margin: .5em;
+}
+
 .modal>.cbi-map {
         overflow-x: unset;
 }
@@ -2985,6 +2988,7 @@ body.lang_pl.node-main-login .cbi-value-title {
     -webkit-backdrop-filter: blur(6px) !important;
     backdrop-filter: blur(6px) !important;
     box-shadow: var(--boxshadow);
+    box-shadow: 0 0.3rem 0.5rem var(--input-boxcolor);
     background-color: rgba(var(--primary-rgbbody), 0.5) !important;
     border-radius: var(--radius1);
     border: none;
@@ -3426,10 +3430,6 @@ body.lang_pl.node-main-login .cbi-value-title {
 
 [data-page^="admin-services-openclash"] .CodeMirror {
     font-size: inherit;
-    background-color: rgba(0, 0, 0, 0.8) !important;
-    color: var(--body-color) !important;
-    color: #bbb !important;
-    font-family: 'Google Sans' !important
 }
 
 [data-page^="admin-services-openclash"] select#CORE_VERSION,
