@@ -2666,8 +2666,8 @@ msgstr "Inicio de TUN fallido; intentando reiniciar..."
 msgid "Core Start Failed, Please Check The Log Infos!"
 msgstr "Fallo al iniciar el núcleo. Revisa el registro de núcleo."
 
-msgid "Core Status Abnormal, Please Check The Log Infos!"
-msgstr "Estado del núcleo anómalo. Consulta el registro de núcleo."
+msgid "Core Initial Configuration Timeout, Please Check The Log Infos!"
+msgstr "Tiempo de espera agotado en la configuración inicial del núcleo, ¡consulta la información del registro!"
 
 msgid "Forced Sniff Pure IP Connections"
 msgstr "Forzar sniffing de conexiones IP puras"
@@ -3773,6 +3773,12 @@ msgstr "Editar información de módulo"
 msgid "Subscription"
 msgstr "Suscripción"
 
+msgid "HTTP Module"
+msgstr "Módulo HTTP"
+
+msgid "File Module"
+msgstr "Módulo de archivo"
+
 msgid "Overwrite Module"
 msgstr "Módulo de sobrescritura"
 
@@ -3835,3 +3841,18 @@ msgstr "Número de serie"
 
 msgid "Set Custom Overwrite Script Failed,"
 msgstr "Fallo al ejecutar el script de sobrescritura personalizado,"
+
+msgid "Load YAML Override Block"
+msgstr "Cargar bloque de sobrescritura YAML"
+
+msgid "Invalid YAML Override format, skipped..."
+msgstr "Formato de sobrescritura YAML no válido, omitido..."
+
+msgid "Parse YAML Override failed:"
+msgstr "Error al analizar bloque de sobrescritura YAML:"
+
+msgid "YAML overwrite failed:"
+msgstr "Error en la sobrescritura YAML:"
+
+msgid "files selected"
+msgstr "archivos seleccionados"

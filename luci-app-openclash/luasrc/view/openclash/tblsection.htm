@@ -51,11 +51,9 @@ else
     end
 end
 
-local cfg_name
-if os.getenv("PATH_INFO") then
-    local cfg_path = string.match(os.getenv("PATH_INFO"), "/config/(.+)$")
-    cfg_name = cfg_path and string.match(cfg_path, "([^/]+)$") or nil
-end
+local file_path = fs.get_file_path_from_request()
+local cfg_name = (file_path and fs.basename(file_path)) or nil
+
 if not cfg_name and uci:get("openclash", "config", "config_path") then
     cfg_name = fs.basename(uci:get("openclash", "config", "config_path"))
 end
@@ -392,7 +390,13 @@ local sectiontype = "_"..self.config.."_"..string.match(self.sectiontype, "[%w_]
                                         <%- end
                                         %> alt="<%:Edit%>" title="<%:Edit%>" />
                                     <%- end; if self.addremove then -%>
-                                        <input class="btn cbi-button cbi-button-remove" type="submit" value="<%:Delete%>"  onclick="this.form.cbi_state='del-section'; return switch_to_tab<%=sectiontype%>()" name="cbi.rts.<%=self.config%>.<%=k%>" alt="<%:Delete%>" title="<%:Delete%>" />
+                                        <%- if file_path then -%>
+                                            <input class="btn cbi-button cbi-button-remove" type="submit" value="<%:Delete%>" 
+                                            onclick="this.form.cbi_state='del-section'; var redirectUrl = 'servers?file=<%=file_path%>'; var originalSubmit = this.form.onsubmit; this.form.onsubmit = function(e) { var result = true; if (originalSubmit) { result = originalSubmit.call(this, e); } if (result !== false) { setTimeout(function() { window.location.href = redirectUrl; }, 200); } return result; }; return switch_to_tab<%=sectiontype%>()" 
+                                            name="cbi.rts.<%=self.config%>.<%=k%>" alt="<%:Delete%>" title="<%:Delete%>" />
+                                        <%- else -%>
+                                            <input class="btn cbi-button cbi-button-remove" type="submit" value="<%:Delete%>" onclick="this.form.cbi_state='del-section'; return switch_to_tab<%=sectiontype%>()" name="cbi.rts.<%=self.config%>.<%=k%>" alt="<%:Delete%>" title="<%:Delete%>" />
+                                        <%- end -%>
                                     <%- end -%>
                                 </td>
                             <%- end -%>
@@ -503,7 +507,6 @@ local sectiontype = "_"..self.config.."_"..string.match(self.sectiontype, "[%w_]
         }
 
         localStorage.setItem("id<%=sectiontype%>",'cbi-<%=self.config%>-<%=self.sectiontype%>');
-        return true;
     };
 
     function onload<%=sectiontype%>() {

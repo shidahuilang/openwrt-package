@@ -38,8 +38,8 @@ p.inputstyle="apply"
 Button.render(p,x,r)
 end
 btned1.write=function(r,x)
-	local file_path = "etc/openclash/proxy_provider/" .. fs.basename(p[x].name)
-	HTTP.redirect(DISP.build_url("admin", "services", "openclash", "other-file-edit", "proxy-provider-file-manage", "%s") %file_path)
+	local file_path = "/etc/openclash/proxy_provider/" .. fs.basename(p[x].name)
+	HTTP.redirect(DISP.build_url("admin", "services", "openclash", "other-file-edit", "proxy-provider-file-manage") .. "?file=" .. HTTP.urlencode(file_path))
 end
 
 btndl1 = tb1:option(Button,"download1",translate("Download Config"))

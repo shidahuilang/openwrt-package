@@ -6,6 +6,7 @@
     --text-primary: #374151;
     --text-secondary: #64748b;
     --text-title: #4d4d4d;
+    --select-hover: #ebebeb;
     --border-color: #b1b1b1;
     --border-light: #e2e8f0;
     --hover-bg: #f8fafc;
@@ -37,6 +38,7 @@
     --text-primary: #ebebeb;
     --text-secondary: #d0cfcf;
     --text-title: #e5e7eb;
+    --select-hover: #ebebeb;
     --border-color: #939393;
     --border-light: #6b7280;
     --hover-bg: #374151;
@@ -62,7 +64,7 @@
     border-radius: var(--radius-lg);
 }
 
-.select-popup {
+.oc .select-popup {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -77,9 +79,11 @@
     width: 60%;
     box-shadow: var(--shadow-md);
     transition: all var(--transition-normal);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-.close-btn {
+.oc .close-btn {
     background: none;
     border: 1px solid var(--border-light);
     color: var(--text-secondary);
@@ -97,7 +101,7 @@
     margin-left: 8px;
 }
 
-.close-btn:hover {
+.oc .close-btn:hover {
     background: var(--hover-bg) !important;
     border-color: var(--primary-color) !important;
     color: var(--primary-color) !important;
@@ -105,23 +109,23 @@
     box-shadow: var(--shadow-sm) !important;
 }
 
-.close-btn:focus {
+.oc .close-btn:focus {
     outline: none;
     box-shadow: var(--shadow-sm) !important;
     border-color: var(--primary-color) !important;
 }
 
-.close-btn svg {
+.oc .close-btn svg {
     width: 14px !important;
     height: 14px !important;
     flex-shrink: 0 !important;
 }
 
-.select-popup.hidden {
+.oc .select-popup.hidden {
     display: none;
 }
 
-.select-popup-header {
+.oc .select-popup-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -135,7 +139,7 @@
     box-shadow: var(--shadow-sm);
 }
 
-.select-config-section {
+.oc .select-config-section {
     background: var(--bg-gray);
     border: 1px solid var(--border-light);
     border-radius: var(--radius-md);
@@ -144,14 +148,14 @@
     box-shadow: var(--shadow-sm);
 }
 
-.config-grid {
+.oc .config-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: var(--gap-size);
     align-items: center;
 }
 
-.config-item {
+.oc .config-item {
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -160,7 +164,7 @@
     position: relative;
 }
 
-.config-item::after {
+.oc .config-item::after {
     content: '';
     position: absolute;
     right: 12px;
@@ -175,7 +179,7 @@
     z-index: 1;
 }
 
-.config-editor-title {
+.oc .config-editor-title {
     font-size: 16px;
     font-weight: 600;
     color: var(--text-primary);
@@ -187,7 +191,7 @@
     flex: 1;
 }
 
-.config-label {
+.oc .config-label {
     font-size: 13px;
     font-weight: 600;
     color: var(--text-secondary);
@@ -195,7 +199,7 @@
     position: relative;
 }
 
-.config-label::after {
+.oc .config-label::after {
     content: '';
     position: absolute;
     bottom: -4px;
@@ -206,7 +210,7 @@
     background-color: var(--border-color);
 }
 
-.select-class {
+.oc .select-class {
     width: 100% !important;
     height: var(--control-height);
     padding: 8px 32px 8px 12px;
@@ -222,17 +226,17 @@
     min-width: 0;
 }
 
-.select-class:hover {
+.oc .select-class:hover {
     border-color: var(--primary-color);
 }
 
-.select-class:focus {
+.oc .select-class:focus {
     outline: none;
     border-color: var(--primary-color);
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
 }
 
-.help-link {
+.oc .help-link {
     display: inline-flex;
     align-items: center;
     color: var(--primary-color);
@@ -243,7 +247,7 @@
     border-radius: var(--radius-sm);
 }
 
-.select-class option {
+.oc .select-class option {
     width: 100%;
     padding: 8px 12px;
     font-size: 13px;
@@ -255,12 +259,12 @@
     color: var(--text-primary);
 }
 
-.help-link:hover {
+.oc .help-link:hover {
     opacity: 1;
     background: rgba(59, 130, 246, 0.1);
 }
 
-.select-popup-body {
+.oc .select-popup-body {
     max-height: 300px;
     overflow-y: auto;
     border: 1px solid var(--border-light);
@@ -268,7 +272,7 @@
     background: var(--bg-gray);
 }
 
-.select-option {
+.oc .select-option {
     padding: 12px 16px;
     cursor: pointer;
     border-bottom: 1px solid var(--border-light);
@@ -281,31 +285,31 @@
     flex-direction: row;
 }
 
-.select-option span {
+.oc .select-option span {
     white-space: normal;
     word-break: break-all;
 }
 
-.select-option:last-child {
+.oc .select-option:last-child {
     border-bottom: none;
 }
 
-.select-option:hover {
+.oc .select-option:hover {
     background-color: var(--hover-bg);
     color: var(--primary-color);
 }
 
-.select-option[data-value="custom"] {
+.oc .select-option[data-value="custom"] {
     background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(99, 102, 241, 0.1));
     border-color: rgba(59, 130, 246, 0.2);
     font-weight: 500;
 }
 
-.select-option[data-value="custom"]:hover {
+.oc .select-option[data-value="custom"]:hover {
     background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(99, 102, 241, 0.2));
 }
 
-.custom-option-input {
+.oc .custom-option-input {
     margin: 12px auto;
     padding: 12px;
     width: calc(100% - 24px) !important;
@@ -317,18 +321,18 @@
     transition: all var(--transition-fast);
 }
 
-.custom-option-input:focus {
+.oc .custom-option-input:focus {
     outline: none;
     border-color: var(--primary-color);
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
 }
 
-.custom-option-input::placeholder {
+.oc .custom-option-input::placeholder {
     color: var(--text-secondary);
     opacity: 0.7;
 }
 
-#addCustomOption {
+.oc #addCustomOption {
     background: var(--primary-color);
     color: white;
     font-weight: 500;
@@ -338,12 +342,12 @@
     text-align: center;
 }
 
-#addCustomOption:hover {
+.oc #addCustomOption:hover {
     background: #2563eb;
     color: white;
 }
 
-.cdn-status {
+.oc .cdn-status {
     font-size: 12px;
     font-weight: 500;
     padding: 4px 8px;
@@ -352,45 +356,45 @@
     white-space: nowrap !important;
 }
 
-.cdn-status.fast {
+.oc .cdn-status.fast {
     background: rgba(5, 150, 105, 0.1);
     color: var(--success-color);
 }
 
-.cdn-status.medium {
+.oc .cdn-status.medium {
     background: rgba(245, 158, 11, 0.1);
     color: var(--warning-color);
 }
 
-.cdn-status.slow {
+.oc .cdn-status.slow {
     background: rgba(220, 38, 38, 0.1);
     color: var(--error-color);
 }
 
-.cdn-status.error {
+.oc .cdn-status.error {
     background: rgba(220, 38, 38, 0.1);
     color: var(--error-color);
 }
 
 @media screen and (max-width: 1200px) {
-    .config-grid {
+    .oc .config-grid {
         grid-template-columns: 1fr;
         gap: 12px;
     }
 
-    .config-item {
+    .oc .config-item {
         width: 100%;
         max-width: 100%;
     }
 
-    .select-class {
+    .oc .select-class {
         max-width: 100%;
         font-size: 13px;
     }
 }
 
 @media screen and (max-width: 768px) {
-    .select-popup {
+    .oc .select-popup {
         min-width: 80%;
         width: 80%;
         padding: 15px;
@@ -398,76 +402,76 @@
         overflow-y: auto;
     }
 
-    .config-grid {
+    .oc .config-grid {
         grid-template-columns: 1fr;
         gap: 12px;
     }
 
-    .config-item {
+    .oc .config-item {
         text-align: center;
     }
 
-    .select-popup-header {
+    .oc .select-popup-header {
         font-size: 16px;
         margin-bottom: 16px;
         padding-bottom: 12px;
     }
 
-    .select-config-section {
+    .oc .select-config-section {
         padding: 12px;
         margin-bottom: 16px;
     }
 
-    .select-popup-body {
+    .oc .select-popup-body {
         max-height: 200px;
     }
 
-    .select-option {
+    .oc .select-option {
         padding: 10px 12px;
         font-size: 13px;
         align-items: flex-start;
         gap: 4px;
     }
 
-    .custom-option-input {
+    .oc .custom-option-input {
         font-size: 13px;
         padding: 10px;
     }
 }
 
 @media screen and (max-width: 575px) {
-    .select-popup {
+    .oc .select-popup {
         min-width: 80%;
         width: 80%;
         padding: 12px;
     }
 
-    .select-popup-header {
+    .oc .select-popup-header {
         font-size: 15px;
         margin-bottom: 12px;
     }
 
-    .select-config-section {
+    .oc .select-config-section {
         padding: 10px;
     }
 
-    .config-label {
+    .oc .config-label {
         font-size: 12px;
     }
 
-    .select-class {
+    .oc .select-class {
         font-size: 12px;
         padding: 6px 28px 6px 10px;
     }
 
-    .config-item::after {
+    .oc .config-item::after {
         right: 10px;
         border-left: 3px solid transparent;
         border-right: 3px solid transparent;
         border-top: 3px solid var(--text-secondary);
     }
 
-    .select-option {
+    .oc .select-option {
         padding: 8px 10px;
         font-size: 12px;
     }
@@ -546,97 +550,99 @@
 </style>
 
 <body>
-    <div id="selectPopup" class="oc select-popup hidden">
-        <div class="select-popup-header">
-            <div class="config-editor-title">
-                <%:Check Update%>
-            </div>
-            <div class="config-editor-actions">
-                <button type="button" class="icon-btn close-btn" onclick="closeSelectPopup()" title="<%:Close%>">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
-            </div>
-        </div>
-        <div class="select-config-section">
-            <div class="config-grid">
-                <div class="config-item">
-                    <div class="config-label"><%:Compiled Version%></div>
-                    <select class="select-class" id="CORE_VERSION_CDN">
-                        <option value="linux-386"><%:linux-386%></option>
-                        <option value="linux-amd64-v1"><%:linux-amd64-v1(x86-64)%></option>
-                        <option value="linux-amd64-v2"><%:linux-amd64-v2(x86-64)%></option>
-                        <option value="linux-amd64-v3"><%:linux-amd64-v3(x86-64)%></option>
-                        <option value="linux-armv5"><%:linux-armv5%></option>
-                        <option value="linux-armv6"><%:linux-armv6%></option>
-                        <option value="linux-armv7"><%:linux-armv7%></option>
-                        <option value="linux-arm64"><%:linux-arm64(armv8)%></option>
-                        <option value="linux-loong64-abi1"><%:linux-loong64-abi1%></option>
-                        <option value="linux-loong64-abi2"><%:linux-loong64-abi2%></option>
-                        <option value="linux-riscv64"><%:linux-riscv64%></option>
-                        <option value="linux-s390x"><%:linux-s390x%></option>
-                        <option value="linux-mips-hardfloat"><%:linux-mips-hardfloat%></option>
-                        <option value="linux-mips-softfloat"><%:linux-mips-softfloat%></option>
-                        <option value="linux-mips64"><%:linux-mips64%></option>
-                        <option value="linux-mips64le"><%:linux-mips64le%></option>
-                        <option value="linux-mipsle-softfloat"><%:linux-mipsle-softfloat%></option>
-                        <option value="linux-mipsle-hardfloat"><%:linux-mipsle-hardfloat%></option>
-                        <option value="0"><%:Not Set%></option>
-                    </select>
+    <div class="oc">
+        <div id="selectPopup" class="select-popup hidden">
+            <div class="select-popup-header">
+                <div class="config-editor-title">
+                    <%:Check Update%>
                 </div>
-
-                <div class="config-item">
-                    <div class="config-label"><%:Release Branch%></div>
-                    <select class="select-class" id="RELEASE_BRANCH_CDN">
-                        <option value="master">Master</option>
-                        <option value="dev">Developer</option>
-                    </select>
+                <div class="config-editor-actions">
+                    <button type="button" class="icon-btn close-btn" onclick="closeSelectPopup()" title="<%:Close%>">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
                 </div>
-
-                <div class="config-item">
-                    <div class="config-label">
-                        <%:Smart Core%>
-                        <a href="javascript:void(0);" onclick="window.open('https://github.com/vernesong/mihomo/releases', '_blank');" class="help-link" title="<%:View core infos that support smart group%>">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                            </svg>
-                        </a>
+            </div>
+            <div class="select-config-section">
+                <div class="config-grid">
+                    <div class="config-item">
+                        <div class="config-label"><%:Compiled Version%></div>
+                        <select class="select-class" id="CORE_VERSION_CDN">
+                            <option value="linux-386"><%:linux-386%></option>
+                            <option value="linux-amd64-v1"><%:linux-amd64-v1(x86-64)%></option>
+                            <option value="linux-amd64-v2"><%:linux-amd64-v2(x86-64)%></option>
+                            <option value="linux-amd64-v3"><%:linux-amd64-v3(x86-64)%></option>
+                            <option value="linux-armv5"><%:linux-armv5%></option>
+                            <option value="linux-armv6"><%:linux-armv6%></option>
+                            <option value="linux-armv7"><%:linux-armv7%></option>
+                            <option value="linux-arm64"><%:linux-arm64(armv8)%></option>
+                            <option value="linux-loong64-abi1"><%:linux-loong64-abi1%></option>
+                            <option value="linux-loong64-abi2"><%:linux-loong64-abi2%></option>
+                            <option value="linux-riscv64"><%:linux-riscv64%></option>
+                            <option value="linux-s390x"><%:linux-s390x%></option>
+                            <option value="linux-mips-hardfloat"><%:linux-mips-hardfloat%></option>
+                            <option value="linux-mips-softfloat"><%:linux-mips-softfloat%></option>
+                            <option value="linux-mips64"><%:linux-mips64%></option>
+                            <option value="linux-mips64le"><%:linux-mips64le%></option>
+                            <option value="linux-mipsle-softfloat"><%:linux-mipsle-softfloat%></option>
+                            <option value="linux-mipsle-hardfloat"><%:linux-mipsle-hardfloat%></option>
+                            <option value="0"><%:Not Set%></option>
+                        </select>
                     </div>
-                    <select class="select-class" id="SMART_ENABLE_CDN">
-                        <option value="0"><%:Disabled%></option>
-                        <option value="1"><%:Enable%></option>
-                    </select>
+
+                    <div class="config-item">
+                        <div class="config-label"><%:Release Branch%></div>
+                        <select class="select-class" id="RELEASE_BRANCH_CDN">
+                            <option value="master">Master</option>
+                            <option value="dev">Developer</option>
+                        </select>
+                    </div>
+
+                    <div class="config-item">
+                        <div class="config-label">
+                            <%:Smart Core%>
+                            <a href="javascript:void(0);" onclick="window.open('https://github.com/vernesong/mihomo/releases', '_blank');" class="help-link" title="<%:View core infos that support smart group%>">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                </svg>
+                            </a>
+                        </div>
+                        <select class="select-class" id="SMART_ENABLE_CDN">
+                            <option value="0"><%:Disabled%></option>
+                            <option value="1"><%:Enable%></option>
+                        </select>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="select-popup-body">
-            <div class="select-option" data-value="https://raw.githubusercontent.com/">
-                <span>https://raw.githubusercontent.com/ (<%:RAW address%>)</span>
+            <div class="select-popup-body">
+                <div class="select-option" data-value="https://raw.githubusercontent.com/">
+                    <span>https://raw.githubusercontent.com/ (<%:RAW address%>)</span>
+                </div>
+                <div class="select-option" data-value="https://fastly.jsdelivr.net/">
+                    <span>https://fastly.jsdelivr.net/</span>
+                </div>
+                <div class="select-option" data-value="https://testingcf.jsdelivr.net/">
+                    <span>https://testingcf.jsdelivr.net/</span>
+                </div>
+                <div class="select-option" data-value="https://cdn.jsdelivr.net/">
+                    <span>https://cdn.jsdelivr.net/</span>
+                </div>
+                <div class="select-option" data-value="custom">
+                    <span><%:Custom Your CDN URL%></span>
+                    <span style="display: flex; align-items: center; height: 100%;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="display: block;">
+                            <polygon points="6,9 18,9 12,15"/>
+                        </svg>
+                    </span>
+                </div>
+                <input type="text" id="customOptionInput" class="custom-option-input" value="https://ghfast.top/" placeholder="<%:Type CDN URL, Format Like%> https://ghfast.top/" style="display: none;">
+                <div class="select-option" id="addCustomOption" style="display: none;"><%:Add%></div>
             </div>
-            <div class="select-option" data-value="https://fastly.jsdelivr.net/">
-                <span>https://fastly.jsdelivr.net/</span>
-            </div>
-            <div class="select-option" data-value="https://testingcf.jsdelivr.net/">
-                <span>https://testingcf.jsdelivr.net/</span>
-            </div>
-            <div class="select-option" data-value="https://cdn.jsdelivr.net/">
-                <span>https://cdn.jsdelivr.net/</span>
-            </div>
-            <div class="select-option" data-value="custom">
-                <span><%:Custom Your CDN URL%></span>
-                <span style="display: flex; align-items: center; height: 100%;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="display: block;">
-                        <polygon points="6,9 18,9 12,15"/>
-                    </svg>
-                </span>
-            </div>
-            <input type="text" id="customOptionInput" class="custom-option-input" value="https://ghfast.top/" placeholder="<%:Type CDN URL, Format Like%> https://ghfast.top/" style="display: none;">
-            <div class="select-option" id="addCustomOption" style="display: none;"><%:Add%></div>
         </div>
     </div>
 </body>

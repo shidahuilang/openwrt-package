@@ -110,6 +110,12 @@
     white-space: nowrap;
     flex: 1 1 auto;
 }
+.oc .config-editor-title #editTitle,
+.oc .config-editor-title #config-file-name {
+    user-select: text;
+    -webkit-user-select: text;
+    cursor: text;
+}
 .oc .config-editor-title .config-file-name {
     color: var(--primary-color);
     font-weight: 700;
@@ -361,6 +367,149 @@
     width: 100%;
     min-width: 0;
     box-sizing: border-box;
+}
+.oc .overwrite-config-dropdown {
+    position: relative;
+    width: 100%;
+}
+.oc .overwrite-config-dropdown-btn {
+    width: 100%;
+    min-height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 1.4;
+}
+.oc .overwrite-config-dropdown.form-select-wrapper {
+    width: 100%;
+}
+.oc .overwrite-config-dropdown-btn.form-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+.oc .overwrite-config-dropdown-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: calc(100% - 20px);
+    text-align: left;
+}
+.oc .overwrite-config-dropdown-arrow {
+    margin-left: 8px;
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid var(--text-secondary);
+    flex-shrink: 0;
+}
+.oc .overwrite-config-dropdown-panel {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    max-height: 220px;
+    overflow-y: auto;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-sm);
+    background: var(--bg-white);
+    box-shadow: var(--shadow-md);
+    z-index: 10003;
+}
+.oc .overwrite-config-dropdown.open .overwrite-config-dropdown-panel {
+    display: block;
+}
+.oc .overwrite-config-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border-light);
+    background: var(--bg-white);
+    color: var(--text-primary);
+    cursor: pointer;
+}
+.oc .overwrite-config-option:last-child {
+    border-bottom: none;
+}
+.oc .overwrite-config-option:hover {
+    background: var(--primary-color);
+    color: var(--select-hover);
+}
+.oc[data-darkmode="true"] .overwrite-config-option {
+    background: var(--bg-gray);
+    border-bottom-color: var(--border-light);
+}
+.oc[data-darkmode="true"] .overwrite-config-option:hover {
+    background: var(--primary-color);
+    color: var(--select-hover);
+}
+.oc .overwrite-config-option:hover .overwrite-config-option-state {
+    border-color: var(--select-hover);
+}
+.oc[data-darkmode="true"] .overwrite-config-option-state {
+    background: var(--bg-white);
+    border-color: var(--border-color);
+}
+.oc .overwrite-config-option.disabled-by-all {
+    cursor: not-allowed;
+    opacity: 0.55;
+    background: var(--bg-gray);
+    color: var(--text-secondary);
+}
+.oc .overwrite-config-option.disabled-by-all:hover {
+    background: var(--bg-gray);
+    color: var(--text-secondary);
+}
+.oc .overwrite-config-option.disabled-by-all .overwrite-config-option-state {
+    border-color: var(--border-light);
+    color: transparent;
+}
+.oc .overwrite-config-option-left {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    flex: 1;
+}
+.oc .overwrite-config-option-left input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+.oc .overwrite-config-option-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 13px;
+}
+.oc .overwrite-config-option-state {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: transparent;
+    background: var(--bg-white);
+    font-size: 12px;
+    line-height: 1;
+}
+.oc .overwrite-config-option.selected .overwrite-config-option-state {
+    border-color: var(--primary-color);
+    background: var(--primary-color);
+    color: var(--select-hover);
+}
+.oc .overwrite-config-dropdown.disabled .overwrite-config-dropdown-btn {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 .oc .overwrite-card-row {
     display: flex;
@@ -1407,6 +1556,11 @@ var ConfigEditor = {
         .then(function(data) {
             if (data.status === 'success') {
                 self.overwriteSubInfo = (data && data.data) ? data.data : {};
+                Object.keys(self.overwriteSubInfo).forEach(function(key) {
+                    var subInfo = self.overwriteSubInfo[key] || {};
+                    subInfo.config = self.parseOverwriteConfigValue(subInfo.config);
+                    self.overwriteSubInfo[key] = subInfo;
+                });
                 self.overwriteFiles.sort(function(a, b) {
                     var an = a.name || (a.path ? a.path.split('/').pop() : '');
                     var bn = b.name || (b.path ? b.path.split('/').pop() : '');
@@ -1530,6 +1684,7 @@ var ConfigEditor = {
                 formData.append('update_hour', sub.update_hour || '');
                 formData.append('order', (typeof sub.order !== 'undefined' && sub.order !== null && sub.order !== '') ? sub.order : idx);
                 formData.append('param', sub.param || '');
+                formData.append('config', self.parseOverwriteConfigValue(sub.config).join('\n'));
                 formData.append('enable', newEnable);
                 fetch('/cgi-bin/luci/admin/services/openclash/overwrite_subscribe_info', {
                     method: 'POST',
@@ -1590,6 +1745,7 @@ var ConfigEditor = {
                     formData.append('update_hour', sub.update_hour || '');
                     formData.append('order', (typeof sub.order !== 'undefined' && sub.order !== null && sub.order !== '') ? sub.order : idx);
                     formData.append('param', sub.param || '');
+                    formData.append('config', self.parseOverwriteConfigValue(sub.config).join('\n'));
                     formData.append('enable', typeof sub.enable !== 'undefined' ? sub.enable : 1);
                     fetch('/cgi-bin/luci/admin/services/openclash/overwrite_subscribe_info', {
                         method: 'POST',
@@ -2116,6 +2272,7 @@ var ConfigEditor = {
             formData.append('update_days', sub.update_days || '');
             formData.append('update_hour', sub.update_hour || '');
             formData.append('param', sub.param || '');
+            formData.append('config', self.parseOverwriteConfigValue(sub.config).join('\n'));
             formData.append('order', idx);
             reqs.push(fetch('/cgi-bin/luci/admin/services/openclash/overwrite_subscribe_info', {
                 method: 'POST',
@@ -2127,12 +2284,225 @@ var ConfigEditor = {
         });
     },
 
+    getOverwriteConfigFiles: function() {
+        var rawList = [];
+        if (window.configFiles && Array.isArray(window.configFiles)) {
+            rawList = window.configFiles;
+        } else if (window.ConfigFileManager && Array.isArray(window.ConfigFileManager.configList)) {
+            rawList = window.ConfigFileManager.configList;
+        }
+
+        return rawList.map(function(file) {
+            if (typeof file === 'string') {
+                return {
+                    name: file,
+                    path: file
+                };
+            }
+            return {
+                name: file.name || file.filename || file.path || '',
+                path: file.path || file.filepath || file.name || ''
+            };
+        }).filter(function(file) {
+            return !!file.path;
+        });
+    },
+
+    parseOverwriteConfigValue: function(value) {
+        if (!value) return [];
+        if (Array.isArray(value)) {
+            return value.filter(function(item) { return !!item; });
+        }
+        return String(value).split(/[\r\n,;]+/).map(function(item) {
+            return item.trim();
+        }).filter(function(item) {
+            return !!item;
+        });
+    },
+
+    renderOverwriteConfigDropdown: function(configValue, dropdownId) {
+        var files = this.getOverwriteConfigFiles();
+        var selected = this.parseOverwriteConfigValue(configValue);
+        var selectedMap = {};
+        selected.forEach(function(item) {
+            selectedMap[item] = true;
+        });
+
+        if (!selected.length) {
+            selectedMap['all'] = true;
+        }
+
+        var allChecked = !!selectedMap['all'];
+
+        var allOptionHtml = `
+            <label class="overwrite-config-option${allChecked ? ' selected' : ''}" data-path="all" data-all-option="1">
+                <span class="overwrite-config-option-left">
+                    <input type="checkbox" value="all"${allChecked ? ' checked' : ''}>
+                    <span class="overwrite-config-option-name" title="<%:Use For All Config File%>"><%:Use For All Config File%></span>
+                </span>
+                <span class="overwrite-config-option-state">${allChecked ? '✓' : ''}</span>
+            </label>
+        `;
+
+        var fileOptionsHtml = files.length ? files.map(function(file) {
+            var checked = (!allChecked && (selectedMap[file.path] || selectedMap[file.name])) ? ' checked' : '';
+            var selectedClass = checked ? ' selected' : '';
+            var disabledClass = allChecked ? ' disabled-by-all' : '';
+            var stateText = checked ? '✓' : '';
+            var disabled = allChecked;
+            return `
+                <label class="overwrite-config-option${selectedClass}${disabledClass}" data-path="${file.path}">
+                    <span class="overwrite-config-option-left">
+                        <input type="checkbox" value="${file.path}"${checked}${disabled ? ' disabled' : ''}>
+                        <span class="overwrite-config-option-name" title="${file.name}">${file.name}</span>
+                    </span>
+                    <span class="overwrite-config-option-state">${stateText}</span>
+                </label>
+            `;
+        }).join('') : '<div class="overwrite-config-option"><span class="overwrite-config-option-name"><%:No config files found%></span></div>';
+
+        var optionsHtml = allOptionHtml + fileOptionsHtml;
+
+        return `
+            <div class="overwrite-config-dropdown form-select-wrapper" id="${dropdownId}">
+                <button type="button" class="overwrite-config-dropdown-btn form-select">
+                    <span class="overwrite-config-dropdown-text"><%:Use For All Config File%></span>
+                    <span class="overwrite-config-dropdown-arrow"></span>
+                </button>
+                <div class="overwrite-config-dropdown-panel">
+                    ${optionsHtml}
+                </div>
+            </div>
+        `;
+    },
+
+    updateOverwriteConfigDropdownLabel: function(dropdown) {
+        if (!dropdown) return;
+        var textEl = dropdown.querySelector('.overwrite-config-dropdown-text');
+        if (!textEl) return;
+        var checked = dropdown.querySelectorAll('.overwrite-config-option input[type="checkbox"]:checked');
+        if (!checked.length) {
+            textEl.textContent = '<%:Use For All Config File%>';
+            return;
+        }
+        if (checked.length === 1) {
+            var oneName = checked[0].closest('.overwrite-config-option').querySelector('.overwrite-config-option-name');
+            textEl.textContent = oneName ? oneName.textContent : '<%:1 file selected%>';
+            return;
+        }
+        textEl.textContent = checked.length + ' <%:files selected%>';
+    },
+
+    bindOverwriteConfigDropdown: function(container) {
+        if (!container || container.dataset.inited === '1') return;
+        container.dataset.inited = '1';
+
+        var self = this;
+        var btn = container.querySelector('.overwrite-config-dropdown-btn');
+        var panel = container.querySelector('.overwrite-config-dropdown-panel');
+
+        function syncAllExclusiveState() {
+            var allInput = container.querySelector('.overwrite-config-option input[type="checkbox"][value="all"]');
+            var allOption = allInput ? allInput.closest('.overwrite-config-option') : null;
+            var allState = allOption ? allOption.querySelector('.overwrite-config-option-state') : null;
+            var allSelected = !!(allInput && allInput.checked);
+
+            if (allOption) {
+                allOption.classList.toggle('selected', allSelected);
+            }
+            if (allState) {
+                allState.textContent = allSelected ? '✓' : '';
+            }
+
+            container.querySelectorAll('.overwrite-config-option input[type="checkbox"]').forEach(function(input) {
+                if (input.value === 'all') return;
+                var option = input.closest('.overwrite-config-option');
+                var state = option ? option.querySelector('.overwrite-config-option-state') : null;
+                if (allSelected) {
+                    input.checked = false;
+                }
+                input.disabled = allSelected;
+                if (option) {
+                    option.classList.toggle('selected', input.checked);
+                    option.classList.toggle('disabled-by-all', allSelected);
+                    option.setAttribute('aria-disabled', allSelected ? 'true' : 'false');
+                }
+                if (state) {
+                    state.textContent = input.checked ? '✓' : '';
+                }
+            });
+        }
+
+        this.updateOverwriteConfigDropdownLabel(container);
+        syncAllExclusiveState();
+        this.updateOverwriteConfigDropdownLabel(container);
+
+        if (btn && !btn.disabled) {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                container.classList.toggle('open');
+            });
+        }
+
+        container.querySelectorAll('.overwrite-config-option input[type="checkbox"]').forEach(function(input) {
+            input.addEventListener('change', function() {
+                if (input.value === 'all') {
+                    syncAllExclusiveState();
+                } else if (input.checked) {
+                    var allInput = container.querySelector('.overwrite-config-option input[type="checkbox"][value="all"]');
+                    if (allInput) {
+                        allInput.checked = false;
+                    }
+                    syncAllExclusiveState();
+                }
+
+                var option = input.closest('.overwrite-config-option');
+                var state = option ? option.querySelector('.overwrite-config-option-state') : null;
+                if (option) {
+                    option.classList.toggle('selected', input.checked);
+                }
+                if (state) {
+                    state.textContent = input.checked ? '✓' : '';
+                }
+                self.updateOverwriteConfigDropdownLabel(container);
+            });
+        });
+
+        if (panel) {
+            panel.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
+
+        document.addEventListener('click', function(e) {
+            if (!container.contains(e.target)) {
+                container.classList.remove('open');
+            }
+        });
+    },
+
+    getOverwriteConfigSelection: function(root, dropdownId) {
+        var dropdown = root.querySelector('#' + dropdownId);
+        if (!dropdown) return [];
+        var selected = Array.from(dropdown.querySelectorAll('.overwrite-config-option input[type="checkbox"]:checked')).map(function(input) {
+            return input.value;
+        }).filter(function(value) {
+            return !!value;
+        });
+        if (selected.indexOf('all') !== -1) {
+            return ['all'];
+        }
+        return selected;
+    },
+
     renderOverwriteSubForm: function(options) {
         var name = options.name || '';
         var sub = options.sub || {};
         var readonly = !!options.readonly;
         var showTabs = !!options.showTabs;
         var activeTab = options.activeTab || 'file';
+        var fileConfigDropdown = this.renderOverwriteConfigDropdown(sub.config || '', 'overwrite-upload-config-dropdown');
+        var subscribeConfigDropdown = this.renderOverwriteConfigDropdown(sub.config || '', 'overwrite-subscribe-config-dropdown');
 
         var tabsHtml = showTabs ? `
             <div class="upload-mode-selector">
@@ -2160,6 +2530,10 @@ var ConfigEditor = {
 
         var fileContent = `
             <form id="overwrite-upload-form-file" style="display:${activeTab==='file'?'block':'none'};">
+                <div class="form-group" style="margin-bottom:20px;">
+                    <label for="overwrite-upload-config"><%:Config File%>:</label>
+                    ${fileConfigDropdown}
+                </div>
                 <div class="upload-zone" id="overwrite-upload-zone">
                     <div class="upload-icon">
                         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
@@ -2186,6 +2560,10 @@ var ConfigEditor = {
                 <div class="form-group">
                     <label><%:File Name%>:</label>
                     <input type="text" class="form-input" name="filename" id="overwrite-subscribe-filename" value="${name}" ${readonly ? 'readonly' : ''} placeholder="<%:Please enter a filename%>">
+                </div>
+                <div class="form-group">
+                    <label for="overwrite-subscribe-config"><%:Config File%>:</label>
+                    ${subscribeConfigDropdown}
                 </div>
                 <div class="form-group">
                     <label><%:Type%>:</label>
@@ -2298,6 +2676,9 @@ var ConfigEditor = {
         overlay.appendChild(model);
         ocDiv.appendChild(overlay);
         document.body.appendChild(ocDiv);
+
+        this.bindOverwriteConfigDropdown(model.querySelector('#overwrite-upload-config-dropdown'));
+        this.bindOverwriteConfigDropdown(model.querySelector('#overwrite-subscribe-config-dropdown'));
 
         var tabFile = model.querySelector('#overwrite-upload-mode-file');
         var tabSub = model.querySelector('#overwrite-upload-mode-subscribe');
@@ -2439,11 +2820,13 @@ var ConfigEditor = {
                     var reader = new FileReader();
                     reader.onload = function(e) {
                         var fileContent = e.target.result;
+                        var selectedConfigPaths = self.getOverwriteConfigSelection(model, 'overwrite-upload-config-dropdown');
                         var formData = new FormData();
                         formData.append('filename', filename);
                         formData.append('config_file', fileContent);
                         formData.append('order', self.overwriteFileCardCount + 1);
                         formData.append('enable', '0');
+                        formData.append('config', selectedConfigPaths.join('\n'));
 
                         fetch('/cgi-bin/luci/admin/services/openclash/upload_overwrite', {
                             method: 'POST',
@@ -2479,6 +2862,7 @@ var ConfigEditor = {
                 var update_hour = form.querySelector('#overwrite-subscribe-update-hour').value;
                 var type = form.querySelector('#overwrite-subscribe-type').value;
                 var param = form.querySelector('#overwrite-subscribe-param').value.trim();
+                var selectedConfigPaths = self.getOverwriteConfigSelection(model, 'overwrite-subscribe-config-dropdown');
                 if (!filename) {
                     alert('<%:Please enter a filename%>');
                     return;
@@ -2501,6 +2885,7 @@ var ConfigEditor = {
                 formData.append('param', param);
                 formData.append('order', self.overwriteFileCardCount + 1);
                 formData.append('enable', '0');
+                formData.append('config', selectedConfigPaths.join('\n'));
                 if (type === 'http') {
                     formData.append('url', url);
                     formData.append('update_days', update_days);
@@ -2603,6 +2988,8 @@ var ConfigEditor = {
         ocDiv.appendChild(overlay);
         document.body.appendChild(ocDiv);
 
+        this.bindOverwriteConfigDropdown(model.querySelector('#overwrite-subscribe-config-dropdown'));
+
         var typeSelect = model.querySelector('#overwrite-subscribe-type');
         var urlGroup = model.querySelector('#overwrite-subscribe-url-group');
         var updateGroup = model.querySelector('#overwrite-subscribe-update-group');
@@ -2663,6 +3050,7 @@ var ConfigEditor = {
             var type = form.querySelector('#overwrite-subscribe-type').value;
             var url = form.querySelector('#overwrite-subscribe-url').value.trim();
             var param = form.querySelector('#overwrite-subscribe-param').value.trim();
+            var selectedConfigPaths = self.getOverwriteConfigSelection(model, 'overwrite-subscribe-config-dropdown');
 
             if (!newName) {
                 alert('<%:Please enter a filename%>');
@@ -2689,6 +3077,8 @@ var ConfigEditor = {
                 formData.delete('update_days');
                 formData.delete('update_hour');
             }
+            formData.delete('config');
+            formData.append('config', selectedConfigPaths.join('\n'));
             if (newName !== name) {
                 formData.append('old_filename', name);
             }
@@ -2761,6 +3151,13 @@ var ConfigEditor = {
         }
         this.hideMergeView();
         this.hide();
+
+        if (window.OverwriteSubscribeManager && typeof window.OverwriteSubscribeManager.load === 'function') {
+            window.OverwriteSubscribeManager.load(true);
+        }
+        try {
+            window.dispatchEvent(new Event('oc-overwrite-updated'));
+        } catch (e) {}
     },
 
     updateZoom: function(newZoom) {
@@ -2800,6 +3197,29 @@ var ConfigEditor = {
         this.updateZoom(100);
     },
 
+    isPointOnTextContent: function(el, clientX, clientY) {
+        if (!el) return false;
+
+        var textWalker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false);
+        var textNode;
+        while ((textNode = textWalker.nextNode())) {
+            if (!textNode.nodeValue || !textNode.nodeValue.trim()) {
+                continue;
+            }
+            var range = document.createRange();
+            range.selectNodeContents(textNode);
+            var rects = range.getClientRects();
+            for (var i = 0; i < rects.length; i++) {
+                var rect = rects[i];
+                if (clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    },
+
     makeDraggable: function() {
         var self = this;
         var header = this.model.querySelector('.config-editor-header');
@@ -2807,7 +3227,12 @@ var ConfigEditor = {
         var isDragging = false;
 
         header.addEventListener('mousedown', function(e) {
-            if (e.target.closest('.config-editor-actions')) {
+            var target = e.target && e.target.nodeType === 1 ? e.target : e.target.parentElement;
+            if (target && target.closest('.config-editor-actions')) {
+                return;
+            }
+            var textEl = target ? target.closest('#editTitle, #config-file-name') : null;
+            if (textEl && self.isPointOnTextContent(textEl, e.clientX, e.clientY)) {
                 return;
             }
 
@@ -2864,7 +3289,13 @@ var ConfigEditor = {
         }
 
         header.addEventListener('touchstart', function(e) {
-            if (e.target.closest('.config-editor-actions')) {
+            var target = e.target && e.target.nodeType === 1 ? e.target : e.target.parentElement;
+            if (target && target.closest('.config-editor-actions')) {
+                return;
+            }
+            var touch = e.touches && e.touches[0] ? e.touches[0] : null;
+            var textEl = target ? target.closest('#editTitle, #config-file-name') : null;
+            if (touch && textEl && self.isPointOnTextContent(textEl, touch.clientX, touch.clientY)) {
                 return;
             }
             if (e.touches.length !== 1) return;

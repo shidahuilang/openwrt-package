@@ -8,6 +8,7 @@
     --text-primary: #374151;
     --text-secondary: #64748b;
     --text-title: #4d4d4d;
+    --select-hover: #ebebeb;
     --border-color: #b1b1b1;
     --border-light: #e2e8f0;
     --hover-bg: #f8fafc;
@@ -44,6 +45,7 @@
     --text-primary: #ebebeb;
     --text-secondary: #d0cfcf;
     --text-title: #e5e7eb;
+    --select-hover: #ebebeb;
     --border-color: #939393;
     --border-light: #6b7280;
     --hover-bg: #374151;
@@ -911,7 +913,7 @@
 .oc .subscription-info-details {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 5px;
     flex: 1;
     min-height: 80px;
     padding-left: 20px;
@@ -962,20 +964,115 @@
     display: block;
 }
 
+.oc .subscription-actions-row {
+    width: 100%;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+}
+
+.oc .subscription-overwrite-tags {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    flex: 1;
+    margin-right: auto;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+}
+
+.oc .subscription-overwrite-tags::-webkit-scrollbar {
+    display: none;
+}
+
+.oc .subscription-overwrite-tags.drag-scroll-enabled {
+    cursor: grab;
+    user-select: none;
+}
+
+.oc .subscription-overwrite-tags.dragging {
+    cursor: grabbing;
+}
+
+.oc .subscription-overwrite-tag {
+    height: 28px;
+    width: fit-content;
+    padding: 0 8px;
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-sm);
+    background: var(--bg-white);
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    word-break: keep-all;
+    line-height: 1;
+    box-sizing: border-box;
+    transition: all var(--transition-fast);
+    box-shadow: var(--shadow-sm);
+}
+
+.oc .subscription-overwrite-tag.type-http {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.oc .subscription-overwrite-tag.type-file {
+    color: var(--success-color);
+    border-color: var(--success-color);
+}
+
+.oc .subscription-overwrite-tag.type-unknown {
+    color: var(--warning-color);
+    border-color: var(--warning-color);
+}
+
+.oc .subscription-action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
 .oc .subscription-info-text {
     font-size: 13px;
     color: var(--text-secondary);
     line-height: 1.4;
-    text-overflow: ellipsis;
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
     white-space: nowrap;
     display: block;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    cursor: default;
+    user-select: text;
+    -webkit-overflow-scrolling: touch;
+}
+
+.oc .subscription-info-text::-webkit-scrollbar {
+    display: none;
+}
+
+.oc .subscription-info-text.is-draggable {
+    cursor: grab;
+    user-select: none;
+}
+
+.oc .subscription-info-text.dragging {
+    cursor: grabbing;
 }
 
 /* Multiple Providers Grid Layout */
 .oc .subscription-providers-grid {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     padding: 8px 0;
     max-width: 100%;
     width: 100%;
@@ -1528,6 +1625,13 @@
         min-width: 24px;
     }
 
+    .oc .subscription-overwrite-tag {
+        height: 24px;
+        width: fit-content;
+        font-size: 10px;
+        padding: 0 6px;
+    }
+
     .oc .icon-btn svg {
         width: 12px !important;
         height: 12px !important;
@@ -1906,21 +2010,24 @@
                                                     </div>
                                                     <div id="subscription-info-text" class="subscription-info-text"><%:Collecting data...%></div>
                                                 </div>
-                                                <div class="card-actions">
-                                                    <button type="button" class="icon-btn action-btn" id="refresh-subscription" title="<%:Refresh%>" onclick="return refreshSubscriptionInfo()">
-                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                            <path d="M23 4v6h-6"></path>
-                                                            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-                                                        </svg>
-                                                    </button>
-                                                    <button type="button" class="icon-btn action-btn" id="config-subscription-url" title="<%:Specify URL%>" onclick="return setSubscriptionUrl()">
-                                                        <svg width="14" height="14" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="4">
-                                                            <path d="M4 6H44V36H29L24 41L19 36H4V6Z"/>
-                                                            <path d="M23 21H25.0025" />
-                                                            <path d="M33.001 21H34.9999"/>
-                                                            <path d="M13.001 21H14.9999"/>
-                                                        </svg>
-                                                    </button>
+                                                <div class="card-actions subscription-actions-row">
+                                                    <div id="subscription-overwrite-tags" class="subscription-overwrite-tags" style="display: none;"></div>
+                                                    <div class="subscription-action-buttons">
+                                                        <button type="button" class="icon-btn action-btn" id="refresh-subscription" title="<%:Refresh%>" onclick="return refreshSubscriptionInfo()">
+                                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                                <path d="M23 4v6h-6"></path>
+                                                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                                                            </svg>
+                                                        </button>
+                                                        <button type="button" class="icon-btn action-btn" id="config-subscription-url" title="<%:Specify URL%>" onclick="return setSubscriptionUrl()">
+                                                            <svg width="14" height="14" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="4">
+                                                                <path d="M4 6H44V36H29L24 41L19 36H4V6Z"/>
+                                                                <path d="M23 21H25.0025" />
+                                                                <path d="M33.001 21H34.9999"/>
+                                                                <path d="M13.001 21H14.9999"/>
+                                                            </svg>
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -2528,6 +2635,7 @@
 
                 this.rawCurrentConfig = currentConfigFile;
                 this.configList = configFiles;
+                window.configFiles = configFiles;
                 this.currentConfig = currentConfigFile;
                 this.currentConfigIndex = -1;
 
@@ -2829,12 +2937,14 @@
                     }
                     SubscriptionManager.getSubscriptionInfo();
                 }
+                OverwriteSubscribeManager.render(OverwriteSubscribeManager.data);
             } else {
                 this.currentConfig = '';
                 this.currentConfigIndex = -1;
                 SubscriptionManager.currentConfigFile = '';
                 this.hideSubscriptionDisplay();
                 this.updateNavigationArrows();
+                OverwriteSubscribeManager.render(OverwriteSubscribeManager.data);
             }
         },
 
@@ -2913,6 +3023,8 @@
                 SubscriptionManager.getSubscriptionInfo();
             }
 
+            OverwriteSubscribeManager.render(OverwriteSubscribeManager.data);
+
             return true;
         },
 
@@ -2936,14 +3048,112 @@
         updateTimer: null,
         isInitialized: false,
 
+        enableOverflowDrag: function(element) {
+            if (!element) return;
+
+            function updateDragState() {
+                var isOverflowing = element.scrollWidth > element.clientWidth + 1;
+                if (isOverflowing) {
+                    element.classList.add('is-draggable');
+                } else {
+                    element.classList.remove('is-draggable');
+                    element.classList.remove('dragging');
+                    element.scrollLeft = 0;
+                }
+            }
+
+            if (!element._dragBound) {
+                var isDragging = false;
+                var startX = 0;
+                var startScrollLeft = 0;
+                var touchIdentifier = null;
+
+                function endDrag() {
+                    if (!isDragging) return;
+                    isDragging = false;
+                    touchIdentifier = null;
+                    element.classList.remove('dragging');
+                }
+
+                element.addEventListener('mousedown', function(e) {
+                    if (!element.classList.contains('is-draggable')) return;
+                    isDragging = true;
+                    startX = e.pageX - element.getBoundingClientRect().left;
+                    startScrollLeft = element.scrollLeft;
+                    element.classList.add('dragging');
+                    e.preventDefault();
+                });
+
+                element.addEventListener('mousemove', function(e) {
+                    if (!isDragging) return;
+                    var x = e.pageX - element.getBoundingClientRect().left;
+                    var walk = (x - startX) * 1.2;
+                    element.scrollLeft = startScrollLeft - walk;
+                    e.preventDefault();
+                });
+
+                element.addEventListener('mouseleave', function() {
+                    endDrag();
+                });
+
+                element.addEventListener('mouseup', function() {
+                    endDrag();
+                });
+
+                element.addEventListener('touchstart', function(e) {
+                    if (!element.classList.contains('is-draggable')) return;
+                    if (!e.touches || e.touches.length !== 1) return;
+
+                    var touch = e.touches[0];
+                    isDragging = true;
+                    touchIdentifier = touch.identifier;
+                    startX = touch.pageX - element.getBoundingClientRect().left;
+                    startScrollLeft = element.scrollLeft;
+                    element.classList.add('dragging');
+                }, { passive: true });
+
+                element.addEventListener('touchmove', function(e) {
+                    if (!isDragging || !e.touches || e.touches.length === 0) return;
+
+                    var touch = null;
+                    for (var i = 0; i < e.touches.length; i++) {
+                        if (e.touches[i].identifier === touchIdentifier) {
+                            touch = e.touches[i];
+                            break;
+                        }
+                    }
+
+                    if (!touch) return;
+
+                    var x = touch.pageX - element.getBoundingClientRect().left;
+                    var walk = (x - startX) * 1.2;
+                    element.scrollLeft = startScrollLeft - walk;
+                    e.preventDefault();
+                }, { passive: false });
+
+                element.addEventListener('touchend', function() {
+                    endDrag();
+                });
+
+                element.addEventListener('touchcancel', function() {
+                    endDrag();
+                });
+
+                element.addEventListener('dragstart', function(e) {
+                    e.preventDefault();
+                });
+
+                element._dragBound = true;
+            }
+
+            updateDragState();
+        },
+
         init: function() {
             if (this.isInitialized) return;
             this.isInitialized = true;
-
-            setTimeout(function() {
-                SubscriptionManager.loadSubscriptionInfo();
-                SubscriptionManager.startAutoUpdate();
-            }, 500);
+            SubscriptionManager.loadSubscriptionInfo();
+            SubscriptionManager.startAutoUpdate();
         },
 
         loadSubscriptionInfo: function() {
@@ -3023,17 +3233,18 @@
                             localStorage.setItem('sub_info_' + filename, JSON.stringify(status));
                             if (status.providers && status.providers.length === 0) {
                                 SubscriptionManager.showNoInfo();
-                                return;
                             }
                             SubscriptionManager.displaySubscriptionInfo(status);
-                            return;
                         }
                     } else {
                         needsErrorHandling = true;
+                        if (!cachedData) {
+                            SubscriptionManager.showNoInfo();
+                        }
                     }
 
                     if (needsErrorHandling) {
-                        SubscriptionManager.handleError(cachedData);
+                        SubscriptionManager.handleError(status);
                     }
                 }, true);
             }
@@ -3112,6 +3323,7 @@
 
             infoText.textContent = infoString;
             infoText.title = tooltipString;
+            this.enableOverflowDrag(infoText);
         },
 
         displayMultipleProviders: function(providers, progressSection) {
@@ -3169,6 +3381,7 @@
 
                 infoText.textContent = infoString;
                 infoText.title = tooltipString;
+                SubscriptionManager.enableOverflowDrag(infoText);
 
                 card.appendChild(infoText);
                 progressSection.appendChild(card);
@@ -3298,21 +3511,23 @@
             }
         },
 
-        handleError: function(cachedData) {
-            if (!cachedData) {
-                this.showNoInfo();
-            }
-
+        handleError: function(status) {
             if (this.retryCount >= this.maxRetries) {
                 this.retryCount = 0;
-                if (this.currentConfigFile && cachedData) {
-                    localStorage.removeItem('sub_info_' + this.extractFilename(this.currentConfigFile));
+                if (this.currentConfigFile && status && status.providers) {
+                    localStorage.setItem('sub_info_' + filename, JSON.stringify(status));
+                }
+                if (!status.providers || status.providers.length === 0) {
+                    this.showNoInfo();
+                }
+                if (status.providers && status.providers.length > 0) {
+                    SubscriptionManager.displaySubscriptionInfo(status);
                 }
             } else {
                 this.retryCount++;
                 setTimeout(function() {
                     SubscriptionManager.getSubscriptionInfo();
-                }, 15000);
+                }, 5000);
             }
         },
 
@@ -3475,6 +3690,251 @@
                     self.handleSubURL(status);
                 }
             });
+        }
+    };
+
+    var OverwriteSubscribeManager = {
+        container: null,
+        data: null,
+        isLoading: false,
+        _dragBound: false,
+        _isDragging: false,
+        _dragStartX: 0,
+        _dragStartScrollLeft: 0,
+        _touchIdentifier: null,
+
+        init: function() {
+            this.container = document.getElementById('subscription-overwrite-tags');
+            if (!this.container) return;
+            this.bindDragScroll();
+            this.load(false);
+        },
+
+        hasOverflow: function() {
+            if (!this.container) return false;
+            return this.container.scrollWidth > this.container.clientWidth + 1;
+        },
+
+        updateDragScrollState: function() {
+            if (!this.container) return;
+            if (this.hasOverflow()) {
+                this.container.classList.add('drag-scroll-enabled');
+            } else {
+                this.container.classList.remove('drag-scroll-enabled');
+                this.container.classList.remove('dragging');
+            }
+        },
+
+        bindDragScroll: function() {
+            if (!this.container || this._dragBound) {
+                return;
+            }
+
+            var self = this;
+
+            function endDrag() {
+                if (!self._isDragging) return;
+                self._isDragging = false;
+                self._touchIdentifier = null;
+                self.container.classList.remove('dragging');
+            }
+
+            this.container.addEventListener('mousedown', function(e) {
+                if (!self.hasOverflow()) {
+                    return;
+                }
+                self._isDragging = true;
+                self._dragStartX = e.pageX - self.container.offsetLeft;
+                self._dragStartScrollLeft = self.container.scrollLeft;
+                self.container.classList.add('dragging');
+                e.preventDefault();
+            });
+
+            this.container.addEventListener('mousemove', function(e) {
+                if (!self._isDragging) {
+                    return;
+                }
+                var x = e.pageX - self.container.offsetLeft;
+                var walk = (x - self._dragStartX) * 1.5;
+                self.container.scrollLeft = self._dragStartScrollLeft - walk;
+                e.preventDefault();
+            });
+
+            this.container.addEventListener('mouseleave', function() {
+                endDrag();
+            });
+
+            this.container.addEventListener('mouseup', function() {
+                endDrag();
+            });
+
+            this.container.addEventListener('touchstart', function(e) {
+                if (!self.hasOverflow() || !e.touches || e.touches.length !== 1) {
+                    return;
+                }
+                var touch = e.touches[0];
+                self._isDragging = true;
+                self._touchIdentifier = touch.identifier;
+                self._dragStartX = touch.pageX - self.container.offsetLeft;
+                self._dragStartScrollLeft = self.container.scrollLeft;
+                self.container.classList.add('dragging');
+            }, { passive: true });
+
+            this.container.addEventListener('touchmove', function(e) {
+                if (!self._isDragging || !e.touches || e.touches.length === 0) {
+                    return;
+                }
+
+                var touch = null;
+                for (var i = 0; i < e.touches.length; i++) {
+                    if (e.touches[i].identifier === self._touchIdentifier) {
+                        touch = e.touches[i];
+                        break;
+                    }
+                }
+                if (!touch) {
+                    return;
+                }
+
+                var x = touch.pageX - self.container.offsetLeft;
+                var walk = (x - self._dragStartX) * 1.5;
+                self.container.scrollLeft = self._dragStartScrollLeft - walk;
+                e.preventDefault();
+            }, { passive: false });
+
+            this.container.addEventListener('touchend', function() {
+                endDrag();
+            });
+
+            this.container.addEventListener('touchcancel', function() {
+                endDrag();
+            });
+
+            this.container.addEventListener('dragstart', function(e) {
+                e.preventDefault();
+            });
+
+            this._dragBound = true;
+        },
+
+        load: function(force) {
+            if (!this.container || this.isLoading) {
+                return;
+            }
+
+            this.isLoading = true;
+            var self = this;
+
+            StateManager.cachedXHRGet('<%=luci.dispatcher.build_url("admin", "services", "openclash", "overwrite_subscribe_info")%>', function(x, status) {
+                self.isLoading = false;
+                if (x && x.status == 200 && status && status.status === 'success' && status.data) {
+                    self.data = status.data;
+                    self.render(status.data);
+                } else {
+                    self.render(null);
+                }
+            }, !!force);
+        },
+
+        getTypeClass: function(type) {
+            var normalizedType = String(type || '').toLowerCase();
+            if (normalizedType === 'http') return 'type-http';
+            if (normalizedType === 'file') return 'type-file';
+            return 'type-unknown';
+        },
+
+        parseModuleConfigList: function(configValue) {
+            if (!Array.isArray(configValue)) {
+                return [];
+            }
+            return configValue.map(function(item) {
+                return String(item || '').trim();
+            }).filter(function(item) {
+                return !!item;
+            });
+        },
+
+        isModuleForCurrentConfig: function(moduleInfo, currentConfigPath) {
+            var configList = this.parseModuleConfigList(moduleInfo ? moduleInfo.config : null);
+            if (!configList.length) {
+                return true;
+            }
+
+            if (configList.indexOf('all') !== -1) {
+                return true;
+            }
+
+            var fullPath = String(currentConfigPath || '').trim();
+            if (!fullPath) {
+                return false;
+            }
+
+            return configList.indexOf(fullPath) !== -1;
+        },
+
+        getEnabledModules: function(data) {
+            if (!data || typeof data !== 'object') {
+                return [];
+            }
+
+            var currentConfigPath = ConfigFileManager.getCurrentConfig() || ConfigFileManager.getSelectedConfig();
+
+            var modules = [];
+            for (var moduleName in data) {
+                if (!Object.prototype.hasOwnProperty.call(data, moduleName)) {
+                    continue;
+                }
+
+                var moduleInfo = data[moduleName] || {};
+                if (parseInt(moduleInfo.enable, 10) === 1 && this.isModuleForCurrentConfig(moduleInfo, currentConfigPath)) {
+                    modules.push({
+                        name: moduleName,
+                        type: moduleInfo.type || 'unknown',
+                        order: parseInt(moduleInfo.order, 10) || 0
+                    });
+                }
+            }
+
+            modules.sort(function(a, b) {
+                if (a.order === b.order) {
+                    return String(a.name).localeCompare(String(b.name));
+                }
+                return a.order - b.order;
+            });
+
+            return modules;
+        },
+
+        render: function(data) {
+            if (!this.container) return;
+
+            var enabledModules = this.getEnabledModules(data);
+            this.container.innerHTML = '';
+
+            if (enabledModules.length === 0) {
+                this.container.style.display = 'none';
+                this.updateDragScrollState();
+                return;
+            }
+
+            for (var i = 0; i < enabledModules.length; i++) {
+                var moduleItem = enabledModules[i];
+                var tag = document.createElement('span');
+                tag.className = 'subscription-overwrite-tag ' + this.getTypeClass(moduleItem.type);
+                tag.title = moduleItem.name;
+                tag.textContent = moduleItem.name;
+                if (moduleItem.type == 'http') {
+                    tag.title += ' [<%:HTTP Module%>]';
+                } else if (moduleItem.type == 'file') {
+                    tag.title += ' [<%:File Module%>]';
+                } else {
+                    tag.title += ' [<%:Unknown%>]';
+                }
+                this.container.appendChild(tag);
+            }
+
+            this.container.style.display = 'flex';
+            this.updateDragScrollState();
         }
     };
 
@@ -4029,7 +4489,12 @@
         DarkModeDetector.init();
         ConfigFileManager.init();
 
+        window.addEventListener('oc-overwrite-updated', function() {
+            OverwriteSubscribeManager.load(true);
+        });
+
         setTimeout(function() {
+            OverwriteSubscribeManager.init();
             SubscriptionManager.init();
         }, 300);
 
@@ -4745,7 +5210,7 @@
     }
 
     function telegrampage() {
-        url6 = 'https://t.me/ctcgfw_openwrt_discuss';
+        url6 = 'https://t.me/openclash_group';
         winOpen(url6);
     }
 
@@ -5326,6 +5791,7 @@
         var filename = SubscriptionManager.extractFilename(currentConfig);
         localStorage.removeItem('sub_info_' + filename);
         SubscriptionManager.getSubscriptionInfo();
+        OverwriteSubscribeManager.load(true);
         return false;
     }
 

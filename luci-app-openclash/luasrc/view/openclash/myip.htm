@@ -933,7 +933,7 @@
         }
         else {
             if (!refresh_http) {
-                refresh_http = setInterval("HTTP.runcheck()", Math.floor(Math.random()*(10-5+1)+5)*1000);
+                refresh_http = setInterval("HTTP.runcheck()", Math.floor(Math.random()*(20-5+1)+5)*1000);
             }
             if (!refresh_ip) {
                 if (use_router_mode) {
@@ -1074,7 +1074,7 @@
         get_router_ip_info();
         HTTP.runcheck();
 
-        refresh_http = setInterval("HTTP.runcheck()", Math.floor(Math.random()*(10-5+1)+5)*1000);
+        refresh_http = setInterval("HTTP.runcheck()", Math.floor(Math.random()*(20-5+1)+5)*1000);
         if (localStorage.getItem('privacy_my_ip') !== 'true') {
             refresh_ip = setInterval("get_router_ip_info()", Math.floor(Math.random()*(40-15+1)+15)*1000);
         }
@@ -1097,7 +1097,7 @@
         myip_Load();
         HTTP.runcheck();
 
-        refresh_http = setInterval("HTTP.runcheck()", Math.floor(Math.random()*(10-5+1)+5)*1000);
+        refresh_http = setInterval("HTTP.runcheck()", Math.floor(Math.random()*(20-5+1)+5)*1000);
         if (localStorage.getItem('privacy_my_ip') !== 'true') {
             refresh_ip = setInterval("myip_Load()", Math.floor(Math.random()*(40-15+1)+15)*1000);
         }
@@ -1249,7 +1249,7 @@
         if (use_router_mode) {
             get_router_ip_info();
             HTTP.runcheck();
-            refresh_http = setInterval("HTTP.runcheck()", Math.floor(Math.random()*(10-5+1)+5)*1000);
+            refresh_http = setInterval("HTTP.runcheck()", Math.floor(Math.random()*(20-5+1)+5)*1000);
             if (localStorage.getItem('privacy_my_ip') !== 'true') {
                 refresh_ip = setInterval("get_router_ip_info()", Math.floor(Math.random()*(40-15+1)+15)*1000);
             }
@@ -1268,7 +1268,7 @@
             myip_Load();
             HTTP.runcheck();
 
-            refresh_http = setInterval("HTTP.runcheck()", Math.floor(Math.random()*(10-5+1)+5)*1000);
+            refresh_http = setInterval("HTTP.runcheck()", Math.floor(Math.random()*(20-5+1)+5)*1000);
             if (localStorage.getItem('privacy_my_ip') !== 'true') {
                 refresh_ip = setInterval("myip_Load()", Math.floor(Math.random()*(40-15+1)+15)*1000);
             }

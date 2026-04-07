@@ -204,14 +204,14 @@ end
 btnis.write=function(a,t)
 	uci:set("openclash", "config", "config_path", "/etc/openclash/config/"..e[t].name)
 	uci:commit("openclash")
-	HTTP.redirect(luci.dispatcher.build_url("admin", "services", "openclash", "config"))
+	HTTP.redirect(DISP.build_url("admin", "services", "openclash", "config"))
 end
 
 btned=tb:option(Button,"edit",translate("Edit"))
 btned.inputstyle="apply"
 btned.write=function(a,t)
-	local file_path = "etc/openclash/config/" .. fs.basename(e[t].name)
-	HTTP.redirect(DISP.build_url("admin", "services", "openclash", "other-file-edit", "config", "%s") % file_path)
+	local file_path = "/etc/openclash/config/" .. fs.basename(e[t].name)
+	HTTP.redirect(DISP.build_url("admin", "services", "openclash", "other-file-edit", "config") .. "?file=" .. HTTP.urlencode(file_path))
 end
 
 btnrn=tb:option(DummyValue,"/etc/openclash/config/",translate("Rename"))
@@ -262,8 +262,8 @@ btnapply.write = function(self, t)
 	local action = self.map:formvalue("cbid." .. self.map.config .. "." .. t .. ".actions")
 
 	if action == "servers_manage" then
-		local file_path = "etc/openclash/config/" .. fs.basename(e[t].name)
-		HTTP.redirect(DISP.build_url("admin", "services", "openclash", "servers", "%s") % file_path)
+		local file_path = "/etc/openclash/config/" .. fs.basename(e[t].name)
+		HTTP.redirect(DISP.build_url("admin", "services", "openclash", "servers") .. "?file=" .. HTTP.urlencode(file_path))
 	elseif action == "copy" then
 		local num = 1
 		while true do
@@ -273,7 +273,7 @@ btnapply.write = function(self, t)
 				break
 			end
 		end
-		HTTP.redirect(luci.dispatcher.build_url("admin", "services", "openclash", "config"))
+		HTTP.redirect(DISP.build_url("admin", "services", "openclash", "config"))
 	elseif action == "download" then
 		local sPath, sFile, fd, block
 		sPath = "/etc/openclash/config/"..e[t].name

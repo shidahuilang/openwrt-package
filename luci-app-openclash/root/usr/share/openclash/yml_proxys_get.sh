@@ -592,7 +592,7 @@ ruby -ryaml -rYAML -I "/usr/share/openclash" -E UTF-8 -e "
                };
             end;
 
-             #Mieru
+            #Mieru
             if x['type'] == 'mieru' then
                threads << Thread.new{
                #port-range
@@ -1138,6 +1138,19 @@ ruby -ryaml -rYAML -I "/usr/share/openclash" -E UTF-8 -e "
                            uci_commands << uci_set + 'reality_short_id=\"' + x['reality-opts']['short-id'].to_s + '\"'
                         end
                      end
+                     if x.key?('encryption') then
+                           uci_commands << uci_set + 'vless_encryption=\"' + x['encryption'].to_s + '\"'
+                     end
+                  elsif x['network'].to_s == 'xhttp'
+                     uci_commands << uci_set + 'obfs_vless=xhttp'
+                     if x.key?('xhttp-opts') then
+                        if x['xhttp-opts'].key?('path') then
+                           uci_commands << uci_set + 'xhttp_opts_path=\"' + x['xhttp-opts']['path'].to_s + '\"'
+                        end
+                        if x['xhttp-opts'].key?('host') then
+                           uci_commands << uci_set + 'xhttp_opts_host=\"' + x['xhttp-opts']['host'].to_s + '\"'
+                        end
+                     end
                   end
                end
                };
@@ -1420,6 +1433,132 @@ ruby -ryaml -rYAML -I "/usr/share/openclash" -E UTF-8 -e "
                #http-mask
                if x.key?('http-mask') then
                   uci_commands << uci_set + 'http_mask=\"' + x['http-mask'].to_s + '\"'
+               end
+               };
+            end;
+
+            if x['type'] == 'masque' then
+               threads << Thread.new{
+               #private-key
+               if x.key?('private-key') then
+                  uci_commands << uci_set + 'masque_private_key=\"' + x['private-key'].to_s + '\"'
+               end
+               };
+
+               threads << Thread.new{
+               #public-key
+               if x.key?('public-key') then
+                  uci_commands << uci_set + 'masque_public_key=\"' + x['public-key'].to_s + '\"'
+               end
+               };
+
+               threads << Thread.new{
+               #ip
+               if x.key?('ip') then
+                  uci_commands << uci_set + 'masque_ip=\"' + x['ip'].to_s + '\"'
+               end
+               };
+
+               threads << Thread.new{
+               #ipv6
+               if x.key?('ipv6') then
+                  uci_commands << uci_set + 'masque_ipv6=\"' + x['ipv6'].to_s + '\"'
+               end
+               };
+
+               threads << Thread.new{
+               #mtu
+               if x.key?('mtu') then
+                  uci_commands << uci_set + 'masque_mtu=\"' + x['mtu'].to_s + '\"'
+               end
+               };
+
+               threads << Thread.new{
+               #remote-dns-resolve
+               if x.key?('remote-dns-resolve') then
+                  uci_commands << uci_set + 'masque_remote_dns_resolve=\"' + x['remote-dns-resolve'].to_s + '\"'
+               end
+               };
+
+               threads << Thread.new{
+               #dns
+               if x.key?('dns') then
+                  dns = uci_del + 'dns >/dev/null 2>&1'
+                  system(dns)
+                  x['dns'].each{
+                  |x|
+                     uci_commands << uci_add + 'masque_dns=\"' + x.to_s + '\"'
+                  }
+                  end
+               };
+            end;
+
+            if x['type'] == 'trusttunnel' then
+               threads << Thread.new{
+               #username
+               if x.key?('username') then
+                  uci_commands << uci_set + 'trusttunnel_username=\"' + x['username'].to_s + '\"'
+               end
+               };
+
+               threads << Thread.new{
+               #password
+               if x.key?('password') then
+                  uci_commands << uci_set + 'trusttunnel_password=\"' + x['password'].to_s + '\"'
+               end
+               };
+
+               threads << Thread.new{
+               #health-check
+               if x.key?('health-check') then
+                  uci_commands << uci_set + 'trusttunnel_health_check=\"' + x['health-check'].to_s + '\"'
+               end
+               };
+
+               threads << Thread.new{
+               #quic
+               if x.key?('quic') then
+                  uci_commands << uci_set + 'trusttunnel_quic=\"' + x['quic'].to_s + '\"'
+               end
+               };
+
+               threads << Thread.new{
+               #congestion-controller
+               if x.key?('congestion-controller') then
+                  uci_commands << uci_set + 'trusttunnel_congestion_controller=\"' + x['congestion-controller'].to_s + '\"'
+               end
+               };
+
+               #alpn
+               threads << Thread.new{
+               if x.key?('alpn') then
+                  alpn = uci_del + 'alpn >/dev/null 2>&1'
+                  system(alpn)
+                  x['alpn'].each{
+                  |x|
+                     uci_commands << uci_add + 'alpn=\"' + x.to_s + '\"'
+                  }
+                  end
+               };
+
+               #sni
+               threads << Thread.new{
+               if x.key?('sni') then
+                  uci_commands << uci_set + 'sni=\"' + x['sni'].to_s + '\"'
+               end
+               };
+
+               #skip-cert-verify
+               threads << Thread.new{
+               if x.key?('skip-cert-verify') then
+                  uci_commands << uci_set + 'skip_cert_verify=\"' + x['skip-cert-verify'].to_s + '\"'
+               end
+               };
+
+               #client_fingerprint
+               threads << Thread.new{
+               if x.key?('client-fingerprint') then
+                  uci_commands << uci_set + 'client_fingerprint=\"' + x['client-fingerprint'].to_s + '\"'
                end
                };
             end;

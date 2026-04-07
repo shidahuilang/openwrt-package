@@ -166,8 +166,10 @@ if [ -f "/tmp/openclash.bak" ]; then
 	cp -rf "/tmp/openclash/." "/etc/openclash/" >/dev/null 2>&1
 	#ui
 	if [ -d "/tmp/openclash_ui/" ]; then
-		rm -rf "/usr/share/openclash/ui/" >/dev/null 2>&1
-		cp -rf "/tmp/openclash_ui/." "/usr/share/openclash/ui/" >/dev/null 2>&1
+		if [ -d "/tmp/openclash_ui/metacubexd/" ] || [ -d "/tmp/openclash_ui/zashboard/" ] || [ -d "/tmp/openclash_ui/yacd/" ] || [ -d "/tmp/openclash_ui/dashboard/" ]; then
+			rm -rf "/usr/share/openclash/ui/" >/dev/null 2>&1
+			cp -rf "/tmp/openclash_ui/." "/usr/share/openclash/ui/" >/dev/null 2>&1
+		fi
 		rm -rf "/tmp/openclash_ui/" >/dev/null 2>&1
 	fi
 	#pac

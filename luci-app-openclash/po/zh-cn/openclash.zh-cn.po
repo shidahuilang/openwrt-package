@@ -2664,8 +2664,8 @@ msgstr "TUN 接口启动失败，尝试重启内核..."
 msgid "Core Start Failed, Please Check The Log Infos!"
 msgstr "内核启动失败，请查看《内核日志》排查失败原因！"
 
-msgid "Core Status Abnormal, Please Check The Log Infos!"
-msgstr "内核状态异常，请查看《内核日志》排查异常原因！"
+msgid "Core Initial Configuration Timeout, Please Check The Log Infos!"
+msgstr "内核加载配置超时，请查看《内核日志》排查原因！"
 
 msgid "Forced Sniff Pure IP Connections"
 msgstr "强制探测（嗅探）所有纯 IP 的连接"
@@ -3780,6 +3780,12 @@ msgstr "编辑模块信息"
 msgid "Subscription"
 msgstr "订阅"
 
+msgid "HTTP Module"
+msgstr "远程模块"
+
+msgid "File Module"
+msgstr "本地模块"
+
 msgid "Overwrite Module"
 msgstr "覆写模块"
 
@@ -3842,3 +3848,18 @@ msgstr "序号"
 
 msgid "Set Custom Overwrite Script Failed,"
 msgstr "自定义覆写命令执行失败，"
+
+msgid "Load YAML Override Block"
+msgstr "加载 YAML 覆写模块"
+
+msgid "Invalid YAML Override format, skipped..."
+msgstr "无效的 YAML 覆写格式，跳过..."
+
+msgid "Parse YAML Override failed:"
+msgstr "YAML 覆写模块解析失败："
+
+msgid "YAML overwrite failed:"
+msgstr "YAML 覆写模块执行失败："
+
+msgid "files selected"
+msgstr "配置已选择"

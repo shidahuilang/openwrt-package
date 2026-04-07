@@ -186,135 +186,6 @@ yml_servers_set()
    config_get "name" "$section" "name" ""
    config_get "server" "$section" "server" ""
    config_get "port" "$section" "port" ""
-   config_get "dialer_proxy" "$section" "dialer_proxy" ""
-   config_get "cipher" "$section" "cipher" ""
-   config_get "cipher_ssr" "$section" "cipher_ssr" ""
-   config_get "password" "$section" "password" ""
-   config_get "securitys" "$section" "securitys" ""
-   config_get "udp" "$section" "udp" ""
-   config_get "obfs" "$section" "obfs" ""
-   config_get "obfs_ssr" "$section" "obfs_ssr" ""
-   config_get "obfs_param" "$section" "obfs_param" ""
-   config_get "obfs_vmess" "$section" "obfs_vmess" ""
-   config_get "obfs_trojan" "$section" "obfs_trojan" ""
-   config_get "protocol" "$section" "protocol" ""
-   config_get "protocol_param" "$section" "protocol_param" ""
-   config_get "host" "$section" "host" ""
-   config_get "mux" "$section" "mux" ""
-   config_get "custom" "$section" "custom" ""
-   config_get "tls" "$section" "tls" ""
-   config_get "skip_cert_verify" "$section" "skip_cert_verify" ""
-   config_get "path" "$section" "path" ""
-   config_get "alterId" "$section" "alterId" ""
-   config_get "uuid" "$section" "uuid" ""
-   config_get "auth_name" "$section" "auth_name" ""
-   config_get "auth_pass" "$section" "auth_pass" ""
-   config_get "psk" "$section" "psk" ""
-   config_get "obfs_snell" "$section" "obfs_snell" ""
-   config_get "snell_version" "$section" "snell_version" ""
-   config_get "sni" "$section" "sni" ""
-   config_get "alpn" "$section" "alpn" ""
-   config_get "http_path" "$section" "http_path" ""
-   config_get "keep_alive" "$section" "keep_alive" ""
-   config_get "servername" "$section" "servername" ""
-   config_get "h2_path" "$section" "h2_path" ""
-   config_get "h2_host" "$section" "h2_host" ""
-   config_get "grpc_service_name" "$section" "grpc_service_name" ""
-   config_get "ws_opts_path" "$section" "ws_opts_path" ""
-   config_get "ws_opts_headers" "$section" "ws_opts_headers" ""
-   config_get "max_early_data" "$section" "max_early_data" ""
-   config_get "early_data_header_name" "$section" "early_data_header_name" ""
-   config_get "trojan_ws_path" "$section" "trojan_ws_path" ""
-   config_get "trojan_ws_headers" "$section" "trojan_ws_headers" ""
-   config_get "interface_name" "$section" "interface_name" ""
-   config_get "routing_mark" "$section" "routing_mark" ""
-   config_get "obfs_vless" "$section" "obfs_vless" ""
-   config_get "vless_flow" "$section" "vless_flow" ""
-   config_get "http_headers" "$section" "http_headers" ""
-   config_get "hysteria_protocol" "$section" "hysteria_protocol" ""
-   config_get "hysteria2_protocol" "$section" "hysteria2_protocol" ""
-   config_get "hysteria_up" "$section" "hysteria_up" ""
-   config_get "hysteria_down" "$section" "hysteria_down" ""
-   config_get "hysteria_alpn" "$section" "hysteria_alpn" ""
-   config_get "hysteria_obfs" "$section" "hysteria_obfs" ""
-   config_get "hysteria_auth" "$section" "hysteria_auth" ""
-   config_get "hysteria_auth_str" "$section" "hysteria_auth_str" ""
-   config_get "hysteria_ca" "$section" "hysteria_ca" ""
-   config_get "hysteria_ca_str" "$section" "hysteria_ca_str" ""
-   config_get "recv_window_conn" "$section" "recv_window_conn" ""
-   config_get "recv_window" "$section" "recv_window" ""
-   config_get "disable_mtu_discovery" "$section" "disable_mtu_discovery" ""
-   config_get "initial_stream_receive_window" "$section" "initial_stream_receive_window" ""
-   config_get "max_stream_receive_window" "$section" "max_stream_receive_window" ""
-   config_get "initial_connection_receive_window" "$section" "initial_connection_receive_window" ""
-   config_get "max_connection_receive_window" "$section" "max_connection_receive_window" ""
-   config_get "xudp" "$section" "xudp" ""
-   config_get "packet_encoding" "$section" "packet_encoding" ""
-   config_get "global_padding" "$section" "global_padding" ""
-   config_get "authenticated_length" "$section" "authenticated_length" ""
-   config_get "wg_ip" "$section" "wg_ip" ""
-   config_get "wg_ipv6" "$section" "wg_ipv6" ""
-   config_get "private_key" "$section" "private_key" ""
-   config_get "public_key" "$section" "public_key" ""
-   config_get "preshared_key" "$section" "preshared_key" ""
-   config_get "wg_dns" "$section" "wg_dns" ""
-   config_get "public_key" "$section" "public_key" ""
-   config_get "preshared_key" "$section" "preshared_key" ""
-   config_get "wg_mtu" "$section" "wg_mtu" ""
-   config_get "tc_ip" "$section" "tc_ip" ""
-   config_get "tc_token" "$section" "tc_token" ""
-   config_get "tc_uuid" "$section" "tc_uuid" ""
-   config_get "tc_password" "$section" "tc_password" ""
-   config_get "udp_relay_mode" "$section" "udp_relay_mode" ""
-   config_get "congestion_controller" "$section" "congestion_controller" ""
-   config_get "tc_alpn" "$section" "tc_alpn" ""
-   config_get "disable_sni" "$section" "disable_sni" ""
-   config_get "reduce_rtt" "$section" "reduce_rtt" ""
-   config_get "heartbeat_interval" "$section" "heartbeat_interval" ""
-   config_get "request_timeout" "$section" "request_timeout" ""
-   config_get "max_udp_relay_packet_size" "$section" "max_udp_relay_packet_size" ""
-   config_get "fast_open" "$section" "fast_open" ""
-   config_get "fingerprint" "$section" "fingerprint" ""
-   config_get "ports" "$section" "ports" ""
-   config_get "hop_interval" "$section" "hop_interval" ""
-   config_get "max_open_streams" "$section" "max_open_streams" ""
-   config_get "obfs_password" "$section" "obfs_password" ""
-   config_get "packet_addr" "$section" "packet_addr" ""
-   config_get "client_fingerprint" "$section" "client_fingerprint" ""
-   config_get "ip_version" "$section" "ip_version" ""
-   config_get "tfo" "$section" "tfo" ""
-   config_get "udp_over_tcp" "$section" "udp_over_tcp" ""
-   config_get "reality_public_key" "$section" "reality_public_key" ""
-   config_get "reality_short_id" "$section" "reality_short_id" ""
-   config_get "obfs_version_hint" "$section" "obfs_version_hint" ""
-   config_get "obfs_restls_script" "$section" "obfs_restls_script" ""
-   config_get "multiplex" "$section" "multiplex" ""
-   config_get "multiplex_protocol" "$section" "multiplex_protocol" ""
-   config_get "multiplex_max_connections" "$section" "multiplex_max_connections" ""
-   config_get "multiplex_min_streams" "$section" "multiplex_min_streams" ""
-   config_get "multiplex_max_streams" "$section" "multiplex_max_streams" ""
-   config_get "multiplex_padding" "$section" "multiplex_padding" ""
-   config_get "multiplex_statistic" "$section" "multiplex_statistic" ""
-   config_get "multiplex_only_tcp" "$section" "multiplex_only_tcp" ""
-   config_get "other_parameters" "$section" "other_parameters" ""
-   config_get "hysteria_obfs_password" "$section" "hysteria_obfs_password" ""
-   config_get "port_range" "$section" "port_range" ""
-   config_get "username" "$section" "username" ""
-   config_get "transport" "$section" "transport" "TCP"
-   config_get "multiplexing" "$section" "multiplexing" "MULTIPLEXING_LOW"
-   config_get "private_key" "$section" "private_key" ""
-   config_get "private_key_passphrase" "$section" "private_key_passphrase" ""
-   config_get "host_key" "$section" "host_key" ""
-   config_get "host_key_algorithms" "$section" "host_key_algorithms" ""
-   config_get "idle_session_check_interval" "$section" "idle_session_check_interval" ""
-   config_get "idle_session_timeout" "$section" "idle_session_timeout" ""
-   config_get "min_idle_session" "$section" "min_idle_session" ""
-   config_get "sudoku_key" "$section" "sudoku_key" ""
-   config_get "aead_method" "$section" "aead_method" "none"
-   config_get "padding_min" "$section" "padding_min" ""
-   config_get "padding_max" "$section" "padding_max" ""
-   config_get "table_type" "$section" "table_type" "prefer_ascii"
-   config_get "http_mask" "$section" "http_mask" "true"
 
    if [ "$enabled" = "0" ]; then
       return
@@ -336,11 +207,12 @@ yml_servers_set()
       return
    fi
 
-   if [ -z "$password" ]; then
-   	 if [ "$type" = "ss" ] || [ "$type" = "trojan" ] || [ "$type" = "ssr" ]; then
-        return
-     fi
-   fi
+    if [ "$type" = "ss" ] || [ "$type" = "trojan" ] || [ "$type" = "ssr" ]; then
+        config_get "password" "$section" "password" ""
+        if [ -z "$password" ]; then
+            return
+        fi
+    fi
 
    if [ ! -z "$config" ] && [ "$config" != "$CONFIG_NAME" ] && [ "$config" != "all" ]; then
       return
@@ -364,59 +236,27 @@ yml_servers_set()
    fi
    LOG_OUT "Start Writing【$CONFIG_NAME - $type - $name】Proxy To Config File..."
 
-   if [ "$obfs" != "none" ] && [ -n "$obfs" ]; then
-      if [ "$obfs" = "websocket" ]; then
-         obfss="plugin: v2ray-plugin"
-      elif [ "$obfs" = "shadow-tls" ]; then
-        obfss="plugin: shadow-tls"
-      elif [ "$obfs" = "restls" ]; then
-        obfss="plugin: restls"
-      else
-         obfss="plugin: obfs"
-      fi
-   else
-      obfss=""
-   fi
-
-   if [ "$obfs_vless" = "ws" ]; then
-      obfs_vless="network: ws"
-   fi
-
-   if [ "$obfs_vless" = "grpc" ]; then
-      obfs_vless="network: grpc"
-   fi
-
-   if [ "$obfs_vless" = "tcp" ]; then
-      obfs_vless="network: tcp"
-   fi
-
-   if [ "$obfs_vmess" = "websocket" ]; then
-      obfs_vmess="network: ws"
-   fi
-
-   if [ "$obfs_vmess" = "http" ]; then
-      obfs_vmess="network: http"
-   fi
-
-   if [ "$obfs_vmess" = "h2" ]; then
-      obfs_vmess="network: h2"
-   fi
-
-   if [ "$obfs_vmess" = "grpc" ]; then
-      obfs_vmess="network: grpc"
-   fi
-
-   if [ ! -z "$custom" ] && [ "$type" = "vmess" ]; then
-      custom="Host: \"$custom\""
-   fi
-
-   if [ ! -z "$path" ]; then
-      if [ "$type" != "vmess" ]; then
-         path="path: \"$path\""
-      elif [ "$obfs_vmess" = "network: ws" ]; then
-         path="ws-path: \"$path\""
-      fi
-   fi
+   config_get "dialer_proxy" "$section" "dialer_proxy" ""
+   config_get "udp" "$section" "udp" ""
+   config_get "skip_cert_verify" "$section" "skip_cert_verify" ""
+   config_get "tls" "$section" "tls" ""
+   config_get "sni" "$section" "sni" ""
+   config_get "alpn" "$section" "alpn" ""
+   config_get "fingerprint" "$section" "fingerprint" ""
+   config_get "client_fingerprint" "$section" "client_fingerprint" ""
+   config_get "ip_version" "$section" "ip_version" ""
+   config_get "tfo" "$section" "tfo" ""
+   config_get "multiplex" "$section" "multiplex" ""
+   config_get "multiplex_protocol" "$section" "multiplex_protocol" ""
+   config_get "multiplex_max_connections" "$section" "multiplex_max_connections" ""
+   config_get "multiplex_min_streams" "$section" "multiplex_min_streams" ""
+   config_get "multiplex_max_streams" "$section" "multiplex_max_streams" ""
+   config_get "multiplex_padding" "$section" "multiplex_padding" ""
+   config_get "multiplex_statistic" "$section" "multiplex_statistic" ""
+   config_get "multiplex_only_tcp" "$section" "multiplex_only_tcp" ""
+   config_get "interface_name" "$section" "interface_name" ""
+   config_get "routing_mark" "$section" "routing_mark" ""
+   config_get "other_parameters" "$section" "other_parameters" ""
 
    if [ "$client_fingerprint" = "none" ]; then
         client_fingerprint=""
@@ -428,6 +268,35 @@ yml_servers_set()
 
 #ss
 if [ "$type" = "ss" ]; then
+   config_get "cipher" "$section" "cipher" ""
+   config_get "obfs" "$section" "obfs" ""
+   config_get "host" "$section" "host" ""
+   config_get "mux" "$section" "mux" ""
+   config_get "custom" "$section" "custom" ""
+   config_get "path" "$section" "path" ""
+   config_get "obfs_password" "$section" "obfs_password" ""
+   config_get "obfs_version_hint" "$section" "obfs_version_hint" ""
+   config_get "obfs_restls_script" "$section" "obfs_restls_script" ""
+   config_get "udp_over_tcp" "$section" "udp_over_tcp" ""
+
+   if [ "$obfs" != "none" ] && [ -n "$obfs" ]; then
+      if [ "$obfs" = "websocket" ]; then
+            obfss="plugin: v2ray-plugin"
+      elif [ "$obfs" = "shadow-tls" ]; then
+            obfss="plugin: shadow-tls"
+      elif [ "$obfs" = "restls" ]; then
+            obfss="plugin: restls"
+      else
+            obfss="plugin: obfs"
+      fi
+   else
+      obfss=""
+   fi
+
+   if [ ! -z "$path" ]; then
+      path="path: \"$path\""
+   fi
+
 cat >> "$SERVER_FILE" <<-EOF
   - name: "$name"
     type: $type
@@ -528,6 +397,12 @@ fi
 
 #ssr
 if [ "$type" = "ssr" ]; then
+   config_get "cipher_ssr" "$section" "cipher_ssr" ""
+   config_get "obfs_ssr" "$section" "obfs_ssr" ""
+   config_get "protocol" "$section" "protocol" ""
+   config_get "obfs_param" "$section" "obfs_param" ""
+   config_get "protocol_param" "$section" "protocol_param" ""
+
 cat >> "$SERVER_FILE" <<-EOF
   - name: "$name"
     type: $type
@@ -557,6 +432,48 @@ fi
 
 #vmess
 if [ "$type" = "vmess" ]; then
+   config_get "uuid" "$section" "uuid" ""
+   config_get "alterId" "$section" "alterId" ""
+   config_get "securitys" "$section" "securitys" ""
+   config_get "xudp" "$section" "xudp" ""
+   config_get "packet_encoding" "$section" "packet_encoding" ""
+   config_get "global_padding" "$section" "global_padding" ""
+   config_get "authenticated_length" "$section" "authenticated_length" ""
+   config_get "servername" "$section" "servername" ""
+   config_get "obfs_vmess" "$section" "obfs_vmess" ""
+   config_get "custom" "$section" "custom" ""
+   config_get "path" "$section" "path" ""
+   config_get "ws_opts_path" "$section" "ws_opts_path" ""
+   config_get "ws_opts_headers" "$section" "ws_opts_headers" ""
+   config_get "max_early_data" "$section" "max_early_data" ""
+   config_get "early_data_header_name" "$section" "early_data_header_name" ""
+   config_get "http_path" "$section" "http_path" ""
+   config_get "keep_alive" "$section" "keep_alive" ""
+   config_get "h2_path" "$section" "h2_path" ""
+   config_get "h2_host" "$section" "h2_host" ""
+   config_get "grpc_service_name" "$section" "grpc_service_name" ""
+
+   if [ "$obfs_vmess" = "websocket" ]; then
+      obfs_vmess="network: ws"
+   fi
+   if [ "$obfs_vmess" = "http" ]; then
+      obfs_vmess="network: http"
+   fi
+   if [ "$obfs_vmess" = "h2" ]; then
+      obfs_vmess="network: h2"
+   fi
+   if [ "$obfs_vmess" = "grpc" ]; then
+      obfs_vmess="network: grpc"
+   fi
+
+   if [ ! -z "$custom" ]; then
+      custom="Host: \"$custom\""
+   fi
+
+   if [ ! -z "$path" ] && [ "$obfs_vmess" = "network: ws" ]; then
+      path="ws-path: \"$path\""
+   fi
+
 cat >> "$SERVER_FILE" <<-EOF
   - name: "$name"
     type: $type
@@ -702,6 +619,11 @@ fi
 
 #anytls
 if [ "$type" = "anytls" ]; then
+   config_get "password" "$section" "password" ""
+   config_get "idle_session_check_interval" "$section" "idle_session_check_interval" ""
+   config_get "idle_session_timeout" "$section" "idle_session_timeout" ""
+   config_get "min_idle_session" "$section" "min_idle_session" ""
+
 cat >> "$SERVER_FILE" <<-EOF
   - name: "$name"
     type: $type
@@ -758,6 +680,11 @@ fi
 
 #Mieru
 if [ "$type" = "mieru" ]; then
+   config_get "port_range" "$section" "port_range" ""
+   config_get "username" "$section" "username" ""
+   config_get "transport" "$section" "transport" "TCP"
+   config_get "multiplexing" "$section" "multiplexing" "MULTIPLEXING_LOW"
+
 cat >> "$SERVER_FILE" <<-EOF
   - name: "$name"
     type: $type
@@ -788,6 +715,21 @@ fi
 
 #Tuic
 if [ "$type" = "tuic" ]; then
+   config_get "tc_ip" "$section" "tc_ip" ""
+   config_get "tc_token" "$section" "tc_token" ""
+   config_get "tc_uuid" "$section" "tc_uuid" ""
+   config_get "tc_password" "$section" "tc_password" ""
+   config_get "udp_relay_mode" "$section" "udp_relay_mode" ""
+   config_get "congestion_controller" "$section" "congestion_controller" ""
+   config_get "tc_alpn" "$section" "tc_alpn" ""
+   config_get "disable_sni" "$section" "disable_sni" ""
+   config_get "reduce_rtt" "$section" "reduce_rtt" ""
+   config_get "fast_open" "$section" "fast_open" ""
+   config_get "heartbeat_interval" "$section" "heartbeat_interval" ""
+   config_get "request_timeout" "$section" "request_timeout" ""
+   config_get "max_udp_relay_packet_size" "$section" "max_udp_relay_packet_size" ""
+   config_get "max_open_streams" "$section" "max_open_streams" ""
+
 cat >> "$SERVER_FILE" <<-EOF
   - name: "$name"
     type: $type
@@ -874,6 +816,14 @@ fi
 
 #WireGuard
 if [ "$type" = "wireguard" ]; then
+   config_get "wg_ip" "$section" "wg_ip" ""
+   config_get "wg_ipv6" "$section" "wg_ipv6" ""
+   config_get "private_key" "$section" "private_key" ""
+   config_get "public_key" "$section" "public_key" ""
+   config_get "preshared_key" "$section" "preshared_key" ""
+   config_get "wg_dns" "$section" "wg_dns" ""
+   config_get "wg_mtu" "$section" "wg_mtu" ""
+
 cat >> "$SERVER_FILE" <<-EOF
   - name: "$name"
     type: $type
@@ -905,7 +855,7 @@ cat >> "$SERVER_FILE" <<-EOF
     preshared-key: "$preshared_key"
 EOF
     fi
-    if [ -n "$preshared_key" ]; then
+    if [ -n "$wg_dns" ]; then
 cat >> "$SERVER_FILE" <<-EOF
     dns:
 EOF
@@ -925,6 +875,22 @@ fi
 
 #hysteria
 if [ "$type" = "hysteria" ]; then
+   config_get "hysteria_protocol" "$section" "hysteria_protocol" ""
+   config_get "hysteria_up" "$section" "hysteria_up" ""
+   config_get "hysteria_down" "$section" "hysteria_down" ""
+   config_get "hysteria_alpn" "$section" "hysteria_alpn" ""
+   config_get "hysteria_obfs" "$section" "hysteria_obfs" ""
+   config_get "hysteria_auth" "$section" "hysteria_auth" ""
+   config_get "hysteria_auth_str" "$section" "hysteria_auth_str" ""
+   config_get "hysteria_ca" "$section" "hysteria_ca" ""
+   config_get "hysteria_ca_str" "$section" "hysteria_ca_str" ""
+   config_get "recv_window_conn" "$section" "recv_window_conn" ""
+   config_get "recv_window" "$section" "recv_window" ""
+   config_get "disable_mtu_discovery" "$section" "disable_mtu_discovery" ""
+   config_get "fast_open" "$section" "fast_open" ""
+   config_get "ports" "$section" "ports" ""
+   config_get "hop_interval" "$section" "hop_interval" ""
+
 cat >> "$SERVER_FILE" <<-EOF
   - name: "$name"
     type: $type
@@ -1029,6 +995,22 @@ fi
 
 #hysteria2
 if [ "$type" = "hysteria2" ]; then
+   config_get "password" "$section" "password" ""
+   config_get "hysteria_up" "$section" "hysteria_up" ""
+   config_get "hysteria_down" "$section" "hysteria_down" ""
+   config_get "hysteria_alpn" "$section" "hysteria_alpn" ""
+   config_get "hysteria_obfs" "$section" "hysteria_obfs" ""
+   config_get "hysteria_obfs_password" "$section" "hysteria_obfs_password" ""
+   config_get "hysteria_ca" "$section" "hysteria_ca" ""
+   config_get "hysteria_ca_str" "$section" "hysteria_ca_str" ""
+   config_get "initial_stream_receive_window" "$section" "initial_stream_receive_window" ""
+   config_get "max_stream_receive_window" "$section" "max_stream_receive_window" ""
+   config_get "initial_connection_receive_window" "$section" "initial_connection_receive_window" ""
+   config_get "max_connection_receive_window" "$section" "max_connection_receive_window" ""
+   config_get "ports" "$section" "ports" ""
+   config_get "hysteria2_protocol" "$section" "hysteria2_protocol" ""
+   config_get "hop_interval" "$section" "hop_interval" ""
+
 cat >> "$SERVER_FILE" <<-EOF
   - name: "$name"
     type: $type
@@ -1096,7 +1078,7 @@ EOF
     fi
     if [ -n "$max_stream_receive_window" ]; then
 cat >> "$SERVER_FILE" <<-EOF
-    max_stream_receive_window: "$max_stream_receive_window"
+    max-stream-receive-window: "$max_stream_receive_window"
 EOF
     fi
     if [ -n "$initial_connection_receive_window" ]; then
@@ -1133,6 +1115,35 @@ fi
 
 #vless
 if [ "$type" = "vless" ]; then
+   config_get "uuid" "$section" "uuid" ""
+   config_get "xudp" "$section" "xudp" ""
+   config_get "packet_addr" "$section" "packet_addr" ""
+   config_get "packet_encoding" "$section" "packet_encoding" ""
+   config_get "servername" "$section" "servername" ""
+   config_get "obfs_vless" "$section" "obfs_vless" ""
+   config_get "ws_opts_path" "$section" "ws_opts_path" ""
+   config_get "ws_opts_headers" "$section" "ws_opts_headers" ""
+   config_get "grpc_service_name" "$section" "grpc_service_name" ""
+   config_get "reality_public_key" "$section" "reality_public_key" ""
+   config_get "reality_short_id" "$section" "reality_short_id" ""
+   config_get "vless_flow" "$section" "vless_flow" ""
+   config_get "xhttp_opts_path" "$section" "xhttp_opts_path" ""
+   config_get "xhttp_opts_host" "$section" "xhttp_opts_host" ""
+   config_get "vless_encryption" "$section" "vless_encryption" ""
+
+   if [ "$obfs_vless" = "ws" ]; then
+      obfs_vless="network: ws"
+   fi
+   if [ "$obfs_vless" = "grpc" ]; then
+      obfs_vless="network: grpc"
+   fi
+   if [ "$obfs_vless" = "tcp" ]; then
+      obfs_vless="network: tcp"
+   fi
+   if [ "$obfs_vless" = "xhttp" ]; then
+      obfs_vless="network: xhttp"
+   fi
+
 cat >> "$SERVER_FILE" <<-EOF
   - name: "$name"
     type: $type
@@ -1234,6 +1245,11 @@ cat >> "$SERVER_FILE" <<-EOF
     flow: "$vless_flow"
 EOF
             fi
+            if [ -n "$vless_encryption" ]; then
+cat >> "$SERVER_FILE" <<-EOF
+      encryption: "$vless_encryption"
+EOF
+            fi
             if [ -n "$reality_public_key" ] || [ -n "$reality_short_id" ]; then
 cat >> "$SERVER_FILE" <<-EOF
     reality-opts:
@@ -1247,6 +1263,21 @@ EOF
             if [ -n "$reality_short_id" ]; then
 cat >> "$SERVER_FILE" <<-EOF
       short-id: "$reality_short_id"
+EOF
+            fi
+        fi
+        if [ "$obfs_vless" = "network: xhttp" ]; then
+cat >> "$SERVER_FILE" <<-EOF
+    xhttp-opts:
+EOF
+            if [ -n "$xhttp_opts_path" ]; then
+cat >> "$SERVER_FILE" <<-EOF
+      path: "$xhttp_opts_path"
+EOF
+            fi
+            if [ -n "$xhttp_opts_host" ]; then
+cat >> "$SERVER_FILE" <<-EOF
+      host: "$xhttp_opts_host"
 EOF
             fi
         fi
@@ -1276,6 +1307,13 @@ fi
 
 #ssh
 if [ "$type" = "ssh" ]; then
+   config_get "auth_name" "$section" "auth_name" ""
+   config_get "auth_pass" "$section" "auth_pass" ""
+   config_get "private_key" "$section" "private_key" ""
+   config_get "private_key_passphrase" "$section" "private_key_passphrase" ""
+   config_get "host_key" "$section" "host_key" ""
+   config_get "host_key_algorithms" "$section" "host_key_algorithms" ""
+
 cat >> "$SERVER_FILE" <<-EOF
   - name: "$name"
     type: $type
@@ -1318,6 +1356,9 @@ fi
 
 #socks5
 if [ "$type" = "socks5" ]; then
+   config_get "auth_name" "$section" "auth_name" ""
+   config_get "auth_pass" "$section" "auth_pass" ""
+
 cat >> "$SERVER_FILE" <<-EOF
   - name: "$name"
     type: $type
@@ -1358,6 +1399,10 @@ fi
 
 #http
 if [ "$type" = "http" ]; then
+   config_get "auth_name" "$section" "auth_name" ""
+   config_get "auth_pass" "$section" "auth_pass" ""
+   config_get "http_headers" "$section" "http_headers" ""
+
 cat >> "$SERVER_FILE" <<-EOF
   - name: "$name"
     type: $type
@@ -1399,6 +1444,11 @@ fi
 
 #trojan
 if [ "$type" = "trojan" ]; then
+   config_get "grpc_service_name" "$section" "grpc_service_name" ""
+   config_get "obfs_trojan" "$section" "obfs_trojan" ""
+   config_get "trojan_ws_path" "$section" "trojan_ws_path" ""
+   config_get "trojan_ws_headers" "$section" "trojan_ws_headers" ""
+
 cat >> "$SERVER_FILE" <<-EOF
   - name: "$name"
     type: $type
@@ -1467,6 +1517,11 @@ fi
 
 #snell
 if [ "$type" = "snell" ]; then
+   config_get "psk" "$section" "psk" ""
+   config_get "snell_version" "$section" "snell_version" ""
+   config_get "obfs_snell" "$section" "obfs_snell" ""
+   config_get "host" "$section" "host" ""
+
 cat >> "$SERVER_FILE" <<-EOF
   - name: "$name"
     type: $type
@@ -1490,6 +1545,13 @@ fi
 
 #Sudoku
 if [ "$type" = "sudoku" ]; then
+   config_get "sudoku_key" "$section" "sudoku_key" ""
+   config_get "aead_method" "$section" "aead_method" "none"
+   config_get "padding_min" "$section" "padding_min" ""
+   config_get "padding_max" "$section" "padding_max" ""
+   config_get "table_type" "$section" "table_type" "prefer_ascii"
+   config_get "http_mask" "$section" "http_mask" "true"
+
 cat >> "$SERVER_FILE" <<-EOF
   - name: "$name"
     type: $type
@@ -1524,6 +1586,132 @@ EOF
     if [ -n "$http_mask" ]; then
 cat >> "$SERVER_FILE" <<-EOF
     http-mask: $http_mask
+EOF
+    fi
+fi
+
+#MASQUE
+if [ "$type" = "masque" ]; then
+   config_get "masque_private_key" "$section" "masque_private_key" ""
+   config_get "masque_public_key" "$section" "masque_public_key" ""
+   config_get "masque_ip" "$section" "masque_ip" ""
+   config_get "masque_ipv6" "$section" "masque_ipv6" ""
+   config_get "masque_mtu" "$section" "masque_mtu" ""
+   config_get "masque_remote_dns_resolve" "$section" "masque_remote_dns_resolve" ""
+   config_get "masque_dns" "$section" "masque_dns" ""
+
+cat >> "$SERVER_FILE" <<-EOF
+  - name: "$name"
+    type: $type
+    server: "$server"
+    port: $port
+EOF
+    if [ -n "$masque_private_key" ]; then
+cat >> "$SERVER_FILE" <<-EOF
+    private-key: "$masque_private_key"
+EOF
+    fi
+    if [ -n "$masque_public_key" ]; then
+cat >> "$SERVER_FILE" <<-EOF
+    public-key: "$masque_public_key"
+EOF
+    fi
+    if [ -n "$masque_ip" ]; then
+cat >> "$SERVER_FILE" <<-EOF
+    ip: "$masque_ip"
+EOF
+    fi
+    if [ -n "$masque_ipv6" ]; then
+cat >> "$SERVER_FILE" <<-EOF
+    ipv6: "$masque_ipv6"
+EOF
+    fi
+    if [ -n "$masque_mtu" ]; then
+cat >> "$SERVER_FILE" <<-EOF
+    mtu: $masque_mtu
+EOF
+    fi
+    if [ -n "$masque_remote_dns_resolve" ]; then
+cat >> "$SERVER_FILE" <<-EOF
+    remote-dns-resolve: $masque_remote_dns_resolve
+EOF
+    fi
+    if [ ! -z "$udp" ]; then
+cat >> "$SERVER_FILE" <<-EOF
+    udp: $udp
+EOF
+   fi
+   if [ ! -z "$masque_dns" ]; then
+cat >> "$SERVER_FILE" <<-EOF
+    dns:
+EOF
+        config_list_foreach "$section" "masque_dns" set_alpn
+    fi
+fi
+
+#TrustTunnel
+if [ "$type" = "trusttunnel" ]; then
+   config_get "trusttunnel_username" "$section" "trusttunnel_username" ""
+   config_get "trusttunnel_password" "$section" "trusttunnel_password" ""
+   config_get "trusttunnel_health_check" "$section" "trusttunnel_health_check" ""
+   config_get "trusttunnel_quic" "$section" "trusttunnel_quic" ""
+   config_get "trusttunnel_congestion_controller" "$section" "trusttunnel_congestion_controller" ""
+
+cat >> "$SERVER_FILE" <<-EOF
+  - name: "$name"
+    type: $type
+    server: "$server"
+    port: $port
+EOF
+    if [ -n "$trusttunnel_username" ]; then
+cat >> "$SERVER_FILE" <<-EOF
+    username: "$trusttunnel_username"
+EOF
+    fi
+    if [ -n "$trusttunnel_password" ]; then
+cat >> "$SERVER_FILE" <<-EOF
+    password: "$trusttunnel_password"
+EOF
+    fi
+    if [ -n "$trusttunnel_health_check" ]; then
+cat >> "$SERVER_FILE" <<-EOF
+    health-check: $trusttunnel_health_check
+EOF
+    fi
+    if [ -n "$trusttunnel_quic" ]; then
+cat >> "$SERVER_FILE" <<-EOF
+    quic: $trusttunnel_quic
+EOF
+    fi
+    if [ -n "$trusttunnel_congestion_controller" ]; then
+cat >> "$SERVER_FILE" <<-EOF
+    congestion-controller: "$trusttunnel_congestion_controller"
+EOF
+    fi
+    if [ -n "$client_fingerprint" ]; then
+cat >> "$SERVER_FILE" <<-EOF
+    client-fingerprint: "$client_fingerprint"
+EOF
+    fi
+    if [ -n "$udp" ]; then
+cat >> "$SERVER_FILE" <<-EOF
+    udp: $udp
+EOF
+    fi
+    if [ -n "$sni" ]; then
+cat >> "$SERVER_FILE" <<-EOF
+    sni: "$sni"
+EOF
+    fi
+    if [ ! -z "$alpn" ]; then
+cat >> "$SERVER_FILE" <<-EOF
+    alpn:
+EOF
+        config_list_foreach "$section" "alpn" set_alpn
+    fi
+    if [ ! -z "$skip_cert_verify" ]; then
+cat >> "$SERVER_FILE" <<-EOF
+    skip-cert-verify: $skip_cert_verify
 EOF
     fi
 fi

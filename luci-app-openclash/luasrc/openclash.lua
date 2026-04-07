@@ -31,6 +31,7 @@ local fs	= require "nixio.fs"
 local nutil = require "nixio.util"
 local uci = require "luci.model.uci".cursor()
 local SYS  = require "luci.sys"
+local HTTP = require "luci.http"
 
 local type  = type
 local string  = string
@@ -335,4 +336,24 @@ function uci_get_config(section, key)
     	val = uci:get("openclash", section, key)
     end
     return val
+end
+
+function get_file_path_from_request()
+	local file_path
+	local referer = HTTP.getenv("HTTP_REFERER")
+	if referer then
+		local _, _, file_value = referer:find("file=([^&]*)$")
+		if file_value and file_value ~= "" then
+			file_path = HTTP.urldecode(file_value)
+		end
+	end
+
+	if not file_path or file_path == "/" then
+		file_path = HTTP.formvalue("file")
+		if not file_path then
+			file_path = HTTP.urldecode(file_path)
+		end
+	end
+
+	return file_path
 end

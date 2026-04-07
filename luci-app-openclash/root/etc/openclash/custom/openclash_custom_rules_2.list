@@ -1,3 +1,20 @@
+rule-providers:
+##  google:
+##    type: http
+##    path: ./rule1.yaml
+##    url: "https://raw.githubusercontent.com/../Google.yaml"
+##    interval: 600
+##    proxy: DIRECT
+##    behavior: classical
+##    format: yaml
+##    size-limit: 0
+##    header:
+##      User-Agent:
+##      - "mihomo/1.18.3"
+##      Authorization:
+##      - 'token 1231231'
+##    payload:
+##      - 'DOMAIN-SUFFIX,google.com'
 rules:
 ##- DOMAIN-SUFFIX,google.com,Proxy #匹配域名后缀(交由Proxy代理服务器组)
 ##- DOMAIN-KEYWORD,google,Proxy #匹配域名关键字(交由Proxy代理服务器组)
