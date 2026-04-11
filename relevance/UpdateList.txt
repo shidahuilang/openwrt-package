@@ -63,7 +63,6 @@ luci-app-parentcontrol
 luci-app-partexp
 luci-app-poweroff
 luci-app-pppoe-server
-luci-app-pushbot
 luci-app-quickstart
 luci-app-rclone
 luci-app-shutdown
@@ -78,7 +77,6 @@ luci-app-syncthing
 luci-app-tcpdump
 luci-app-tencentddns
 luci-app-ttnode
-luci-app-unblockmusic
 luci-app-unblockneteasemusic
 luci-app-unishare
 luci-app-vlmcsd

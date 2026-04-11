@@ -7,7 +7,7 @@
 include $(TOPDIR)/rules.mk
 
 LUCI_TITLE:=LuCI Support for Wake-on-LAN
-LUCI_DEPENDS:=+etherwake +wol
+LUCI_DEPENDS:=+etherwake
 
 include $(TOPDIR)/feeds/luci/luci.mk
 
