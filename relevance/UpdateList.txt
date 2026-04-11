@@ -59,7 +59,6 @@ luci-app-oscam
 luci-app-partexp
 luci-app-poweroff
 luci-app-pppoe-server
-luci-app-pushbot
 luci-app-quickstart
 luci-app-rclone
 luci-app-shutdown
