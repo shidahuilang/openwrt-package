@@ -86,17 +86,6 @@ DOWNLOAD_RESULT=$?
 
 config_cus_up()
 {
-	if [ -z "$CONFIG_PATH" ]; then
-      for file_name in /etc/openclash/config/*
-      do
-         if [ -f "$file_name" ]; then
-            CONFIG_PATH=$file_name
-            break
-         fi
-      done
-      uci -q set openclash.config.config_path="$CONFIG_PATH"
-      uci commit openclash
-	fi
 	if [ -z "$subscribe_url_param" ]; then
 	   if [ -n "$key_match_param" ] || [ -n "$key_ex_match_param" ]; then
 	      LOG_OUT "Config File【$name】Start Picking Nodes..."	      
@@ -192,6 +181,10 @@ config_su_check()
       mv "$CFG_FILE" "$CONFIG_FILE" 2>/dev/null
       LOG_OUT "Config File【$name】Update Successful!"
    fi
+   if [ -z "$CONFIG_PATH" ]; then
+      uci -q set openclash.config.config_path="$CONFIG_FILE"
+      uci commit openclash
+	fi
    if [ "$CONFIG_FILE" == "$CONFIG_PATH" ]; then
       restart=1
    fi

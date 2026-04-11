@@ -265,17 +265,17 @@ o.placeholder = translate("5000 or 1234-2345")
 o.rmempty = true
 
 o = s2:option(ListValue, "proto", translate("Proto"))
+o:value("both", translate("Both"))
 o:value("udp", translate("UDP"))
 o:value("tcp", translate("TCP"))
-o:value("both", translate("Both"))
-o.default = "tcp"
+o.default = "both"
 o.rmempty = false
 
 o = s2:option(ListValue, "family", translate("Family"))
+o:value("both", translate("Both"))
 o:value("ipv4", translate("IPv4"))
 o:value("ipv6", translate("IPv6"))
-o:value("both", translate("Both"))
-o.default = "tcp"
+o.default = "both"
 o.rmempty = false
 
 o = s2:option(ListValue, "interface", translate("Interface"))
