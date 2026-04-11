@@ -100,12 +100,10 @@ luci-app-partexp
 luci-app-poweroff
 luci-app-pppoe-relay
 luci-app-pppoe-server
-luci-app-pushbot
 luci-app-qbittorrent
 luci-app-quickstart
 luci-app-ramfree
 luci-app-rclone
-luci-app-serverchan
 luci-app-shutdown
 luci-app-smartinfo
 luci-app-socat

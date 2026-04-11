@@ -28,6 +28,9 @@ msgstr "开始时间"
 msgid "End time"
 msgstr "结束时间"
 
+msgid "Enabled"
+msgstr "启用"
+
 msgid "Mon"
 msgstr "一"
 
