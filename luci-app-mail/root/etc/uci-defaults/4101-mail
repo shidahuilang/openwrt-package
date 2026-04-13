@@ -1,0 +1,16 @@
+#!/bin/sh
+[ ! -f "/usr/share/ucitrack/luci-app-mail.json" ] && {
+    cat > /usr/share/ucitrack/luci-app-mail.json << EEOF
+{
+    "config": "mail",
+    "init": "mail"
+}
+EEOF
+}
+uci -q batch <<-EOF >/dev/null
+	delete ucitrack.@mail[-1]
+	add ucitrack mail
+	set ucitrack.@mail[-1].init=mail
+	commit ucitrack
+EOF
+exit 0

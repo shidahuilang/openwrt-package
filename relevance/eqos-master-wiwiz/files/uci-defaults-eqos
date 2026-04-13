@@ -1,0 +1,17 @@
+#!/bin/sh
+[ ! -f "/usr/share/ucitrack/luci-app-ucitrack.json" ] && {
+    cat > /usr/share/ucitrack/luci-app-ucitrack.json << EEOF
+{
+    "config": "ucitrack",
+    "init": "ucitrack"
+}
+EEOF
+}
+
+uci -q get ucitrack.@eqos[0] > /dev/null || {
+  uci add ucitrack eqos > /dev/null
+  uci set ucitrack.@eqos[0].init=eqos
+  uci commit
+}
+
+exit 0
