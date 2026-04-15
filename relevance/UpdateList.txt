@@ -7,6 +7,7 @@ luci-theme-atmaterial_new
 luci-theme-bootstrap
 luci-theme-design
 luci-theme-edge
+luci-theme-ifit
 luci-theme-neobird
 luci-theme-neobird2
 luci-theme-opentomcat
