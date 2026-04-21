@@ -1,14 +1,15 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-04-10 09:38+0000\n"
-"Last-Translator: MkQtS <MkQtS@users.noreply.hosted.weblate.org>\n"
-"Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
-"openwrt/luciapplicationssqm/zh_Hans/>\n"
+"PO-Revision-Date: 2026-03-02 04:27+0000\n"
+"Last-Translator: 大王叫我来巡山 "
+"<hamburger2048@users.noreply.hosted.weblate.org>\n"
+"Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
+"projects/openwrt/luciapplicationssqm/zh_Hans/>\n"
 "Language: zh_Hans\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.5-dev\n"
+"X-Generator: Weblate 5.16.1-dev\n"
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:133
 msgid "Advanced Configuration"
@@ -49,8 +50,8 @@ msgid ""
 "Create log file for this SQM instance under /var/run/sqm/${Interface_name}."
 "[start|stop]-sqm.log."
 msgstr ""
-"为此 SQM 实例创建日志文件 /var/run/sqm/${Interface_name}.[start|stop]-sqm."
-"log。"
+"为此 SQM 实例创建日志文件 /var/run/sqm/${Interface_name}.[start|stop]-"
+"sqm.log。"
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:160
 msgid "Dangerous Configuration"
@@ -66,8 +67,8 @@ msgstr "下载速度（入口）"
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:92
 msgid ""
-"Download speed (kbit/s) (ingress) set to 0 to selectively disable ingress "
-"shaping"
+"Download speed (kbit/s) (ingress) set to 0 to disable ingress shaping "
+"selectively"
 msgstr "下载速度（kbit/s，入口），设为 0 时，将有选择地禁用入口整形"
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:154
@@ -88,7 +89,7 @@ msgstr "启用调试日志"
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:78
 msgid "Enable this SQM instance."
-msgstr "启用此 SQM 实例。"
+msgstr "启用此 SQM 实例"
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:148
 msgid "Explicit congestion notification (ECN) status on inbound packets"
@@ -171,8 +172,7 @@ msgid ""
 "Lists queuing disciplines useable on this system. After installing a new "
 "qdisc, you need to restart the router to see updates!"
 msgstr ""
-"列出本系统上可用的队列规则。安装新的队列规则后，您需要重启路由器才能看到更"
-"新！"
+"列出此系统上可用的队列规则。安装新的队列规则后，需要重启路由器以刷新列表！"
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:103
 msgid "Log verbosity"
@@ -293,8 +293,8 @@ msgid ""
 "traffic shaping, better mixing (Fair Queueing), active queue length "
 "management (AQM) and prioritisation on one network interface."
 msgstr ""
-"使用 <abbr title=\"智能列队管理\">SQM</abbr> ，你可以在指定网络接口上启用流量"
-"整形、更好的混合（公平队列）、主动列队管理（AQM）以及优先级排序。"
+"使用 <abbr title=\"智能列队管理\">SQM</abbr> ，可以在指定网络接口上启用流量整"
+"形、更好的流量调度（公平队列）、主动列队管理（AQM）以及优先级控制。"
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:107
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:149

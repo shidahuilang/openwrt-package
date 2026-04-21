@@ -56,8 +56,8 @@ msgid ""
 "Create log file for this SQM instance under /var/run/sqm/${Interface_name}."
 "[start|stop]-sqm.log."
 msgstr ""
-"Maak een logbestand voor deze SQM-instantie onder /var/run/sqm/"
-"${Interface_name}.[start|stop]-sqm.log."
+"Maak een logbestand voor deze SQM-instantie onder /var/run/sqm/$"
+"{Interface_name}.[start|stop]-sqm.log."
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:160
 msgid "Dangerous Configuration"
@@ -74,8 +74,8 @@ msgstr "Downloadsnelheid (inkomend verkeer)"
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:92
 msgid ""
-"Download speed (kbit/s) (ingress) set to 0 to selectively disable ingress "
-"shaping"
+"Download speed (kbit/s) (ingress) set to 0 to disable ingress shaping "
+"selectively"
 msgstr ""
 "Downloadsnelheid (kbit/s) (inkomend verkeer) ingesteld op 0 om selectief "
 "inkomend shaping uit te schakelen"

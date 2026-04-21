@@ -3,13 +3,12 @@
 
 include $(TOPDIR)/rules.mk
 
+PKG_MAINTAINER:=Toke Høiland-Jørgensen <toke@toke.dk>
+PKG_LICENSE:=Apache-2.0
+
 LUCI_TITLE:=LuCI Support for SQM Scripts
 LUCI_DESCRIPTION:=Luci interface for the SQM scripts queue management package
-
-PKG_MAINTAINER:=Toke Høiland-Jørgensen <toke@toke.dk>
-
-LUCI_DEPENDS:=+sqm-scripts
-LUCI_PKGARCH:=all
+LUCI_DEPENDS:=+luci-base +sqm-scripts
 
 include $(TOPDIR)/feeds/luci/luci.mk
 

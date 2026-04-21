@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2023-02-07 13:05+0000\n"
-"Last-Translator: Simona Iacob <s@zp1.net>\n"
+"PO-Revision-Date: 2025-10-10 05:14+0000\n"
+"Last-Translator: CRISTIAN ANDREI <cristianvdr@gmail.com>\n"
 "Language-Team: Romanian <https://hosted.weblate.org/projects/openwrt/"
 "luciapplicationssqm/ro/>\n"
 "Language: ro\n"
@@ -9,11 +9,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
 "20)) ? 1 : 2;\n"
-"X-Generator: Weblate 4.16-dev\n"
+"X-Generator: Weblate 5.14-dev\n"
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:133
 msgid "Advanced Configuration"
-msgstr "Configurație avansată"
+msgstr "Configurație Avansată"
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:199
 msgid "Advanced Linklayer Options"
@@ -58,8 +58,8 @@ msgid ""
 "Create log file for this SQM instance under /var/run/sqm/${Interface_name}."
 "[start|stop]-sqm.log."
 msgstr ""
-"Creați un fișier jurnal pentru această instanță SQM în /var/run/sqm/"
-"${Interface_name}.[start|stop]-sqm.log."
+"Creați un fișier jurnal pentru această instanță SQM în /var/run/sqm/$"
+"{Interface_name}.[start|stop]-sqm.log."
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:160
 msgid "Dangerous Configuration"
@@ -77,8 +77,8 @@ msgstr "Viteza de descărcare (intrare)"
 
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:92
 msgid ""
-"Download speed (kbit/s) (ingress) set to 0 to selectively disable ingress "
-"shaping"
+"Download speed (kbit/s) (ingress) set to 0 to disable ingress shaping "
+"selectively"
 msgstr ""
 "Viteza de descărcare (kbit/s) (intrare) setată la 0 pentru a dezactiva "
 "selectiv modelarea la intrare"

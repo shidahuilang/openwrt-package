@@ -18,8 +18,7 @@
 					"clean_log",
 					"flush_cache",
 					"get_version",
-					"print_log",
-					"restart"
+					"print_log"
 				]
 			},
 			"uci": [ "mosdns" ]
