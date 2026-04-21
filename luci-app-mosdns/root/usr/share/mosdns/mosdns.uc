@@ -315,12 +315,10 @@ switch (action) {
 	case "update":
 		update_geodat();
 		update_adlist();
-		exec_sys('/etc/init.d/mosdns restart');
+		v2dat_dump();
 		break;
 	case "update_adlist":
-		if (update_adlist()) {
-			exec_sys('/etc/init.d/mosdns restart');
-		}
+		update_adlist();
 		break;
 	case "v2dat_dump":
 		v2dat_dump();

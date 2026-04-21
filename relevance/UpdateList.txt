@@ -43,7 +43,6 @@ libcryptopp
 linkease
 linkmount
 lua-maxminddb
-luci-app-accesscontrol
 luci-app-adguardhome
 luci-app-alist
 luci-app-aliyundrive-webdav

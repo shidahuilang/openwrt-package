@@ -391,10 +391,7 @@ return view.extend({
 				if (value == formvalue) {
 					return;
 				}
-				return fs.write('/etc/mosdns/rule/cloudflare-cidr.txt', formvalue.trim().replace(/\r\n/g, '\n') + '\n')
-					.then(function (i) {
-						return fs.exec('/etc/init.d/mosdns', ['restart']);
-					});
+				return fs.write('/etc/mosdns/rule/cloudflare-cidr.txt', formvalue.trim().replace(/\r\n/g, '\n') + '\n');
 			});
 		};
 

@@ -256,9 +256,9 @@ appfilter_handle_dev_visit_list(struct ubus_context *ctx, struct ubus_object *ob
     int total_count = json_object_array_length(visit_array);
 
     struct json_object *paged_array = NULL;
-    if (page == 0) {
-        paged_array = visit_array;
-        json_object_get(visit_array); 
+    if (page <= 0) {
+        /* Reuse visit_array as response data while keeping a local reference for cleanup. */
+        paged_array = json_object_get(visit_array);
     } else {
         paged_array = json_object_new_array();
         int start_idx = (page - 1) * page_size;
@@ -283,6 +283,7 @@ appfilter_handle_dev_visit_list(struct ubus_context *ctx, struct ubus_object *ob
         total_pages = (total_count + page_size - 1) / page_size; // Ceiling division
     }
     json_object_object_add(root_obj, "total_pages", json_object_new_int(total_pages));
+    json_object_put(visit_array);
 
     if (req_obj) {
         json_object_put(req_obj);
@@ -1631,9 +1632,9 @@ static int handle_get_all_users(struct ubus_context *ctx, struct ubus_object *ob
     int total_count = json_object_array_length(au_info.users_array);
     
     struct json_object *paged_array = NULL;
-    if (page == 0) {
-        paged_array = au_info.users_array;
-        json_object_get(au_info.users_array); // Increment reference count to prevent double free
+    if (page <= 0) {
+        /* Reuse users_array as response data while keeping a local reference for cleanup. */
+        paged_array = json_object_get(au_info.users_array);
     } else {
         paged_array = json_object_new_array();
         int start_idx = (page - 1) * page_size;
@@ -1659,6 +1660,7 @@ static int handle_get_all_users(struct ubus_context *ctx, struct ubus_object *ob
         total_pages = (total_count + page_size - 1) / page_size; // Ceiling division
     }
     json_object_object_add(data_obj, "total_pages", json_object_new_int(total_pages));
+    json_object_put(au_info.users_array);
 
     json_object_object_add(response, "data", data_obj);
     

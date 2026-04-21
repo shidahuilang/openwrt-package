@@ -822,10 +822,7 @@ start_service() {
 		fi
 	fi
 
-	[ "$update_list" -eq 1 ] && {
-		sleep 3
-		$MOSDNS_SCRIPT update_adlist
-	} &
+	[ "$update_list" -eq 1 ] && $MOSDNS_SCRIPT update_adlist &
 }
 
 stop_service() {
