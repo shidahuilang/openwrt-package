@@ -34,11 +34,6 @@ function exec_sys(cmd) {
 	return { code: code, stdout: stdout || "" };
 }
 
-function restart_mosdns() {
-	let p = popen('(sleep 1; /etc/init.d/mosdns restart) >/dev/null 2>&1 &', 'r');
-	if (p) p.close();
-}
-
 function get_logfile_path_internal() {
 	let uci_cursor = cursor();
 	uci_cursor.load('mosdns');
@@ -123,13 +118,6 @@ const methods = {
 			} else {
 				return { error: res.stdout };
 			}
-		}
-	},
-
-	restart: {
-		call: function() {
-			restart_mosdns();
-			return { code: 0, output: "mosdns is restarting in background." };
 		}
 	}
 };

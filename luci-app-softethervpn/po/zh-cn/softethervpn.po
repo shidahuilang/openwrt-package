@@ -18,6 +18,3 @@ msgstr "开启 MS-SSTP 防火墙"
 
 msgid "Open the OpenVPN firewall"
 msgstr "开启 OpenVPN 防火墙"
-
-msgid "SoftEther VPN Service"
-msgstr "SoftEther VPN 服务"

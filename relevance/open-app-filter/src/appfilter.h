@@ -9,7 +9,7 @@
 #include "utils.h"
 
 #define LOG_FILE_PATH "/tmp/log/appfilter.log"
-#define OAF_VERSION "6.1.7"
+#define OAF_VERSION "6.1.8"
 
 typedef enum {
     LOG_LEVEL_ERROR,

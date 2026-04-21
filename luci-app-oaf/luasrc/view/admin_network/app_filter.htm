@@ -1194,8 +1194,15 @@
                                     const hostname = user.hostname || "";
                                     const displayName = nickname || hostname || "--";
                                     
-                                    if (user.online != 1) {
+                                    if (user.online == 0) {
                                         tr.style.color = '#A9A9A9';
+                                    }
+                                    
+                                    let onlineStatusHtml = '<span style="opacity: 0.5;"><%:Offline%></span>';
+                                    if (user.online == 2) {
+                                        onlineStatusHtml = '<span style="color: #1a73e8;"><%:Active%></span>';
+                                    } else if (user.online == 1) {
+                                        onlineStatusHtml = '<span style="color: green;"><%:Online%></span>';
                                     }
                                     
                                     tr.innerHTML = `
@@ -1204,7 +1211,7 @@
                                             <div style="font-size: 12px; opacity: 0.5;">${user.mac}</div>
                                         </td>
                                         <td>${user.ip || '--'}</td>
-                                        <td>${user.online == 1 ? '<span style="color: green;"><%:Online%></span>' : '<span style="opacity: 0.5;"><%:Offline%></span>'}</td>
+                                        <td>${onlineStatusHtml}</td>
                                     `;
                                     tbody.appendChild(tr);
                                 });
