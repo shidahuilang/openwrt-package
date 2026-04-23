@@ -49,11 +49,19 @@ return view.extend({
 		s.tab('general', _('General Settings'));
 		s.tab('config_file', _('Configuration File'), _('Edit the content of the /etc/vlmcsd.ini file.'));
 
-		s.taboption('general', form.Flag, 'enabled', _('Enable Vlmcsd KMS Server'));
-		s.taboption('general', form.Flag, 'auto_activate', _('Allow automatic activation'));
-		s.taboption('general', form.Flag, 'internet_access', _('Allow connection from Internet'));
+		let o = s.taboption('general', form.Flag, 'enabled', _('Enable Vlmcsd KMS Server'));
+		o.default = o.disabled;
+		o.rmempty = false;
 
-		const o = s.taboption('config_file', form.TextValue, '_tmpl',
+		o = s.taboption('general', form.Flag, 'auto_activate', _('Allow automatic activation'));
+		o.default = o.enabled;
+		o.rmempty = false;
+
+		o = s.taboption('general', form.Flag, 'internet_access', _('Allow connection from Internet'));
+		o.default = o.disabled;
+		o.rmempty = false;
+
+		o = s.taboption('config_file', form.TextValue, '_tmpl',
 			null,
 			_("This is the content of the file '/etc/vlmcsd.ini', you can edit it here, usually no modification is needed."));
 		o.rows = 20;
