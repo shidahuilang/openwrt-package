@@ -1,0 +1,108 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-22 03:30+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: htdocs/luci-static/resources/view/socat.js:27
+msgid "Socat"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/socat.js:27
+msgid ""
+"Socat is a relay for bidirectional data transfer between two independent "
+"data channels."
+msgstr ""
+
+#: htdocs/luci-static/resources/view/socat.js:29
+msgid "Global Settings"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/socat.js:32
+#: htdocs/luci-static/resources/view/socat.js:51
+msgid "Enabled"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/socat.js:35
+#: htdocs/luci-static/resources/view/socat.js:84
+msgid "Port Forwarding"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/socat.js:48
+msgid "Socat Configuration"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/socat.js:56
+msgid "Status"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/socat.js:81
+msgid "Remarks"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/socat.js:83
+msgid "Protocol Type"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/socat.js:87
+msgid "Listen Address Family"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/socat.js:88
+msgid "IPv4 and IPv6"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/socat.js:89
+msgid "IPv4 Only"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/socat.js:90
+msgid "IPv6 Only"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/socat.js:94
+msgid "Listen Protocol"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/socat.js:108
+msgid "Listen Port"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/socat.js:113
+msgid "Reuse Port"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/socat.js:113
+msgid ""
+"Allow binding to the port even when previous connections are in TIME_WAIT, "
+"preventing restart failures."
+msgstr ""
+
+#: htdocs/luci-static/resources/view/socat.js:118
+msgid "Destination Protocol"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/socat.js:125
+msgid "Destination Address"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/socat.js:137
+msgid "Destination Port"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/socat.js:141
+msgid "Open Firewall Port"
+msgstr ""

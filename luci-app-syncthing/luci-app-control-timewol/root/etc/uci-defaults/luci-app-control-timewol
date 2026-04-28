@@ -1,11 +1,11 @@
 #!/bin/sh
 
 uci -q batch <<-EOF >/dev/null
-	delete ucitrack.@timewol[-1]
-	add ucitrack timewol
-	set ucitrack.@timewol[-1].init=timewol
+	delete ucitrack.@luci_app_control_timewol[-1]
+	add ucitrack luci_app_control_timewol
+	set ucitrack.@luci_app_control_timewol[-1].init=luci-app-control-timewol
 	commit ucitrack
 EOF
 
-rm -f /tmp/luci-indexcache
+rm -rf /tmp/luci-*cache
 exit 0

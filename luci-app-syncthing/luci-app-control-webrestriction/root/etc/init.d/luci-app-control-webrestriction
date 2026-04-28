@@ -1,0 +1,81 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2016 fw867 <ffkykzs@gmail.com>
+# Copyright (C) 2024 Lienol
+
+START=99
+
+CONFIG="luci-app-control-webrestriction"
+ipt="iptables -w"
+ip6t="ip6tables -w"
+
+iptables_w(){
+	$ipt 1 "$@"
+	$ip6t 1 "$@"
+}
+
+add_rule(){
+	action=$1
+	local items=$(uci show ${CONFIG} | grep "=macbind" | cut -d '.' -sf 2 | cut -d '=' -sf 1)
+	for i in $items; do
+		enable=$(uci -q get ${CONFIG}.${i}.enable)
+		macaddr=$(uci -q get ${CONFIG}.${i}.macaddr)
+		if [ -z $enable ] || [ -z $macaddr ]; then
+			continue
+		fi
+		if [ "$enable" == "1" ]; then
+			iptables_w -A WEB_RESTRICTION -m mac --mac-source $macaddr -j $action
+			[ "$limit_type" == "blacklist" ] && {
+				iptables_w -t nat -A WEB_RESTRICTION -m mac --mac-source $macaddr -j RETURN
+			}
+		fi
+		unset enable macaddr
+	done
+}
+
+start(){
+	stop
+	ENABLED=$(uci -q get ${CONFIG}.@basic[0].enable || echo "0")
+	[ "${ENABLED}" != "1" ] && exit 0
+	limit_type=$(uci -q get ${CONFIG}.@basic[0].limit_type)
+
+	iptables_w -N WEB_RESTRICTION
+	if [ "$limit_type" == "blacklist" ]; then
+		iptables_w -t nat -N WEB_RESTRICTION
+		add_rule DROP
+	else
+		add_rule ACCEPT
+		iptables_w -A WEB_RESTRICTION -j DROP
+	fi
+
+	FW3_INDEX_4=$($ipt -L FORWARD --line-numbers | tail -n +3 | grep -E ACCEPT | grep ctstate | grep fw3 | awk '{print $1}')
+	[ -n "$FW3_INDEX_4" ] && let FW3_INDEX_4+=1
+	$ipt -I FORWARD $FW3_INDEX_4 -j WEB_RESTRICTION
+
+	FW3_INDEX_6=$($ip6t -L FORWARD --line-numbers | tail -n +3 | grep -E ACCEPT | grep ctstate | grep fw3 | awk '{print $1}')
+	[ -n "$FW3_INDEX_6" ] && let FW3_INDEX_6+=1
+	$ip6t -I FORWARD $FW3_INDEX_6 -j WEB_RESTRICTION
+
+	[ "$limit_type" == "blacklist" ] && {
+		iptables_w -t nat -I PREROUTING 1 -j WEB_RESTRICTION
+	}
+}
+
+stop(){
+	ipt_del() {
+		for i in $(seq 1 $($1 -nL $2 | grep -c "WEB_RESTRICTION")); do
+			local index=$($1 --line-number -nL $2 | grep "WEB_RESTRICTION" | head -1 | awk '{print $1}')
+			$1 -w -D $2 $index 2>/dev/null
+		done
+	}
+	ipt_del "$ipt" "FORWARD"
+	ipt_del "$ipt" "INPUT"
+	ipt_del "$ipt -t nat" "PREROUTING"
+	ipt_del "$ip6t" "FORWARD"
+	ipt_del "$ip6t" "INPUT"
+	ipt_del "$ip6t -t nat" "PREROUTING"
+
+	iptables_w -F WEB_RESTRICTION 2>/dev/null
+	iptables_w -X WEB_RESTRICTION 2>/dev/null
+	iptables_w -t nat -F WEB_RESTRICTION 2>/dev/null
+	iptables_w -t nat -X WEB_RESTRICTION 2>/dev/null
+}

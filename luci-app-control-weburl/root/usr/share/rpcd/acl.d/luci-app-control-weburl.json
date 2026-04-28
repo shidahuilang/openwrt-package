@@ -2,10 +2,10 @@
 	"luci-app-control-weburl": {
 		"description": "Grant UCI access for luci-app-control-weburl",
 		"read": {
-			"uci": [ "weburl" ]
+			"uci": [ "luci-app-control-weburl" ]
 		},
 		"write": {
-			"uci": [ "weburl" ]
+			"uci": [ "luci-app-control-weburl" ]
 		}
 	}
 }

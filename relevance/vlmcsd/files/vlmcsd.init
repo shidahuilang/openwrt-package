@@ -1,37 +1,133 @@
 #!/bin/sh /etc/rc.common
-# Copyright (c) 2011-2015 OpenWrt.org
 
+USE_PROCD=1
 START=90
+STOP=10
 
-start(){
-	if [ ! -f "/tmp/vlmcsd.pid" ]; then
-		/usr/bin/vlmcsd -i /etc/vlmcsd/vlmcsd.ini -p /tmp/vlmcsd.pid -L 0.0.0.0:1688
-		iptables -D input_rule -p tcp --dport 1688 -j ACCEPT
-		iptables -A input_rule -p tcp --dport 1688 -j ACCEPT 
-		sed -i '/## luci-app-vlmcsd/d' /etc/firewall.user
-		echo "iptables -A input_rule -p tcp --dport 1688 -j ACCEPT ## luci-app-vlmcsd" >> /etc/firewall.user
-		echo "KMS Server has started."
+NAME="vlmcsd"
+CONF="$NAME"
+PROG="/usr/bin/vlmcsd"
+INI_FILE="/etc/vlmcsd.ini"
+KMS_PORT="1688"
+DHCP_SECTION="$NAME"
+
+normalize_bool() {
+	case "$1" in
+		1|on|true|yes|enabled)
+			return 0
+		;;
+		*)
+			return 1
+		;;
+	esac
+}
+
+config_get_bool_compat() {
+	local __var="$1"
+	local section="$2"
+	local option="$3"
+	local default="${4:-0}"
+	local legacy_option="$5"
+	local value
+
+	config_get value "$section" "$option"
+	if [ -z "$value" ] && [ -n "$legacy_option" ]; then
+		config_get value "$section" "$legacy_option"
+	fi
+
+	if normalize_bool "${value:-$default}"; then
+		eval "$__var=1"
 	else
-		echo "KMS Server has already started."
+		eval "$__var=0"
 	fi
 }
 
-stop(){
-	if [ ! -f "/tmp/vlmcsd.pid" ]; then
-		echo "KMS Server is not running."
-	else
-		pid=`cat /tmp/vlmcsd.pid`
-		kill $pid
-		rm -f /tmp/vlmcsd.pid
-		iptables -D input_rule -p tcp --dport 1688 -j ACCEPT
-		sed -i '/## luci-app-vlmcsd/d' /etc/firewall.user
-		echo "KMS Server has stopped."
-	fi
+reload_dnsmasq() {
+	[ -x /etc/init.d/dnsmasq ] || return 0
+
+	/etc/init.d/dnsmasq reload >/dev/null 2>&1 || \
+		/etc/init.d/dnsmasq restart >/dev/null 2>&1 || true
 }
 
-restart(){
-	stop
-	sleep 2
-	start
-	echo "KMS Server has restarted."
+sync_dns_srv() {
+	local enabled="$1"
+	local before after hostname domain srv target
+
+	before="$(uci -q show "dhcp.${DHCP_SECTION}" 2>/dev/null)"
+	uci -q delete "dhcp.${DHCP_SECTION}"
+
+	if [ "$enabled" = "1" ]; then
+		hostname="$(uci -q get system.@system[0].hostname)"
+		domain="$(uci -q get dhcp.@dnsmasq[0].domain)"
+
+		[ -n "$hostname" ] || hostname="OpenWrt"
+
+		srv="_vlmcs._tcp"
+		target="$hostname"
+		if [ -n "$domain" ]; then
+			srv="${srv}.${domain}"
+			target="${target}.${domain}"
+		fi
+
+		uci -q set "dhcp.${DHCP_SECTION}=srvhost"
+		uci -q set "dhcp.${DHCP_SECTION}.srv=${srv}"
+		uci -q set "dhcp.${DHCP_SECTION}.target=${target}"
+		uci -q set "dhcp.${DHCP_SECTION}.port=${KMS_PORT}"
+	fi
+
+	after="$(uci -q show "dhcp.${DHCP_SECTION}" 2>/dev/null)"
+	[ "$before" = "$after" ] && return 0
+
+	uci -q commit dhcp
+	reload_dnsmasq
+}
+
+start_service() {
+	local enabled auto_activate internet_access
+
+	config_load "$CONF"
+	config_get_bool_compat enabled config enabled 0
+	config_get_bool_compat auto_activate config auto_activate 1 autoactivate
+	config_get_bool_compat internet_access config internet_access 0
+
+	if [ "$enabled" -ne 1 ]; then
+		sync_dns_srv 0
+		return 1
+	fi
+
+	[ -x "$PROG" ] || return 1
+
+	sync_dns_srv "$auto_activate"
+
+	procd_open_instance "$NAME"
+	procd_set_param command "$PROG" -D -i "$INI_FILE" -L "0.0.0.0:${KMS_PORT}"
+	procd_set_param file "$INI_FILE"
+	procd_set_param respawn
+	procd_set_param stdout 1
+	procd_set_param stderr 1
+
+	if [ "$internet_access" -eq 1 ]; then
+		procd_open_data
+		json_add_array firewall
+			json_add_object ""
+				json_add_string type rule
+				json_add_string name "Allow-vlmcsd"
+				json_add_string proto "tcp"
+				json_add_string src "*"
+				json_add_string dest_port "$KMS_PORT"
+				json_add_string target "ACCEPT"
+			json_close_object
+		json_close_array
+		procd_close_data
+	fi
+
+	procd_close_instance
+}
+
+stop_service() {
+	sync_dns_srv 0
+}
+
+service_triggers() {
+	procd_add_reload_trigger "$CONF" dhcp system
 }

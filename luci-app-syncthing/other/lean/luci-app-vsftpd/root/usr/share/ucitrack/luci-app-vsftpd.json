@@ -1,0 +1,4 @@
+{
+	"config": "vsftpd",
+	"init": "vsftpd"
+}

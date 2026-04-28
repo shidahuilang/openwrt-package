@@ -1,0 +1,42 @@
+#!/bin/sh
+
+changed=0
+
+if ! uci -q get vlmcsd.config >/dev/null 2>&1; then
+	uci -q batch <<'EOF'
+set vlmcsd.config=vlmcsd
+set vlmcsd.config.enabled='0'
+set vlmcsd.config.auto_activate='1'
+set vlmcsd.config.internet_access='0'
+EOF
+	changed=1
+fi
+
+if ! uci -q get vlmcsd.config.enabled >/dev/null 2>&1; then
+	uci -q set vlmcsd.config.enabled='0'
+	changed=1
+fi
+
+if ! uci -q get vlmcsd.config.auto_activate >/dev/null 2>&1; then
+	autoactivate="$(uci -q get vlmcsd.config.autoactivate)"
+	if [ -n "$autoactivate" ]; then
+		uci -q set vlmcsd.config.auto_activate="$autoactivate"
+	else
+		uci -q set vlmcsd.config.auto_activate='1'
+	fi
+	changed=1
+fi
+
+if uci -q get vlmcsd.config.autoactivate >/dev/null 2>&1; then
+	uci -q delete vlmcsd.config.autoactivate
+	changed=1
+fi
+
+if ! uci -q get vlmcsd.config.internet_access >/dev/null 2>&1; then
+	uci -q set vlmcsd.config.internet_access='0'
+	changed=1
+fi
+
+[ "$changed" -eq 1 ] && uci commit vlmcsd
+
+exit 0

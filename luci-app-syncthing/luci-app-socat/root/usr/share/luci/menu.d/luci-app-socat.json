@@ -1,0 +1,12 @@
+{
+	"admin/services/socat": {
+		"title": "Socat",
+		"action": {
+			"type": "view",
+			"path": "socat"
+		},
+		"depends": {
+			"acl": [ "luci-app-socat" ]
+		}
+	}
+}

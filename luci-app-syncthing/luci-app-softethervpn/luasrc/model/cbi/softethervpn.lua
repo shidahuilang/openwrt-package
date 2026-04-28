@@ -1,4 +1,4 @@
-m = Map("softethervpn", translate("SoftEther VPN"))
+m = Map("luci-app-softethervpn", translate("SoftEther VPN"))
 m.description = translate("SoftEther VPN is an open source, cross-platform, multi-protocol virtual private network solution developed by university of tsukuba graduate student Daiyuu Nobori for master's thesis. <br>can easily set up OpenVPN, IPsec, L2TP, ms-sstp, L2TPv3 and EtherIP servers on the router using the console.")
 m.template = "softethervpn/index"
 
@@ -29,9 +29,10 @@ o.cfgvalue = function(self, section)
     local html = ""
 
     for i, o in ipairs(obj) do
-        html = html .. string.format("<a href='%s'>%s &nbsp&nbsp", o.url, o.title)
+        html = html .. string.format("<a href='%s'>%s &nbsp&nbsp</a>", o.url, o.title)
     end
 
     return html
 end
+
 return m

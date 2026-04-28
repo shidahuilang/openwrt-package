@@ -4,7 +4,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-nginx-pingos
 PKG_VERSION:=1.19.6
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=nginx-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://nginx.org/download/
@@ -79,6 +79,9 @@ define Package/$(PKG_NAME)/install
 	
 	$(INSTALL_DIR) $(1)/usr/share/rpcd/acl.d
 	cp -pR ./root/usr/share/rpcd/acl.d/* $(1)/usr/share/rpcd/acl.d
+
+	$(INSTALL_DIR) $(1)/usr/share/ucitrack
+	cp -pR ./root/usr/share/ucitrack/* $(1)/usr/share/ucitrack
 
 	$(INSTALL_DIR) $(1)/usr/share/pingos
 	cp -pR $(PKG_INSTALL_DIR)/usr/share/pingos/conf $(1)/usr/share/pingos

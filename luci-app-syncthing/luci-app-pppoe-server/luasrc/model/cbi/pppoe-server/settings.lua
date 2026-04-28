@@ -2,7 +2,7 @@ local sys = require "luci.sys"
 local ifaces = sys.net:devices()
 local net = require "luci.model.network".init()
 
-m = Map("pppoe-server", translate("PPPoE Server"))
+m = Map("luci-app-pppoe-server", translate("PPPoE Server"))
 m.description = translate("The PPPoE server is a broadband access authentication server that prevents ARP spoofing.")
 m.template = "pppoe-server/index"
 
