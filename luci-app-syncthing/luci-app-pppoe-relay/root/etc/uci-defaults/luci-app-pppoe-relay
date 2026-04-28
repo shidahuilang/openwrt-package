@@ -1,14 +1,11 @@
 #!/bin/sh
 
 uci -q batch <<-EOF >/dev/null
-	delete ucitrack.@pppoe-relay[-1]
-	add ucitrack pppoe-relay
-	set ucitrack.@pppoe-relay[-1].init=pppoe-relay
+	delete ucitrack.@luci-app-pppoe-relay[-1]
+	add ucitrack luci-app-pppoe-relay
+	set ucitrack.@luci-app-pppoe-relay[-1].init=luci-app-luci-app-pppoe-relay
 	commit ucitrack
 EOF
 
-rm -f /tmp/luci-indexcache /tmp/luci-indexcache.*
-rm -rf /tmp/luci-modulecache/
-killall -HUP rpcd 2>/dev/null
-
+rm -rf /tmp/luci-*cache
 exit 0

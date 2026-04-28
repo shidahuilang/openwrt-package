@@ -1,0 +1,4 @@
+{
+	"config": "luci-app-timecontrol",
+	"init": "luci-app-timecontrol"
+}

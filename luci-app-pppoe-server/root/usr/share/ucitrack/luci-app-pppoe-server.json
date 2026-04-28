@@ -1,0 +1,4 @@
+{
+	"config": "luci-app-pppoe-server",
+	"init": "luci-app-pppoe-server"
+}

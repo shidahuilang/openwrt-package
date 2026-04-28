@@ -1,0 +1,4 @@
+{
+	"config": "luci-app-control-webrestriction",
+	"init": "luci-app-control-webrestriction"
+}

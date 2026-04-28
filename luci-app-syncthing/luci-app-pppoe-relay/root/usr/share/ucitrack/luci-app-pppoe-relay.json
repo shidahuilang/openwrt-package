@@ -1,0 +1,4 @@
+{
+	"config": "luci-app-pppoe-relay",
+	"init": "luci-app-pppoe-relay"
+}

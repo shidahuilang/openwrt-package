@@ -1,0 +1,4 @@
+{
+	"config": "dockerd",
+	"init": "dockerd"
+}

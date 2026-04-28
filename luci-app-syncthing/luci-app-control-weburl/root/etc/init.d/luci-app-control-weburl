@@ -1,0 +1,74 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2016 fw867 <ffkykzs@gmail.com>
+# Copyright (C) 2024 Lienol
+
+START=99
+
+CONFIG="luci-app-control-weburl"
+
+iptables_w(){
+	iptables -w 1 "$@"
+	ip6tables -w 1 "$@"
+}
+
+start(){
+	stop
+	ENABLED=$(uci -q get ${CONFIG}.@basic[0].enable || echo "0")
+	[ "${ENABLED}" != "1" ] && exit 0
+	ALGOS=$(uci -q get ${CONFIG}.@basic[0].algos || echo "0")
+	WEBURL_ALGOS="bm"
+	[ "${ALGOS}" = "1" ] && WEBURL_ALGOS="kmp"
+
+	# resolve interface
+	local interface=$(
+		. /lib/functions/network.sh
+
+		network_is_up "lan" && network_get_device device "lan"
+		echo "${device:-br-lan}"
+	)
+
+	iptables_w -t filter -N WEBURL_REJECT
+	iptables_w -t filter -I WEBURL_REJECT -j DROP
+	iptables_w -t filter -I WEBURL_REJECT -p tcp -j REJECT --reject-with tcp-reset
+	iptables_w -t filter -N WEBURL_RULES
+	iptables_w -t filter -N WEBURL
+	iptables_w -t filter -I WEBURL -i $interface -m length --length 53:768 -j WEBURL_RULES
+	# iptables_w -t filter -I WEBURL -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+	iptables_w -t filter -I FORWARD -j WEBURL
+
+	local items=$(uci show ${CONFIG} | grep "=macbind" | cut -d '.' -sf 2 | cut -d '=' -sf 1)
+	for i in $items; do
+		enable=$(uci -q get ${CONFIG}.${i}.enable || echo "0")
+		macaddr=$(uci -q get ${CONFIG}.${i}.macaddr)
+		timeon=$(uci -q get ${CONFIG}.${i}.timeon)
+		timeoff=$(uci -q get ${CONFIG}.${i}.timeoff)
+		keyword=$(uci -q get ${CONFIG}.${i}.keyword)
+		if [ "$enable" == "0" ] || [ -z "$keyword" ]; then
+			continue
+		fi
+		if [ -z "$timeon" ] || [ -z "$timeoff" ]; then
+			settime=""
+		else
+			settime="-m time --kerneltz --timestart $timeon --timestop $timeoff"
+		fi
+
+		if [ -z "$macaddr" ]; then
+			iptables_w -t filter -I WEBURL_RULES $settime -m string --string "$keyword" --algo $WEBURL_ALGOS -j WEBURL_REJECT
+		else
+			iptables_w -t filter -I WEBURL_RULES $settime -m mac --mac-source $macaddr -m string --string "$keyword" --algo $WEBURL_ALGOS -j WEBURL_REJECT
+		fi
+		unset enable macaddr timeon timeoff keyword
+	done
+
+	logger -t weburl "weburl filter on $interface"
+}
+
+stop(){
+	iptables_w -t filter -D FORWARD -j WEBURL 2>/dev/null
+	iptables_w -t filter -F WEBURL 2>/dev/null
+	iptables_w -t filter -X WEBURL 2>/dev/null
+	iptables_w -t filter -F WEBURL_RULES 2>/dev/null
+	iptables_w -t filter -X WEBURL_RULES 2>/dev/null
+	iptables_w -t filter -F WEBURL_REJECT 2>/dev/null
+	iptables_w -t filter -X WEBURL_REJECT 2>/dev/null
+}

@@ -1,17 +1,17 @@
 #!/bin/sh
 
 uci -q batch <<-EOF >/dev/null
-	delete firewall.timecontrol
-	set firewall.timecontrol=include
-	set firewall.timecontrol.type=script
-	set firewall.timecontrol.path=/var/etc/timecontrol.include
-	set firewall.timecontrol.reload=1
+	delete firewall.luci_app_timecontrol
+	set firewall.luci_app_timecontrol=include
+	set firewall.luci_app_timecontrol.type=script
+	set firewall.luci_app_timecontrol.path=/var/etc/luci-app-timecontrol.include
+	set firewall.luci_app_timecontrol.reload=1
 EOF
 
 uci -q batch <<-EOF >/dev/null
-	delete ucitrack.@timecontrol[-1]
-	add ucitrack timecontrol
-	set ucitrack.@timecontrol[-1].init=timecontrol
+	delete ucitrack.@luci-app-timecontrol[-1]
+	add ucitrack luci-app-timecontrol
+	set ucitrack.@luci-app-timecontrol[-1].init=luci-app-timecontrol
 	commit ucitrack
 EOF
 

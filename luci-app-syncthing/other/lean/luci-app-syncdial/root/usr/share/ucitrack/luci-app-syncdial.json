@@ -1,0 +1,4 @@
+{
+	"config": "syncdial",
+	"exec": "/bin/genwancfg"
+}

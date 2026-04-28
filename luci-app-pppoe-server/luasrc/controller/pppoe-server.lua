@@ -2,7 +2,7 @@
 module("luci.controller.pppoe-server", package.seeall)
 
 function index()
-    if not nixio.fs.access("/etc/config/pppoe-server") then return end
+    if not nixio.fs.access("/etc/config/luci-app-pppoe-server") then return end
 
     entry({"admin", "services", "pppoe-server"}, alias("admin", "services", "pppoe-server", "settings"), _("PPPoE Server"), 3)
     entry({"admin", "services", "pppoe-server", "settings"}, cbi("pppoe-server/settings"), _("General Settings"), 10).leaf = true

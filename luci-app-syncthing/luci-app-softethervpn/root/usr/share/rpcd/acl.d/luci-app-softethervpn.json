@@ -2,10 +2,10 @@
 	"luci-app-softethervpn": {
 		"description": "Grant UCI access for luci-app-softethervpn",
 		"read": {
-			"uci": [ "softethervpn" ]
+			"uci": [ "luci-app-softethervpn" ]
 		},
 		"write": {
-			"uci": [ "softethervpn" ]
+			"uci": [ "luci-app-softethervpn" ]
 		}
 	}
 }

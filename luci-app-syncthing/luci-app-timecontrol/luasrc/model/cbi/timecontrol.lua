@@ -1,6 +1,7 @@
 local o = require "luci.sys"
 local a, t, e
-a = Map("timecontrol", translate("Internet Time Control"))
+
+a = Map("luci-app-timecontrol", translate("Internet Time Control"))
 a.template = "timecontrol/index"
 
 t = a:section(TypedSection, "basic")
@@ -23,7 +24,9 @@ e.rmempty = false
 
 e = t:option(Value, "macaddr", "MAC")
 e.rmempty = true
-o.net.mac_hints(function(t, a) e:value(t, "%s (%s)" % {t, a}) end)
+o.net.mac_hints(function(t, a)
+	e:value(t, "%s (%s)" % {t, a})
+end)
 
 e = t:option(Value, "timeon", translate("No Internet start time"))
 e.default = "00:00"
