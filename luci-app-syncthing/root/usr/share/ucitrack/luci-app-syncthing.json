@@ -1,0 +1,4 @@
+{
+	"config": "luci-app-syncthing",
+	"init": "luci-app-syncthing"
+}

@@ -1,0 +1,4 @@
+{
+	"config": "luci-app-ipsec-server",
+	"init": "luci-app-ipsec-server"
+}

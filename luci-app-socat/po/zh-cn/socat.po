@@ -1,59 +1,103 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-22 03:12+0800\n"
+"PO-Revision-Date: 2026-03-22 03:13+0800\n"
+"Last-Translator: sbwml <admin@cooluc.com>\n"
+"Language-Team: Chinese\n"
+"Language: zh_Hans\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: htdocs/luci-static/resources/view/socat.js:27
+#: root/usr/share/luci/menu.d/luci-app-socat.json:3
 msgid "Socat"
-msgstr "Socat"
+msgstr ""
 
-msgid "Socat is a versatile networking tool named after 'Socket CAT', which can be regarded as an N-fold enhanced version of NetCat"
-msgstr "Socat 是 Linux 下的一个多功能的网络工具，名字来由是「Socket CAT」。其功能与有瑞士军刀之称的 Netcat 类似，可以看做是 Netcat 的加强版。"
+#: htdocs/luci-static/resources/view/socat.js:27
+msgid ""
+"Socat is a relay for bidirectional data transfer between two independent "
+"data channels."
+msgstr "Socat 是一个在两个独立数据通道之间进行双向数据转发的工具。"
 
-msgid "Socat Config"
-msgstr "Socat 配置"
+#: htdocs/luci-static/resources/view/socat.js:29
+msgid "Global Settings"
+msgstr "全局设置"
 
-msgid "Status"
-msgstr "状态"
-
+#: htdocs/luci-static/resources/view/socat.js:32
+#: htdocs/luci-static/resources/view/socat.js:51
 msgid "Enabled"
 msgstr "启用"
 
+#: htdocs/luci-static/resources/view/socat.js:35
+#: htdocs/luci-static/resources/view/socat.js:84
+msgid "Port Forwarding"
+msgstr "端口转发"
+
+#: htdocs/luci-static/resources/view/socat.js:48
+msgid "Socat Configuration"
+msgstr "Socat 配置"
+
+#: htdocs/luci-static/resources/view/socat.js:56
+msgid "Status"
+msgstr "状态"
+
+#: htdocs/luci-static/resources/view/socat.js:81
 msgid "Remarks"
 msgstr "备注"
 
-msgid "Protocol"
-msgstr "协议"
+#: htdocs/luci-static/resources/view/socat.js:83
+msgid "Protocol Type"
+msgstr "协议类型"
 
+#: htdocs/luci-static/resources/view/socat.js:87
+msgid "Listen Address Family"
+msgstr "监听地址族"
+
+#: htdocs/luci-static/resources/view/socat.js:88
+msgid "IPv4 and IPv6"
+msgstr "IPv4 和 IPv6"
+
+#: htdocs/luci-static/resources/view/socat.js:89
+msgid "IPv4 Only"
+msgstr "仅 IPv4"
+
+#: htdocs/luci-static/resources/view/socat.js:90
 msgid "IPv6 Only"
-msgstr "仅IPv6"
+msgstr "仅 IPv6"
 
-msgid "When checked, only IPv6 ports are listen for, otherwise IPv4 will also be listened for."
-msgstr "当勾选时，仅监听IPv6，否则将会同时监听IPv4。"
-
-msgid "Port Forwards"
-msgstr "端口转发"
-
+#: htdocs/luci-static/resources/view/socat.js:94
 msgid "Listen Protocol"
 msgstr "监听协议"
 
-msgid "Listen port"
+#: htdocs/luci-static/resources/view/socat.js:108
+msgid "Listen Port"
 msgstr "监听端口"
 
-msgid "Bind to a port local"
-msgstr "绑定到本地端口"
+#: htdocs/luci-static/resources/view/socat.js:113
+msgid "Reuse Port"
+msgstr "重用端口"
 
+#: htdocs/luci-static/resources/view/socat.js:113
+msgid ""
+"Allow binding to the port even when previous connections are in TIME_WAIT, "
+"preventing restart failures."
+msgstr "允许在端口处于 TIME_WAIT 状态时立即重新绑定，避免服务重启失败。"
+
+#: htdocs/luci-static/resources/view/socat.js:118
 msgid "Destination Protocol"
 msgstr "目标协议"
 
-msgid "Destination address"
+#: htdocs/luci-static/resources/view/socat.js:125
+msgid "Destination Address"
 msgstr "目标地址"
 
-msgid "Destination port"
+#: htdocs/luci-static/resources/view/socat.js:137
+msgid "Destination Port"
 msgstr "目标端口"
 
-msgid "Proxy"
-msgstr "代理"
-
-msgid "Proxy Server"
-msgstr "代理服务器"
-
-msgid "Proxy Port"
-msgstr "代理端口"
-
-msgid "Open firewall port"
+#: htdocs/luci-static/resources/view/socat.js:141
+msgid "Open Firewall Port"
 msgstr "打开防火墙端口"

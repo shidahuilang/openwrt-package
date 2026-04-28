@@ -1,0 +1,4 @@
+{
+	"config": "luci-app-control-timewol",
+	"init": "luci-app-control-timewol"
+}
