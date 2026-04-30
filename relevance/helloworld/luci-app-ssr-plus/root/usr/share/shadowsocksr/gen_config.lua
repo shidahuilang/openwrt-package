@@ -692,9 +692,9 @@ if xray_fragment.fragment ~= "0" or (xray_fragment.noise ~= "0" and xray_noise.e
 	table.insert(Xray.outbounds, {
 		protocol = "freedom",
 		tag = (remarks ~= nil and remarks ~= "") and (node_id .. "." .. remarks) or node_id,
-		settings = {
-			domainStrategy = (xray_fragment.noise == "1" and xray_noise.enabled == "1") and n_domainstrategy or nil
-		},
+		settings = (xray_fragment.noise == "1" and xray_noise.enabled == "1") and n_domainstrategy and n_domainstrategy ~= "" and {
+			domainStrategy = n_domainstrategy
+		} or nil,
 		streamSettings = {
 			sockopt = {
 			mark = 255,
