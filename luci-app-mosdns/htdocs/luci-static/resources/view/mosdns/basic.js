@@ -356,7 +356,7 @@ return view.extend({
 		o.default = false;
 
 		o = s.taboption('advanced', form.DynamicList, 'ad_source', _('ADblock Source'),
-			_('When using custom rule sources, please use rule types supported by MosDNS (domain lists).') +
+			_('When using custom rule sources, please use rule types supported by MosDNS (domain list or AdGuardHome rules).') +
 			'<br>' +
 			_('Support for local files, such as: file:///var/mosdns/example.txt'));
 		o.depends('adblock', '1');

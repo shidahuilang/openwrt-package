@@ -3,25 +3,80 @@
 'require fs';
 'require ui';
 'require view';
+'require rpc';
+
+var callStartUpdate = rpc.declare({
+	object: 'luci.mosdns',
+	method: 'start_update',
+	expect: { '': {} }
+});
+
+var callGetUpdateLog = rpc.declare({
+	object: 'luci.mosdns',
+	method: 'get_update_log',
+	expect: { '': {} }
+});
 
 return view.extend({
 	handleUpdate: function () {
-		ui.showModal(_('Updating...'), [
+		var logTextarea = E('textarea', {
+			'class': 'cbi-input-textarea',
+			'readonly': 'readonly',
+			'style': 'width: 100%; height: 300px; font-family: monospace; font-size: 12px; margin-top: 10px;',
+			'placeholder': _('Starting update...')
+		});
+
+		var closeButton = E('button', {
+			'class': 'btn',
+			'style': 'display: none;',
+			'click': ui.hideModal
+		}, _('Close'));
+
+		ui.showModal(_('Updating Database...'), [
 			E('p', { 'class': 'spinning' }, _('Please wait, this may take a few moments...')),
+			logTextarea,
+			E('div', { 'class': 'right' }, [ closeButton ])
 		]);
-		return fs.exec('/usr/share/mosdns/mosdns.uc', ['update'])
-			.then(function (res) {
-				ui.hideModal();
-				if (res.code === 0) {
-					ui.addNotification(null, E('p', _('Update success')), 'info');
-				} else {
-					ui.addNotification(null, E('p', res.stderr + '<br />' + res.stdout), 'warn');
-					ui.addNotification(null, E('p', _('Update failed, Please check the network status')), 'error');
+
+		var pollLog = function() {
+			return callGetUpdateLog().then(function(res) {
+				if (res && res.log) {
+					logTextarea.value = res.log;
+					logTextarea.scrollTop = logTextarea.scrollHeight;
+
+					if (res.log.match(/UPDATE_FINISHED/)) {
+						ui.hideModal();
+						ui.addNotification(null, E('p', _('Update success')), 'info');
+						return false;
+					}
+
+					if (res.log.match(/Another update is already in progress/)) {
+						ui.hideModal();
+						ui.addNotification(null, E('p', _('Another update is already in progress.')), 'warn');
+						return false;
+					}
 				}
-			}).catch(function (e) {
-				ui.hideModal();
-				ui.addNotification(null, E('p', _('Update failed: %s').format(e.message)), 'error');
+				return true;
 			});
+		};
+
+		return callStartUpdate().then(function(res) {
+			if (res.success) {
+				var interval = window.setInterval(function() {
+					pollLog().then(function(continuePolling) {
+						if (!continuePolling) {
+							window.clearInterval(interval);
+						}
+					});
+				}, 1000);
+			} else {
+				ui.hideModal();
+				ui.addNotification(null, E('p', res.error || _('Failed to start update.')), 'error');
+			}
+		}).catch(function(e) {
+			ui.hideModal();
+			ui.addNotification(null, E('p', _('Update failed: %s').format(e.message)), 'error');
+		});
 	},
 
 	render: function () {
@@ -61,7 +116,7 @@ return view.extend({
 		o.value('geoip', _('Full'));
 		o.value('geoip-only-cn-private', _('Little'));
 		o.rmempty = false;
-		o.default = 'geoip';
+		o.default = 'geoip-only-cn-private';
 
 		o = s.option(form.Value, 'github_proxy', _('GitHub Proxy'),
 			_('Update data files with GitHub Proxy, leave blank to disable proxy downloads.'));

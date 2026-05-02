@@ -119,6 +119,35 @@ const methods = {
 				return { error: res.stdout };
 			}
 		}
+	},
+
+	start_update: {
+		call: function() {
+			try {
+				if (stat('/var/lock/mosdns_update.lock')) {
+					return { success: false, error: 'Another update is already in progress.' };
+				}
+				exec_sys('echo "" > /var/log/mosdns_update.log');
+				exec_sys('{ /usr/share/mosdns/mosdns.uc update; rm -f /var/lock/mosdns_update.lock; echo "UPDATE_FINISHED"; } > /var/log/mosdns_update.log 2>&1 &');
+				return { success: true };
+			} catch (e) {
+				return { success: false, error: String(e) };
+			}
+		}
+	},
+
+	get_update_log: {
+		call: function() {
+			try {
+				if (stat('/var/log/mosdns_update.log')) {
+					return { log: readfile('/var/log/mosdns_update.log') };
+				} else {
+					return { log: '' };
+				}
+			} catch (e) {
+				return { error: String(e) };
+			}
+		}
 	}
 };
 

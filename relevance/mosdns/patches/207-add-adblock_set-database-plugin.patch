@@ -1,0 +1,427 @@
+From 64614017e674960638bac87b4a2f9c0aea0065e6 Mon Sep 17 00:00:00 2001
+From: sbwml <admin@cooluc.com>
+Date: Fri, 1 May 2026 01:35:59 +0800
+Subject: [PATCH] add adblock_set database plugin
+
+Signed-off-by: sbwml <admin@cooluc.com>
+---
+ .../data_provider/adblock_set/adblock_set.go  | 122 ++++++++++++++++++
+ .../adblock_set/adblock_set_test.go           | 107 +++++++++++++++
+ plugin/data_provider/adblock_set/matcher.go   |  43 ++++++
+ plugin/data_provider/adblock_set/parser.go    | 115 +++++++++++++++++
+ plugin/enabled_plugins.go                     |   1 +
+ 5 files changed, 388 insertions(+)
+ create mode 100644 plugin/data_provider/adblock_set/adblock_set.go
+ create mode 100644 plugin/data_provider/adblock_set/adblock_set_test.go
+ create mode 100644 plugin/data_provider/adblock_set/matcher.go
+ create mode 100644 plugin/data_provider/adblock_set/parser.go
+
+--- /dev/null
++++ b/plugin/data_provider/adblock_set/adblock_set.go
+@@ -0,0 +1,122 @@
++/*
++ * Copyright (C) 2025, IrineSistiana
++ *
++ * This file is part of mosdns.
++ *
++ * mosdns is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * mosdns is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
++ */
++
++package adblock_set
++
++import (
++	"fmt"
++	"os"
++	"sync/atomic"
++	"time"
++
++	"github.com/IrineSistiana/mosdns/v5/coremain"
++	"github.com/IrineSistiana/mosdns/v5/pkg/matcher/domain"
++	"github.com/IrineSistiana/mosdns/v5/pkg/utils"
++	"github.com/IrineSistiana/mosdns/v5/plugin/data_provider"
++	"go.uber.org/zap"
++)
++
++const PluginType = "adblock_set"
++
++func init() {
++	coremain.RegNewPluginFunc(PluginType, Init, func() any { return new(Args) })
++}
++
++func Init(bp *coremain.BP, args any) (any, error) {
++	m, err := NewAdblockSet(bp, args.(*Args))
++	if err != nil {
++		return nil, err
++	}
++	return m, nil
++}
++
++type Args struct {
++	Files []string `yaml:"files"`
++}
++
++var _ data_provider.DomainMatcherProvider = (*AdblockSet)(nil)
++
++type AdblockSet struct {
++	matcher atomic.Pointer[AdblockMatcher]
++	fw      *utils.FileWatcher
++}
++
++func (d *AdblockSet) GetDomainMatcher() domain.Matcher[struct{}] {
++	return d
++}
++
++func (d *AdblockSet) Match(s string) (struct{}, bool) {
++	if m := d.matcher.Load(); m != nil {
++		return m.Match(s)
++	}
++	return struct{}{}, false
++}
++
++func (d *AdblockSet) Close() error {
++	if d.fw != nil {
++		return d.fw.Close()
++	}
++	return nil
++}
++
++func NewAdblockSet(bp *coremain.BP, args *Args) (*AdblockSet, error) {
++	ds := &AdblockSet{}
++
++	loadInner := func() (*AdblockMatcher, error) {
++		m := &AdblockMatcher{
++			blacklist: domain.NewMixMatcher[struct{}](),
++			whitelist: domain.NewMixMatcher[struct{}](),
++		}
++		for _, f := range args.Files {
++			if len(f) == 0 {
++				continue
++			}
++			file, err := os.Open(f)
++			if err != nil {
++				return nil, fmt.Errorf("failed to open file %s: %w", f, err)
++			}
++			if err := ParseRules(file, m.blacklist, m.whitelist); err != nil {
++				file.Close()
++				return nil, fmt.Errorf("failed to parse rules from %s: %w", f, err)
++			}
++			file.Close()
++		}
++		return m, nil
++	}
++
++	m, err := loadInner()
++	if err != nil {
++		return nil, err
++	}
++	ds.matcher.Store(m)
++
++	if len(args.Files) > 0 {
++		ds.fw = utils.StartFileWatcher(args.Files, time.Second*3, func(changedFiles []string) {
++			newM, err := loadInner()
++			if err == nil {
++				ds.matcher.Store(newM)
++				bp.L().Info("reloaded adblock files", zap.Strings("files", changedFiles))
++			} else {
++				bp.L().Error("failed to reload adblock files", zap.Error(err))
++			}
++		})
++	}
++
++	return ds, nil
++}
+--- /dev/null
++++ b/plugin/data_provider/adblock_set/adblock_set_test.go
+@@ -0,0 +1,107 @@
++/*
++ * Copyright (C) 2025, IrineSistiana
++ *
++ * This file is part of mosdns.
++ *
++ * mosdns is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * mosdns is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
++ */
++
++package adblock_set
++
++import (
++	"strings"
++	"testing"
++
++	"github.com/IrineSistiana/mosdns/v5/pkg/matcher/domain"
++	"github.com/stretchr/testify/assert"
++)
++
++func TestParseAndMatch(t *testing.T) {
++	rules := `
++! Comment
++# Another comment
++||example.com^
++@@||whitelist.com^
++|exact.com|
++@@|white-exact.com|
++/.*regex.*/
++@@/.*white-regex.*/
++*keyword*
++@@*white-keyword*
++blocked.com
++domain:ntp.org
++full:metrics.icloud.com
++`
++	blacklist := domain.NewMixMatcher[struct{}]()
++	whitelist := domain.NewMixMatcher[struct{}]()
++
++	err := ParseRules(strings.NewReader(rules), blacklist, whitelist)
++	assert.NoError(t, err)
++
++	matcher := &AdblockMatcher{
++		blacklist: blacklist,
++		whitelist: whitelist,
++	}
++
++	tests := []struct {
++		domain string
++		want   bool
++	}{
++		{"example.com", true},
++		{"sub.example.com", true},
++		{"whitelist.com", false},
++		{"sub.whitelist.com", false},
++		{"exact.com", true},
++		{"sub.exact.com", false}, // |exact.com| is exact match
++		{"white-exact.com", false},
++		{"myregex123", true},
++		{"mywhite-regex123", false},
++		{"somekeywordhere", true},
++		{"some-white-keyword-here", false},
++		{"blocked.com", true},
++		{"other.com", false},
++		{"ntp.org", true},       // matched by domain:ntp.org
++		{"sub.ntp.org", true},   // matched by domain:ntp.org
++		{"metrics.icloud.com", true}, // matched by full:metrics.icloud.com
++		{"sub.metrics.icloud.com", false}, // full match only
++	}
++
++	for _, tt := range tests {
++		_, ok := matcher.Match(tt.domain)
++		assert.Equal(t, tt.want, ok, "Match(%s)", tt.domain)
++	}
++}
++
++func TestStripOptions(t *testing.T) {
++	rules := `
++||example.com^$important,third-party
++@@||whitelist.com^$dnstype=A
++`
++	blacklist := domain.NewMixMatcher[struct{}]()
++	whitelist := domain.NewMixMatcher[struct{}]()
++
++	err := ParseRules(strings.NewReader(rules), blacklist, whitelist)
++	assert.NoError(t, err)
++
++	matcher := &AdblockMatcher{
++		blacklist: blacklist,
++		whitelist: whitelist,
++	}
++
++	_, ok := matcher.Match("example.com")
++	assert.True(t, ok)
++
++	_, ok = matcher.Match("whitelist.com")
++	assert.False(t, ok)
++}
+--- /dev/null
++++ b/plugin/data_provider/adblock_set/matcher.go
+@@ -0,0 +1,43 @@
++/*
++ * Copyright (C) 2025, IrineSistiana
++ *
++ * This file is part of mosdns.
++ *
++ * mosdns is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * mosdns is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
++ */
++
++package adblock_set
++
++import (
++	"github.com/IrineSistiana/mosdns/v5/pkg/matcher/domain"
++)
++
++type AdblockMatcher struct {
++	blacklist *domain.MixMatcher[struct{}]
++	whitelist *domain.MixMatcher[struct{}]
++}
++
++func (m *AdblockMatcher) Match(s string) (struct{}, bool) {
++	// 1. Check whitelist. If matched, it's NOT a hit for the adblock set.
++	if _, ok := m.whitelist.Match(s); ok {
++		return struct{}{}, false
++	}
++
++	// 2. Check blacklist.
++	if _, ok := m.blacklist.Match(s); ok {
++		return struct{}{}, true
++	}
++
++	return struct{}{}, false
++}
+--- /dev/null
++++ b/plugin/data_provider/adblock_set/parser.go
+@@ -0,0 +1,115 @@
++/*
++ * Copyright (C) 2025, IrineSistiana
++ *
++ * This file is part of mosdns.
++ *
++ * mosdns is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * mosdns is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
++ */
++
++package adblock_set
++
++import (
++	"bufio"
++	"io"
++	"strings"
++
++	"github.com/IrineSistiana/mosdns/v5/pkg/matcher/domain"
++)
++
++// ParseRules reads AdBlock rules from r and adds them to blacklist and whitelist matchers.
++func ParseRules(r io.Reader, blacklist, whitelist *domain.MixMatcher[struct{}]) error {
++	scanner := bufio.NewScanner(r)
++	for scanner.Scan() {
++		line := strings.TrimSpace(scanner.Text())
++		if line == "" || line[0] == '!' || line[0] == '#' {
++			continue
++		}
++
++		// Handle whitelists
++		isWhitelist := false
++		if strings.HasPrefix(line, "@@") {
++			isWhitelist = true
++			line = line[2:]
++		}
++
++		// Handle comments in rules (e.g., rule # comment)
++		// But in AdBlock, # is usually for element hiding (##) or CSS selectors.
++		// For DNS rules, we ignore anything starting with #.
++		if strings.Contains(line, "##") || strings.Contains(line, "#?#") || strings.Contains(line, "#$#") {
++			continue
++		}
++
++		// Strip options (e.g., $important, $third-party)
++		if idx := strings.LastIndex(line, "$"); idx != -1 {
++			// Check if it's a regex or something else. 
++			// In ABP, $ marks the start of options.
++			line = line[:idx]
++		}
++
++		if line == "" {
++			continue
++		}
++
++		target := blacklist
++		if isWhitelist {
++			target = whitelist
++		}
++
++		if err := parseAndAddRule(line, target); err != nil {
++			// Skip invalid rules but maybe we should log them?
++			continue
++		}
++	}
++	return scanner.Err()
++}
++
++func parseAndAddRule(rule string, m *domain.MixMatcher[struct{}]) error {
++	// 0. Native MosDNS rules: type:pattern
++	if strings.Contains(rule, ":") {
++		typ, _, _ := strings.Cut(rule, ":")
++		switch typ {
++		case "full", "domain", "regexp", "keyword":
++			return m.Add(rule, struct{}{})
++		}
++	}
++
++	// 1. Regex: /regexp/
++	if strings.HasPrefix(rule, "/") && strings.HasSuffix(rule, "/") && len(rule) > 2 {
++		return m.Add("regexp:"+rule[1:len(rule)-1], struct{}{})
++	}
++
++	// 2. Subdomain: ||example.com^
++	if strings.HasPrefix(rule, "||") {
++		domainStr := rule[2:]
++		if strings.HasSuffix(domainStr, "^") {
++			domainStr = domainStr[:len(domainStr)-1]
++		}
++		return m.Add("domain:"+domainStr, struct{}{})
++	}
++
++	// 3. Exact match: |example.com|
++	if strings.HasPrefix(rule, "|") && strings.HasSuffix(rule, "|") && len(rule) > 2 {
++		return m.Add("full:"+rule[1:len(rule)-1], struct{}{})
++	}
++
++	// 4. Keyword: *keyword*
++	if strings.HasPrefix(rule, "*") && strings.HasSuffix(rule, "*") && len(rule) > 2 {
++		return m.Add("keyword:"+rule[1:len(rule)-1], struct{}{})
++	}
++
++	// 5. Default: treat as exact match if it looks like a domain
++	// Many lists are just a list of domains.
++	// AdGuard Home treats rules without || or ^ as exact matches.
++	return m.Add("full:"+rule, struct{}{})
++}
+--- a/plugin/enabled_plugins.go
++++ b/plugin/enabled_plugins.go
+@@ -22,6 +22,7 @@ package plugin
+ // data providers
+ import (
+ 	// data provider
++	_ "github.com/IrineSistiana/mosdns/v5/plugin/data_provider/adblock_set"
+ 	_ "github.com/IrineSistiana/mosdns/v5/plugin/data_provider/domain_set"
+ 	_ "github.com/IrineSistiana/mosdns/v5/plugin/data_provider/ip_set"
+ 

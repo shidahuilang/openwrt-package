@@ -2,7 +2,7 @@
 
 'use strict';
 
-import { popen, mkdir, unlink, writefile, open, stat} from 'fs';
+import { popen, mkdir, unlink, writefile, open, stat, stdout } from 'fs';
 import { cursor } from 'uci';
 import { connect } from 'ubus';
 
@@ -148,6 +148,7 @@ function update_adlist() {
 			}
 
 			print(`Downloading ${mirror}${url}\n`);
+			stdout.flush();
 			let curl_res = exec_sys(`curl --connect-timeout 5 -m 90 --ipv4 -kfSLo "${ad_tmpdir}/${filename}" "${mirror}${url}"`);
 			if (curl_res.code !== 0) download_failed = true;
 		}
@@ -191,6 +192,7 @@ function update_geodat() {
 	let geoip_url = mirror + "https://github.com/Loyalsoldier/geoip/releases/latest/download/" + geoip_type + ".dat";
 
 	print(`Downloading ${geoip_url}.sha256sum\n`);
+	stdout.flush();
 	if (exec_sys(`curl --connect-timeout 5 -m 20 --ipv4 -kfSLo "${tmpdir}/geoip.dat.sha256sum" "${geoip_url}.sha256sum"`).code !== 0) {
 		exec_sys(`rm -rf "${tmpdir}"`); exit(1);
 	}
@@ -203,8 +205,10 @@ function update_geodat() {
 
 	if (geoip_sum_local === geoip_sum_remote) {
 		print("geoip.dat is up to date.\n");
+		stdout.flush();
 	} else {
 		print(`Downloading ${geoip_url}\n`);
+		stdout.flush();
 		if (exec_sys(`curl --connect-timeout 5 -m 120 --ipv4 -kfSLo "${tmpdir}/geoip.dat" "${geoip_url}"`).code !== 0) {
 			exec_sys(`rm -rf "${tmpdir}"`); exit(1);
 		}
@@ -221,6 +225,7 @@ function update_geodat() {
 	let geosite_url = mirror + "https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat";
 
 	print(`Downloading ${geosite_url}.sha256sum\n`);
+	stdout.flush();
 	if (exec_sys(`curl --connect-timeout 5 -m 20 --ipv4 -kfSLo "${tmpdir}/geosite.dat.sha256sum" "${geosite_url}.sha256sum"`).code !== 0) {
 		exec_sys(`rm -rf "${tmpdir}"`); exit(1);
 	}
@@ -233,8 +238,10 @@ function update_geodat() {
 
 	if (geosite_sum_local === geosite_sum_remote) {
 		print("geosite.dat is up to date.\n");
+		stdout.flush();
 	} else {
 		print(`Downloading ${geosite_url}\n`);
+		stdout.flush();
 		if (exec_sys(`curl --connect-timeout 5 -m 120 --ipv4 -kfSLo "${tmpdir}/geosite.dat" "${geosite_url}"`).code !== 0) {
 			exec_sys(`rm -rf "${tmpdir}"`); exit(1);
 		}
@@ -313,9 +320,23 @@ switch (action) {
 		get_adlist();
 		break;
 	case "update":
-		update_geodat();
-		update_adlist();
-		v2dat_dump();
+		if (stat('/var/lock/mosdns_update.lock')) {
+			print("Another update is already in progress.\n");
+			exit(1);
+		}
+		writefile('/var/lock/mosdns_update.lock', '');
+		try {
+			update_geodat();
+			update_adlist();
+			v2dat_dump();
+			print("UPDATE_FINISHED\n");
+			stdout.flush();
+		} catch (e) {
+			print("Update failed: " + e + "\n");
+			print("UPDATE_FINISHED\n");
+			stdout.flush();
+		}
+		unlink('/var/lock/mosdns_update.lock');
 		break;
 	case "update_adlist":
 		update_adlist();
