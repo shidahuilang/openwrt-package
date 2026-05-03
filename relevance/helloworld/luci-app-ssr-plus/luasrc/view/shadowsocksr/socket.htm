@@ -1,9 +1,26 @@
 <%+cbi/valueheader%>
-<span class="socket-connected" hint="<%=self:cfgvalue(section)%>">wait</span>
+<%
+	local hint = self:cfgvalue(section)
+	local cache = self.detect_cache
+	local text = "N/A"
+	local color = "#999999"
+	if cache then
+		if cache.socket then
+			text = "ok"
+			color = "#249400"
+		else
+			text = "fail"
+			color = "#ff0000"
+		end
+	end
+%>
+<span class="socket-connected" hint="<%=hint%>"><font style="color:<%=color%>"><%=text%></font></span>
 <span class="transport" hint="<%=self.transport%>"></span>
 <span class="wsPath" hint="<%=self.ws_path%>"></span>
+<span class="wsHost" hint="<%=self.ws_host%>"></span>
+<span class="tlsHost" hint="<%=self.tls_host%>"></span>
 <span class="tls" hint="<%=self.tls%>"></span>
-<span class="tlshost" hint="<%=self.tls_host%>"></span>
-<span class="hy2type" hint="<%=self.type%>"></span>
-<span class="hy2proto" hint="<%=self.v2ray_protocol%>"></span>
+<span class="type" hint="<%=self.type%>"></span>
+<span class="proto" hint="<%=self.proto%>"></span>
+<span class="reality" hint="<%=self.reality%>"></span>
 <%+cbi/valuefooter%>

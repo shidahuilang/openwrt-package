@@ -1,114 +1,331 @@
 -- Licensed to the public under the GNU General Public License v3.
 require "luci.http"
 require "luci.sys"
+require "luci.util"
 require "nixio.fs"
 require "luci.dispatcher"
 require "luci.model.uci"
+local nixio = require "nixio"
+local json = require "luci.jsonc"
 local cbi = require "luci.cbi"
 local uci = require "luci.model.uci".cursor()
+local URL = require "url"
 
 local m, s, o, node
 local server_count = 0
+local server_cache = {}
+local detect_cache = {}
+local CLASH_YAML_DIR = "/etc/ssrplus/clash"
+local CLASH_YAML_HELPER = "/usr/share/shadowsocksr/clash_yaml.lua"
 
--- 确保正确判断程序是否存在
 local function is_finded(e)
-	return luci.sys.exec(string.format('type -t -p "%s" 2>/dev/null', e)) ~= ""
+	return luci.sys.exec(string.format('type -t -p "%s" -p "/usr/libexec/%s" 2>/dev/null', e, e)) ~= ""
 end
 
-local function is_js_luci()
-	return luci.sys.call('[ -f "/www/luci-static/resources/uci.js" ]') == 0
-end
-
-local function url(...)
-	local url = string.format("admin/services/%s", "shadowsocksr")
-	local args = { ... }
-	for i, v in ipairs(args) do
-		if v and v ~= "" then
-			url = url .. "/" .. v
-		end
+local function trim(text)
+	if not text or text == "" then
+		return ""
 	end
-	return require "luci.dispatcher".build_url(url)
+	return (text:gsub("^%s*(.-)%s*$", "%1"))
 end
 
--- 默认的保存并应用行为
-local function apply_redirect(m)
-	local tmp_uci_file = "/etc/config/" .. "shadowsocksr" .. "_redirect"
-	if m.redirect and m.redirect ~= "" then
-		if nixio.fs.access(tmp_uci_file) then
-			local redirect
-			for line in io.lines(tmp_uci_file) do
-				redirect = line:match("option%s+url%s+['\"]([^'\"]+)['\"]")
-				if redirect and redirect ~= "" then break end
+local function upload_alias(filename)
+	local stem = tostring(filename or ""):gsub("\\", "/"):match("([^/]+)$") or "custom"
+	stem = stem:gsub("%.%w+$", "")
+	stem = trim(stem):gsub("[%c\r\n]+", " "):gsub("%s+", " ")
+	if stem == "" then
+		stem = "custom"
+	end
+	return "Clash_" .. stem
+end
+
+local function hash_file(path)
+	local cmd = "md5sum " .. luci.util.shellquote(path) .. " 2>/dev/null | awk '{print $1}'"
+	return trim(luci.sys.exec(cmd))
+end
+
+local function preprocess_clash_yaml(input_path, output_path)
+	local cmd = string.format(
+		"/usr/bin/lua %s prepare %s %s >/dev/null 2>&1",
+		luci.util.shellquote(CLASH_YAML_HELPER),
+		luci.util.shellquote(input_path),
+		luci.util.shellquote(output_path)
+	)
+	return luci.sys.call(cmd) == 0
+end
+
+local function clash_path_in_use(path, exclude_sid)
+	local in_use = false
+
+	uci:foreach("shadowsocksr", "servers", function(section)
+		if section[".name"] ~= exclude_sid and section.clash_path == path then
+			in_use = true
+			return false
+		end
+	end)
+
+	return in_use
+end
+
+local function cleanup_old_clash_path(old_path, new_path, sid)
+	if not old_path or old_path == "" or old_path == new_path then
+		return
+	end
+	if old_path:sub(1, #CLASH_YAML_DIR + 1) ~= CLASH_YAML_DIR .. "/" then
+		return
+	end
+	if clash_path_in_use(old_path, sid) then
+		return
+	end
+	nixio.fs.remove(old_path)
+end
+
+local function find_uploaded_clash_section(upload_name, final_path)
+	local sid
+
+	uci:foreach("shadowsocksr", "servers", function(section)
+		if section.type ~= "clash" or section.yaml_upload ~= "1" then
+			return
+		end
+		if upload_name ~= "" and section.yaml_upload_name == upload_name then
+			sid = section[".name"]
+			return false
+		end
+		if final_path ~= "" and section.clash_path == final_path then
+			sid = section[".name"]
+			return false
+		end
+	end)
+
+	return sid
+end
+
+local function save_uploaded_clash_node(upload_name, final_path)
+	local sid = find_uploaded_clash_section(upload_name, final_path)
+	local old_path
+	local alias
+
+	if not sid then
+		sid = uci:add("shadowsocksr", "servers")
+	end
+	if not sid then
+		return nil
+	end
+
+	old_path = uci:get("shadowsocksr", sid, "clash_path")
+	alias = uci:get("shadowsocksr", sid, "alias")
+	if not alias or alias == "" then
+		alias = upload_alias(upload_name)
+	end
+
+	uci:set("shadowsocksr", sid, "type", "clash")
+	uci:set("shadowsocksr", sid, "alias", alias)
+	uci:set("shadowsocksr", sid, "server", "127.0.0.1")
+	uci:set("shadowsocksr", sid, "server_port", "0")
+	uci:delete("shadowsocksr", sid, "clash_url")
+	uci:set("shadowsocksr", sid, "clash_path", final_path)
+	uci:set("shadowsocksr", sid, "clash_user_agent", uci:get("shadowsocksr", sid, "clash_user_agent") or "clash")
+	if not uci:get("shadowsocksr", sid, "switch_enable") then
+		uci:set("shadowsocksr", sid, "switch_enable", uci:get_first("shadowsocksr", "server_subscribe", "switch", "1") or "1")
+	end
+	uci:set("shadowsocksr", sid, "yaml_upload", "1")
+	uci:set("shadowsocksr", sid, "yaml_upload_name", upload_name)
+	uci:save("shadowsocksr")
+	uci:commit("shadowsocksr")
+
+	cleanup_old_clash_path(old_path, final_path, sid)
+	luci.sys.call(string.format("/etc/init.d/shadowsocksr clash_cache %s >/dev/null 2>&1 &", luci.util.shellquote(sid)))
+	return sid, alias
+end
+
+local has_mihomo = is_finded("mihomo")
+local upload_fd
+local upload_tmp_path
+local upload_filename
+local upload_message
+local upload_errmessage
+
+if has_mihomo then
+	luci.http.setfilehandler(function(meta, chunk, eof)
+		if not meta or meta.name ~= "clash_yaml_file" then
+			return
+		end
+
+		if not upload_fd then
+			if not meta.file or meta.file == "" then
+				return
 			end
-			if redirect and redirect ~= "" then
-				luci.sys.call("/bin/rm -f " .. tmp_uci_file)
-				luci.http.redirect(redirect)
+			upload_filename = tostring(meta.file):gsub("[\r\n]", "")
+			upload_tmp_path = string.format("/tmp/ssrplus-clash-upload-%d-%d.yaml", nixio.getpid(), os.time())
+			upload_fd = nixio.open(upload_tmp_path, "w")
+			if not upload_fd then
+				upload_errmessage = translate("Failed to create temporary YAML upload file.")
+				upload_tmp_path = nil
+				upload_filename = nil
+				return
 			end
+		end
+
+		if chunk and upload_fd then
+			upload_fd:write(chunk)
+		end
+
+		if eof and upload_fd then
+			upload_fd:close()
+			upload_fd = nil
+		end
+	end)
+
+	if luci.http.formvalue("upload_clash_yaml") then
+		if not upload_tmp_path or not upload_filename or not nixio.fs.access(upload_tmp_path) then
+			upload_errmessage = upload_errmessage or translate("No custom YAML file was selected.")
 		else
-			nixio.fs.writefile(tmp_uci_file, "config redirect\n")
-		end
-		m.on_after_save = function(self)
-			local redirect = self.redirect
-			if redirect and redirect ~= "" then
-				m.uci:set("shadowsocksr" .. "_redirect", "@redirect[0]", "url", redirect)
+			local hash
+			local final_path
+			local tmp_output = string.format("%s/.upload-%d-%d.yaml", CLASH_YAML_DIR, nixio.getpid(), os.time())
+			local sid
+			local alias
+
+			nixio.fs.mkdirr(CLASH_YAML_DIR)
+			nixio.fs.remove(tmp_output)
+			if preprocess_clash_yaml(upload_tmp_path, tmp_output) then
+				hash = hash_file(tmp_output)
+				if hash == "" then
+					nixio.fs.remove(tmp_output)
+					upload_errmessage = translate("Uploaded YAML validation or preprocessing failed.")
+				else
+					final_path = string.format("%s/%s.yaml", CLASH_YAML_DIR, hash)
+					luci.sys.call(string.format("mv -f %s %s", luci.util.shellquote(tmp_output), luci.util.shellquote(final_path)))
+					sid, alias = save_uploaded_clash_node(upload_filename, final_path)
+					if sid then
+						upload_message = string.format(translate("Custom YAML imported successfully: %s"), alias or sid)
+					else
+						upload_errmessage = translate("Uploaded YAML validation or preprocessing failed.")
+					end
+				end
+			else
+				nixio.fs.remove(tmp_output)
+				upload_errmessage = translate("Uploaded YAML validation or preprocessing failed.")
 			end
 		end
-	else
-		luci.sys.call("/bin/rm -f " .. tmp_uci_file)
-	end
-end
 
-local function set_apply_on_parse(map)
-	if not map then return end
-	if is_js_luci() then
-		apply_redirect(map)
-		local old = map.on_after_save
-		map.on_after_save = function(self)
-			if old then old(self) end
-			map:set("@global[0]", "timestamp", os.time())
+		if upload_tmp_path then
+			nixio.fs.remove(upload_tmp_path)
 		end
 	end
 end
 
-local has_ss_rust = is_finded("sslocal") or is_finded("ssserver")
-local has_ss_libev = is_finded("ss-redir") or is_finded("ss-local")
-local has_trojan = is_finded("trojan")
-local has_xray = is_finded("xray")
-local has_hysteria2 = is_finded("hysteria")
+local function preserve_when_hidden(opt, controller, enabled_value)
+	local original_parse = opt.parse
 
-local ss_type_list = {}
-local tj_type_list = {}
-local hy2_type_list = {}
-
-if has_hysteria2 then
-	table.insert(hy2_type_list, { id = "hysteria2", name = translate("Hysteria2") })
-end
-if has_xray then
-	table.insert(hy2_type_list, { id = "v2ray", name = translate("Xray (Hysteria2)") })
+	opt.parse = function(self, section, novld)
+		local current = self.map:get(section, controller)
+		if current == nil then
+			current = self.map:formvalue("cbid." .. self.map.config .. "." .. section .. "." .. controller)
+		end
+		if tostring(current or "") ~= tostring(enabled_value) then
+			return
+		end
+		return original_parse(self, section, novld)
+	end
 end
 
-if has_trojan then
-	table.insert(tj_type_list, { id = "trojan", name = translate("Trojan") })
-end
-if has_xray then
-	table.insert(tj_type_list, { id = "v2ray", name = translate("Xray (Trojan)") })
+local function migrate_legacy_subscribe_urls()
+	local subscribe_sid = uci:get_first("shadowsocksr", "server_subscribe")
+	if not subscribe_sid then
+		return
+	end
+
+	local legacy_urls = uci:get_list("shadowsocksr", subscribe_sid, "subscribe_url") or {}
+	if #legacy_urls == 0 then
+		return
+	end
+
+	local has_items = false
+	uci:foreach("shadowsocksr", "server_subscribe_item", function()
+		has_items = true
+		return false
+	end)
+	if has_items then
+		return
+	end
+
+	for index, url in ipairs(legacy_urls) do
+		local trimmed = trim(url)
+		if trimmed ~= "" then
+			local sid = uci:add("shadowsocksr", "server_subscribe_item")
+			if sid then
+				uci:set("shadowsocksr", sid, "enabled", "1")
+				uci:set("shadowsocksr", sid, "alias", string.format("Subscribe %d", index))
+				uci:set("shadowsocksr", sid, "url", trimmed)
+			end
+		end
+	end
+
+	uci:delete("shadowsocksr", subscribe_sid, "subscribe_url")
+	uci:save("shadowsocksr")
+	uci:commit("shadowsocksr")
 end
 
-if has_ss_rust then
-	table.insert(ss_type_list, { id = "ss-rust", name = translate("ShadowSocks-rust Version") })
+local function clash_host_port(clash_url)
+	if not clash_url or clash_url == "" then
+		return nil, nil
+	end
+	local ok, parsed = pcall(URL.parse, clash_url)
+	if not ok or not parsed then
+		return nil, nil
+	end
+	local host = parsed.host
+	local port = parsed.port
+	if not port or port == "" then
+		port = (parsed.scheme == "http") and "80" or "443"
+	end
+	return host, port
 end
-if has_ss_libev then
-	table.insert(ss_type_list, { id = "ss-libev", name = translate("ShadowSocks-libev Version") })
-end
-if has_xray then
-	table.insert(ss_type_list, { id = "v2ray", name = translate("Xray (ShadowSocks)") })
-end
+
+migrate_legacy_subscribe_urls()
 
 uci:foreach("shadowsocksr", "servers", function(s)
 	server_count = server_count + 1
+	server_cache[s[".name"]] = {
+		type = s.type,
+		v2ray_protocol = s.v2ray_protocol,
+		alias = s.alias,
+		server_port = s.server_port,
+		server = s.server,
+		transport = s.transport,
+		ws_path = s.ws_path,
+		ws_host = s.ws_host,
+		tls_host = s.tls_host,
+		tls = s.tls,
+		reality = s.reality,
+		clash_url = s.clash_url
+	}
 end)
 
+local function get_server(section)
+	return server_cache[section] or {}
+end
+
+do
+	local raw = nixio.fs.readfile("/tmp/ssrplus_server_detect.json")
+	if raw and raw ~= "" then
+		local parsed = json.parse(raw)
+		if type(parsed) == "table" then
+			detect_cache = parsed
+		end
+	end
+end
+
 m = Map("shadowsocksr", translate("Servers subscription and manage"))
+if upload_errmessage then
+	m.errmessage = upload_errmessage
+elseif upload_message then
+	m.message = upload_message
+end
+
+local style_section = m:section(SimpleSection)
+style_section.template = "shadowsocksr/servers_subscribe_url_style"
 
 -- Server Subscribe
 s = m:section(TypedSection, "server_subscribe")
@@ -117,6 +334,13 @@ s.anonymous = true
 o = s:option(Flag, "auto_update", translate("Auto Update"))
 o.rmempty = false
 o.description = translate("Auto Update Server subscription, GFW list and CHN route")
+
+o = s:option(ListValue, "config_auto_update_mode", translate("Update Mode"))
+o:value("0", translate("Appointment Mode"))
+o:value("1", translate("Loop Mode"))
+o.default = "0"
+o.rmempty = true
+o:depends("auto_update", "1")
 
 o = s:option(ListValue, "auto_update_week_time", translate("Update cycle (Day/Week)"))
 o:value('*', translate("Every Day"))
@@ -129,7 +353,7 @@ o:value("6", translate("Every Saturday"))
 o:value("0", translate("Every Sunday"))
 o.default = "*"
 o.rmempty = true
-o:depends("auto_update", "1")
+o:depends({auto_update = "1", config_auto_update_mode = "0"})
 
 o = s:option(ListValue, "auto_update_day_time", translate("Regular update (Hour)"))
 for t = 0, 23 do
@@ -137,7 +361,7 @@ for t = 0, 23 do
 end
 o.default = 2
 o.rmempty = true
-o:depends("auto_update", "1")
+o:depends({auto_update = "1", config_auto_update_mode = "0"})
 
 o = s:option(ListValue, "auto_update_min_time", translate("Regular update (Min)"))
 for i = 0, 59 do
@@ -145,178 +369,93 @@ for i = 0, 59 do
 end
 o.default = 30
 o.rmempty = true
-o:depends("auto_update", "1")
+o:depends({auto_update = "1", config_auto_update_mode = "0"})
 
--- 确保 hy2_type_list 不为空
-if #hy2_type_list > 0 then
-	local sid = uci:get_first("shadowsocksr", "server_subscribe")
-	if not sid then
-		uci:foreach("shadowsocksr", "server_subscribe", function(section)
-			sid = section[".name"]
-			return false
-		end)
-	end
-	if sid then
-		local old_val = uci:get("shadowsocksr", sid, "xray_hy2_type")
-		if old_val and old_val ~= "" then
-			if (old_val == "hysteria2" and not has_hysteria2) or
-			   (old_val == "v2ray" and not has_xray) then
-				-- 核心不可用，设置为空（删除配置）
-				uci:set("shadowsocksr", sid, "xray_hy2_type", "")
-				uci:commit("shadowsocksr")
-			end
-		end
-	end
-	o = s:option(ListValue, "xray_hy2_type", string.format("<b><span style='color:red;'>%s</span></b>", translatef("%s Node Use Type", "Hysteria2")))
-	o.description = translate("The configured type also applies to the core specified when manually importing nodes.")
-	o:value("", translate("Auto"))
-	for _, v in ipairs(hy2_type_list) do
-		o:value(v.id, v.name) -- 存储 "Xray" / "Hysteria2"，但 UI 显示完整名称
-	end
-end
-
--- 确保 tj_type_list 不为空
-if #tj_type_list > 0 then
-	local sid = uci:get_first("shadowsocksr", "server_subscribe")
-	if not sid then
-		uci:foreach("shadowsocksr", "server_subscribe", function(section)
-			sid = section[".name"]
-			return false
-		end)
-	end
-	if sid then
-		local old_val = uci:get("shadowsocksr", sid, "xray_tj_type")
-		if old_val and old_val ~= "" then
-			if (old_val == "trojan" and not has_trojan) or
-			   (old_val == "v2ray" and not has_xray) then
-				-- 核心不可用，设置为空（删除配置）
-				uci:set("shadowsocksr", sid, "xray_tj_type", "")
-				uci:commit("shadowsocksr")
-			end
-		end
-	end
-	o = s:option(ListValue, "xray_tj_type", string.format("<b><span style='color:red;'>%s</span></b>", translatef("%s Node Use Type", "Trojan")))
-	o.description = translate("The configured type also applies to the core specified when manually importing nodes.")
-	o:value("", translate("Auto"))
-	for _, v in ipairs(tj_type_list) do
-		o:value(v.id, v.name) -- 存储 "Xray" / "Trojan"，但 UI 显示完整名称
-	end
-end
-
--- 确保 ss_type_list 不为空
-if #ss_type_list > 0 then
-	local sid = uci:get_first("shadowsocksr", "server_subscribe")
-	if not sid then
-		uci:foreach("shadowsocksr", "server_subscribe", function(section)
-			sid = section[".name"]
-			return false
-		end)
-	end
-	if sid then
-		local old_val = uci:get("shadowsocksr", sid, "ss_type")
-		if old_val and old_val ~= "" then
-			if (old_val == "ss-rust" and not has_ss_rust) or
-			   (old_val == "ss-libev" and not has_ss_libev) or
-			   (old_val == "v2ray" and not has_xray) then
-				-- 核心不可用，设置为空（删除配置）
-				uci:set("shadowsocksr", sid, "ss_type", "")
-				uci:commit("shadowsocksr")
-			end
-		end
-	end
-	o = s:option(ListValue, "ss_type", string.format("<b><span style='color:red;'>%s</span></b>", translatef("%s Node Use Version", "ShadowSocks")))
-	o.description = translate("Selection ShadowSocks Node Use Version.")
-	o:value("", translate("Auto"))
-	for _, v in ipairs(ss_type_list) do
-		o:value(v.id, v.name) -- 存储 "ss-libev" / "ss-rust"，但 UI 显示完整名称
-	end
-end
-
-o = s:option(DynamicList, "subscribe_url", translate("Subscribe URL"))
+o = s:option(Value, "config_update_interval", translate("Update Interval(min)"))
+o.default = "60"
+o.datatype = "uinteger"
 o.rmempty = true
+o:depends({auto_update = "1", config_auto_update_mode = "1"})
 
-o = s:option(ListValue, "domain_resolver", translate("Domain DNS Resolve"))
-o.description = translate(
-	"<ul>" ..
-	"<li>" .. translate("If the node address is a domain name, this DNS will be used for resolution.") .. "</li>" .. 
-	"<li>" .. string.format('<font style=\'color:red;\'>%s</font>', translate("Supports only Xray node types.")) .. "</li>" ..
-	"<li>" .. string.format('<font style=\'color:red;\'>%s</font>', translate("Note: For node-specific DNS only. Keep Auto to avoid extra overhead.")) .. "</li>" ..
-	"</ul>"
-)
-o:value("", translate("Auto"))
-o:value("tcp", translate("TCP"))
-o:value("udp", translate("UDP"))
-o:value("https", translate("DoH"))
+if has_mihomo then
+	o = s:option(DummyValue, "_upload_clash_yaml", translate("Upload Custom YAML File"))
+	o.template = "shadowsocksr/clash_yaml_upload"
+	o.description = translate("Upload a custom Clash/Mihomo YAML file. The file will be preprocessed and saved as a local Clash node.")
+end
 
-o = s:option(Value, "domain_resolver_dns", translate("DNS"))
-o.datatype = "or(ipaddr,ipaddrport)"
-o:value("114.114.114.114")
-o:value("223.5.5.5:53")
-o.default = "114.114.114.114"
-o:depends("domain_resolver", "tcp")
-o:depends("domain_resolver", "udp") 
-
-o = s:option(Value, "domain_resolver_dns_https", translate("DNS"))
-o:value("https://120.53.53.53/dns-query", "DNSPod")
-o:value("https://223.5.5.5/dns-query", "AliDNS")
-o.default = o.keylist[1]
-o:depends("domain_resolver", "https")
-
-o = s:option(ListValue, "domain_strategy", translate("Domain Strategy"))
-o.description = translate(
-	"<ul>" ..
-	"<li>" .. translate("If is domain name, The requested domain name will be resolved to IP before connect.") .. "</li>" .. 
-	"<li>" .. string.format('<font style=\'color:red;\'>%s</font>', translate("Supports only Xray node types.")) .. "</li>" ..
-	"<li>" .. string.format('<font style=\'color:red;\'>%s</font>', translate("Note: For node-specific DNS only. Keep Auto to avoid extra overhead.")) .. "</li>" ..
-	"</ul>"
-)
-o.default = ""
-o:value("", translate("Auto"))
-o:value("UseIPv4v6", translate("Prefer IPv4"))
-o:value("UseIPv6v4", translate("Prefer IPv6"))
-o:value("UseIPv4", translate("IPv4 Only"))
-o:value("UseIPv6", translate("IPv6 Only"))
+o = s:option(Flag, "subscribe_advanced", translate("Subscribe Advanced Settings"))
+o.rmempty = false
+o.default = "0"
 
 o = s:option(Value, "filter_words", translate("Subscribe Filter Words"))
 o.rmempty = true
 o.description = translate("Filter Words splited by /")
+o:depends("subscribe_advanced", "1")
+preserve_when_hidden(o, "subscribe_advanced", "1")
 
 o = s:option(Value, "save_words", translate("Subscribe Save Words"))
 o.rmempty = true
 o.description = translate("Save Words splited by /")
-
-o = s:option(Button, "update_Sub", translate("Update Subscribe List"))
-o.inputstyle = "reload"
-o.description = translate("Update subscribe url list first")
-o.write = function()
-	uci:commit("shadowsocksr")
-	luci.sys.exec("rm -rf /tmp/sub_md5_*")
-	luci.http.redirect(luci.dispatcher.build_url("admin", "services", "shadowsocksr", "servers"))
-end
+o:depends("subscribe_advanced", "1")
+preserve_when_hidden(o, "subscribe_advanced", "1")
 
 o = s:option(Flag, "allow_insecure", translate("Allow subscribe Insecure nodes By default"))
 o.rmempty = false
 o.description = translate("Subscribe nodes allows insecure connection as TLS client (insecure)")
 o.default = "0"
+o:depends("subscribe_advanced", "1")
+preserve_when_hidden(o, "subscribe_advanced", "1")
 
 o = s:option(Flag, "switch", translate("Subscribe Default Auto-Switch"))
 o.rmempty = false
 o.description = translate("Subscribe new add server default Auto-Switch on")
 o.default = "1"
+o:depends("subscribe_advanced", "1")
+preserve_when_hidden(o, "subscribe_advanced", "1")
 
 o = s:option(Flag, "proxy", translate("Through proxy update"))
 o.rmempty = false
 o.description = translate("Through proxy update list, Not Recommended ")
+o.default = "1"
+o:depends("subscribe_advanced", "1")
+preserve_when_hidden(o, "subscribe_advanced", "1")
+
+o = s:option(Button, "update_Sub", translate("Save Subscribe Settings"))
+o.inputstyle = "reload"
+o.description = translate("Save current subscribe settings")
+o.render = function(self, section, scope)
+	self.inputstyle = "reload"
+	self.title = translate("Save Subscribe Settings")
+	self.inputtitle = translate("Save Subscribe Settings")
+	self.template = "shadowsocksr/subscribe_save_button"
+	Button.render(self, section, scope)
+end
 
 o = s:option(Button, "subscribe", translate("Update All Subscribe Servers"))
 o.rawhtml = true
 o.template = "shadowsocksr/subscribe"
+o.write = function(self, section)
+	self.map.ssr_subscribe_requested = true
+end
 
 o = s:option(Button, "delete", translate("Delete All Subscribe Servers"))
 o.inputstyle = "reset"
 o.description = string.format(translate("Server Count") .. ": %d", server_count)
 o.write = function()
-	luci.http.redirect(url("delete"))
+	uci:delete_all("shadowsocksr", "servers", function(s)
+		if s.hashkey or s.isSubscribe then
+			return true
+		else
+			return false
+		end
+	end)
+	uci:save("shadowsocksr")
+	uci:commit("shadowsocksr")
+	for file in nixio.fs.glob("/tmp/sub_md5_*") do
+		nixio.fs.remove(file)
+	end
+	luci.http.redirect(luci.dispatcher.build_url("admin", "services", "shadowsocksr", "delete"))
+	return
 end
 
 o = s:option(Value, "url_test_url", translate("URL Test Address"))
@@ -335,57 +474,100 @@ o:value("curl", "Curl")
 o:value("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 Edg/122.0.0.0", "Edge for Linux")
 o:value("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 Edg/122.0.0.0", "Edge for Windows")
 o:value("v2rayN/9.99", "v2rayN")
+o:depends("subscribe_advanced", "1")
+preserve_when_hidden(o, "subscribe_advanced", "1")
+
+s:append(cbi.Template("shadowsocksr/subscribe_schedule_compact"))
+
+s = m:section(TypedSection, "server_subscribe_item", translate("Subscribe URL"))
+s.anonymous = true
+s.addremove = true
+s.sortable = true
+s.template = "shadowsocksr/subscribe_item_tblsection"
+s.description = translate("Manage multiple subscribe URLs, including Clash subscriptions. Each entry can be edited and refreshed independently.")
+
+o = s:option(Flag, "enabled", translate("Enable"))
+o.rmempty = false
+o.default = "1"
+o.width = "1%"
+function o.cfgvalue(...)
+	return Flag.cfgvalue(...) or "1"
+end
+
+o = s:option(Value, "alias", translate("Alias"))
+o.rmempty = true
+o.width = "18rem"
+function o.cfgvalue(self, section)
+	return Value.cfgvalue(self, section) or string.format("Subscribe %s", section:sub(-4))
+end
+
+o = s:option(Value, "url", translate("Subscribe URL"))
+o.rmempty = false
 
 -- [[ Servers Manage ]]--
 s = m:section(TypedSection, "servers")
 s.anonymous = true
 s.addremove = true
+s.description = translate("Node order can be dragged with the mouse and takes effect immediately. The automatic switch order of server nodes is consistent with the node order in the table.")
 s.template = "cbi/tblsection"
-set_apply_on_parse(m)
+s:append(cbi.Template("shadowsocksr/optimize_cbi_ui"))
 s.sortable = true
---[[
-s.extedit = url("servers", "%s")
-function s.create(self, ...)
-    local sid = TypedSection.create(self, ...)
-    if sid then
-        local newsid = "cfg" .. sid:sub(-6)
-		-- 删除匿名
-		self.map.uci:delete(self.config, sid)
-        -- 重命名 section
-        self.map.uci:section(self.config, self.sectiontype, newsid)
-        luci.http.redirect(self.extedit % newsid)
-        return
-    end
+s.extedit = luci.dispatcher.build_url("admin", "services", "shadowsocksr", "servers", "%s")
+function s.create(...)
+	local sid = TypedSection.create(...)
+	if sid then
+		luci.http.redirect(s.extedit % sid)
+		return
+	end
 end
-]]--
 
 o = s:option(DummyValue, "type", translate("Type"))
 function o.cfgvalue(self, section)
-	return m:get(section, "v2ray_protocol") or Value.cfgvalue(self, section) or translate("None")
+	local cfg = get_server(section)
+	return cfg.v2ray_protocol or cfg.type or translate("None")
 end
 
 o = s:option(DummyValue, "alias", translate("Alias"))
-function o.cfgvalue(...)
-	return Value.cfgvalue(...) or translate("None")
-end
-
-o = s:option(DummyValue, "server_port", translate("Server Port"))
-function o.cfgvalue(...)
-	return Value.cfgvalue(...) or "N/A"
+function o.cfgvalue(self, section)
+	return get_server(section).alias or translate("None")
 end
 
 o = s:option(DummyValue, "server_port", translate("Socket Connected"))
 o.template = "shadowsocksr/socket"
 o.width = "10%"
+function o.cfgvalue(self, section)
+	self.detect_cache = detect_cache[section]
+	local cfg = get_server(section)
+	local stype = cfg.type
+	if stype == "clash" then
+		return "N/A"
+	end
+	return cfg.server_port
+end
 o.render = function(self, section, scope)
-	local cfg = s:cfgvalue(section) or {}
-	self.transport = cfg.transport
-	self.type = cfg.type
-	self.v2ray_protocol = cfg.v2ray_protocol
-	if self.transport == 'ws' then
-		self.ws_path = cfg.ws_path
-		self.tls = cfg.tls
-		self.tls_host = cfg.tls_host
+	local cfg = get_server(section)
+	local stype = cfg.type
+	self.type = stype or ""
+	self.proto = cfg.v2ray_protocol or ""
+	self.reality = cfg.reality or ""
+	if stype == "clash" then
+		self.transport = ""
+		self.ws_path = ""
+		self.ws_host = ""
+		self.tls_host = ""
+		self.tls = ""
+		self.reality = ""
+	else
+		self.transport = cfg.transport or ""
+		self.ws_host = cfg.ws_host or ""
+		self.tls_host = cfg.tls_host or ""
+		if self.transport == 'ws' then
+			self.ws_path = cfg.ws_path or ""
+			self.tls = cfg.tls or ""
+		else
+			self.ws_path = ""
+			self.tls = ""
+		end
 	end
 	DummyValue.render(self, section, scope)
 end
@@ -393,6 +575,15 @@ end
 o = s:option(DummyValue, "server", translate("Ping Latency"))
 o.template = "shadowsocksr/ping"
 o.width = "10%"
+function o.cfgvalue(self, section)
+	self.detect_cache = detect_cache[section]
+	local cfg = get_server(section)
+	self.type = cfg.type or ""
+	if cfg.type == "clash" then
+		return "N/A"
+	end
+	return cfg.server or "N/A"
+end
 
 local global_server = uci:get_first('shadowsocksr', 'global', 'global_server') 
 
@@ -410,8 +601,7 @@ node.write = function(self, section)
 	uci:set("shadowsocksr", '@global[0]', 'global_server', section)
 	uci:save("shadowsocksr")
 	uci:commit("shadowsocksr")
-	luci.sys.call("/etc/init.d/shadowsocksr restart >/dev/null 2>&1 &")
-	luci.http.redirect(url("restart"))
+	luci.http.redirect(luci.dispatcher.build_url("admin", "services", "shadowsocksr", "restart"))
 end
 
 o = s:option(Flag, "switch_enable", translate("Auto Switch"))
@@ -421,5 +611,16 @@ function o.cfgvalue(...)
 end
 
 m:append(cbi.Template("shadowsocksr/server_list"))
+
+m.commit_handler = function(self)
+	if not self.ssr_subscribe_requested then
+		return
+	end
+
+	for _, config in ipairs(self.parsechain or {}) do
+		self.uci:commit(config)
+	end
+	self.ssr_subscribe_autostart = true
+end
 
 return m

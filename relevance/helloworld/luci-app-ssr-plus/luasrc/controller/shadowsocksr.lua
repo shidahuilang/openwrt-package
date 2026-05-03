@@ -3,46 +3,442 @@
 module("luci.controller.shadowsocksr", package.seeall)
 require "nixio"
 require "nixio.fs"
-local uci = require("luci.model.uci").cursor()
+require "luci.util"
+require "luci.template"
+require "luci.sys"
+local datatypes = require "luci.cbi.datatypes"
+local json = require "luci.jsonc"
+local uci = require "luci.model.uci".cursor()
 
-local function sh_uci_commit(config)
-	luci.sys.call(string.format("uci -q commit %s", config))
+local CLASH_API_PORT = "16756"
+local COMPONENT_HELPER = "/usr/share/shadowsocksr/update_components.sh"
+local SERVER_DETECT_CACHE = "/tmp/ssrplus_server_detect.json"
+local SERVER_DETECT_LOCK = "/tmp/ssrplus_server_detect.lock"
+local SUPPORTED_COMPONENTS = {
+	xray = true,
+	mihomo = true,
+	naiveproxy = true
+}
+local SUPPORTED_GEO_COMPONENTS = {
+	country_mmdb = true,
+	geosite = true,
+	v2ray_geo = true
+}
+
+local function trim(value)
+	return tostring(value or ""):gsub("^%s+", ""):gsub("%s+$", "")
 end
 
-local function is_old_uci()
-	return luci.sys.call("grep -E 'require[ \t]*\"uci\"' /usr/lib/lua/luci/model/uci.lua >/dev/null 2>&1") == 0
+local function sanitize_mac(value)
+	value = trim(value):upper():gsub("-", ":")
+	if value:match("^%x%x:%x%x:%x%x:%x%x:%x%x:%x%x$") then
+		return value
+	end
+	return ""
 end
 
-local function uci_save(cursor, config, commit, apply)
-	if is_old_uci() then
-		cursor:save(config)
-		if commit then
-			cursor:commit(config)
-			if apply then
-				luci.sys.call("/etc/init.d/" .. config .. " reload > /dev/null 2>&1 &")
-			end
+local function normalize_client_ip(value)
+	value = trim(value)
+	if value == "" then
+		return ""
+	end
+	if datatypes.cidr4(value) or datatypes.ip4addr(value) then
+		return value
+	end
+	return ""
+end
+
+local function collect_lan_clients()
+	local clients = {}
+	local seen = {}
+
+	luci.sys.net.host_hints(function(mac, ipv4, _, name)
+		local ip = trim(ipv4)
+		local norm_mac = sanitize_mac(mac)
+		if ip ~= "" and not seen[ip] then
+			seen[ip] = true
+			clients[#clients + 1] = {
+				ip = ip,
+				mac = norm_mac,
+				name = trim(name) ~= "" and trim(name) or ip
+			}
 		end
-	else
-		commit = true
-		if commit then
-			if apply then
-				cursor:commit(config)
-			else
-				sh_uci_commit(config)
+	end)
+
+	table.sort(clients, function(a, b)
+		return tostring(a.name or a.ip) < tostring(b.name or b.ip)
+	end)
+
+	return clients
+end
+
+local function read_clash_client_rules()
+	local rules = {}
+	uci:foreach("shadowsocksr", "clash_client_group", function(section)
+		rules[#rules + 1] = {
+			id = section[".name"],
+			enabled = section.enabled == "1",
+			remarks = section.remarks or "",
+			ip_addr = section.ip_addr or "",
+			client_mac = section.client_mac or "",
+			policy_group = section.policy_group or ""
+		}
+	end)
+	return rules
+end
+
+local function normalize_ping_ms(value, scale)
+	local num = tonumber(value)
+	if not num or num <= 0 then
+		return nil
+	end
+	local scaled = scale and (num * scale) or num
+	if scaled > 0 and scaled < 1 then
+		return 1
+	end
+	return math.floor(scaled + 0.5)
+end
+
+local function detect_tls_handshake_ms(domain, port, path, resolve_host, server_ip, is_websocket)
+	if not domain or domain == "" or not port or port <= 0 then
+		return nil
+	end
+
+	local final_host = (resolve_host and resolve_host ~= "") and resolve_host or domain
+	local resolve_arg = ""
+	if server_ip and server_ip ~= "" and final_host ~= server_ip then
+		resolve_arg = string.format("--resolve '%s:%d:%s' ", final_host, port, server_ip)
+	end
+
+	local ws_headers = ""
+	if is_websocket then
+		ws_headers = string.format(
+			"-H %s -H %s -H %s -H %s ",
+			luci.util.shellquote("Connection: Upgrade"),
+			luci.util.shellquote("Upgrade: websocket"),
+			luci.util.shellquote("Sec-WebSocket-Key: SGVsbG8sIHdvcmxkIQ=="),
+			luci.util.shellquote("Sec-WebSocket-Version: 13")
+		)
+	end
+
+	local host_header = (final_host and final_host ~= "") and ("-H " .. luci.util.shellquote("Host: " .. final_host) .. " ") or ""
+	local url = string.format("https://%s:%d%s", final_host, port, path or "")
+	local cmd = string.format(
+		"curl --http1.1 -m 3 -ksS -o /dev/null %s%s%s -w 'time_connect=%%{time_connect}\\ntime_appconnect=%%{time_appconnect}\\nhttp_code=%%{http_code}' '%s' 2>/dev/null",
+		resolve_arg, host_header, ws_headers, url
+	)
+	local result = luci.sys.exec(cmd) or ""
+	local appconnect = tonumber(result:match("time_appconnect=([0-9.]+)"))
+	if appconnect and appconnect > 0 then
+		return normalize_ping_ms(appconnect, 1000)
+	end
+	local connect = tonumber(result:match("time_connect=([0-9.]+)"))
+	if connect and connect > 0 then
+		return normalize_ping_ms(connect, 1000)
+	end
+	return nil
+end
+
+local function urlencode(str)
+	if not str then return "" end
+	return tostring(str):gsub("[^%w%-_%.~]", function(c)
+		return string.format("%%%02X", string.byte(c))
+	end)
+end
+
+local function is_ipv6_address(addr)
+	addr = tostring(addr or "")
+	return addr ~= "" and addr:find(":", 1, true) ~= nil
+end
+
+local function is_local_target(addr)
+	addr = tostring(addr or ""):lower()
+	if addr == "" then
+		return false
+	end
+
+	if addr == "localhost" or addr == "::1" or addr:match("%.local$") then
+		return true
+	end
+
+	if is_ipv6_address(addr) then
+		return addr:match("^fe[89ab]") ~= nil or addr:match("^fc") ~= nil or addr:match("^fd") ~= nil
+	end
+
+	local o1, o2 = addr:match("^(%d+)%.(%d+)%.")
+	o1 = tonumber(o1)
+	o2 = tonumber(o2)
+	if not o1 or not o2 then
+		return false
+	end
+
+	return o1 == 10
+		or o1 == 127
+		or (o1 == 169 and o2 == 254)
+		or (o1 == 172 and o2 >= 16 and o2 <= 31)
+		or (o1 == 192 and o2 == 168)
+end
+
+local function detect_tcp_connect_ms(domain, port)
+	if not domain or domain == "" or not port or port <= 0 then
+		return nil
+	end
+
+	local ip_version_arg = is_ipv6_address(domain) and "-6 " or ""
+	local cmd = string.format(
+		"nping %s--tcp-connect -q -c 1 -p %d %s 2>/dev/null",
+		ip_version_arg,
+		port,
+		luci.util.shellquote(domain)
+	)
+	local result = luci.sys.exec(cmd) or ""
+	local success = tonumber(result:match("Successful connections:%s*([0-9]+)"))
+	if success and success > 0 then
+		local avg_rtt = tonumber(result:match("Avg rtt:%s*([0-9.]+)ms"))
+		if avg_rtt and avg_rtt > 0 and avg_rtt < 1 and not is_local_target(domain) then
+			return nil
+		end
+		return normalize_ping_ms(avg_rtt)
+	end
+
+	return nil
+end
+
+local function get_clash_secret(sid)
+	return sid .. "_ssrplus_clash"
+end
+
+local function get_clash_cache_file(sid)
+	return "/etc/ssrplus/clash/" .. sid .. ".yaml"
+end
+
+local function get_clash_state_file(sid)
+	return "/etc/ssrplus/clash/" .. sid .. ".cache.db"
+end
+
+local function clash_process_running()
+	return luci.sys.call("(busybox ps -w 2>/dev/null || busybox ps) | grep ssr-retcp | grep -v grep >/dev/null") == 0
+end
+
+local function is_active_clash_node(sid)
+	if not sid then return false end
+	if uci:get("shadowsocksr", sid) ~= "servers" then return false end
+	if uci:get("shadowsocksr", sid, "type") ~= "clash" then return false end
+	if uci:get_first("shadowsocksr", "global", "global_server") ~= sid then return false end
+	return clash_process_running()
+end
+
+local function resolve_active_clash_sid(sid)
+	if is_active_clash_node(sid) then
+		return sid
+	end
+
+	local current_sid = uci:get_first("shadowsocksr", "global", "global_server")
+	if is_active_clash_node(current_sid) then
+		return current_sid
+	end
+
+	return nil
+end
+
+local function clash_api_request(sid, method, path, body)
+	sid = resolve_active_clash_sid(sid)
+	if not sid then
+		return nil
+	end
+	local secret = get_clash_secret(sid)
+	local cmd = string.format(
+		"curl -sL -m 5 --retry 1 -w '\n__CURL_STATUS__:%%{http_code}' -H %s -H %s -X %s http://127.0.0.1:%s%s %s",
+		luci.util.shellquote("Content-Type: application/json"),
+		luci.util.shellquote("Authorization: Bearer " .. secret),
+		method,
+		CLASH_API_PORT,
+		path,
+		body and ("-d " .. luci.util.shellquote(body)) or ""
+	)
+	local output = luci.sys.exec(cmd)
+	if not output or output == "" then
+		return nil
+	end
+	local body_output = output:gsub("\n__CURL_STATUS__:%d%d%d%s*$", "")
+	local code = output:match("__CURL_STATUS__:(%d%d%d)")
+	return {
+		code = tonumber(code),
+		body = body_output
+	}
+end
+
+local function clash_delay_ok(sid, candidates, probe_url)
+	local raw = clash_api_request(sid, "GET", "/proxies")
+	local parsed = raw and json.parse(raw.body or "") or nil
+	local proxies = parsed and parsed.proxies or nil
+	local tried = {}
+
+	if type(proxies) ~= "table" then
+		return false
+	end
+
+	local function test_proxy(name)
+		if not name or name == "" or tried[name] or not proxies[name] then
+			return false
+		end
+		tried[name] = true
+		local delay_raw = clash_api_request(
+			sid,
+			"GET",
+			"/proxies/" .. urlencode(name) .. "/delay?timeout=5000&url=" .. urlencode(probe_url)
+		)
+		local delay_data = delay_raw and json.parse(delay_raw.body or "") or nil
+		return delay_data and tonumber(delay_data.delay or 0) and tonumber(delay_data.delay or 0) > 0
+	end
+
+	for _, name in ipairs(candidates or {}) do
+		if test_proxy(name) then
+			return true
+		end
+
+		local info = proxies[name]
+		if type(info) == "table" and type(info.now) == "string" and info.now ~= "" then
+			if test_proxy(info.now) then
+				return true
 			end
 		end
 	end
+
+	return false
 end
 
-local function url(...)
-	local url = string.format("admin/services/%s", "shadowsocksr")
-	local args = { ... }
-	for i, v in ipairs(args) do
-		if v and v ~= "" then
-			url = url .. "/" .. v
+local function use_fw4_backend()
+	return luci.sys.call("command -v fw4 >/dev/null") == 0
+end
+
+local function parse_clash_groups(raw)
+	local info = json.parse(raw or "")
+	local proxies = info and info.proxies or nil
+	local groups = {}
+	if type(proxies) ~= "table" then
+		return groups
+	end
+	for name, value in pairs(proxies) do
+		if type(value) == "table" and type(value.all) == "table" and #value.all > 0 then
+			groups[#groups + 1] = {
+				name = name,
+				type = value.type or "",
+				now = value.now or "",
+				all = value.all
+			}
 		end
 	end
-	return require "luci.dispatcher".build_url(url)
+	table.sort(groups, function(a, b) return tostring(a.name) < tostring(b.name) end)
+	return groups
+end
+
+local function parse_kv_output(raw)
+	local data = {}
+	for line in tostring(raw or ""):gmatch("[^\r\n]+") do
+		local key, value = line:match("^([%w_]+)=(.*)$")
+		if key then
+			data[key] = value
+		end
+	end
+	return data
+end
+
+local function with_detect_cache_lock(fn)
+	for _ = 1, 40 do
+		if nixio.fs.mkdir(SERVER_DETECT_LOCK) then
+			local ok, ret = pcall(fn)
+			nixio.fs.rmdir(SERVER_DETECT_LOCK)
+			if ok then
+				return ret
+			end
+			return nil
+		end
+		nixio.nanosleep(0, 50000000)
+	end
+	return nil
+end
+
+local function load_detect_cache()
+	local raw = nixio.fs.readfile(SERVER_DETECT_CACHE)
+	if not raw or raw == "" then
+		return {}
+	end
+	local parsed = json.parse(raw)
+	return type(parsed) == "table" and parsed or {}
+end
+
+local function save_detect_cache_entry(sid, data)
+	if not sid or sid == "" then
+		return
+	end
+	with_detect_cache_lock(function()
+		local cache = load_detect_cache()
+		cache[sid] = data
+		nixio.fs.writefile(SERVER_DETECT_CACHE, json.stringify(cache))
+	end)
+end
+
+local function read_component_state(component, action)
+	if not SUPPORTED_COMPONENTS[component] then
+		return nil, 400, "unsupported_component"
+	end
+
+	local mirror = luci.http.formvalue("mirror") or ""
+	local cmd = string.format(
+		"COMPONENT_MIRROR=%s /bin/sh %s %s 2>/dev/null",
+		luci.util.shellquote(mirror),
+		luci.util.shellquote(COMPONENT_HELPER),
+		luci.util.shellquote(component .. "_" .. action)
+	)
+	return parse_kv_output(luci.sys.exec(cmd))
+end
+
+local function read_geo_state(component, action)
+	if not SUPPORTED_GEO_COMPONENTS[component] then
+		return nil, 400, "unsupported_component"
+	end
+
+	local mirror = luci.http.formvalue("mirror") or ""
+	local cmd = string.format(
+		"COMPONENT_MIRROR=%s /bin/sh %s %s 2>/dev/null",
+		luci.util.shellquote(mirror),
+		luci.util.shellquote(COMPONENT_HELPER),
+		luci.util.shellquote(component .. "_" .. action)
+	)
+	return parse_kv_output(luci.sys.exec(cmd))
+end
+
+local function write_component_json(data)
+	luci.http.prepare_content("application/json")
+	luci.http.write_json({
+		component = data.component or "xray",
+		installed = data.installed == "1",
+		current_version = data.current_version or "",
+		latest_version = data.latest_version or "",
+		previous_version = data.previous_version or "",
+		arch = data.arch or "",
+		asset = data.asset or "",
+		can_upgrade = data.can_upgrade == "1",
+		success = data.success == "1",
+		error = data.error or "",
+		message = data.message or ""
+	})
+end
+
+local function write_geo_json(data)
+	luci.http.prepare_content("application/json")
+	luci.http.write_json({
+		component = data.component or "country_mmdb",
+		installed = data.installed == "1",
+		current_version = data.current_version or "",
+		current_version_extra = data.current_version_extra or "",
+		latest_version = data.latest_version or "",
+		can_upgrade = data.can_upgrade == "1",
+		success = data.success == "1",
+		error = data.error or "",
+		message = data.message or ""
+	})
 end
 
 function index()
@@ -54,43 +450,515 @@ function index()
 	page.dependent = true
 	page.acl_depends = { "luci-app-ssr-plus" }
 	entry({"admin", "services", "shadowsocksr", "client"}, cbi("shadowsocksr/client"), _("SSR Client"), 10).leaf = true
-	entry({"admin", "services", "shadowsocksr", "servers"}, arcombine(cbi("shadowsocksr/servers", {autoapply = true}), cbi("shadowsocksr/client-config")), _("Servers Nodes"), 20).leaf = true
+	entry({"admin", "services", "shadowsocksr", "servers"}, arcombine(cbi("shadowsocksr/servers"), cbi("shadowsocksr/client-config")), _("Servers Nodes"), 20).leaf = true
 	entry({"admin", "services", "shadowsocksr", "control"}, cbi("shadowsocksr/control"), _("Access Control"), 30).leaf = true
 	entry({"admin", "services", "shadowsocksr", "advanced"}, cbi("shadowsocksr/advanced"), _("Advanced Settings"), 50).leaf = true
 	entry({"admin", "services", "shadowsocksr", "server"}, arcombine(cbi("shadowsocksr/server"), cbi("shadowsocksr/server-config")), _("SSR Server"), 60).leaf = true
+	entry({"admin", "services", "shadowsocksr", "component"}, cbi("shadowsocksr/component"), _("Component Update"), 65).leaf = true
 	entry({"admin", "services", "shadowsocksr", "status"}, form("shadowsocksr/status"), _("Status"), 70).leaf = true
 	entry({"admin", "services", "shadowsocksr", "check"}, call("check_status"))
 	entry({"admin", "services", "shadowsocksr", "refresh"}, call("refresh_data"))
 	entry({"admin", "services", "shadowsocksr", "subscribe"}, call("subscribe"))
+	entry({"admin", "services", "shadowsocksr", "component_local_status"}, call("component_local_status")).leaf = true
+	entry({"admin", "services", "shadowsocksr", "component_set_mirror"}, call("component_set_mirror")).leaf = true
+	entry({"admin", "services", "shadowsocksr", "component_status"}, call("component_status")).leaf = true
+	entry({"admin", "services", "shadowsocksr", "component_upgrade"}, call("component_upgrade")).leaf = true
+	entry({"admin", "services", "shadowsocksr", "geo_local_status"}, call("geo_local_status")).leaf = true
+	entry({"admin", "services", "shadowsocksr", "geo_status"}, call("geo_status")).leaf = true
+	entry({"admin", "services", "shadowsocksr", "geo_upgrade"}, call("geo_upgrade")).leaf = true
+	entry({"admin", "services", "shadowsocksr", "save_subscribe_settings"}, call("save_subscribe_settings")).leaf = true
 	entry({"admin", "services", "shadowsocksr", "checkport"}, call("check_port"))
 	entry({"admin", "services", "shadowsocksr", "log"}, form("shadowsocksr/log"), _("Log"), 80).leaf = true
 	entry({"admin", "services", "shadowsocksr", "get_log"}, call("get_log")).leaf = true
 	entry({"admin", "services", "shadowsocksr", "clear_log"}, call("clear_log")).leaf = true
 	entry({"admin", "services", "shadowsocksr", "run"}, call("act_status"))
 	entry({"admin", "services", "shadowsocksr", "ping"}, call("act_ping"))
+	entry({"admin", "services", "shadowsocksr", "save_order"}, call("save_order")).leaf = true
 	entry({"admin", "services", "shadowsocksr", "reset"}, call("act_reset"))
 	entry({"admin", "services", "shadowsocksr", "restart"}, call("act_restart"))
 	entry({"admin", "services", "shadowsocksr", "delete"}, call("act_delete"))
-	--[[ API ]]
-	entry({"admin", "services", "shadowsocksr", "add_node"}, call("act_add_node")).leaf = true
-	entry({"admin", "services", "shadowsocksr", "remove_node"}, call("act_remove"))
-	entry({"admin", "services", "shadowsocksr", "save_node_order"}, call("act_save_order")).leaf = true
-	entry({"admin", "services", "shadowsocksr", "get_now_use_node"}, call("act_get_now_use_node")).leaf = true
+	entry({"admin", "services", "shadowsocksr", "clash_panel"}, call("clash_panel")).leaf = true
+	entry({"admin", "services", "shadowsocksr", "clash_groups"}, call("clash_groups")).leaf = true
+	entry({"admin", "services", "shadowsocksr", "clash_switch"}, call("clash_switch")).leaf = true
+	entry({"admin", "services", "shadowsocksr", "clash_refresh"}, call("clash_refresh")).leaf = true
+	entry({"admin", "services", "shadowsocksr", "clash_reset_defaults"}, call("clash_reset_defaults")).leaf = true
+	entry({"admin", "services", "shadowsocksr", "clash_client_policies"}, call("clash_client_policies")).leaf = true
+	entry({"admin", "services", "shadowsocksr", "clash_client_rule_save"}, call("clash_client_rule_save")).leaf = true
+	entry({"admin", "services", "shadowsocksr", "clash_client_rule_clear"}, call("clash_client_rule_clear")).leaf = true
 	--[[Backup]]
 	entry({"admin", "services", "shadowsocksr", "backup"}, call("create_backup")).leaf = true
 end
 
 function subscribe()
-	luci.sys.call("/usr/bin/lua /usr/share/shadowsocksr/subscribe.lua >>/var/log/ssrplus.log")
+	nixio.fs.remove(SERVER_DETECT_CACHE)
+	local sid = luci.http.formvalue("sid") or ""
+	local subscribe_arg = sid ~= "" and (" " .. luci.util.shellquote(sid)) or ""
+	local ret = luci.sys.call(": > /var/log/ssrplus.log && /usr/bin/lua /usr/share/shadowsocksr/subscribe.lua" .. subscribe_arg .. " >>/var/log/ssrplus.log 2>&1")
 	luci.http.prepare_content("application/json")
-	luci.http.write_json({ret = 1})
+	luci.http.write_json({ret = ret})
+end
+
+function save_order()
+	local order = luci.http.formvalue("order") or ""
+	local sids = {}
+
+	for sid in order:gmatch("%S+") do
+		if uci:get("shadowsocksr", sid) == "servers" then
+			sids[#sids + 1] = sid
+		end
+	end
+
+	if #sids > 0 then
+		uci:reorder("shadowsocksr", sids)
+		uci:commit("shadowsocksr")
+	end
+
+	luci.http.prepare_content("application/json")
+	luci.http.write_json({
+		ret = (#sids > 0) and 1 or 0,
+		count = #sids
+	})
+end
+
+function save_subscribe_settings()
+	local redirect_url = luci.dispatcher.build_url("admin", "services", "shadowsocksr", "servers")
+	local http = luci.http
+	local util = luci.util
+	local subscribe_sid = uci:get_first("shadowsocksr", "server_subscribe")
+	local function form(name)
+		return http.formvalue(name)
+	end
+	local function sh_set(section, option, value)
+		return luci.sys.call(string.format(
+			"uci -q set shadowsocksr.%s.%s=%s",
+			section, option, util.shellquote(value)
+		)) == 0
+	end
+	local function sh_delete(section, option)
+		return luci.sys.call(string.format(
+			"uci -q delete shadowsocksr.%s.%s",
+			section, option
+		)) == 0
+	end
+
+	if not subscribe_sid then
+		subscribe_sid = luci.util.trim(luci.sys.exec("uci -q add shadowsocksr server_subscribe 2>/dev/null"))
+	end
+
+	if subscribe_sid then
+		local values = {
+			auto_update = form("cbid.shadowsocksr." .. subscribe_sid .. ".auto_update"),
+			config_auto_update_mode = form("cbid.shadowsocksr." .. subscribe_sid .. ".config_auto_update_mode"),
+			auto_update_week_time = form("cbid.shadowsocksr." .. subscribe_sid .. ".auto_update_week_time"),
+			auto_update_day_time = form("cbid.shadowsocksr." .. subscribe_sid .. ".auto_update_day_time"),
+			auto_update_min_time = form("cbid.shadowsocksr." .. subscribe_sid .. ".auto_update_min_time"),
+			config_update_interval = form("cbid.shadowsocksr." .. subscribe_sid .. ".config_update_interval"),
+			subscribe_advanced = form("cbid.shadowsocksr." .. subscribe_sid .. ".subscribe_advanced"),
+			filter_words = form("cbid.shadowsocksr." .. subscribe_sid .. ".filter_words"),
+			save_words = form("cbid.shadowsocksr." .. subscribe_sid .. ".save_words"),
+			allow_insecure = form("cbid.shadowsocksr." .. subscribe_sid .. ".allow_insecure"),
+			switch = form("cbid.shadowsocksr." .. subscribe_sid .. ".switch"),
+			proxy = form("cbid.shadowsocksr." .. subscribe_sid .. ".proxy"),
+			url_test_url = form("cbid.shadowsocksr." .. subscribe_sid .. ".url_test_url"),
+			user_agent = form("cbid.shadowsocksr." .. subscribe_sid .. ".user_agent")
+		}
+
+		local flags = {
+			auto_update = true,
+			subscribe_advanced = true,
+			allow_insecure = true,
+			switch = true,
+			proxy = true
+		}
+
+		for key, value in pairs(values) do
+			if value ~= nil then
+				if value == "" and not flags[key] then
+					sh_delete(subscribe_sid, key)
+				else
+					sh_set(subscribe_sid, key, flags[key] and value or value)
+				end
+			elseif flags[key] then
+				sh_set(subscribe_sid, key, "0")
+			end
+		end
+	end
+
+	local seen = {}
+	for key in pairs(http.formvaluetable() or {}) do
+		local sid = key:match("^cbid%.shadowsocksr%.([^%.]+)%.(enabled|alias|url)$")
+		if sid then
+			seen[sid] = true
+		end
+	end
+
+	uci:foreach("shadowsocksr", "server_subscribe_item", function(section)
+		local sid = section[".name"]
+		local prefix = "cbid.shadowsocksr." .. sid .. "."
+		if seen[sid] then
+			local enabled = form(prefix .. "enabled")
+			local alias = form(prefix .. "alias")
+			local url = form(prefix .. "url")
+
+			sh_set(sid, "enabled", enabled == "1" and "1" or "0")
+			if alias ~= nil then
+				if alias == "" then
+					sh_delete(sid, "alias")
+				else
+					sh_set(sid, "alias", alias)
+				end
+			end
+			if url ~= nil then
+				sh_set(sid, "url", url)
+			end
+		end
+	end)
+
+	luci.sys.call("uci -q commit shadowsocksr")
+	luci.sys.exec("rm -rf /tmp/sub_md5_*")
+	luci.http.redirect(redirect_url)
+end
+
+function component_status()
+	local component = luci.http.formvalue("component")
+	local data, status, err = read_component_state(component, "info")
+	if not data then
+		luci.http.status(status or 500, "Bad Request")
+		write_component_json({component = component, error = err or "bad_request"})
+		return
+	end
+	write_component_json(data)
+end
+
+function component_local_status()
+	local component = luci.http.formvalue("component")
+	local data, status, err = read_component_state(component, "local_info")
+	if not data then
+		luci.http.status(status or 500, "Bad Request")
+		write_component_json({component = component, error = err or "bad_request"})
+		return
+	end
+	write_component_json(data)
+end
+
+function component_set_mirror()
+	local mirror = luci.http.formvalue("mirror") or "direct"
+	local allowed = {
+		direct = true,
+		ghproxy = true,
+		ghproxy_cc = true,
+		ghfast = true,
+		jsdelivr = true
+	}
+
+	if not allowed[mirror] then
+		mirror = "direct"
+	end
+
+	uci:set("shadowsocksr", "@global[0]", "component_mirror", mirror)
+	uci:commit("shadowsocksr")
+
+	luci.http.prepare_content("application/json")
+	luci.http.write_json({ ret = 1, mirror = mirror })
+end
+
+function component_upgrade()
+	local component = luci.http.formvalue("component")
+	local data, status, err = read_component_state(component, "upgrade")
+	if not data then
+		luci.http.status(status or 500, "Bad Request")
+		write_component_json({component = component, error = err or "bad_request", success = "0"})
+		return
+	end
+
+	local info = read_component_state(component, "info")
+	if info then
+		for key, value in pairs(info) do
+			if data[key] == nil or data[key] == "" then
+				data[key] = value
+			end
+		end
+		if data.success == "1" then
+			data.can_upgrade = info.can_upgrade
+		end
+	end
+
+	write_component_json(data)
+end
+
+function geo_status()
+	local component = luci.http.formvalue("component")
+	local data, status, err = read_geo_state(component, "info")
+	if not data then
+		luci.http.status(status or 500, "Bad Request")
+		write_geo_json({component = component, error = err or "bad_request"})
+		return
+	end
+	write_geo_json(data)
+end
+
+function geo_local_status()
+	local component = luci.http.formvalue("component")
+	local data, status, err = read_geo_state(component, "local_info")
+	if not data then
+		luci.http.status(status or 500, "Bad Request")
+		write_geo_json({component = component, error = err or "bad_request"})
+		return
+	end
+	write_geo_json(data)
+end
+
+function geo_upgrade()
+	local component = luci.http.formvalue("component")
+	local data, status, err = read_geo_state(component, "upgrade")
+	if not data then
+		luci.http.status(status or 500, "Bad Request")
+		write_geo_json({component = component, error = err or "bad_request", success = "0"})
+		return
+	end
+	write_geo_json(data)
 end
 
 function act_status()
 	local e = {}
-	e.running = luci.sys.call("busybox ps -w | grep ssr-retcp | grep -v grep >/dev/null") == 0
+	e.running = clash_process_running()
 	luci.http.prepare_content("application/json")
 	luci.http.write_json(e)
+end
+
+function clash_panel()
+	local sid = luci.http.formvalue("sid")
+	if uci:get("shadowsocksr", sid) ~= "servers" or uci:get("shadowsocksr", sid, "type") ~= "clash" then
+		luci.http.status(404, "Not Found")
+		return
+	end
+	luci.template.render("shadowsocksr/clash_panel", {
+		sid = sid,
+		alias = uci:get("shadowsocksr", sid, "alias") or sid
+	})
+end
+
+function clash_groups()
+	local sid = luci.http.formvalue("sid")
+	local groups = {}
+	local active_sid = resolve_active_clash_sid(sid)
+	local active = active_sid ~= nil
+	if active then
+		local raw = clash_api_request(active_sid, "GET", "/proxies")
+		if raw then
+			groups = parse_clash_groups(raw.body)
+		end
+	end
+	luci.http.prepare_content("application/json")
+	luci.http.write_json({
+		active = active,
+		sid = active_sid,
+		groups = groups
+	})
+end
+
+function clash_switch()
+	local sid = luci.http.formvalue("sid")
+	local group = luci.http.formvalue("group")
+	local name = luci.http.formvalue("name")
+	if not sid or not group or not name then
+		luci.http.status(400, "Bad Request")
+		return
+	end
+	local active_sid = resolve_active_clash_sid(sid)
+	if not active_sid then
+		luci.http.status(409, "Conflict")
+		luci.http.prepare_content("application/json")
+		luci.http.write_json({success = false, message = "inactive"})
+		return
+	end
+	local body = string.format('{"name":"%s"}', tostring(name):gsub('"', '\\"'))
+	local path = "/proxies/" .. urlencode(group)
+	local ret = clash_api_request(active_sid, "PUT", path, body)
+	luci.http.prepare_content("application/json")
+	luci.http.write_json({success = ret ~= nil and ret.code and ret.code >= 200 and ret.code < 300, sid = active_sid})
+end
+
+function clash_refresh()
+	local sid = luci.http.formvalue("sid")
+	if not sid or uci:get("shadowsocksr", sid) ~= "servers" or uci:get("shadowsocksr", sid, "type") ~= "clash" then
+		luci.http.status(400, "Bad Request")
+		luci.http.prepare_content("application/json")
+		luci.http.write_json({success = false})
+		return
+	end
+	local cmd = string.format("/etc/init.d/shadowsocksr clash_cache %s >/dev/null 2>&1", luci.util.shellquote(sid))
+	local ok = luci.sys.call(cmd) == 0
+	local reapplied = false
+	if ok and is_active_clash_node(sid) then
+		luci.sys.call("/etc/init.d/shadowsocksr restart >/dev/null 2>&1 &")
+		reapplied = true
+	end
+	luci.http.prepare_content("application/json")
+	luci.http.write_json({
+		success = ok,
+		cached = nixio.fs.access(get_clash_cache_file(sid)),
+		reapplied = reapplied
+	})
+end
+
+function clash_reset_defaults()
+	local sid = luci.http.formvalue("sid")
+	if not sid or uci:get("shadowsocksr", sid) ~= "servers" or uci:get("shadowsocksr", sid, "type") ~= "clash" then
+		luci.http.status(400, "Bad Request")
+		luci.http.prepare_content("application/json")
+		luci.http.write_json({success = false})
+		return
+	end
+
+	local state_file = get_clash_state_file(sid)
+	local cleared = false
+	if nixio.fs.access(state_file) then
+		cleared = nixio.fs.remove(state_file) or false
+	else
+		cleared = true
+	end
+
+	local reapplied = false
+	if cleared and is_active_clash_node(sid) then
+		luci.sys.call("/etc/init.d/shadowsocksr restart >/dev/null 2>&1 &")
+		reapplied = true
+	end
+
+	luci.http.prepare_content("application/json")
+	luci.http.write_json({
+		success = cleared,
+		reapplied = reapplied
+	})
+end
+
+function clash_client_policies()
+	local sid = luci.http.formvalue("sid")
+	local active_sid = resolve_active_clash_sid(sid)
+	local groups = {}
+	if active_sid then
+		local raw = clash_api_request(active_sid, "GET", "/proxies")
+		if raw then
+			groups = parse_clash_groups(raw.body)
+		end
+	end
+
+	local policies = {}
+	local seen = {}
+	for _, group in ipairs(groups or {}) do
+		if group.name and not seen[group.name] then
+			seen[group.name] = true
+			policies[#policies + 1] = {
+				name = group.name,
+				label = group.name,
+				type = group.type or ""
+			}
+		end
+		for _, proxy_name in ipairs(group.all or {}) do
+			if proxy_name and proxy_name ~= "" and not seen[proxy_name] then
+				seen[proxy_name] = true
+				policies[#policies + 1] = {
+					name = proxy_name,
+					label = proxy_name,
+					type = "proxy"
+				}
+			end
+		end
+	end
+
+	table.sort(policies, function(a, b)
+		return tostring(a.label or a.name) < tostring(b.label or b.name)
+	end)
+
+	luci.http.prepare_content("application/json")
+	luci.http.write_json({
+		active = active_sid ~= nil,
+		sid = active_sid,
+		clients = collect_lan_clients(),
+		rules = read_clash_client_rules(),
+		policies = policies
+	})
+end
+
+function clash_client_rule_save()
+	local sid = luci.http.formvalue("sid")
+	local rows = {}
+	local max_rows = tonumber(luci.http.formvalue("count") or "0") or 0
+
+	for index = 1, math.min(max_rows, 256) do
+		local prefix = string.format("rule_%d_", index)
+		local ip_addr = normalize_client_ip(luci.http.formvalue(prefix .. "ip_addr"))
+		local enabled = luci.http.formvalue(prefix .. "enabled") == "1" and "1" or "0"
+		local remarks = trim(luci.http.formvalue(prefix .. "remarks"))
+		local policy_group = trim(luci.http.formvalue(prefix .. "policy_group"))
+		local client_mac = sanitize_mac(luci.http.formvalue(prefix .. "client_mac"))
+
+		if ip_addr ~= "" and policy_group ~= "" then
+			rows[#rows + 1] = {
+				enabled = enabled,
+				remarks = remarks,
+				ip_addr = ip_addr,
+				client_mac = client_mac,
+				policy_group = policy_group
+			}
+		end
+	end
+
+	uci:delete_all("shadowsocksr", "clash_client_group")
+	for _, row in ipairs(rows) do
+		local rid = uci:add("shadowsocksr", "clash_client_group")
+		if rid then
+			uci:set("shadowsocksr", rid, "enabled", row.enabled)
+			uci:set("shadowsocksr", rid, "remarks", row.remarks)
+			uci:set("shadowsocksr", rid, "ip_addr", row.ip_addr)
+			uci:set("shadowsocksr", rid, "client_mac", row.client_mac)
+			uci:set("shadowsocksr", rid, "policy_group", row.policy_group)
+		end
+	end
+	uci:save("shadowsocksr")
+	uci:commit("shadowsocksr")
+
+	local active_sid = resolve_active_clash_sid(sid)
+	local current_sid = uci:get_first("shadowsocksr", "global", "global_server")
+	local reapplied = false
+	if sid and sid ~= "" and uci:get("shadowsocksr", sid) == "servers"
+		and uci:get("shadowsocksr", sid, "type") == "clash"
+		and current_sid == sid then
+		luci.sys.call("/etc/init.d/shadowsocksr restart >/dev/null 2>&1 &")
+		reapplied = true
+	end
+
+	luci.http.prepare_content("application/json")
+	luci.http.write_json({
+		success = true,
+		count = #rows,
+		reapplied = reapplied,
+		rules = read_clash_client_rules()
+	})
+end
+
+function clash_client_rule_clear()
+	local sid = luci.http.formvalue("sid")
+
+	uci:delete_all("shadowsocksr", "clash_client_group")
+	uci:save("shadowsocksr")
+	uci:commit("shadowsocksr")
+
+	local current_sid = uci:get_first("shadowsocksr", "global", "global_server")
+	local reapplied = false
+	if sid and sid ~= "" and uci:get("shadowsocksr", sid) == "servers"
+		and uci:get("shadowsocksr", sid, "type") == "clash"
+		and current_sid == sid then
+		luci.sys.call("/etc/init.d/shadowsocksr restart >/dev/null 2>&1 &")
+		reapplied = true
+	end
+
+	luci.http.prepare_content("application/json")
+	luci.http.write_json({
+		success = true,
+		reapplied = reapplied,
+		rules = {}
+	})
 end
 
 function act_ping()
@@ -99,16 +967,35 @@ function act_ping()
 	local port = tonumber(luci.http.formvalue("port") or 0)
 	local transport = (luci.http.formvalue("transport") or ""):lower()
 	local wsPath = luci.http.formvalue("wsPath") or ""
+	local host = luci.http.formvalue("host") or ""
+	local tls_host = luci.http.formvalue("tlsHost") or ""
 	local tls = luci.http.formvalue("tls")
-	local host = luci.http.formvalue("host")
 	local type = (luci.http.formvalue("type") or ""):lower()
 	local proto = (luci.http.formvalue("proto") or ""):lower()
+	local reality = luci.http.formvalue("reality")
+	local sid = luci.http.formvalue("sid")
 	e.index = luci.http.formvalue("index")
 
+	if sid and sid ~= "" and uci:get("shadowsocksr", sid) == "servers" then
+		domain = uci:get("shadowsocksr", sid, "server") or domain
+		port = tonumber(uci:get("shadowsocksr", sid, "server_port") or port or 0)
+		transport = (uci:get("shadowsocksr", sid, "transport") or transport or ""):lower()
+		wsPath = uci:get("shadowsocksr", sid, "ws_path") or wsPath
+		host = uci:get("shadowsocksr", sid, "ws_host") or host
+		tls_host = uci:get("shadowsocksr", sid, "tls_host") or tls_host
+		tls = uci:get("shadowsocksr", sid, "tls") or tls
+		type = (uci:get("shadowsocksr", sid, "type") or type or ""):lower()
+		proto = (uci:get("shadowsocksr", sid, "v2ray_protocol") or proto or ""):lower()
+		reality = uci:get("shadowsocksr", sid, "reality") or reality
+	end
+
 	local is_ip = domain and domain:match("^%d+%.%d+%.%d+%.%d+$")
+	local probe_host = (tls_host ~= "" and tls_host) or (host ~= "" and host) or domain
+	local is_reality = (reality == "1" or reality == "true")
+	local prefers_handshake_latency = (type == "v2ray") and not is_reality
 
 	-- 临时放行防火墙逻辑
-	local use_nft = luci.sys.call("command -v nft >/dev/null") == 0
+	local use_nft = use_fw4_backend()
 	local iret = false
 	if domain then
 		if use_nft then
@@ -117,46 +1004,52 @@ function act_ping()
 			iret = luci.sys.call("ipset add ss_spec_wan_ac " .. domain .. " 2>/dev/null") == 0
 		end
 	end
-	-- Hysteria2 节点检测
+	-- Hysteria2 节点轻量 UDP 端口检测
 	if proto:find("hysteria2") or type:find("hysteria2") then
-		local node_id = e.index    
-		-- 调用Shell测试脚本
-		local cmd = string.format(
-			"/usr/share/shadowsocksr/hy2_test.sh url_test_hy2 %s",
-			node_id
-		)
-		local res = luci.sys.exec(cmd) or ""    
-		-- 解析结果
-		local http_code, time_pre = string.match(res, "(%d+):([%d%.]+)")    
-		if http_code == "200" or http_code == "204" then
-			e.socket = true
-			e.ping = math.floor(tonumber(time_pre or 0) * 1000)
-		else
-			e.socket = false
+		local udp_cmd = string.format("nping --udp -c 1 -p %d %s 2>/dev/null", port, domain)
+		local udp_raw = luci.sys.exec(udp_cmd) or ""
+		local udp_rtt = udp_raw:match("Avg rtt:%s*([0-9.]+)ms")
+		local udp_unreachable = udp_raw:match("[Pp]ort [Uu]nreachable") or udp_raw:match("ICMP")
+		local udp_sent = udp_raw:match("Raw packets sent:%s*1")
+
+		-- UDP 服务通常不会主动回包，未收到应答不等于端口不可用。
+		-- 仅在出现明显的不可达迹象时标记 fail，其余视为轻量可达。
+		e.socket = (udp_unreachable == nil) and (udp_sent ~= nil)
+		e.ping = udp_rtt and normalize_ping_ms(udp_rtt) or nil
+
+		if not e.ping then
+			local icmp_cmd = string.format("ping -c 1 -W 1 %s 2>/dev/null | grep -o 'time=[0-9.]*' | cut -d= -f2", domain)
+			e.ping = tonumber(luci.sys.exec(icmp_cmd))
+		end
+		if not e.ping then
 			e.ping = 0
 		end
 	elseif transport == "ws" then
 		-- WebSocket 探测
 		local result = ""
 		local success = false
+		local icmp_cmd = string.format("ping -c 1 -W 1 %s 2>/dev/null | grep -o 'time=[0-9.]*' | cut -d= -f2", domain)
+		e.ping = tonumber(luci.sys.exec(icmp_cmd))
 		-- WebSocket 探测 (适用于域名，或带 SNI 的 IP)
-		if not is_ip or (host and host ~= "") then
+		if not is_ip or probe_host ~= domain then
 			local resolve_arg = ""
-			local final_domain = domain
-			if is_ip and host and host ~= "" then
+			local final_domain = probe_host
+			if is_ip and probe_host and probe_host ~= "" then
 				-- IP 模式下使用 --resolve 强制指定 SNI，解决 TLS 握手失败
-				resolve_arg = string.format("--resolve '%s:%d:%s' ", host, port, domain)
-				final_domain = host
+				resolve_arg = string.format("--resolve '%s:%d:%s' ", probe_host, port, domain)
 			end
 			local prefix = (tls == '1') and "https://" or "http://"
 			local address = prefix .. final_domain .. ':' .. port .. wsPath
 			local cmd = string.format(
 				"curl --http1.1 -m 2 -ksN -o /dev/null %s" ..
 				"-w 'time_connect=%%{time_connect}\\nhttp_code=%%{http_code}' " ..
+				"%s" ..
 				"-H 'Connection: Upgrade' -H 'Upgrade: websocket' " ..
 				"-H 'Sec-WebSocket-Key: SGVsbG8sIHdvcmxkIQ==' " ..
 				"-H 'Sec-WebSocket-Version: 13' '%s'",
-				resolve_arg, address
+				resolve_arg,
+				(probe_host and probe_host ~= "") and ("-H " .. luci.util.shellquote("Host: " .. probe_host) .. " ") or "",
+				address
 			)
 			result = luci.sys.exec(cmd) or ""
 			success = (string.match(result, "http_code=(%d+)") == "101")
@@ -173,13 +1066,17 @@ function act_ping()
 			--luci.sys.exec(string.format("echo 'Node %s (ws) failed deep test, using TCP fallback' >> /tmp/ping.log", domain))
 		end
 		e.socket = success
-		-- 解析延迟 (优先用 curl 数据，失败则回退到 tcping)
-		local ping_time = tonumber(string.match(result, "time_connect=(%d+.%d%d%d)"))
-		if ping_time and ping_time > 0 then
-			e.ping = math.floor(ping_time * 1000)
-		else
-			local tcping_cmd = string.format("tcping -q -c 1 -t 1 -p %d %s 2>/dev/null | grep -o 'time=[0-9]*' | cut -d= -f2", port, domain)
-			e.ping = tonumber(luci.sys.exec(tcping_cmd)) or 0
+		-- 延迟：优先 ping，再 curl，最后 nping tcp-connect
+		if not e.ping then
+			local ping_time = tonumber(string.match(result, "time_connect=(%d+.%d%d%d)"))
+			local appconnect_time = tonumber(string.match(result, "time_appconnect=(%d+.%d%d%d)"))
+			if appconnect_time and appconnect_time > 0 then
+				e.ping = normalize_ping_ms(appconnect_time, 1000)
+			elseif ping_time and ping_time > 0 then
+				e.ping = normalize_ping_ms(ping_time, 1000)
+			else
+				e.ping = detect_tcp_connect_ms(domain, port) or 0
+			end
 		end
 	else
 		-- 3. 非 WebSocket 节点的探测逻辑 (TCP / ICMP / UDP)
@@ -191,9 +1088,16 @@ function act_ping()
 			socket:close()
 		end
 
-		-- 延迟：tcping -> ping -> nping(udp)
-		local tcping_cmd = string.format("tcping -q -c 1 -t 1 -p %d %s 2>/dev/null | grep -o 'time=[0-9]*' | cut -d= -f2", port, domain)
-		e.ping = tonumber(luci.sys.exec(tcping_cmd))
+		if prefers_handshake_latency and (tls == "1" or tls_host ~= "" or proto == "vless" or proto == "vmess") then
+			e.ping = detect_tls_handshake_ms(domain, port, "", probe_host, domain, false)
+		end
+
+		-- 延迟：优先真实握手，再 nping tcp-connect -> ping -> nping(udp)
+		if not e.ping then
+			if not is_reality then
+				e.ping = detect_tcp_connect_ms(domain, port)
+			end
+		end
 		if not e.ping then
 			local icmp_cmd = string.format("ping -c 1 -W 1 %s 2>/dev/null | grep -o 'time=[0-9.]*' | cut -d= -f2", domain)
 			e.ping = tonumber(luci.sys.exec(icmp_cmd))
@@ -204,7 +1108,23 @@ function act_ping()
 			local udp_res = luci.sys.exec(udp_cmd)
 			if udp_res and udp_res ~= "" then
 				local ping_num = tonumber(udp_res)
-				if ping_num then e.ping = math.floor(ping_num) end
+				if ping_num then e.ping = normalize_ping_ms(ping_num) end
+			end
+		end
+
+		if (not e.ping or e.ping == 0) and domain and port > 0 then
+			local schemes = { "https", "http" }
+			for _, scheme in ipairs(schemes) do
+				local connect_cmd = string.format(
+					"curl -m 2 -ksS -o /dev/null -w 'time_connect=%%{time_connect}' %s://%s:%d 2>/dev/null",
+					scheme, domain, port
+				)
+				local connect_res = luci.sys.exec(connect_cmd) or ""
+				local connect_time = tonumber(connect_res:match("time_connect=([0-9.]+)"))
+				if connect_time and connect_time > 0 then
+					e.ping = normalize_ping_ms(connect_time, 1000)
+					break
+				end
 			end
 		end
 	end
@@ -218,13 +1138,61 @@ function act_ping()
 		end
 	end
 
+	if sid and sid ~= "" then
+		save_detect_cache_entry(sid, {
+			server = domain or "",
+			port = port or 0,
+			type = type or "",
+			proto = proto or "",
+			socket = e.socket and true or false,
+			ping = tonumber(e.ping) or 0,
+			time = os.time()
+		})
+	end
+
 	luci.http.prepare_content("application/json")
 	luci.http.write_json(e)
 end
 
 function check_status()
 	local e = {}
-	e.ret = luci.sys.call("/usr/bin/ssr-check www." .. luci.http.formvalue("set") .. ".com 80 3 1")
+	local target = luci.http.formvalue("set") or ""
+	local sid = uci:get_first("shadowsocksr", "global", "global_server", "nil")
+	local stype = sid ~= "nil" and (uci:get("shadowsocksr", sid, "type") or "") or ""
+
+	if stype == "clash" and is_active_clash_node(sid) then
+		if target == "baidu" then
+			e.ret = luci.sys.call("curl -I -m 5 http://www.baidu.com >/dev/null 2>&1")
+			luci.http.prepare_content("application/json")
+			luci.http.write_json(e)
+			return
+		end
+
+		if target == "google" then
+			e.ret = luci.sys.call("curl -I -m 5 http://www.gstatic.com/generate_204 >/dev/null 2>&1")
+			luci.http.prepare_content("application/json")
+			luci.http.write_json(e)
+			return
+		end
+
+		local profile_map = {
+			google = {
+				url = "http://www.gstatic.com/generate_204",
+				candidates = { "自动选择", "故障转移", "Proxy", "GLOBAL" }
+			},
+			baidu = {
+				url = "http://www.baidu.com",
+				candidates = { "Domestic", "DIRECT", "GLOBAL" }
+			}
+		}
+		local profile = profile_map[target] or {
+			url = "http://www." .. target .. ".com",
+			candidates = { "自动选择", "故障转移", "Proxy", "Domestic", "DIRECT", "GLOBAL" }
+		}
+		e.ret = clash_delay_ok(sid, profile.candidates, profile.url) and 0 or 1
+	else
+		e.ret = luci.sys.call("curl -m 3 -sS -o /dev/null http://www." .. target .. ".com >/dev/null 2>&1")
+	end
 	luci.http.prepare_content("application/json")
 	luci.http.write_json(e)
 end
@@ -241,9 +1209,13 @@ function check_port()
 	local s
 	local server_name = ""
 	local uci = require "luci.model.uci".cursor()
-	local use_nft = luci.sys.call("command -v nft >/dev/null") == 0
+	local use_nft = use_fw4_backend()
 
 	uci:foreach("shadowsocksr", "servers", function(s)
+		if s.type == "clash" then
+			retstring = retstring .. string.format("<font><b style='color:gray'>[%s] Clash panel node.</b></font><br />", s.alias or s[".name"])
+			return
+		end
 		if s.alias then
 			server_name = s.alias
 		elseif s.server and s.server_port then
@@ -251,15 +1223,18 @@ function check_port()
 		end
 
 		-- 临时加入 set
+		local is_ipv6 = is_ipv6_address(s.server)
 		local iret = false
-		if use_nft then
-			iret = luci.sys.call("nft add element inet ss_spec ss_spec_wan_ac { " .. s.server .. " } 2>/dev/null") == 0
-		else
-			iret = luci.sys.call("ipset add ss_spec_wan_ac " .. s.server .. " 2>/dev/null") == 0
+		if not is_ipv6 then
+			if use_nft then
+				iret = luci.sys.call("nft add element inet ss_spec ss_spec_wan_ac { " .. s.server .. " } 2>/dev/null") == 0
+			else
+				iret = luci.sys.call("ipset add ss_spec_wan_ac " .. s.server .. " 2>/dev/null") == 0
+			end
 		end
 
 		-- TCP 测试
-		local socket = nixio.socket("inet", "stream")
+		local socket = nixio.socket(is_ipv6 and "inet6" or "inet", "stream")
 		socket:setopt("socket", "rcvtimeo", 3)
 		socket:setopt("socket", "sndtimeo", 3)
 		local ret = socket:connect(s.server, s.server_port)
@@ -295,103 +1270,8 @@ function act_restart()
 end
 
 function act_delete()
-	uci:delete_all("shadowsocksr", "servers", function(s)
-		if s.hashkey or s.isSubscribe then
-			return true
-		else
-			return false
-		end
-	end)
-	uci:commit("shadowsocksr")
-	for file in nixio.fs.glob("/tmp/sub_md5_*") do
-		nixio.fs.remove(file)
-	end
-	luci.sys.call("/etc/init.d/shadowsocksr restart >/dev/null 2>&1 &")
+	luci.sys.call("/etc/init.d/shadowsocksr restart &")
 	luci.http.redirect(luci.dispatcher.build_url("admin", "services", "shadowsocksr", "servers"))
-end
-
-function act_add_node()
-	local redirect = luci.http.formvalue("redirect")
-	local used_sid = {}
-	local next_sid = 1
-
-	uci:foreach("shadowsocksr", "servers", function(s)
-		local num = s[".name"]:match("^cfg(%x%x)")
-		if num then
-			local n = tonumber(num, 16)
-			used_sid[n] = true
-		end
-	end)
-
-	local function get_next_sid()
-		while used_sid[next_sid] do
-			next_sid = next_sid + 1
-		end
-		used_sid[next_sid] = true
-		return next_sid
-	end
-
-	local sid = uci:section("shadowsocksr", "servers", nil)
-	local suffix = sid:sub(-4)
-	uci:delete("shadowsocksr", sid)
-
-	local id = get_next_sid()
-	local cfgid = string.format("cfg%02x%s", id, suffix)
-	uci:section("shadowsocksr", "servers", cfgid)
-	uci_save(uci, "shadowsocksr")
-
-	if redirect == "1" then
-		luci.http.redirect(url("servers", cfgid))
-	else
-		luci.http.write_json({ result = cfgid })
-	end
-end
-
-function act_remove()
-	local id = luci.http.formvalue("id")
-	if id then
-		uci:delete("shadowsocksr", id)
-		uci:commit("shadowsocksr")
-	end
-	luci.http.redirect(luci.dispatcher.build_url("admin", "services", "shadowsocksr", "servers"))
-end
-
-function act_save_order()
-	local ids = luci.http.formvalue("ids") or ""
-	local new_order = {}
-	for id in ids:gmatch("([^,]+)") do
-		new_order[#new_order + 1] = id
-	end
-
-	for idx, name in ipairs(new_order) do
-		luci.sys.call(string.format("uci -q reorder %s.%s=%d", "shadowsocksr", name, idx - 1))
-	end
-
-	sh_uci_commit("shadowsocksr")
-	luci.http.write_json({ status = "ok" })
-end
-
-function act_get_now_use_node()
-	local result = {}
-	local tcp_node = uci:get_first("shadowsocksr", "global", "global_server")
-	if tcp_node then
-		result["TCP"] = tcp_node
-	end
-	local udp_node = uci:get_first("shadowsocksr", "global", "udp_relay_server")
-	if udp_node then
-		result["UDP"] = udp_node
-	end
-	local netflix_node = uci:get_first("shadowsocksr", "global", "netflix_server")
-	if netflix_node then
-		result["netflix"] = netflix_node
-	end
-	local socks5_node = uci:get_first("shadowsocksr", "socks5_proxy", "server")
-	if socks5_node then
-		result["socks5"] = socks5_node
-	end
-
-	luci.http.prepare_content("application/json")
-	luci.http.write_json(result)
 end
 
 function get_log()

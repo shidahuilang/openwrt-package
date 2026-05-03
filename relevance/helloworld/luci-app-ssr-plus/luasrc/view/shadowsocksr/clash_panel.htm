@@ -1,0 +1,104 @@
+<%+header%>
+
+<h2><%:Clash Panel%> - <%=alias%></h2>
+
+<div class="cbi-map-descr">
+	<%:This panel is available only when the current Clash total node is active.%>
+</div>
+
+<div class="cbi-section-actions" style="margin: 1em 0;">
+	<input type="button" id="clash-panel-refresh" class="btn cbi-button cbi-button-apply" value="<%:Refresh%>" />
+</div>
+
+<div id="clash-panel-status" style="margin: 1em 0; color: #666;"></div>
+<div id="clash-panel-groups"></div>
+
+<script type="text/javascript">
+//<![CDATA[
+(function() {
+	const sid = <%=string.format("%q", sid)%>;
+	const statusEl = document.getElementById('clash-panel-status');
+	const groupsEl = document.getElementById('clash-panel-groups');
+	const refreshBtn = document.getElementById('clash-panel-refresh');
+
+	function setStatus(text, color) {
+		statusEl.style.color = color || '#666';
+		statusEl.textContent = text;
+	}
+
+	function renderGroups(groups) {
+		groupsEl.innerHTML = '';
+		if (!groups || !groups.length) {
+			groupsEl.innerHTML = '<p><%:No switchable proxy groups found.%></p>';
+			return;
+		}
+
+		groups.forEach(function(group) {
+			const wrapper = document.createElement('div');
+			wrapper.className = 'cbi-value';
+			wrapper.style.marginBottom = '1em';
+
+			const label = document.createElement('label');
+			label.className = 'cbi-value-title';
+			label.textContent = group.name + (group.type ? ' (' + group.type + ')' : '');
+
+			const field = document.createElement('div');
+			field.className = 'cbi-value-field';
+
+			const select = document.createElement('select');
+			select.className = 'cbi-input-select';
+			group.all.forEach(function(name) {
+				const option = document.createElement('option');
+				option.value = name;
+				option.textContent = name;
+				if (name === group.now) {
+					option.selected = true;
+				}
+				select.appendChild(option);
+			});
+
+			select.onchange = function() {
+				setStatus('<%:Switching...%>', '#0072c3');
+				XHR.get('<%=luci.dispatcher.build_url("admin", "services", "shadowsocksr", "clash_switch")%>', {
+					sid: sid,
+					group: group.name,
+					name: select.value
+				}, function(x, result) {
+					if (result && result.success) {
+						setStatus('<%:Switched successfully.%>', '#249400');
+						loadGroups();
+					} else {
+						setStatus('<%:Switch failed.%>', '#ff0000');
+					}
+				});
+			};
+
+			field.appendChild(select);
+			wrapper.appendChild(label);
+			wrapper.appendChild(field);
+			groupsEl.appendChild(wrapper);
+		});
+	}
+
+	function loadGroups() {
+		setStatus('<%:Loading...%>', '#666');
+		XHR.get('<%=luci.dispatcher.build_url("admin", "services", "shadowsocksr", "clash_groups")%>', {
+			sid: sid
+		}, function(x, result) {
+			if (!result || !result.active) {
+				setStatus('<%:This Clash total node is not active. Apply this node first.%>', '#ff7700');
+				groupsEl.innerHTML = '';
+				return;
+			}
+			setStatus('<%:Ready.%>', '#249400');
+			renderGroups(result.groups || []);
+		});
+	}
+
+	refreshBtn.onclick = loadGroups;
+	loadGroups();
+})();
+//]]>
+</script>
+
+<%+footer%>

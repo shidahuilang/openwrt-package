@@ -1,18 +1,257 @@
 <%+cbi/valueheader%>
-<script type="text/javascript">//<![CDATA[
-	function subscribe(btn,dataname) {
-		btn.disabled = true;
-		btn.value    = '<%:Refresh...%> ';
-		murl=dataname;
-		XHR.get('<%=luci.dispatcher.build_url("admin", "services", "shadowsocksr","subscribe")%>', { set:murl }, function(x,rv) {
-			// 先简单刷新，后期如果重构会考虑下如何组织lua shell JavaScript之间的代码逻辑和各自的调用逻辑
-			window.location.reload()
-			// btn.disabled = false;
-			// btn.value    = '<%:Refresh Data %>';
-		});
-		return false;
-	}
-//]]></script>
-<input type="button" class="btn cbi-button cbi-button-apply" value="<%:Update All Subscribe Servers%> " onclick="return subscribe(this,'<%=self.option%>')" />
-<!-- <span id="<%=self.option%>-status"><em><%=self.value%></em></span> -->
+<%
+local dsp = require "luci.dispatcher"
+local subscribe_url = dsp.build_url("admin", "services", "shadowsocksr", "subscribe")
+local get_log_url = dsp.build_url("admin", "services", "shadowsocksr", "get_log")
+local servers_url = dsp.build_url("admin", "services", "shadowsocksr", "servers")
+local autostart = self.map and self.map.ssr_subscribe_autostart
+-%>
+<div id="ssr-subscribe-modal-wrap">
+	<style type="text/css">
+		#ssr-subscribe-modal-mask {
+			display: none;
+			position: fixed;
+			inset: 0;
+			background: rgba(0, 0, 0, 0.35);
+			z-index: 2000;
+		}
+
+		#ssr-subscribe-modal {
+			display: none;
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			width: min(900px, calc(100vw - 32px));
+			max-height: min(720px, calc(100vh - 80px));
+			overflow: auto;
+			background: #fff;
+			border-radius: 10px;
+			box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+			z-index: 2001;
+			padding: 12px 16px 14px;
+		}
+
+		#ssr-subscribe-modal-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 12px;
+			margin-bottom: 8px;
+		}
+
+		#ssr-subscribe-modal-title {
+			font-size: 17px;
+			font-weight: 600;
+			color: #333;
+		}
+
+		#ssr-subscribe-modal-status {
+			margin: 0 0 8px;
+			color: #666;
+		}
+
+		#ssr-subscribe-modal-status.ssr-subscribe-highlight {
+			font-size: 18px;
+			font-weight: 700;
+			line-height: 1.5;
+		}
+
+		#ssr-subscribe-log {
+			margin: 0;
+			padding: 14px 16px;
+			min-height: 420px;
+			max-height: min(520px, calc(100vh - 220px));
+			overflow: auto;
+			background: #111827;
+			color: #e5e7eb;
+			border-radius: 8px;
+			box-sizing: border-box;
+			white-space: pre-wrap;
+			word-break: break-word;
+			font: 13px/1.5 Menlo, Monaco, Consolas, monospace;
+		}
+
+		@media (max-width: 700px) {
+			#ssr-subscribe-modal {
+				width: calc(100vw - 16px);
+				max-height: calc(100vh - 24px);
+				padding: 10px 12px 12px;
+			}
+
+			#ssr-subscribe-modal-header {
+				flex-direction: column;
+				align-items: flex-start;
+			}
+
+			#ssr-subscribe-log {
+				max-height: calc(100vh - 260px);
+				min-height: 280px;
+			}
+		}
+	</style>
+
+	<script type="text/javascript">//<![CDATA[
+		(function() {
+			var pollTimer = null;
+			var running = false;
+			var autoStart = <%=autostart and "true" or "false"%>;
+
+			function getEl(id) {
+				return document.getElementById(id);
+			}
+
+			function setStatus(text, color) {
+				var status = getEl('ssr-subscribe-modal-status');
+				if (!status) {
+					return;
+				}
+				status.className = 'ssr-subscribe-highlight';
+				status.style.color = color || '#666';
+				status.textContent = text;
+			}
+
+			function updateLog(text) {
+				var log = getEl('ssr-subscribe-log');
+				if (!log) {
+					return;
+				}
+				log.textContent = text || '';
+				log.scrollTop = log.scrollHeight;
+			}
+
+			function appendLog(text) {
+				var log = getEl('ssr-subscribe-log');
+				if (!log || !text) {
+					return;
+				}
+				log.textContent = (log.textContent ? log.textContent.replace(/\s*$/, '') + '\n' : '') + text;
+				log.scrollTop = log.scrollHeight;
+			}
+
+			function clearPoll() {
+				if (pollTimer) {
+					window.clearInterval(pollTimer);
+					pollTimer = null;
+				}
+			}
+
+			function fetchLog() {
+				XHR.get('<%=get_log_url%>', null, function(x) {
+					if (x && x.status === 200) {
+						updateLog(x.responseText || '');
+					}
+				});
+			}
+
+			function openModal() {
+				var mask = getEl('ssr-subscribe-modal-mask');
+				var modal = getEl('ssr-subscribe-modal');
+				if (mask) {
+					mask.style.display = 'block';
+				}
+				if (modal) {
+					modal.style.display = 'block';
+				}
+			}
+
+			function closeModal(force) {
+				if (running && !force) {
+					return false;
+				}
+				clearPoll();
+				var mask = getEl('ssr-subscribe-modal-mask');
+				var modal = getEl('ssr-subscribe-modal');
+				if (mask) {
+					mask.style.display = 'none';
+				}
+				if (modal) {
+					modal.style.display = 'none';
+				}
+				return false;
+			}
+
+			function finishSubscribe(success) {
+				running = false;
+				clearPoll();
+				fetchLog();
+				if (success) {
+					var remain = 5;
+					appendLog('订阅已结束，将在倒数5秒后返回页面');
+					setStatus('订阅已结束，将在倒数' + remain + '秒后返回页面', '#249400');
+					var countdown = window.setInterval(function() {
+						remain = remain - 1;
+						if (remain <= 0) {
+							window.clearInterval(countdown);
+							closeModal(true);
+							window.location.href = '<%=servers_url%>';
+							return;
+						}
+						setStatus('订阅已结束，将在倒数' + remain + '秒后返回页面', '#249400');
+					}, 1000);
+					return;
+				}
+				setStatus('<%:Subscribe failed, refreshing page...%>', '#ff0000');
+				window.setTimeout(function() {
+					closeModal(true);
+					window.location.href = '<%=servers_url%>';
+				}, 1200);
+			}
+
+			function startSubscribe(options, done) {
+				options = options || {};
+				running = true;
+				updateLog('');
+				setStatus(options.title || '<%:Starting subscription update...%>', '#0072c3');
+				openModal();
+
+				clearPoll();
+				fetchLog();
+				pollTimer = window.setInterval(fetchLog, 1000);
+
+				XHR.get('<%=subscribe_url%>', options.sid ? { sid: options.sid } : null, function(x, rv) {
+					var ok = !!(rv && typeof rv.ret !== 'undefined' && Number(rv.ret) === 0);
+					if (typeof done === 'function') {
+						done(ok);
+					}
+					finishSubscribe(ok);
+				});
+			}
+
+			window.ssrSubscribeRun = startSubscribe;
+
+			window.setTimeout(function() {
+				var closeBtn = getEl('ssr-subscribe-modal-close');
+				var mask = getEl('ssr-subscribe-modal-mask');
+
+				if (closeBtn) {
+					closeBtn.onclick = function() {
+						return closeModal(false);
+					};
+				}
+				if (mask) {
+					mask.onclick = function() {
+						return closeModal(false);
+					};
+				}
+
+				if (autoStart) {
+					startSubscribe();
+				}
+			}, 0);
+		})();
+	//]]></script>
+
+	<input class="btn cbi-button cbi-button-apply" type="submit"<%= attr("name", cbid) .. attr("id", cbid) .. attr("value", self.inputtitle or self.title)%> />
+
+	<div id="ssr-subscribe-modal-mask"></div>
+	<div id="ssr-subscribe-modal" role="dialog" aria-modal="true" aria-labelledby="ssr-subscribe-modal-title">
+		<div id="ssr-subscribe-modal-header">
+			<div id="ssr-subscribe-modal-title"><%:Subscribe Log%></div>
+			<input type="button" id="ssr-subscribe-modal-close" class="btn cbi-button" value="<%:Close%>" />
+		</div>
+		<div id="ssr-subscribe-modal-status"><%:Ready.%></div>
+		<pre id="ssr-subscribe-log"></pre>
+	</div>
+</div>
 <%+cbi/valuefooter%>

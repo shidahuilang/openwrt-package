@@ -1,25 +1,17 @@
 <%+cbi/valueheader%>
 <%
 local map = self.map
-local ss_type = map:get("@server_subscribe[0]", "ss_type")
 local xray_hy2_type = map:get("@server_subscribe[0]", "xray_hy2_type")
-local xray_tj_type = map:get("@server_subscribe[0]", "xray_tj_type")
 
 local has_ss_rust = luci.sys.exec('type -t -p sslocal 2>/dev/null || type -t -p ssserver 2>/dev/null') ~= ""
-local has_ss_libev = luci.sys.exec('type -t -p ss-redir 2>/dev/null || type -t -p ss-local 2>/dev/null') ~= ""
 local has_hysteria = luci.sys.exec('type -t -p hysteria 2>/dev/null') ~= ""
-local has_trojan = luci.sys.exec('type -t -p trojan 2>/dev/null') ~= ""
 local has_xray = luci.sys.exec('type -t -p xray 2>/dev/null') ~= ""
 -%>
 <script type="text/javascript">
 //<![CDATA[
-let ss_type = "<%=ss_type%>"
 let xray_hy2_type = "<%=xray_hy2_type%>"
-let xray_tj_type = "<%=xray_tj_type%>"
 let has_ss_rust = "<%=has_ss_rust%>"
-let has_ss_libev = "<%=has_ss_libev%>"
 let has_hysteria = "<%=has_hysteria%>"
-let has_trojan = "<%=has_trojan%>"
 let has_xray = "<%=has_xray%>"
 
 function padright(str, cnt, pad) {
@@ -40,6 +32,13 @@ function b64DecodeUnicode(str) {
 	return decodeURIComponent(Array.prototype.map.call(atob(str), function (c) {
 		return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
 	}).join(''));
+}
+
+function normalizeHost(host) {
+	if (host && host[0] === "[" && host[host.length - 1] === "]") {
+		return host.slice(1, -1);
+	}
+	return host;
 }
 
 function b64decutf8safe(str) {
@@ -213,7 +212,7 @@ function import_ssr_url(btn, urlname, sid) {
 			else importAsNormalHy2();
 
 			document.getElementsByName('cbid.shadowsocksr.' + sid + '.alias')[0].value = url.hash ? decodeURIComponent(url.hash.slice(1)) : "";
-			document.getElementsByName('cbid.shadowsocksr.' + sid + '.server')[0].value = url.hostname;
+			document.getElementsByName('cbid.shadowsocksr.' + sid + '.server')[0].value = normalizeHost(url.hostname);
 			document.getElementsByName('cbid.shadowsocksr.' + sid + '.server_port')[0].value = url.port || "443";
 			document.getElementsByName('cbid.shadowsocksr.' + sid + '.hy2_auth')[0].value = decodeURIComponent(url.username);
 			document.getElementsByName('cbid.shadowsocksr.' + sid + '.hy2_auth')[0].dispatchEvent(event);
@@ -248,9 +247,9 @@ function import_ssr_url(btn, urlname, sid) {
 
 			s.innerHTML = "<font style=\'color:green\'><%:Import configuration information successfully.%></font>";
 			return false;
-		case "ss":
-			var url0 = (ssu[1] || "");
-			var param = "";
+			case "ss":
+				var url0 = (ssu[1] || "");
+				var param = "";
 
 			// 先分离 #（alias）
 			var hashIndex = url0.indexOf("#");
@@ -267,374 +266,338 @@ function import_ssr_url(btn, urlname, sid) {
 				url0 = url0.substring(0, queryIndex);
 			}
 
-			var params = Object.fromEntries(new URLSearchParams(query));
+				var params = Object.fromEntries(new URLSearchParams(query));
 
-			function importAsNormalSS() {
-				// 普通 SS 导入逻辑
-				// 判断是否 SIP002 格式（即含 @）
-				if (url0.indexOf("@") !== -1) {
-					// === SIP002 格式 ===
-					var sipIndex = url0.indexOf("@");
-					// 先 URL 解码 base64 再解码
-					var userInfoB64 = decodeURIComponent(url0.substring(0, sipIndex));
-					// console.log("userInfoB64:", userInfoB64);
-					var userInfo = b64decsafe(userInfoB64);
-					if (userInfo && userInfo.indexOf(":") !== -1) {
-						var userInfo = userInfo;
-					} else {
-						var userInfo = userInfoB64;
+				function decodeURIComponentSafe(value) {
+					try {
+						return decodeURIComponent(value);
+					} catch (e) {
+						return value;
 					}
-					// 如果没有冒号，且不是 base64 格式，我们可以尝试补齐它
-					if (userInfo.indexOf(":") === -1) {
-						userInfo = "none:" + userInfo;
-					}
-					// console.log("userInfo after decode:", userInfo);
-					var userInfoSplitIndex = userInfo.indexOf(":");
-					if(userInfoSplitIndex < 0) {
-						// 格式错误
-						s.innerHTML = "<font style='color:red'><%:Userinfo format error.%></font>";
-						return false;
-					}
-					var method = userInfo.substring(0, userInfoSplitIndex);
-					// console.log("method:", method);
-					var password = userInfo.substring(userInfoSplitIndex + 1);
-					// console.log("password:", password);
-					var serverPart = url0.substring(sipIndex + 1);
-					var serverInfo = serverPart.split(":");
+				}
 
-					var server = serverInfo[0];
-					var port = serverInfo[1];
+				function decodeBase64Safe(value) {
+					try {
+						return b64decsafe(value);
+					} catch (e) {
+						return "";
+					}
+				}
 
-					var plugin = "", pluginOpts = "";
+				function parseSSHostPort(serverPart) {
+					serverPart = (serverPart || "").trim();
+					var ipv6Match = serverPart.match(/^\[([^\]]+)\]:(\d+)$/);
+					if (ipv6Match) {
+						return { server: ipv6Match[1], port: ipv6Match[2] };
+					}
+
+					var colonIndex = serverPart.lastIndexOf(":");
+					if (colonIndex > 0 && serverPart.indexOf(":") === colonIndex) {
+						return {
+							server: serverPart.substring(0, colonIndex),
+							port: serverPart.substring(colonIndex + 1)
+						};
+					}
+
+					return null;
+				}
+
+				function parseSSPluginInfo() {
+					var plugin = "";
+					var pluginOpts = "";
+
 					if (params.plugin) {
-						var pluginParams = decodeURIComponent(params.plugin).split(";");
-						plugin = pluginParams.shift();
-						pluginOpts = pluginParams.join(";");
-					}
-				} else {
-					// === Base64 SS2022 / 普通格式 的整体编码格式 ===
-					// 先 URL 解码整个字符串
-					var decodedUrl0 = decodeURIComponent(url0);
-					var sstr = b64decsafe(decodedUrl0);
-					if (!sstr) {
-						s.innerHTML = "<font style='color:red'><%:Base64 sstr failed.%></font>";
-						return false;
-					}
-
-					// 支持 SS2022 / 普通格式
-					var regex2022 = /^([^:]+):([^:]+):([^@]+)@([^:]+):(\d+)$/;
-					var regexNormal = /^([^:]+):([^@]+)@([^:]+):(\d+)$/;
-
-					var m2022 = sstr.match(regex2022);
-					var mNormal = sstr.match(regexNormal);
-
-					if (m2022) {
-						var method = m2022[1];
-						var password = m2022[2] + ":" + m2022[3];
-						var server = m2022[4];
-						var port = m2022[5];
-					} else if (mNormal) {
-						var method = mNormal[1];
-						var password = mNormal[2];
-						var server = mNormal[3];
-						var port = mNormal[4];
-					} else {
-						s.innerHTML = "<font style='color:red'><%:SS URL base64 sstr format not recognized.%></font>";
-						return false;
-					}
-
-					var plugin = "", pluginOpts = "";
-					if (params["shadow-tls"]) {
+						var pluginInfo = decodeURIComponentSafe(params.plugin);
+						var pluginParts = pluginInfo.split(";");
+						plugin = pluginParts.shift() || "";
+						pluginOpts = pluginParts.join(";");
+						if (plugin === "simple-obfs") {
+							plugin = "obfs-local";
+						}
+					} else if (params["shadow-tls"]) {
 						try {
-							var decoded_tls = JSON.parse(atob(decodeURIComponent(params["shadow-tls"])));
+							var decodedTls = JSON.parse(b64decsafe(decodeURIComponentSafe((params["shadow-tls"] || "").replace(/ /g, "+"))));
 							plugin = "shadow-tls";
 							var versionFlag = "";
-							if (decoded_tls.version && !isNaN(decoded_tls.version)) {
-                				versionFlag = "v" + decoded_tls.version + "=1;";
+							if (decodedTls.version && !isNaN(decodedTls.version)) {
+								versionFlag = "v" + decodedTls.version + "=1;";
 							}
-							pluginOpts = versionFlag + "host=" + (decoded_tls.host || "") + ";passwd=" + (decoded_tls.password || "");
+							pluginOpts = versionFlag + "host=" + (decodedTls.host || "") + ";passwd=" + (decodedTls.password || "");
 						} catch (e) {
 							console.log("shadow-tls decode failed:", e);
 						}
 					}
+
+					return {
+						plugin: plugin,
+						pluginOpts: pluginOpts
+					};
 				}
 
-				// 判断密码是否经过url编码
-				const isURLEncodedPassword = function(pwd) {
-					if (!/%[0-9A-Fa-f]{2}/.test(pwd)) return false;
-					try {
-						const decoded = decodeURIComponent(pwd.replace(/\+/g, "%20"));
-						const reencoded = encodeURIComponent(decoded);
-						return reencoded === pwd;
-					} catch (e) {
-						return false;
+				function parseSSNode() {
+					var userInfo = "";
+					var serverPart = "";
+					var atIndex = url0.lastIndexOf("@");
+
+					if (atIndex !== -1) {
+						var rawUserInfo = decodeURIComponentSafe(url0.substring(0, atIndex));
+						var decodedUserInfo = decodeBase64Safe(rawUserInfo);
+						userInfo = decodedUserInfo && decodedUserInfo.indexOf(":") !== -1 ? decodedUserInfo : rawUserInfo;
+						serverPart = url0.substring(atIndex + 1);
+					} else {
+						var decodedUrl0 = decodeBase64Safe(decodeURIComponentSafe(url0));
+						if (!decodedUrl0) {
+							return { error: "<%:Base64 sstr failed.%>" };
+						}
+						atIndex = decodedUrl0.lastIndexOf("@");
+						if (atIndex === -1) {
+							return { error: "<%:SS URL base64 sstr format not recognized.%>" };
+						}
+						userInfo = decodedUrl0.substring(0, atIndex);
+						serverPart = decodedUrl0.substring(atIndex + 1);
 					}
-				}
-				if (isURLEncodedPassword(password)) {
-					password = decodeURIComponent(password); // 解码URL编码
-				} else {
-					password = password; // 保持原始值
-				}
 
-				// === 填充配置项 ===
-				//var has_ss_type = (ss_type === "ss-rust") ? "ss-rust" : "ss-libev";
-				// 设置 _ss_core 的值
-				var ssCore = (ss_type === "ss-rust" || ss_type === "ss-libev") 
-							 ? ss_type 
-							 : (has_ss_rust ? "ss-rust" : (has_ss_libev ? "ss-libev" : "ss-libev"));
-
-				document.getElementsByName('cbid.shadowsocksr.' + sid + '.type')[0].value = ssu[0];
-				document.getElementsByName('cbid.shadowsocksr.' + sid + '.type')[0].dispatchEvent(event);
-
-				document.getElementsByName('cbid.shadowsocksr.' + sid + '._ss_core')[0].value = ssCore;
-				document.getElementsByName('cbid.shadowsocksr.' + sid + '._ss_core')[0].dispatchEvent(event);
-
-				//document.getElementsByName('cbid.shadowsocksr.' + sid + '.has_ss_type')[0].value = has_ss_type;
-				//document.getElementsByName('cbid.shadowsocksr.' + sid + '.has_ss_type')[0].dispatchEvent(event);
-				document.getElementsByName('cbid.shadowsocksr.' + sid + '.server')[0].value = server;
-				document.getElementsByName('cbid.shadowsocksr.' + sid + '.server_port')[0].value = port;
-				document.getElementsByName('cbid.shadowsocksr.' + sid + '.password')[0].value = password || "";
-				document.getElementsByName('cbid.shadowsocksr.' + sid + '.encrypt_method_ss')[0].value = method;
-				document.getElementsByName('cbid.shadowsocksr.' + sid + '.encrypt_method_ss')[0].dispatchEvent(event);
-
-				if (plugin && plugin !== "none") {
-					document.getElementsByName('cbid.shadowsocksr.' + sid + '.enable_plugin')[0].checked = true; // 设置 enable_plugin 为 true
-					document.getElementsByName('cbid.shadowsocksr.' + sid + '.enable_plugin')[0].dispatchEvent(event); // 触发事件
-					document.getElementsByName('cbid.shadowsocksr.' + sid + '.plugin')[0].value = plugin;
-					document.getElementsByName('cbid.shadowsocksr.' + sid + '.plugin')[0].dispatchEvent(event);
-					if (plugin !== undefined) {
-						document.getElementsByName('cbid.shadowsocksr.' + sid + '.plugin_opts')[0].value = pluginOpts || "";
+					if (userInfo.indexOf(":") === -1) {
+						userInfo = "none:" + userInfo;
 					}
-				} else {
-					document.getElementsByName('cbid.shadowsocksr.' + sid + '.enable_plugin')[0].checked = false;
-				}
 
-				//if (params.udp === "1") {
-				//	document.getElementsByName('cbid.shadowsocksr.' + sid + '.uot')[0].checked = true; // 设置 uot 为 true
-				//	document.getElementsByName('cbid.shadowsocksr.' + sid + '.uot')[0].dispatchEvent(event); // 触发事件
-				//}
+					var userInfoSplitIndex = userInfo.indexOf(":");
+					if (userInfoSplitIndex < 0) {
+						return { error: "<%:Userinfo format error.%>" };
+					}
 
-				if (params.tfo === "1") {
-					document.getElementsByName('cbid.shadowsocksr.' + sid + '.fast_open')[0].checked = true; // 设置 fast_open 为 true
-					document.getElementsByName('cbid.shadowsocksr.' + sid + '.fast_open')[0].dispatchEvent(event); // 触发事件
-				}
+						var method = userInfo.substring(0, userInfoSplitIndex);
+						var password = userInfo.substring(userInfoSplitIndex + 1);
+						var serverInfo = parseSSHostPort(serverPart);
+						if (!serverInfo) {
+							return { error: "SS server address format error." };
+						}
 
-				if (param != undefined) {
-					document.getElementsByName('cbid.shadowsocksr.' + sid + '.alias')[0].value = decodeURIComponent(param);
-				}
-				s.innerHTML = "<font style=\'color:green\'><%:Import configuration information successfully.%></font>";
-				return true;
-			}
-
-			function importAsXraySS() {			
-				try {
-					// Xray SS 导入逻辑
-					// 拆分 @，判断是否是 base64 userinfo 的格式
-					var parts = url0.split("@");
-					if (parts.length > 1) {
-						// @ 前是 base64(method:password)，后面是 server:port?params
-						var userinfo = b64decsafe(parts[0]);
-						var sepIndex = userinfo.indexOf(":");
-						if (sepIndex > -1) {
-							method = userinfo.slice(0, sepIndex);
-							password = userinfo.slice(sepIndex + 1);  //一些链接用明文uuid做密码
+					const isURLEncodedPassword = function(pwd) {
+						if (!/%[0-9A-Fa-f]{2}/.test(pwd)) return false;
+						try {
+							const decoded = decodeURIComponent(pwd.replace(/\+/g, "%20"));
+							const reencoded = encodeURIComponent(decoded);
+							return reencoded === pwd;
+						} catch (e) {
+							return false;
 						}
 					}
-					// 已编码的别名
-					// var url = new URL("http://" + url0 + (param ? "#" + encodeURIComponent(param) : ""));
-					// 未编码的别名
-					// var url = new URL("http://" + url0 + (param ? "#" + param : ""));
-					// 兼容已编码和未编码的别名
-					var remarks = param ? decodeURIComponent(param) : "";
-					var encodedremarks = encodeURIComponent(remarks);
-					var url = new URL("http://" + url0 + (encodedremarks ? "#" + encodedremarks : ""));
+					if (isURLEncodedPassword(password)) {
+						password = decodeURIComponent(password);
+					}
 
-				} catch(e) {
-					alert(e);
+					var pluginInfo = parseSSPluginInfo();
+					return {
+						method: method,
+						password: password,
+						server: normalizeHost(serverInfo.server),
+						port: serverInfo.port,
+						plugin: pluginInfo.plugin,
+						pluginOpts: pluginInfo.pluginOpts,
+						alias: param != undefined ? decodeURIComponentSafe(param) : ""
+					};
+				}
+
+				function importAsNormalSS(ssNode) {
+					document.getElementsByName('cbid.shadowsocksr.' + sid + '.type')[0].value = "ss-rust";
+					document.getElementsByName('cbid.shadowsocksr.' + sid + '.type')[0].dispatchEvent(event);
+
+					document.getElementsByName('cbid.shadowsocksr.' + sid + '.server')[0].value = ssNode.server;
+					document.getElementsByName('cbid.shadowsocksr.' + sid + '.server_port')[0].value = ssNode.port;
+					document.getElementsByName('cbid.shadowsocksr.' + sid + '.password')[0].value = ssNode.password || "";
+					document.getElementsByName('cbid.shadowsocksr.' + sid + '.encrypt_method_ss')[0].value = ssNode.method;
+					document.getElementsByName('cbid.shadowsocksr.' + sid + '.encrypt_method_ss')[0].dispatchEvent(event);
+
+					if (ssNode.plugin && ssNode.plugin !== "none") {
+						document.getElementsByName('cbid.shadowsocksr.' + sid + '.enable_plugin')[0].checked = true;
+						document.getElementsByName('cbid.shadowsocksr.' + sid + '.enable_plugin')[0].dispatchEvent(event);
+						document.getElementsByName('cbid.shadowsocksr.' + sid + '.plugin')[0].value = ssNode.plugin;
+						document.getElementsByName('cbid.shadowsocksr.' + sid + '.plugin')[0].dispatchEvent(event);
+						document.getElementsByName('cbid.shadowsocksr.' + sid + '.plugin_opts')[0].value = ssNode.pluginOpts || "";
+					} else {
+						document.getElementsByName('cbid.shadowsocksr.' + sid + '.enable_plugin')[0].checked = false;
+						document.getElementsByName('cbid.shadowsocksr.' + sid + '.enable_plugin')[0].dispatchEvent(event);
+					}
+
+					if (params.tfo === "1") {
+						document.getElementsByName('cbid.shadowsocksr.' + sid + '.fast_open')[0].checked = true;
+						document.getElementsByName('cbid.shadowsocksr.' + sid + '.fast_open')[0].dispatchEvent(event);
+					}
+
+					document.getElementsByName('cbid.shadowsocksr.' + sid + '.alias')[0].value = ssNode.alias;
+					s.innerHTML = "<font style=\'color:green\'><%:Import configuration information successfully.%></font>";
+					return true;
+				}
+
+				function importAsXraySS(ssNode) {
+					function setElementValue(name, value) {
+						const element = document.getElementsByName(name)[0];
+						if (element) {
+							if (typeof value === 'boolean') {
+								element.checked = value;
+							} else {
+								element.value = value;
+							}
+						}
+					}
+					function dispatchEventIfExists(name, event) {
+						const element = document.getElementsByName(name)[0];
+						if (element) {
+							element.dispatchEvent(event);
+						}
+					}
+
+					setElementValue('cbid.shadowsocksr.' + sid + '.alias', ssNode.alias);
+					setElementValue('cbid.shadowsocksr.' + sid + '.type', "v2ray");
+					dispatchEventIfExists('cbid.shadowsocksr.' + sid + '.type', event);
+					setElementValue('cbid.shadowsocksr.' + sid + '.v2ray_protocol', "shadowsocks");
+					dispatchEventIfExists('cbid.shadowsocksr.' + sid + '.v2ray_protocol', event);
+					setElementValue('cbid.shadowsocksr.' + sid + '.server', ssNode.server);
+					setElementValue('cbid.shadowsocksr.' + sid + '.server_port', ssNode.port || "80");
+					setElementValue('cbid.shadowsocksr.' + sid + '.password', ssNode.password || "");
+					setElementValue('cbid.shadowsocksr.' + sid + '.transport',
+						params.type === "http" ? "h2" :
+						(["xhttp", "splithttp"].includes(params.type) ? "xhttp" :
+						(["tcp", "raw"].includes(params.type) ? "raw" :
+						(params.type || "raw")))
+					);
+					dispatchEventIfExists('cbid.shadowsocksr.' + sid + '.transport', event);
+					setElementValue('cbid.shadowsocksr.' + sid + '.encrypt_method_ss', ssNode.method || params.encryption || "none");
+					if (params.udp === "1") {
+						setElementValue('cbid.shadowsocksr.' + sid + '.uot', true);
+						dispatchEventIfExists('cbid.shadowsocksr.' + sid + '.uot', event);
+					}
+					if (params.fm && params.fm.trim() !== "") {
+						setElementValue('cbid.shadowsocksr.' + sid + '.enable_finalmask', true);
+						dispatchEventIfExists('cbid.shadowsocksr.' + sid + '.enable_finalmask', event);
+						setElementValue('cbid.shadowsocksr.' + sid + '.finalmask', params.fm || "");
+					}
+					if (params.tfo === "1") {
+						setElementValue('cbid.shadowsocksr.' + sid + '.fast_open', true);
+						dispatchEventIfExists('cbid.shadowsocksr.' + sid + '.fast_open', event);
+					}
+					if ([ "tls", "xtls", "reality" ].includes(params.security)) {
+						setElementValue('cbid.shadowsocksr.' + sid + '.' + params.security, true);
+						dispatchEventIfExists('cbid.shadowsocksr.' + sid + '.' + params.security, event);
+
+						if (params.security === "tls") {
+							if (params.ech && params.ech.trim() !== "") {
+								setElementValue('cbid.shadowsocksr.' + sid + '.enable_ech', true);
+								dispatchEventIfExists('cbid.shadowsocksr.' + sid + '.enable_ech', event);
+								setElementValue('cbid.shadowsocksr.' + sid + '.ech_config', params.ech || "");
+							}
+							var allowInsecureValue = params.allowInsecure || params.insecure;
+							if (allowInsecureValue === "1" || allowInsecureValue === "true") {
+								setElementValue('cbid.shadowsocksr.' + sid + '.insecure', true);
+								dispatchEventIfExists('cbid.shadowsocksr.' + sid + '.insecure', event);
+							}
+							if (params.pcs && params.pcs.trim() !== "") {
+								setElementValue('cbid.shadowsocksr.' + sid + '.tls_CertSha', params.pcs);
+							}
+							if (params.vcn && params.vcn.trim() !== "") {
+								setElementValue('cbid.shadowsocksr.' + sid + '.tls_CertByName', params.vcn);
+							}
+						}
+						if (params.security === "reality") {
+							setElementValue('cbid.shadowsocksr.' + sid + '.reality_publickey', params.pbk ? decodeURIComponentSafe(params.pbk) : "");
+							setElementValue('cbid.shadowsocksr.' + sid + '.reality_shortid', params.sid || "");
+							setElementValue('cbid.shadowsocksr.' + sid + '.reality_spiderx', params.spx ? decodeURIComponentSafe(params.spx) : "");
+							if (params.pqv && params.pqv.trim() !== "") {
+								setElementValue('cbid.shadowsocksr.' + sid + '.enable_mldsa65verify', true);
+								dispatchEventIfExists('cbid.shadowsocksr.' + sid + '.enable_mldsa65verify', event);
+								setElementValue('cbid.shadowsocksr.' + sid + '.reality_mldsa65verify', params.pqv || "");
+							}
+						}
+						setElementValue('cbid.shadowsocksr.' + sid + '.tls_flow', params.flow || "none");
+						dispatchEventIfExists('cbid.shadowsocksr.' + sid + '.tls_flow', event);
+
+						setElementValue('cbid.shadowsocksr.' + sid + '.tls_alpn', params.alpn || "");
+						setElementValue('cbid.shadowsocksr.' + sid + '.fingerprint', params.fp || "");
+						setElementValue('cbid.shadowsocksr.' + sid + '.tls_host', params.sni || "");
+					}
+					switch (params.type) {
+					case "ws":
+						if (params.security !== "tls") {
+							setElementValue('cbid.shadowsocksr.' + sid + '.ws_host', params.host ? decodeURIComponentSafe(params.host) : "");
+						}
+						setElementValue('cbid.shadowsocksr.' + sid + '.ws_path', params.path ? decodeURIComponentSafe(params.path) : "/");
+						break;
+					case "httpupgrade":
+						if (params.security !== "tls") {
+							setElementValue('cbid.shadowsocksr.' + sid + '.httpupgrade_host', params.host ? decodeURIComponentSafe(params.host) : "");
+						}
+						setElementValue('cbid.shadowsocksr.' + sid + '.httpupgrade_path', params.path ? decodeURIComponentSafe(params.path) : "/");
+						break;
+					case "xhttp":
+					case "splithttp":
+						setElementValue('cbid.shadowsocksr.' + sid + '.xhttp_mode', params.mode || "auto");
+						setElementValue('cbid.shadowsocksr.' + sid + '.xhttp_host', params.host ? decodeURIComponentSafe(params.host) : "");
+						setElementValue('cbid.shadowsocksr.' + sid + '.xhttp_path', params.path ? decodeURIComponentSafe(params.path) : "/");
+						if (params.extra && params.extra.trim() !== "") {
+							setElementValue('cbid.shadowsocksr.' + sid + '.enable_xhttp_extra', true);
+							dispatchEventIfExists('cbid.shadowsocksr.' + sid + '.enable_xhttp_extra', event);
+							setElementValue('cbid.shadowsocksr.' + sid + '.xhttp_extra', params.extra || "");
+						}
+						break;
+					case "kcp":
+						setElementValue('cbid.shadowsocksr.' + sid + '.kcp_guise', params.headerType || "none");
+						dispatchEventIfExists('cbid.shadowsocksr.' + sid + '.kcp_guise', event);
+						setElementValue('cbid.shadowsocksr.' + sid + '.kcp_domain', params.host || "");
+						setElementValue('cbid.shadowsocksr.' + sid + '.seed', params.seed || "");
+						break;
+					case "http":
+					case "h2":
+						setElementValue('cbid.shadowsocksr.' + sid + '.h2_host', params.host ? decodeURIComponentSafe(params.host) : "");
+						setElementValue('cbid.shadowsocksr.' + sid + '.h2_path', params.path ? decodeURIComponentSafe(params.path) : "");
+						break;
+					case "quic":
+						setElementValue('cbid.shadowsocksr.' + sid + '.quic_guise', params.headerType || "none");
+						setElementValue('cbid.shadowsocksr.' + sid + '.quic_security', params.quicSecurity || "none");
+						setElementValue('cbid.shadowsocksr.' + sid + '.quic_key', params.key || "");
+						break;
+					case "grpc":
+						setElementValue('cbid.shadowsocksr.' + sid + '.serviceName', params.serviceName || "");
+						setElementValue('cbid.shadowsocksr.' + sid + '.grpc_mode', params.mode || "gun");
+						break;
+					case "tcp":
+					case "raw":
+						setElementValue('cbid.shadowsocksr.' + sid + '.tcp_guise', params.headerType || "none");
+						dispatchEventIfExists('cbid.shadowsocksr.' + sid + '.tcp_guise', event);
+						if (params.headerType === "http") {
+							setElementValue('cbid.shadowsocksr.' + sid + '.http_host', params.host ? decodeURIComponentSafe(params.host) : "");
+							setElementValue('cbid.shadowsocksr.' + sid + '.http_path', params.path ? decodeURIComponentSafe(params.path) : "");
+						}
+						break;
+					}
+					s.innerHTML = "<font style=\'color:green\'><%:Import configuration information successfully.%></font>";
+					return true;
+				}
+
+				function preferredSSBackend() {
+					if (has_ss_rust === "true") return "ss-rust";
+					if (has_xray === "true") return "v2ray";
+					return null;
+				}
+
+				var ssNode = parseSSNode();
+				if (ssNode.error) {
+					s.innerHTML = "<font style='color:red'>" + ssNode.error + "</font>";
 					return false;
 				}
-				// Check if the elements exist before trying to modify them
-				function setElementValue(name, value) {
-					const element = document.getElementsByName(name)[0];
-					if (element) {
-						if (typeof value === 'boolean') {
-							element.checked = value;
-						} else {
-							element.value = value;
-						}
-					}
-				}
-				function dispatchEventIfExists(name, event) {
-					const element = document.getElementsByName(name)[0];
-					if (element) {
-						element.dispatchEvent(event);
-					}
-				}
-				setElementValue('cbid.shadowsocksr.' + sid + '.alias', url.hash ? decodeURIComponent(url.hash.slice(1)) : "");
-				setElementValue('cbid.shadowsocksr.' + sid + '.type', "v2ray");
-				dispatchEventIfExists('cbid.shadowsocksr.' + sid + '.type', event);
-				setElementValue('cbid.shadowsocksr.' + sid + '.v2ray_protocol', "shadowsocks");
-				dispatchEventIfExists('cbid.shadowsocksr.' + sid + '.v2ray_protocol', event);
-				setElementValue('cbid.shadowsocksr.' + sid + '.server', url.hostname);
-				setElementValue('cbid.shadowsocksr.' + sid + '.server_port', url.port || "80");
-				setElementValue('cbid.shadowsocksr.' + sid + '.password', password || url.username);
-				setElementValue('cbid.shadowsocksr.' + sid + '.transport', 
-					params.type === "http" ? "h2" : 
-					(["xhttp", "splithttp"].includes(params.type) ? "xhttp" :
-					(["tcp", "raw"].includes(params.type) ? "raw" : 
-					(params.type || "raw")))
-				);
-				dispatchEventIfExists('cbid.shadowsocksr.' + sid + '.transport', event);
-				setElementValue('cbid.shadowsocksr.' + sid + '.encrypt_method_ss', method || params.encryption || "none");
-				if (params.udp === "1") {
-					setElementValue('cbid.shadowsocksr.' + sid + '.uot', true); // 设置 uot 为 true
-					dispatchEventIfExists('cbid.shadowsocksr.' + sid + '.uot', event); // 触发事件
-				}
-				if (params.fm && params.fm.trim() !== "") {
-					setElementValue('cbid.shadowsocksr.' + sid + '.enable_finalmask', true); // 设置 enable_finalmask 为 true
-					dispatchEventIfExists('cbid.shadowsocksr.' + sid + '.enable_finalmask', event); // 触发事件
 
-				setElementValue('cbid.shadowsocksr.' + sid + '.finalmask', params.fm || "");
+				let finalSSBackend = preferredSSBackend();
+				if (finalSSBackend === null) {
+					s.innerHTML = "<font style=\'color:red\'><%:No available core (Shadowsocks or Xray) to import this node.%></font>";
+					return false;
 				}
-				if (params.tfo === "1") {
-					setElementValue('cbid.shadowsocksr.' + sid + '.fast_open', true); // 设置 fast_open 为 true
-					dispatchEventIfExists('cbid.shadowsocksr.' + sid + '.fast_open', event); // 触发事件
+				if (finalSSBackend === "v2ray" && ssNode.plugin && ssNode.plugin !== "none") {
+					s.innerHTML = "<font style='color:red'>Xray fallback does not support importing Shadowsocks links with SIP003 plugins.</font>";
+					return false;
 				}
-				if ([ "tls", "xtls", "reality" ].includes(params.security)) {
-					setElementValue('cbid.shadowsocksr.' + sid + '.' + params.security, true);
-					dispatchEventIfExists('cbid.shadowsocksr.' + sid + '.' + params.security, event);
-
-					if (params.security === "tls") {
-						if (params.ech && params.ech.trim() !== "") {
-							setElementValue('cbid.shadowsocksr.' + sid + '.enable_ech', true); // 设置 enable_ech 为 true
-							dispatchEventIfExists('cbid.shadowsocksr.' + sid + '.enable_ech', event); // 触发事件
-							setElementValue('cbid.shadowsocksr.' + sid + '.ech_config', params.ech || "");
-						}
-						var allowInsecureValue = params.allowInsecure || params.insecure;
-						if (allowInsecureValue === "1" || allowInsecureValue === "true") {
-							setElementValue('cbid.shadowsocksr.' + sid + '.insecure', true); // 设置 insecure 为 true
-							dispatchEventIfExists('cbid.shadowsocksr.' + sid + '.insecure', event); // 触发事件
-						}
-						if (params.pcs && params.pcs.trim() !== "") {
-							setElementValue('cbid.shadowsocksr.' + sid + '.tls_CertSha', params.pcs);
-						}
-						if (params.vcn && params.vcn.trim() !== "") {
-							setElementValue('cbid.shadowsocksr.' + sid + '.tls_CertByName', params.vcn);
-						}
-					}
-					if (params.security === "reality") {
-						setElementValue('cbid.shadowsocksr.' + sid + '.reality_publickey', params.pbk ? decodeURIComponent(params.pbk) : "");
-						setElementValue('cbid.shadowsocksr.' + sid + '.reality_shortid', params.sid || "");
-						setElementValue('cbid.shadowsocksr.' + sid + '.reality_spiderx', params.spx ? decodeURIComponent(params.spx) : "");
-						if (params.pqv && params.pqv.trim() !== "") {
-							setElementValue('cbid.shadowsocksr.' + sid + '.enable_mldsa65verify', true); // 设置 enable_mldsa65verify 为 true
-							dispatchEventIfExists('cbid.shadowsocksr.' + sid + '.enable_mldsa65verify', event); // 触发事件
-							setElementValue('cbid.shadowsocksr.' + sid + '.reality_mldsa65verify', params.pqv || "");
-						}
-					}
-					setElementValue('cbid.shadowsocksr.' + sid + '.tls_flow', params.flow || "none");
-					dispatchEventIfExists('cbid.shadowsocksr.' + sid + '.tls_flow', event);
-
-					setElementValue('cbid.shadowsocksr.' + sid + '.tls_alpn', params.alpn || "");
-					setElementValue('cbid.shadowsocksr.' + sid + '.fingerprint', params.fp || "");
-					setElementValue('cbid.shadowsocksr.' + sid + '.tls_host', params.sni || "");
-				}
-				switch (params.type) {
-				case "ws":
-					if (params.security !== "tls") {
-						setElementValue('cbid.shadowsocksr.' + sid + '.ws_host', params.host ? decodeURIComponent(params.host) : "");
-					}
-					setElementValue('cbid.shadowsocksr.' + sid + '.ws_path', params.path ? decodeURIComponent(params.path) : "/");
-					break;
-				case "httpupgrade":
-					if (params.security !== "tls") {
-						setElementValue('cbid.shadowsocksr.' + sid + '.httpupgrade_host', params.host ? decodeURIComponent(params.host) : "");
-					}
-					setElementValue('cbid.shadowsocksr.' + sid + '.httpupgrade_path', params.path ? decodeURIComponent(params.path) : "/");
-					break;
-				case "xhttp":
-				case "splithttp":
-					setElementValue('cbid.shadowsocksr.' + sid + '.xhttp_mode', params.mode || "auto");
-					setElementValue('cbid.shadowsocksr.' + sid + '.xhttp_host', params.host ? decodeURIComponent(params.host) : "");
-					setElementValue('cbid.shadowsocksr.' + sid + '.xhttp_path', params.path ? decodeURIComponent(params.path) : "/");
-					if (params.extra && params.extra.trim() !== "") {
-						setElementValue('cbid.shadowsocksr.' + sid + '.enable_xhttp_extra', true); // 设置 enable_xhttp_extra 为 true
-						dispatchEventIfExists('cbid.shadowsocksr.' + sid + '.enable_xhttp_extra', event); // 触发事件
-						setElementValue('cbid.shadowsocksr.' + sid + '.xhttp_extra', params.extra || "");
-					}
-					break;
-				case "kcp":
-					setElementValue('cbid.shadowsocksr.' + sid + '.kcp_guise', params.headerType || "none");
-					dispatchEventIfExists('cbid.shadowsocksr.' + sid + '.kcp_guise', event); 
-					setElementValue('cbid.shadowsocksr.' + sid + '.kcp_domain', params.host || "");
-					setElementValue('cbid.shadowsocksr.' + sid + '.seed', params.seed || "");
-					break;
-				case "http":
-				/* this is non-standard, bullshit */
-				case "h2":
-					setElementValue('cbid.shadowsocksr.' + sid + '.h2_host', params.host ? decodeURIComponent(params.host) : "");
-					setElementValue('cbid.shadowsocksr.' + sid + '.h2_path', params.path ? decodeURIComponent(params.path) : "");
-					break;
-				case "quic":
-					setElementValue('cbid.shadowsocksr.' + sid + '.quic_guise', params.headerType || "none");
-					setElementValue('cbid.shadowsocksr.' + sid + '.quic_security', params.quicSecurity || "none");
-					setElementValue('cbid.shadowsocksr.' + sid + '.quic_key', params.key || "");
-					break;
-				case "grpc":
-					setElementValue('cbid.shadowsocksr.' + sid + '.serviceName', params.serviceName || "");
-					setElementValue('cbid.shadowsocksr.' + sid + '.grpc_mode', params.mode || "gun");
-					break;
-				case "tcp":
-				case "raw":
-					setElementValue('cbid.shadowsocksr.' + sid + '.tcp_guise', params.headerType || "none");
-					dispatchEventIfExists('cbid.shadowsocksr.' + sid + '.tcp_guise', event);
-					if (params.headerType === "http") {
-						setElementValue('cbid.shadowsocksr.' + sid + '.http_host', params.host ? decodeURIComponent(params.host) : "");
-						setElementValue('cbid.shadowsocksr.' + sid + '.http_path', params.path ? decodeURIComponent(params.path) : "");
-					}
-					break;
-				}
-				s.innerHTML = "<font style=\'color:green\'><%:Import configuration information successfully.%></font>";
-				return true;
-			}
-
-			// 主逻辑：智能核心选择（支持回退）
-			function hasSSCore() { return has_ss_rust === "true" || has_ss_libev === "true"; }
-			function hasXrayCore() { return has_xray === "true"; }
-			let finalSSType = null; // true=Xray, false=普通SS, null=无核心
-			if (ss_type === "v2ray") {
-				if (hasXrayCore()) finalSSType = true;
-				else if (hasSSCore()) finalSSType = false;
-				else finalSSType = null;
-			} else if (ss_type === "ss-rust" || ss_type === "ss-libev") {
-				let userSSCore = (ss_type === "ss-rust" && has_ss_rust === "true") || (ss_type === "ss-libev" && has_ss_libev === "true");
-				if (userSSCore) finalSSType = false;
-				else {
-					let otherSSCore = (ss_type === "ss-rust" && has_ss_libev === "true") || (ss_type === "ss-libev" && has_ss_rust === "true");
-					if (otherSSCore) finalSSType = false;
-					else if (hasXrayCore()) finalSSType = true;
-					else finalSSType = null;
-				}
-			} else {
-				// auto 或空：根据 type 参数决定
-				let hasType = params.type && params.type !== "";
-				if (hasType) {
-					if (hasXrayCore()) finalSSType = true;
-					else if (hasSSCore()) finalSSType = false;
-					else finalSSType = null;
-				} else {
-					if (hasSSCore()) finalSSType = false;
-					else if (hasXrayCore()) finalSSType = true;
-					else finalSSType = null;
-				}
-			}
-			if (finalSSType === null) {
-				s.innerHTML = "<font style=\'color:red\'><%:No available core (Shadowsocks or Xray) to import this node.%></font>";
+				if (finalSSBackend === "v2ray") importAsXraySS(ssNode);
+				else importAsNormalSS(ssNode);
 				return false;
-			}
-			if (finalSSType === true) importAsXraySS();
-			else importAsNormalSS();
-			return false;
 		case "ssr":
 			var sstr = b64decsafe((ssu[1] || "").replace(/#.*/, "").trim());
 			var ploc = sstr.indexOf("/?");
@@ -685,7 +648,7 @@ function import_ssr_url(btn, urlname, sid) {
 				document.getElementsByName('cbid.shadowsocksr.' + sid + '.alias')[0].value = url.hash ? decodeURIComponent(url.hash.slice(1)) : "";
 				document.getElementsByName('cbid.shadowsocksr.' + sid + '.type')[0].value = "trojan";
 				document.getElementsByName('cbid.shadowsocksr.' + sid + '.type')[0].dispatchEvent(event);
-				document.getElementsByName('cbid.shadowsocksr.' + sid + '.server')[0].value = url.hostname;
+				document.getElementsByName('cbid.shadowsocksr.' + sid + '.server')[0].value = normalizeHost(url.hostname);
 				document.getElementsByName('cbid.shadowsocksr.' + sid + '.server_port')[0].value = url.port || "80";
 				document.getElementsByName('cbid.shadowsocksr.' + sid + '.password')[0].value = decodeURIComponent(url.username);
 				document.getElementsByName('cbid.shadowsocksr.' + sid + '.tls')[0].checked = true;
@@ -714,7 +677,7 @@ function import_ssr_url(btn, urlname, sid) {
 				document.getElementsByName('cbid.shadowsocksr.' + sid + '.type')[0].dispatchEvent(event);
 				document.getElementsByName('cbid.shadowsocksr.' + sid + '.v2ray_protocol')[0].value = "trojan";
 				document.getElementsByName('cbid.shadowsocksr.' + sid + '.v2ray_protocol')[0].dispatchEvent(event);
-				document.getElementsByName('cbid.shadowsocksr.' + sid + '.server')[0].value = url.hostname;
+				document.getElementsByName('cbid.shadowsocksr.' + sid + '.server')[0].value = normalizeHost(url.hostname);
 				document.getElementsByName('cbid.shadowsocksr.' + sid + '.server_port')[0].value = url.port || "80";
 				document.getElementsByName('cbid.shadowsocksr.' + sid + '.password')[0].value = decodeURIComponent(url.username);
 				document.getElementsByName('cbid.shadowsocksr.' + sid + '.tls')[0].checked = true;
@@ -814,36 +777,13 @@ function import_ssr_url(btn, urlname, sid) {
 				return true;
 			}
 
-			// 主逻辑：智能核心选择（支持回退）
-			function hasTrojanCore() { return has_trojan === "true"; }
+			// 主逻辑：Trojan 统一使用 Xray
 			function hasXrayCore() { return has_xray === "true"; }
-			let finalTrojanMode = null;
-			if (xray_tj_type === "v2ray") {
-				if (hasXrayCore()) finalTrojanMode = true;
-				else if (hasTrojanCore()) finalTrojanMode = false;
-				else finalTrojanMode = null;
-			} else if (xray_tj_type === "trojan") {
-				if (hasTrojanCore()) finalTrojanMode = false;
-				else if (hasXrayCore()) finalTrojanMode = true;
-				else finalTrojanMode = null;
-			} else {
-				let hasType = params.get("type") && params.get("type") !== "";
-				if (hasType) {
-					if (hasXrayCore()) finalTrojanMode = true;
-					else if (hasTrojanCore()) finalTrojanMode = false;
-					else finalTrojanMode = null;
-				} else {
-					if (hasTrojanCore()) finalTrojanMode = false;
-					else if (hasXrayCore()) finalTrojanMode = true;
-					else finalTrojanMode = null;
-				}
-			}
-			if (finalTrojanMode === null) {
-				s.innerHTML = "<font style=\'color:red\'><%:No available core (Trojan or Xray) to import this node.%></font>";
+			if (!hasXrayCore()) {
+				s.innerHTML = "<font style=\'color:red\'><%:No available core (Xray) to import this node.%></font>";
 				return false;
 			}
-			if (finalTrojanMode === true) importAsXrayTrojan();
-			else importAsNormalTrojan();
+			importAsXrayTrojan();
 			return false;
 		case "vmess":
 			var sstr = b64DecodeUnicode((ssu[1] || "").replace(/#.*/, "").trim());
@@ -976,7 +916,7 @@ function import_ssr_url(btn, urlname, sid) {
 					element.dispatchEvent(event);
 				}
 			}
-			var server = url.hostname;
+			var server = normalizeHost(url.hostname);
 			/* 如果带 []，再去掉 [] */
 			if (server[0] === "[" && server[server.length - 1] === "]") {
 				server = server.slice(1, -1);
@@ -1141,7 +1081,7 @@ function import_ssr_url(btn, urlname, sid) {
 
 			document.getElementsByName('cbid.shadowsocksr.' + sid + '.type')[0].value = ssu[0];
 			document.getElementsByName('cbid.shadowsocksr.' + sid + '.type')[0].dispatchEvent(event);
-			document.getElementsByName('cbid.shadowsocksr.' + sid + '.server')[0].value = url.hostname;
+			document.getElementsByName('cbid.shadowsocksr.' + sid + '.server')[0].value = normalizeHost(url.hostname);
 			document.getElementsByName('cbid.shadowsocksr.' + sid + '.server_port')[0].value = url.port;
 			document.getElementsByName('cbid.shadowsocksr.' + sid + '.tuic_uuid')[0].value = method;
 			document.getElementsByName('cbid.shadowsocksr.' + sid + '.tuic_ip')[0].value = params.ip || "";

@@ -1,0 +1,210 @@
+diff --git a/dns2tcp.c b/dns2tcp.c
+index b289598..542f839 100644
+--- a/dns2tcp.c
++++ b/dns2tcp.c
+@@ -35,6 +35,10 @@
+ #define PORTSTRLEN 6 /* "65535" (include \0) */
+ 
+ #define DNS_MSGSZ 1472 /* mtu:1500 - iphdr:20 - udphdr:8 */
++#define DNS_HDRLEN 12
++
++#define DNS_TYPE_A 1
++#define DNS_TYPE_AAAA 28
+ 
+ /* ======================== helper ======================== */
+ 
+@@ -128,6 +132,14 @@ typedef struct {
+     union skaddr srcaddr;
+ } ctx_t;
+ 
++typedef struct {
++    size_t   start;
++    size_t   end;
++    uint16_t type;
++    uint8_t  section;
++    bool     drop;
++} dns_rr_t;
++
+ /* ======================== global-vars ======================== */
+ 
+ enum {
+@@ -135,6 +147,7 @@ enum {
+     FLAG_REUSE_PORT  = 1 << 1, /* udp listen */
+     FLAG_VERBOSE     = 1 << 2, /* logging */
+     FLAG_LOCAL_ADDR  = 1 << 3, /* tcp local addr */
++    FLAG_FILTER_AAAA = 1 << 4, /* strip all AAAA records from dns response */
+ };
+ 
+ #define has_flag(flag) (g_flags & (flag))
+@@ -166,6 +179,126 @@ static void tcp_connect_cb(evloop_t *evloop, evio_t *watcher, int events);
+ static void tcp_sendmsg_cb(evloop_t *evloop, evio_t *watcher, int events);
+ static void tcp_recvmsg_cb(evloop_t *evloop, evio_t *watcher, int events);
+ 
++static uint16_t read_be16(const void *ptr) {
++    const uint8_t *bytes = ptr;
++    return ((uint16_t)bytes[0] << 8) | bytes[1];
++}
++
++static void write_be16(void *ptr, uint16_t value) {
++    uint8_t *bytes = ptr;
++    bytes[0] = value >> 8;
++    bytes[1] = value & 0xff;
++}
++
++static bool dns_skip_name(const uint8_t *msg, size_t msglen, size_t offset, size_t *next_offset) {
++    while (offset < msglen) {
++        uint8_t len = msg[offset];
++        if (len == 0) {
++            *next_offset = offset + 1;
++            return true;
++        }
++        if ((len & 0xc0) == 0xc0) {
++            if (offset + 1 >= msglen)
++                return false;
++            *next_offset = offset + 2;
++            return true;
++        }
++        if ((len & 0xc0) || offset + 1 + len > msglen)
++            return false;
++        offset += 1 + len;
++    }
++
++    return false;
++}
++
++static size_t filter_aaaa_records(uint8_t *msg, size_t msglen) {
++    if (!has_flag(FLAG_FILTER_AAAA) || msglen < DNS_HDRLEN)
++        return msglen;
++
++    uint16_t qdcount = read_be16(msg + 4);
++    uint16_t counts[] = {
++        read_be16(msg + 6),
++        read_be16(msg + 8),
++        read_be16(msg + 10),
++    };
++    uint32_t rrcount = counts[0] + counts[1] + counts[2];
++
++    if (rrcount == 0 || qdcount > msglen / 5 || rrcount > msglen / 11)
++        return msglen;
++
++    size_t offset = DNS_HDRLEN;
++    for (uint16_t i = 0; i < qdcount; i++) {
++        if (!dns_skip_name(msg, msglen, offset, &offset) || offset + 4 > msglen)
++            return msglen;
++        offset += 4;
++    }
++
++    size_t rr_start = offset;
++    dns_rr_t *rrs = calloc(rrcount, sizeof(*rrs));
++    if (!rrs)
++        return msglen;
++
++    uint32_t rridx = 0;
++    for (uint8_t section = 0; section < 3; section++) {
++        for (uint16_t i = 0; i < counts[section]; i++) {
++            dns_rr_t *rr = &rrs[rridx++];
++            rr->start = offset;
++            rr->section = section;
++
++            if (!dns_skip_name(msg, msglen, offset, &offset) || offset + 10 > msglen)
++                goto out;
++
++            rr->type = read_be16(msg + offset);
++            uint16_t rdlen = read_be16(msg + offset + 8);
++            rr->end = offset + 10 + rdlen;
++            if (rr->end > msglen)
++                goto out;
++
++            offset = rr->end;
++        }
++    }
++
++    size_t rest_start = offset;
++    bool changed = false;
++    uint16_t keep_counts[] = { counts[0], counts[1], counts[2] };
++
++    for (uint32_t i = 0; i < rrcount; i++) {
++        if (rrs[i].type == DNS_TYPE_AAAA) {
++            rrs[i].drop = true;
++            keep_counts[rrs[i].section]--;
++            changed = true;
++        }
++    }
++
++    if (changed) {
++        size_t write_offset = rr_start;
++
++        for (uint32_t i = 0; i < rrcount; i++) {
++            if (rrs[i].drop)
++                continue;
++
++            size_t rrlen = rrs[i].end - rrs[i].start;
++            if (write_offset != rrs[i].start)
++                memmove(msg + write_offset, msg + rrs[i].start, rrlen);
++            write_offset += rrlen;
++        }
++
++        if (write_offset != rest_start)
++            memmove(msg + write_offset, msg + rest_start, msglen - rest_start);
++
++        msglen = write_offset + (msglen - rest_start);
++        write_be16(msg + 6, keep_counts[0]);
++        write_be16(msg + 8, keep_counts[1]);
++        write_be16(msg + 10, keep_counts[2]);
++        log_verbose("filter AAAA records, answer:%hu -> %hu, authority:%hu -> %hu, additional:%hu -> %hu",
++                    counts[0], keep_counts[0], counts[1], keep_counts[1], counts[2], keep_counts[2]);
++    }
++
++out:
++    free(rrs);
++    return msglen;
++}
++
+ static void print_help(void) {
+     printf("usage: dns2tcp <-L listen> <-R remote> [options...]\n"
+            " -L <ip[#port]>          udp listen address, port default to 53\n"
+@@ -174,6 +307,7 @@ static void print_help(void) {
+            " -s <syncnt>             set TCP_SYNCNT option for tcp socket\n"
+            " -6                      set IPV6_V6ONLY option for udp socket\n"
+            " -r                      set SO_REUSEPORT option for udp socket\n"
++           " -A                      strip all AAAA records from dns response\n"
+            " -v                      print verbose log, used for debugging\n"
+            " -V                      print version number of dns2tcp and exit\n"
+            " -h                      print help information of dns2tcp and exit\n"
+@@ -257,7 +391,7 @@ static void parse_opt(int argc, char *argv[]) {
+ 
+     opterr = 0;
+     int shortopt;
+-    const char *optstr = "L:R:l:s:6rafvVh";
++    const char *optstr = "L:R:l:s:6rAafvVh";
+     while ((shortopt = getopt(argc, argv, optstr)) != -1) {
+         switch (shortopt) {
+             case 'L':
+@@ -295,6 +429,9 @@ static void parse_opt(int argc, char *argv[]) {
+             case 'r':
+                 add_flag(FLAG_REUSE_PORT);
+                 break;
++            case 'A':
++                add_flag(FLAG_FILTER_AAAA);
++                break;
+             case 'a':
+                 /* nop */
+                 break;
+@@ -399,6 +536,7 @@ int main(int argc, char *argv[]) {
+     if (g_syn_cnt) log_info("enable TCP_SYNCNT:%hhu sockopt", g_syn_cnt);
+     if (has_flag(FLAG_IPV6_V6ONLY)) log_info("enable IPV6_V6ONLY sockopt");
+     if (has_flag(FLAG_REUSE_PORT)) log_info("enable SO_REUSEPORT sockopt");
++    if (has_flag(FLAG_FILTER_AAAA)) log_info("enable AAAA record filter");
+     log_verbose("print the verbose log");
+ 
+     g_listen_fd = create_socket(skaddr_family(&g_listen_skaddr), SOCK_DGRAM);
+@@ -532,6 +670,9 @@ static void tcp_recvmsg_cb(evloop_t *evloop, evio_t *watcher, int events __unuse
+     uint16_t msglen;
+     if (ctx->nbytes < 2 || ctx->nbytes < 2 + (msglen = ntohs(*(uint16_t *)buffer))) return;
+ 
++    msglen = filter_aaaa_records((uint8_t *)buffer + 2, msglen);
++    *(uint16_t *)buffer = htons(msglen);
++
+     ssize_t nsend = sendto(g_listen_fd, buffer + 2, msglen, 0, &ctx->srcaddr.sa, skaddr_len(&ctx->srcaddr));
+     if (nsend < 0 || verbose) {
+         char ip[IP6STRLEN];

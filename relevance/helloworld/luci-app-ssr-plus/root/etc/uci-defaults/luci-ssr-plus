@@ -23,11 +23,8 @@ touch /etc/ssrplus/china_ssr.txt
 touch /etc/ssrplus/deny.list
 touch /etc/ssrplus/white.list
 touch /etc/ssrplus/black.list
-touch /etc/ssrplus/netflix.list
-touch /etc/ssrplus/netflixip.list
 touch /etc/ssrplus/gfw_base.conf
 touch /etc/ssrplus/gfw_list.conf
-touch /etc/ssrplus/oversea_list.conf
 touch /etc/ssrplus/ad.conf
 touch /etc/config/shadowsocksr
 
@@ -42,16 +39,20 @@ if [ -s "/etc/config/shadowsocksr" ]; then
         uci -q set shadowsocksr.@server_subscribe[0].auto_update_min_time='0'
     fi
 
-    if ! uci -q get shadowsocksr.@server_subscribe[0].ss_type > /dev/null; then
-        uci -q set shadowsocksr.@server_subscribe[0].ss_type='ss-rust'
+    if ! uci -q get shadowsocksr.@server_subscribe[0].config_auto_update_mode > /dev/null; then
+        uci -q set shadowsocksr.@server_subscribe[0].config_auto_update_mode='0'
+    fi
+
+    if ! uci -q get shadowsocksr.@server_subscribe[0].config_update_interval > /dev/null; then
+        uci -q set shadowsocksr.@server_subscribe[0].config_update_interval='60'
     fi
 
     if ! uci -q get shadowsocksr.@server_subscribe[0].user_agent > /dev/null; then
         uci -q set shadowsocksr.@server_subscribe[0].user_agent='v2rayN/9.99'
     fi
 
-    if ! uci -q get shadowsocksr.@server_subscribe[0].xray_hy2_type > /dev/null; then
-        uci -q set shadowsocksr.@server_subscribe[0].xray_hy2_type='hysteria2'
+    if ! uci -q get shadowsocksr.@server_subscribe[0].proxy > /dev/null; then
+        uci -q set shadowsocksr.@server_subscribe[0].proxy='1'
     fi
 
     if ! uci -q get shadowsocksr.@global_xray_fragment[0] > /dev/null; then
@@ -60,8 +61,52 @@ if [ -s "/etc/config/shadowsocksr" ]; then
         uci -q set shadowsocksr.@global_xray_fragment[0].noise='0'
     fi
 
-    uci -q commit shadowsocksr
-fi
+    if ! uci -q get shadowsocksr.@global[0].component_mirror > /dev/null; then
+        uci -q set shadowsocksr.@global[0].component_mirror='direct'
+    fi
+
+    if ! uci -q get shadowsocksr.@global[0].filter_aaaa > /dev/null; then
+        legacy_filter_aaaa="$(uci -q get shadowsocksr.@global[0].mosdns_ipv6)"
+        uci -q set shadowsocksr.@global[0].filter_aaaa="${legacy_filter_aaaa:-1}"
+    fi
+
+    legacy_dns_mode="$(uci -q get shadowsocksr.@global[0].pdnsd_enable)"
+    if [ "$legacy_dns_mode" = "2" ] || [ "$legacy_dns_mode" = "3" ]; then
+        uci -q set shadowsocksr.@global[0].pdnsd_enable='1'
+    fi
+
+    if uci -q get shadowsocksr.@global[0].mosdns_ipv6 > /dev/null; then
+        uci -q delete shadowsocksr.@global[0].mosdns_ipv6
+    fi
+
+	if ! uci -q get shadowsocksr.@http_proxy[0] > /dev/null; then
+	    uci -q add shadowsocksr http_proxy
+	    uci -q set shadowsocksr.@http_proxy[0].server='nil'
+	    uci -q set shadowsocksr.@http_proxy[0].local_port='3128'
+	    uci -q set shadowsocksr.@http_proxy[0].socks_port='1081'
+	    uci -q set shadowsocksr.@http_proxy[0].http_auth='none'
+	fi
+
+	ss_rust_bin="$(command -v ssserver 2>/dev/null)"
+	[ -n "$ss_rust_bin" ] || [ ! -x /usr/libexec/ssserver ] || ss_rust_bin="/usr/libexec/ssserver"
+	xray_bin="$(command -v xray 2>/dev/null)"
+	[ -n "$xray_bin" ] || [ ! -x /usr/libexec/xray ] || xray_bin="/usr/libexec/xray"
+	for section in $(uci -q show shadowsocksr | sed -n "s/^shadowsocksr\\.\\([^.=][^.=]*\\)=servers$/\\1/p"); do
+	    node_type="$(uci -q get shadowsocksr.${section}.type)"
+	    case "$node_type" in
+	        ss|ss-libev)
+	            if [ -n "$ss_rust_bin" ]; then
+	                uci -q set shadowsocksr.${section}.type='ss-rust'
+	            elif [ -n "$xray_bin" ]; then
+	                uci -q set shadowsocksr.${section}.type='v2ray'
+	                uci -q set shadowsocksr.${section}.v2ray_protocol='shadowsocks'
+	            fi
+	            ;;
+	    esac
+	done
+
+	uci -q commit shadowsocksr
+	fi
 
 [ -s "/etc/config/shadowsocksr" ] || /etc/init.d/shadowsocksr reset
 

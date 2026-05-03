@@ -1,0 +1,446 @@
+<script type="text/javascript">
+//<![CDATA[
+	var componentMeta = {
+		xray: {
+			label: '<%:Xray-core%>',
+			help: '<%:The online upgrade downloads the matching Xray-core linux archive for the current ARCH from the official GitHub release page.%>'
+		},
+		mihomo: {
+			label: '<%:Mihomo%>',
+			help: '<%:The online upgrade only tracks the latest stable Mihomo release and downloads the matching linux archive for the current ARCH from the official GitHub release page.%>'
+		},
+		naiveproxy: {
+			label: '<%:NaiveProxy%>',
+			help: '<%:The online upgrade tracks the latest NaiveProxy release and prefers OpenWrt static archives matching the current ARCH before falling back to other release assets.%>'
+		}
+	};
+
+	var geoMeta = {
+		country_mmdb: {
+			label: '<%:Country MMDB%>',
+			help: '<%:Update the Country.mmdb database used by Mihomo/Clash runtime when available.%>'
+		},
+		geosite: {
+			label: '<%:GeoSite Database%>',
+			help: '<%:Update the GeoSite.dat database used by Mihomo/Clash runtime when available.%>'
+		},
+		v2ray_geo: {
+			label: '<%:V2Ray GEO Databases%>',
+			help: '<%:Update geoip.dat and geosite.dat used by Xray/V2Ray runtime when available.%>'
+		}
+	};
+
+	var componentMessageMap = {
+		'Already up to date': '<%:Already up to date%>',
+		'Upgrade completed': '<%:Upgrade completed%>',
+		'Unsupported ARCH': '<%:Unsupported ARCH%>',
+		'Failed to fetch release metadata': '<%:Failed to fetch release metadata%>',
+		'Matching release asset not found': '<%:Matching release asset not found%>',
+		'Missing unzip support': '<%:Missing unzip support%>',
+		'Missing gzip support': '<%:Missing gzip support%>',
+		'Missing xz support': '<%:Missing xz support%>',
+		'Failed to create temp directory': '<%:Failed to create temp directory%>',
+		'Download failed': '<%:Download failed%>',
+		'Extract failed': '<%:Extract failed%>',
+		'xray binary not found in archive': '<%:xray binary not found in archive%>',
+		'mihomo binary not found in archive': '<%:mihomo binary not found in archive%>',
+		'naive binary not found in archive': '<%:naive binary not found in archive%>',
+		'Install failed': '<%:Install failed%>',
+		'Installed binary failed to run': '<%:Installed binary failed to run%>'
+	};
+
+	function selectedComponent() {
+		var selector = document.getElementById('component-selector');
+		return selector ? selector.value : 'xray';
+	}
+
+	function selectedMirror() {
+		var selector = document.getElementById('component-mirror');
+		return selector ? selector.value : 'direct';
+	}
+
+	function componentHelp(component) {
+		return componentMeta[component] ? componentMeta[component].help : '';
+	}
+
+	function displayMessage(message) {
+		return componentMessageMap[message] || message || '';
+	}
+
+	function displayError(error) {
+		if (!error) {
+			return '';
+		}
+
+		var map = {
+			unsupported_arch: '<%:Unsupported ARCH%>',
+			fetch_failed: '<%:Failed to fetch release metadata%>',
+			asset_not_found: '<%:Matching release asset not found%>',
+			unsupported_component: '<%:Unsupported component%>',
+			unknown_error: '<%:Unknown error%>'
+		};
+
+		return map[error] || error;
+	}
+
+	function renderComponentInfo(data, checkedRemote) {
+		var panel = document.getElementById('component-status');
+		var upgradeButton = document.getElementById('component-upgrade');
+		var action = document.getElementById('component-action');
+		var help = document.getElementById('component-help');
+		var html = [];
+		var component = data && data.component ? data.component : selectedComponent();
+
+		if (!panel) {
+			return;
+		}
+
+		if (!data) {
+			panel.innerHTML = '<span style="color:red"><%:Failed to query component information.%></span>';
+			if (upgradeButton) upgradeButton.disabled = true;
+			return;
+		}
+
+		if (help) {
+			help.innerHTML = componentHelp(component);
+		}
+
+		html.push('<div><strong><%:Installed Version%>:</strong> ' + (data.current_version || '<%:Not installed%>') + '</div>');
+		html.push('<div><strong><%:Latest Version%>:</strong> ' + (data.latest_version || '<%:Unknown%>') + '</div>');
+		html.push('<div><strong><%:Current ARCH%>:</strong> ' + (data.arch || '<%:Unknown%>') + '</div>');
+		html.push('<div><strong><%:Release Asset%>:</strong> ' + (data.asset || '<%:Unknown%>') + '</div>');
+
+		if (data.error) {
+			html.push('<div style="color:red"><%:Status%>: ' + displayError(data.error) + '</div>');
+		} else if (!checkedRemote) {
+			html.push('<div style="color:#666"><%:Status%>: <%:No Check%></div>');
+		} else if (data.can_upgrade) {
+			html.push('<div style="color:#d48806"><%:Status%>: <%:Upgrade available%></div>');
+		} else {
+			html.push('<div style="color:green"><%:Status%>: <%:Already up to date%></div>');
+		}
+
+		panel.innerHTML = html.join('');
+
+		if (upgradeButton) {
+			upgradeButton.disabled = !!data.error || !checkedRemote || !data.latest_version || !data.can_upgrade;
+		}
+
+		if (action) {
+			action.innerHTML = data.message
+				? '<span style="color:' + (data.success ? 'green' : 'red') + '">' + displayMessage(data.message) + '</span>'
+				: '';
+		}
+	}
+
+	function queryComponentInfo(button, doUpgrade) {
+		var component = selectedComponent();
+		var mirror = selectedMirror();
+		var action = document.getElementById('component-action');
+		var url = doUpgrade
+			? '<%=luci.dispatcher.build_url("admin", "services", "shadowsocksr", "component_upgrade")%>'
+			: '<%=luci.dispatcher.build_url("admin", "services", "shadowsocksr", "component_status")%>';
+
+		if (button) {
+			button.disabled = true;
+			button.value = doUpgrade ? '<%:Upgrading...%>' : '<%:Checking...%>';
+		}
+
+		if (action) {
+			action.innerHTML = doUpgrade ? '<%:Processing...%>' : '';
+		}
+
+		XHR.get(url, { component: component, mirror: mirror }, function(x, rv) {
+			renderComponentInfo(rv, true);
+			if (button) {
+				button.disabled = false;
+				button.value = doUpgrade ? '<%:Upgrade%>' : '<%:Check Update%>';
+			}
+		});
+	}
+
+	function queryLocalComponentInfo() {
+		var action = document.getElementById('component-action');
+		if (action) {
+			action.innerHTML = '';
+		}
+		XHR.get('<%=luci.dispatcher.build_url("admin", "services", "shadowsocksr", "component_local_status")%>', {
+			component: selectedComponent(),
+			mirror: selectedMirror()
+		}, function(x, rv) {
+			renderComponentInfo(rv, false);
+		});
+	}
+
+	function onComponentChange() {
+		queryLocalComponentInfo();
+	}
+
+	function onMirrorChange() {
+		var mirror = selectedMirror();
+		XHR.get('<%=luci.dispatcher.build_url("admin", "services", "shadowsocksr", "component_set_mirror")%>', {
+			mirror: mirror
+		}, function() {
+			queryLocalComponentInfo();
+		});
+	}
+
+	function selectedGeoComponent() {
+		var selector = document.getElementById('geo-selector');
+		return selector ? selector.value : 'country_mmdb';
+	}
+
+	function geoHelp(component) {
+		return geoMeta[component] ? geoMeta[component].help : '';
+	}
+
+	function renderGeoInfo(data) {
+		var panel = document.getElementById('geo-status');
+		var upgradeButton = document.getElementById('geo-upgrade');
+		var action = document.getElementById('geo-action');
+		var help = document.getElementById('geo-help');
+		var html = [];
+		var component = data && data.component ? data.component : selectedGeoComponent();
+
+		if (!panel) {
+			return;
+		}
+
+		if (!data) {
+			panel.innerHTML = '<span style="color:red"><%:Failed to query geo database information.%></span>';
+			if (upgradeButton) upgradeButton.disabled = true;
+			return;
+		}
+
+		if (help) {
+			help.innerHTML = geoHelp(component);
+		}
+
+		html.push('<div><strong><%:Current Version%>:</strong> ' + (data.current_version || '<%:File Not Exist%>') + '</div>');
+		if (data.component !== 'v2ray_geo' && data.current_version_extra) {
+			html.push('<div><strong><%:Additional Version%>:</strong> ' + data.current_version_extra + '</div>');
+		}
+		if (data.error) {
+			html.push('<div style="color:red"><%:Status%>: ' + displayError(data.error) + '</div>');
+		} else if (data.message) {
+			html.push('<div style="color:green"><%:Status%>: ' + (data.success ? displayMessage(data.message) : (data.message || '<%:Unknown%>')) + '</div>');
+		} else {
+			html.push('<div style="color:#666"><%:Status%>: <%:Ready.%></div>');
+		}
+
+		panel.innerHTML = html.join('');
+		if (upgradeButton) {
+			upgradeButton.disabled = false;
+		}
+		if (action) {
+			action.innerHTML = data.message
+				? '<span style="color:' + (data.success ? 'green' : 'red') + '">' + displayMessage(data.message) + '</span>'
+				: '';
+		}
+	}
+
+	function queryGeoInfo(button) {
+		var component = selectedGeoComponent();
+		var mirror = selectedMirror();
+		var action = document.getElementById('geo-action');
+		var url = '<%=luci.dispatcher.build_url("admin", "services", "shadowsocksr", "geo_upgrade")%>';
+
+		if (button) {
+			button.disabled = true;
+			button.value = '<%:Checking...%>';
+		}
+
+		if (action) {
+			action.innerHTML = '<%:Processing...%>';
+		}
+
+		XHR.get(url, { component: component, mirror: mirror }, function(x, rv) {
+			renderGeoInfo(rv);
+			if (button) {
+				button.disabled = false;
+				button.value = '<%:CHECK AND UPDATE%>';
+			}
+		});
+	}
+
+	function queryLocalGeoInfo() {
+		var action = document.getElementById('geo-action');
+		if (action) {
+			action.innerHTML = '';
+		}
+		XHR.get('<%=luci.dispatcher.build_url("admin", "services", "shadowsocksr", "geo_local_status")%>', {
+			component: selectedGeoComponent(),
+			mirror: selectedMirror()
+		}, function(x, rv) {
+			renderGeoInfo(rv);
+		});
+	}
+
+	function onGeoChange() {
+		queryLocalGeoInfo();
+	}
+
+	window.setTimeout(function() {
+		onComponentChange();
+		onGeoChange();
+	}, 0);
+//]]>
+</script>
+
+<style>
+	.component-upgrade-actions {
+		display: flex;
+		gap: 10px;
+		flex-wrap: wrap;
+		margin-top: 10px;
+	}
+
+	.component-upgrade-card {
+		line-height: 1.8;
+	}
+
+	.component-upgrade-help {
+		margin-top: 6px;
+		color: #666;
+	}
+
+	.component-upgrade-result {
+		margin-top: 8px;
+	}
+
+	.component-selector {
+		min-width: 180px;
+		width: 100%;
+	}
+
+	.component-layout {
+		display: flex;
+		gap: 24px;
+		align-items: flex-start;
+	}
+
+	.component-left {
+		width: 320px;
+		min-width: 260px;
+	}
+
+	.component-right {
+		flex: 1;
+		min-width: 0;
+	}
+
+	.component-select-stack {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+	}
+
+	.component-select-item {
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+	}
+
+	.component-select-label {
+		font-size: 12px;
+		line-height: 1.3;
+		color: #666;
+	}
+
+	.component-select-label strong {
+		display: block;
+		font-size: 13px;
+		color: #444;
+	}
+
+	@media (max-width: 900px) {
+		.component-layout {
+			flex-direction: column;
+		}
+
+		.component-left {
+			width: 100%;
+			min-width: 0;
+		}
+	}
+</style>
+
+<fieldset class="cbi-section">
+	<legend><%:Core Components%></legend>
+	<div class="cbi-value">
+		<div class="cbi-value-field component-upgrade-card">
+			<div class="component-layout">
+				<div class="component-left">
+					<div class="component-select-stack">
+						<div class="component-select-item">
+							<div class="component-select-label">
+								<strong><%:Download Source%></strong>
+								<span><%:Address%></span>
+							</div>
+							<select id="component-mirror" class="cbi-input-select component-selector" onchange="onMirrorChange()">
+								<option value="direct" selected="selected"><%:GitHub Direct%></option>
+								<option value="ghproxy">mirror.ghproxy.com</option>
+								<option value="ghproxy_cc">ghproxy.cc</option>
+								<option value="ghfast">ghfast.top</option>
+								<option value="jsdelivr">cdn.jsdelivr.net</option>
+							</select>
+						</div>
+						<div class="component-select-item">
+							<div class="component-select-label">
+								<strong><%:Component%></strong>
+								<span><%:Package Name%></span>
+							</div>
+							<select id="component-selector" class="cbi-input-select component-selector" onchange="onComponentChange()">
+								<option value="xray"><%:Xray-core%></option>
+								<option value="mihomo"><%:Mihomo%></option>
+								<option value="naiveproxy"><%:NaiveProxy%></option>
+							</select>
+						</div>
+					</div>
+				</div>
+				<div class="component-right">
+					<div id="component-status"><em><%:Collecting data...%></em></div>
+					<div class="component-upgrade-help" id="component-help"></div>
+					<div class="component-upgrade-actions">
+						<input type="button" class="btn cbi-button cbi-button-reload" value="<%:Check Update%>" onclick="queryComponentInfo(this, false)" />
+						<input type="button" class="btn cbi-button cbi-button-apply" id="component-upgrade" value="<%:Upgrade%>" onclick="queryComponentInfo(this, true)" />
+					</div>
+					<div class="component-upgrade-result" id="component-action"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</fieldset>
+
+<fieldset class="cbi-section">
+	<legend><%:Geo Database Update%></legend>
+	<div class="cbi-value">
+		<div class="cbi-value-field component-upgrade-card">
+			<div class="component-layout">
+				<div class="component-left">
+					<div class="component-select-stack">
+						<div class="component-select-item">
+							<div class="component-select-label">
+								<strong><%:Database%></strong>
+								<span><%:Geo Resource%></span>
+							</div>
+							<select id="geo-selector" class="cbi-input-select component-selector" onchange="onGeoChange()">
+								<option value="country_mmdb"><%:Country MMDB%></option>
+								<option value="geosite"><%:GeoSite Database%></option>
+								<option value="v2ray_geo"><%:V2Ray GEO Databases%></option>
+							</select>
+						</div>
+					</div>
+				</div>
+				<div class="component-right">
+					<div id="geo-status"><em><%:Collecting data...%></em></div>
+					<div class="component-upgrade-help" id="geo-help"></div>
+					<div class="component-upgrade-actions">
+						<input type="button" class="btn cbi-button cbi-button-apply" id="geo-upgrade" value="<%:CHECK AND UPDATE%>" onclick="queryGeoInfo(this)" />
+					</div>
+					<div class="component-upgrade-result" id="geo-action"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</fieldset>

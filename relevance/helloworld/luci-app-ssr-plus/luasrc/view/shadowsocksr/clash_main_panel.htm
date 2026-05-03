@@ -1,0 +1,1027 @@
+<%+cbi/valueheader%>
+<%
+local clash_nodes = self.clash_nodes or {}
+local current_sid = self.map:get(section, "global_server") or "nil"
+-%>
+<div id="ssr-clash-main-panel-wrap">
+	<style type="text/css">
+		#ssr-clash-main-panel-wrap {
+			--ssr-clash-modal-bg: #ffffff;
+			--ssr-clash-modal-fg: #333333;
+			--ssr-clash-modal-muted: #666666;
+			--ssr-clash-modal-border: rgba(0, 0, 0, 0.08);
+			--ssr-clash-modal-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+			--ssr-clash-mask-bg: rgba(0, 0, 0, 0.35);
+			--ssr-clash-field-bg: #ffffff;
+			--ssr-clash-field-fg: #333333;
+			--ssr-clash-field-border: #d0d0d0;
+		}
+
+		html[data-darkmode="true"] #ssr-clash-main-panel-wrap {
+			--ssr-clash-modal-bg: #121212;
+			--ssr-clash-modal-fg: #f5f5f5;
+			--ssr-clash-modal-muted: #b7b7b7;
+			--ssr-clash-modal-border: rgba(255, 255, 255, 0.08);
+			--ssr-clash-modal-shadow: 0 18px 44px rgba(0, 0, 0, 0.55);
+			--ssr-clash-mask-bg: rgba(0, 0, 0, 0.62);
+			--ssr-clash-field-bg: #1f1f1f;
+			--ssr-clash-field-fg: #f3f3f3;
+			--ssr-clash-field-border: #3a3a3a;
+		}
+
+		#ssr-clash-modal-mask {
+			display: none;
+			position: fixed;
+			inset: 0;
+			background: var(--ssr-clash-mask-bg);
+			z-index: 2000;
+		}
+
+		#ssr-clash-modal {
+			display: none;
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			width: min(1080px, calc(100vw - 32px));
+			min-height: min(570px, calc(100vh - 48px));
+			max-height: min(645px, calc(100vh - 48px));
+			overflow: auto;
+			background: var(--ssr-clash-modal-bg);
+			color: var(--ssr-clash-modal-fg);
+			border-radius: 10px;
+			box-shadow: var(--ssr-clash-modal-shadow);
+			border: 1px solid var(--ssr-clash-modal-border);
+			z-index: 2001;
+			padding: 12px 16px 14px;
+		}
+
+		#ssr-clash-modal-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 12px;
+			margin-bottom: 10px;
+		}
+
+		#ssr-clash-modal-heading {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			min-width: 0;
+		}
+
+		#ssr-clash-modal-title {
+			font-size: 17px;
+			font-weight: 600;
+			color: var(--ssr-clash-modal-fg);
+			white-space: nowrap;
+		}
+
+		#ssr-clash-modal-actions {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 8px;
+			flex-wrap: wrap;
+			margin: 0;
+			flex: 1 1 auto;
+		}
+
+		#ssr-clash-modal-header #ssr-clash-rules-add {
+			margin-left: 8px;
+		}
+
+		#ssr-clash-modal-status {
+			margin: 0;
+			color: var(--ssr-clash-modal-muted);
+			font-size: 14px;
+			white-space: nowrap;
+		}
+
+		#ssr-clash-modal-groups .cbi-value-title {
+			color: var(--ssr-clash-modal-muted);
+		}
+
+		#ssr-clash-client-rules {
+			display: none;
+		}
+
+		#ssr-clash-client-rules table {
+			width: 100%;
+			border-collapse: collapse;
+			overflow: visible;
+		}
+
+		#ssr-clash-client-rules th,
+		#ssr-clash-client-rules td {
+			padding: 8px 6px;
+			vertical-align: middle;
+			overflow: visible;
+			position: relative;
+		}
+
+		#ssr-clash-client-rules th {
+			color: var(--ssr-clash-modal-muted);
+			font-weight: 600;
+			text-align: left;
+		}
+
+		#ssr-clash-client-rules .cbi-input-select,
+		#ssr-clash-client-rules .cbi-input-text,
+		#ssr-clash-client-rules select,
+		#ssr-clash-client-rules input[type="text"] {
+			width: 100%;
+			background: var(--ssr-clash-field-bg) !important;
+			color: var(--ssr-clash-field-fg) !important;
+			border: 1px solid var(--ssr-clash-field-border) !important;
+			box-shadow: none;
+			box-sizing: border-box;
+		}
+
+		#ssr-clash-client-rules .ssr-client-input-wrap {
+			position: relative;
+			z-index: 50;
+		}
+
+		#ssr-clash-client-rules .ssr-client-suggest {
+			display: none;
+			position: absolute;
+			left: 0;
+			right: 0;
+			top: calc(100% + 4px);
+			z-index: 2005;
+			max-height: 240px;
+			overflow: auto;
+			background: var(--ssr-clash-field-bg);
+			color: var(--ssr-clash-field-fg);
+			border: 1px solid var(--ssr-clash-field-border);
+			border-radius: 8px;
+			box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16);
+			min-width: 100%;
+		}
+
+		#ssr-clash-client-rules .ssr-client-suggest.is-open {
+			display: block;
+		}
+
+		#ssr-clash-client-rules tr:has(.ssr-client-suggest.is-open),
+		#ssr-clash-client-rules td:has(.ssr-client-suggest.is-open) {
+			z-index: 60;
+		}
+
+		#ssr-clash-client-rules .ssr-client-suggest-item {
+			padding: 10px 12px;
+			cursor: pointer;
+			line-height: 1.35;
+			word-break: break-all;
+		}
+
+		#ssr-clash-client-rules .ssr-client-suggest-item:hover,
+		#ssr-clash-client-rules .ssr-client-suggest-item.active {
+			background: rgba(31, 111, 235, 0.12);
+		}
+
+		#ssr-clash-client-rules option {
+			background: var(--ssr-clash-field-bg);
+			color: var(--ssr-clash-field-fg);
+		}
+
+		#ssr-clash-client-rules .ssr-clash-rules-note {
+			color: var(--ssr-clash-modal-muted);
+			font-size: 13px;
+			margin: 0 0 10px;
+		}
+
+		#ssr-clash-client-rules .ssr-clash-rules-empty {
+			color: var(--ssr-clash-modal-muted);
+			padding: 12px 0;
+		}
+
+		#ssr-clash-modal-groups .cbi-input-select,
+		#ssr-clash-modal-groups select {
+			background: var(--ssr-clash-field-bg) !important;
+			color: var(--ssr-clash-field-fg) !important;
+			border: 1px solid var(--ssr-clash-field-border) !important;
+			box-shadow: none;
+		}
+
+		#ssr-clash-modal-groups option {
+			background: var(--ssr-clash-field-bg);
+			color: var(--ssr-clash-field-fg);
+		}
+
+		html[data-darkmode="true"] #ssr-clash-modal .btn.cbi-button {
+			background: #262626 !important;
+			color: #f1f1f1 !important;
+			border-color: #4a4a4a !important;
+		}
+
+		html[data-darkmode="true"] #ssr-clash-modal .btn.cbi-button-apply {
+			background: #1f6feb !important;
+			border-color: #1f6feb !important;
+			color: #ffffff !important;
+		}
+
+		html[data-darkmode="true"] #ssr-clash-modal .btn.cbi-button:hover,
+		html[data-darkmode="true"] #ssr-clash-modal .btn.cbi-button:focus {
+			filter: brightness(1.08);
+		}
+
+		@media (max-width: 700px) {
+			#ssr-clash-modal {
+				width: calc(100vw - 16px);
+				max-height: calc(100vh - 24px);
+				min-height: min(420px, calc(100vh - 24px));
+				padding: 10px 12px 12px;
+			}
+
+			#ssr-clash-modal-header {
+				flex-wrap: wrap;
+				align-items: flex-start;
+			}
+
+			#ssr-clash-modal-heading {
+				flex-wrap: wrap;
+			}
+
+			#ssr-clash-modal-actions {
+				width: 100%;
+				justify-content: flex-start;
+				margin-left: 0;
+			}
+
+			#ssr-clash-modal-header #ssr-clash-rules-add {
+				margin-left: 0;
+			}
+		}
+	</style>
+
+	<script type="text/javascript">
+	if (typeof(window.ssrClashRefreshSubscription) !== "function") {
+		window.ssrClashRefreshSubscription = function(btn, sid) {
+			var original = btn.value;
+			btn.disabled = true;
+			btn.value = '<%:Reloading YAML...%>';
+			XHR.get('<%=luci.dispatcher.build_url("admin", "services", "shadowsocksr", "clash_refresh")%>', {
+				sid: sid
+			}, function(x, result) {
+				btn.disabled = false;
+				btn.value = original;
+				if (result && result.success) {
+					btn.value = result.reapplied ? '<%:Reapply%>' : '<%:YAML Reloaded!%>';
+					setTimeout(function() { btn.value = original; }, 1200);
+				} else {
+					btn.value = '<%:YAML Reload Failed!%>';
+					setTimeout(function() { btn.value = original; }, 1500);
+				}
+			});
+			return false;
+		}
+	}
+
+	if (typeof(window.ssrClashResetDefaults) !== "function") {
+		window.ssrClashResetDefaults = function(btn, sid) {
+			var original = btn.value;
+			if (!window.confirm('<%:Reset saved Mihomo proxy-group selections and restore YAML defaults?%>')) {
+				return false;
+			}
+			btn.disabled = true;
+			btn.value = '<%:Resetting Defaults...%>';
+			XHR.get('<%=luci.dispatcher.build_url("admin", "services", "shadowsocksr", "clash_reset_defaults")%>', {
+				sid: sid
+			}, function(x, result) {
+				btn.disabled = false;
+				btn.value = original;
+				if (result && result.success) {
+					btn.value = result.reapplied ? '<%:Defaults Restored!%>' : '<%:Defaults Cleared!%>';
+					setTimeout(function() { btn.value = original; }, 1500);
+				} else {
+					btn.value = '<%:Reset Defaults Failed!%>';
+					setTimeout(function() { btn.value = original; }, 1600);
+				}
+			});
+			return false;
+		}
+	}
+
+	(function() {
+		var currentPanelSid = '<%=current_sid%>';
+		var currentEditorSid = '';
+		var clientPolicies = [];
+		var lanClients = [];
+		var clientRules = [];
+		var clashNodes = {
+		<%
+			for sid, _ in pairs(clash_nodes) do
+		-%>
+			<%=string.format("%q", sid)%>: true,
+		<% end -%>
+		};
+
+		function setPanelStatus(text, color) {
+			var statusEl = document.getElementById('ssr-clash-modal-status');
+			if (!statusEl) {
+				return;
+			}
+			statusEl.style.color = color || '#666';
+			statusEl.textContent = text;
+		}
+
+		function translateClashName(name) {
+			var dict = {
+				'Selector': '选择器',
+				'DIRECT': '直连',
+				'Direct': '直连',
+				'REJECT': '拒绝',
+				'Reject': '拒绝',
+				'Proxy': '代理',
+				'Domestic': '国内',
+				'GlobalTV': '国际流媒体',
+				'AsianTV': '亚洲流媒体',
+				'Others': '其他',
+				'GLOBAL': '全局',
+				'URLTest': '自动选择',
+				'Fallback': '故障转移',
+				'LoadBalance': '负载均衡',
+				'Compatible': '兼容',
+				'Pass': '放行'
+			};
+			return dict[name] || name;
+		}
+
+		function normalizeList(value) {
+			return Array.isArray(value) ? value : [];
+		}
+
+		function csvEscape(value) {
+			value = String(value == null ? '' : value);
+			if (/[",\n]/.test(value)) {
+				return '"' + value.replace(/"/g, '""') + '"';
+			}
+			return value;
+		}
+
+		function exportClientRulesCsv() {
+			var lines = ['enabled,client,policy,remarks,client_mac'];
+			clientRules.forEach(function(rule) {
+				lines.push([
+					rule.enabled ? '1' : '0',
+					csvEscape(rule.ip_addr || ''),
+					csvEscape(rule.policy_group || ''),
+					csvEscape(rule.remarks || ''),
+					csvEscape(rule.client_mac || '')
+				].join(','));
+			});
+			return lines.join('\n');
+		}
+
+		function downloadClientRulesCsv() {
+			var blob = new Blob([exportClientRulesCsv()], { type: 'text/csv;charset=utf-8;' });
+			var url = URL.createObjectURL(blob);
+			var link = document.createElement('a');
+			link.href = url;
+			link.download = 'ssr-clash-client-rules.csv';
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+			window.setTimeout(function() {
+				URL.revokeObjectURL(url);
+			}, 1000);
+		}
+
+		function parseClientRulesCsv(text) {
+			var lines = String(text || '').replace(/\r/g, '').split('\n').filter(function(line) {
+				return line.trim() !== '';
+			});
+			if (!lines.length) {
+				return [];
+			}
+
+			var startIndex = 0;
+			if (/^enabled,client,policy,remarks,client_mac$/i.test(lines[0].trim())) {
+				startIndex = 1;
+			}
+
+			var rows = [];
+			for (var i = startIndex; i < lines.length; i++) {
+				var line = lines[i];
+				var cols = [];
+				var cur = '';
+				var inQuote = false;
+				for (var j = 0; j < line.length; j++) {
+					var ch = line[j];
+					if (ch === '"') {
+						if (inQuote && line[j + 1] === '"') {
+							cur += '"';
+							j++;
+						} else {
+							inQuote = !inQuote;
+						}
+					} else if (ch === ',' && !inQuote) {
+						cols.push(cur);
+						cur = '';
+					} else {
+						cur += ch;
+					}
+				}
+				cols.push(cur);
+
+				if (cols.length < 4) {
+					continue;
+				}
+
+				rows.push({
+					enabled: cols[0] === '1' || /^true$/i.test(cols[0] || ''),
+					ip_addr: (cols[1] || '').trim(),
+					policy_group: (cols[2] || '').trim(),
+					remarks: (cols[3] || '').trim(),
+					client_mac: (cols[4] || '').trim()
+				});
+			}
+			return rows;
+		}
+
+		function renderClientRuleRows() {
+			var body = document.getElementById('ssr-clash-client-rules-body');
+			if (!body) {
+				return;
+			}
+
+			body.innerHTML = '';
+			if (!clientRules.length) {
+				var row = document.createElement('tr');
+				var cell = document.createElement('td');
+				cell.colSpan = 5;
+				cell.className = 'ssr-clash-rules-empty';
+				cell.textContent = '<%:No custom client proxy rules yet.%>';
+				row.appendChild(cell);
+				body.appendChild(row);
+				return;
+			}
+
+			clientRules.forEach(function(rule, index) {
+				var row = document.createElement('tr');
+
+				var enabledCell = document.createElement('td');
+				var enabled = document.createElement('input');
+				enabled.type = 'checkbox';
+				enabled.checked = !!rule.enabled;
+				enabled.onchange = function() { rule.enabled = enabled.checked; };
+				enabledCell.appendChild(enabled);
+
+				var clientCell = document.createElement('td');
+				var clientWrap = document.createElement('div');
+				clientWrap.className = 'ssr-client-input-wrap';
+				var clientInput = document.createElement('input');
+				clientInput.type = 'text';
+				clientInput.className = 'cbi-input-text';
+				clientInput.value = rule.ip_addr || '';
+				var suggest = document.createElement('div');
+				suggest.className = 'ssr-client-suggest';
+
+				function setClientByValue(value) {
+					rule.ip_addr = value;
+					var matched = lanClients.find(function(client) {
+						return client.ip === value;
+					});
+					rule.client_mac = matched ? (matched.mac || '') : '';
+					if (!remarkInput.value && matched) {
+						rule.remarks = matched.name || matched.ip;
+						remarkInput.value = rule.remarks;
+					}
+				}
+
+				function renderSuggestions(keyword) {
+					var text = (keyword || '').toLowerCase();
+					suggest.innerHTML = '';
+					var matchedClients = lanClients.filter(function(client) {
+						var label = (client.name + ' ' + client.ip + ' ' + (client.mac || '')).toLowerCase();
+						return !text || label.indexOf(text) >= 0;
+					});
+
+					if (!matchedClients.length) {
+						suggest.classList.remove('is-open');
+						return;
+					}
+
+					matchedClients.forEach(function(client) {
+						var item = document.createElement('div');
+						item.className = 'ssr-client-suggest-item';
+						item.textContent = client.name + ' (' + client.ip + ')';
+						item.onmousedown = function(ev) {
+							ev.preventDefault();
+							clientInput.value = client.ip;
+							setClientByValue(client.ip);
+							suggest.classList.remove('is-open');
+						};
+						suggest.appendChild(item);
+					});
+
+					suggest.classList.add('is-open');
+				}
+
+				var remarksCell = document.createElement('td');
+				var remarkInput = document.createElement('input');
+				remarkInput.type = 'text';
+				remarkInput.className = 'cbi-input-text';
+				remarkInput.value = rule.remarks || '';
+
+				clientInput.onfocus = function() {
+					renderSuggestions(clientInput.value);
+				};
+				clientInput.oninput = function() {
+					setClientByValue(clientInput.value);
+					renderSuggestions(clientInput.value);
+				};
+				clientInput.onblur = function() {
+					window.setTimeout(function() {
+						suggest.classList.remove('is-open');
+					}, 120);
+				};
+				clientWrap.appendChild(clientInput);
+				clientWrap.appendChild(suggest);
+				clientCell.appendChild(clientWrap);
+
+				var policyCell = document.createElement('td');
+				var policySelect = document.createElement('select');
+				policySelect.className = 'cbi-input-select';
+				clientPolicies.forEach(function(policy) {
+					var option = document.createElement('option');
+					option.value = policy.name;
+					option.textContent = translateClashName(policy.label || policy.name);
+					if (policy.name === rule.policy_group) {
+						option.selected = true;
+					}
+					policySelect.appendChild(option);
+				});
+				policySelect.onchange = function() {
+					rule.policy_group = policySelect.value;
+				};
+				policyCell.appendChild(policySelect);
+
+				remarkInput.oninput = function() {
+					rule.remarks = remarkInput.value;
+				};
+				remarksCell.appendChild(remarkInput);
+
+				var actionCell = document.createElement('td');
+				var removeBtn = document.createElement('input');
+				removeBtn.type = 'button';
+				removeBtn.className = 'btn cbi-button cbi-button-remove';
+				removeBtn.value = '<%:Delete%>';
+				removeBtn.onclick = function() {
+					clientRules.splice(index, 1);
+					renderClientRuleRows();
+				};
+				actionCell.appendChild(removeBtn);
+
+				row.appendChild(enabledCell);
+				row.appendChild(clientCell);
+				row.appendChild(policyCell);
+				row.appendChild(remarksCell);
+				row.appendChild(actionCell);
+				body.appendChild(row);
+			});
+
+			setPanelStatus('<%:Ready.%>', '#249400');
+		}
+
+		function renderGroups(groups) {
+			var groupsEl = document.getElementById('ssr-clash-modal-groups');
+			if (!groupsEl) {
+				return;
+			}
+
+			groupsEl.innerHTML = '';
+			if (!groups || !groups.length) {
+				groupsEl.innerHTML = '<p><%:No switchable proxy groups found.%></p>';
+				return;
+			}
+
+			groups.forEach(function(group) {
+				var wrapper = document.createElement('div');
+				wrapper.className = 'cbi-value';
+				wrapper.style.marginBottom = '0.5em';
+
+				var label = document.createElement('label');
+				label.className = 'cbi-value-title';
+				label.textContent = translateClashName(group.name) + (group.type ? ' (' + translateClashName(group.type) + ')' : '');
+
+				var field = document.createElement('div');
+				field.className = 'cbi-value-field';
+
+				var select = document.createElement('select');
+				select.className = 'cbi-input-select';
+				group.all.forEach(function(name) {
+					var option = document.createElement('option');
+					option.value = name;
+					option.textContent = translateClashName(name);
+					if (name === group.now) {
+						option.selected = true;
+					}
+					select.appendChild(option);
+				});
+
+				select.onchange = function() {
+					setPanelStatus('<%:Switching...%>', '#0072c3');
+					XHR.get('<%=luci.dispatcher.build_url("admin", "services", "shadowsocksr", "clash_switch")%>', {
+						sid: currentPanelSid,
+						group: group.name,
+						name: select.value
+					}, function(x, result) {
+						if (result && result.success) {
+							setPanelStatus('<%:Switched successfully.%>', '#249400');
+							loadGroups(currentPanelSid);
+						} else {
+							setPanelStatus('<%:Switch failed.%>', '#ff0000');
+						}
+					});
+				};
+
+				field.appendChild(select);
+				wrapper.appendChild(label);
+				wrapper.appendChild(field);
+				groupsEl.appendChild(wrapper);
+			});
+		}
+
+		function addClientRule() {
+			var firstClient = lanClients[0] || { ip: '', mac: '', name: '' };
+			var firstPolicy = clientPolicies[0] || { name: '', label: '' };
+			clientRules.push({
+				enabled: true,
+				ip_addr: firstClient.ip || '',
+				client_mac: firstClient.mac || '',
+				remarks: firstClient.name || firstClient.ip || '',
+				policy_group: firstPolicy.name || ''
+			});
+			renderClientRuleRows();
+			return false;
+		}
+
+		function saveClientRules(btn) {
+			if (!currentEditorSid) {
+				return false;
+			}
+
+			var original = btn.value;
+			btn.disabled = true;
+			btn.value = '<%:Saving...%>';
+			var payload = {
+				sid: currentEditorSid,
+				count: String(clientRules.length)
+			};
+
+			clientRules.forEach(function(rule, idx) {
+				var index = idx + 1;
+				payload['rule_' + index + '_enabled'] = rule.enabled ? '1' : '0';
+				payload['rule_' + index + '_ip_addr'] = rule.ip_addr || '';
+				payload['rule_' + index + '_client_mac'] = rule.client_mac || '';
+				payload['rule_' + index + '_remarks'] = rule.remarks || '';
+				payload['rule_' + index + '_policy_group'] = rule.policy_group || '';
+			});
+
+			XHR.post('<%=luci.dispatcher.build_url("admin", "services", "shadowsocksr", "clash_client_rule_save")%>', payload, function(x, result) {
+				btn.disabled = false;
+				btn.value = original;
+				if (result && result.success) {
+					clientRules = normalizeList(result.rules);
+					renderClientRuleRows();
+					setPanelStatus(result.reapplied ? '<%:Custom client proxy rules saved and applied.%>' : '<%:Custom client proxy rules saved.%>', '#249400');
+				} else {
+					setPanelStatus('<%:Failed to save custom client proxy rules.%>', '#ff0000');
+				}
+			});
+			return false;
+		}
+
+		function openClientRulesPanel(sid) {
+			currentEditorSid = sid;
+			setPanelStatus('<%:Loading...%>', '#666');
+			var groupsEl = document.getElementById('ssr-clash-modal-groups');
+			var rulesEl = document.getElementById('ssr-clash-client-rules');
+			var addBtn = document.getElementById('ssr-clash-rules-add');
+			var saveBtn = document.getElementById('ssr-clash-rules-save');
+			var clearBtn = document.getElementById('ssr-clash-rules-clear');
+			var exportBtn = document.getElementById('ssr-clash-rules-export');
+			var importBtn = document.getElementById('ssr-clash-rules-import');
+			var refreshBtn = document.getElementById('ssr-clash-modal-refresh');
+			if (groupsEl) groupsEl.style.display = 'none';
+			if (rulesEl) rulesEl.style.display = 'block';
+			if (addBtn) addBtn.style.display = '';
+			if (saveBtn) saveBtn.style.display = '';
+			if (clearBtn) clearBtn.style.display = '';
+			if (exportBtn) exportBtn.style.display = '';
+			if (importBtn) importBtn.style.display = '';
+			if (refreshBtn) refreshBtn.style.display = 'none';
+
+			XHR.get('<%=luci.dispatcher.build_url("admin", "services", "shadowsocksr", "clash_client_policies")%>', {
+				sid: sid
+			}, function(x, result) {
+				if (!result || !result.active) {
+					setPanelStatus('<%:This Clash total node is not active. Apply this node first.%>', '#ff7700');
+					clientPolicies = [];
+					lanClients = [];
+					clientRules = [];
+					renderClientRuleRows();
+					return;
+				}
+
+				clientPolicies = normalizeList(result.policies);
+				lanClients = normalizeList(result.clients);
+				clientRules = normalizeList(result.rules);
+				renderClientRuleRows();
+				setPanelStatus('<%:Ready.%>', '#249400');
+			});
+			return false;
+		}
+
+		window.ssrClashAddClientRule = function() {
+			return addClientRule();
+		};
+
+		window.ssrClashSaveClientRules = function(btn) {
+			return saveClientRules(btn);
+		};
+
+		window.ssrClashOpenClientRulesPanel = function(sid) {
+			openPanel(sid);
+			return openClientRulesPanel(sid);
+		};
+
+		function loadGroups(sid) {
+			setPanelStatus('<%:Loading...%>', '#666');
+			var groupsEl = document.getElementById('ssr-clash-modal-groups');
+			var rulesEl = document.getElementById('ssr-clash-client-rules');
+			var addBtn = document.getElementById('ssr-clash-rules-add');
+			var saveBtn = document.getElementById('ssr-clash-rules-save');
+			var clearBtn = document.getElementById('ssr-clash-rules-clear');
+			var exportBtn = document.getElementById('ssr-clash-rules-export');
+			var importBtn = document.getElementById('ssr-clash-rules-import');
+			var refreshBtn = document.getElementById('ssr-clash-modal-refresh');
+			if (groupsEl) groupsEl.style.display = 'block';
+			if (rulesEl) rulesEl.style.display = 'none';
+			if (addBtn) addBtn.style.display = 'none';
+			if (saveBtn) saveBtn.style.display = 'none';
+			if (clearBtn) clearBtn.style.display = 'none';
+			if (exportBtn) exportBtn.style.display = 'none';
+			if (importBtn) importBtn.style.display = 'none';
+			if (refreshBtn) refreshBtn.style.display = '';
+			XHR.get('<%=luci.dispatcher.build_url("admin", "services", "shadowsocksr", "clash_groups")%>', {
+				sid: sid
+			}, function(x, result) {
+				if (result && result.sid) {
+					currentPanelSid = result.sid;
+				}
+				if (!result || !result.active) {
+					setPanelStatus('<%:This Clash total node is not active. Apply this node first.%>', '#ff7700');
+					if (groupsEl) {
+						groupsEl.innerHTML = '';
+					}
+					return;
+				}
+
+				setPanelStatus('<%:Ready.%>', '#249400');
+				renderGroups(result.groups || []);
+			});
+		}
+
+		function openPanel(sid) {
+			var modal = document.getElementById('ssr-clash-modal');
+			var mask = document.getElementById('ssr-clash-modal-mask');
+			var title = document.getElementById('ssr-clash-modal-title');
+			if (!modal || !mask) {
+				return false;
+			}
+
+			currentPanelSid = sid;
+			if (title) {
+				title.textContent = '<%:Clash Panel%>';
+			}
+
+			mask.style.display = 'block';
+			modal.style.display = 'block';
+			loadGroups(sid);
+			return false;
+		}
+
+		function closePanel() {
+			var modal = document.getElementById('ssr-clash-modal');
+			var mask = document.getElementById('ssr-clash-modal-mask');
+			if (modal) {
+				modal.style.display = 'none';
+			}
+			if (mask) {
+				mask.style.display = 'none';
+			}
+			return false;
+		}
+
+		function updateClashPanelMain() {
+			var select = document.querySelector('select[name$=".global_server"]');
+			var wrap = document.getElementById('ssr-clash-main-panel-wrap');
+			var row = wrap ? wrap.closest('.cbi-value') : null;
+			var customRulesBtn = document.getElementById('ssr-clash-main-client-rules');
+			var resetBtn = document.getElementById('ssr-clash-main-reset-defaults');
+			var panelBtn = document.getElementById('ssr-clash-main-open');
+			if (!select || !row || !customRulesBtn || !resetBtn || !panelBtn) {
+				return;
+			}
+
+			var sid = select.value;
+			if (sid && clashNodes[sid]) {
+				row.style.display = '';
+				customRulesBtn.setAttribute('data-sid', sid);
+				resetBtn.setAttribute('data-sid', sid);
+				panelBtn.setAttribute('data-sid', sid);
+			} else {
+				row.style.display = 'none';
+				customRulesBtn.setAttribute('data-sid', '');
+				resetBtn.setAttribute('data-sid', '');
+				panelBtn.setAttribute('data-sid', '');
+			}
+		}
+
+		window.setTimeout(function() {
+			var select = document.querySelector('select[name$=".global_server"]');
+			var customRulesBtn = document.getElementById('ssr-clash-main-client-rules');
+			var resetBtn = document.getElementById('ssr-clash-main-reset-defaults');
+			var panelBtn = document.getElementById('ssr-clash-main-open');
+			var modalRefreshBtn = document.getElementById('ssr-clash-modal-refresh');
+			var modalRulesAddBtn = document.getElementById('ssr-clash-rules-add');
+			var modalRulesSaveBtn = document.getElementById('ssr-clash-rules-save');
+			var modalCloseBtn = document.getElementById('ssr-clash-modal-close');
+			var modalMask = document.getElementById('ssr-clash-modal-mask');
+			var wrap = document.getElementById('ssr-clash-main-panel-wrap');
+			var row = wrap ? wrap.closest('.cbi-value') : null;
+
+			if (row && !clashNodes['<%=current_sid%>']) {
+				row.style.display = 'none';
+			}
+
+			if (select) {
+				select.addEventListener('change', updateClashPanelMain);
+			}
+
+			if (customRulesBtn) {
+				customRulesBtn.onclick = function() {
+					var sid = this.getAttribute('data-sid');
+					if (!sid) return false;
+					return window.ssrClashOpenClientRulesPanel(sid);
+				};
+			}
+
+			if (resetBtn) {
+				resetBtn.onclick = function() {
+					var sid = this.getAttribute('data-sid');
+					if (!sid) return false;
+					return ssrClashResetDefaults(this, sid);
+				};
+			}
+
+			if (panelBtn) {
+				panelBtn.onclick = function() {
+					var sid = this.getAttribute('data-sid');
+					if (!sid) return false;
+					return openPanel(sid);
+				};
+			}
+
+			if (modalRefreshBtn) {
+				modalRefreshBtn.onclick = function() {
+					if (!currentPanelSid) return false;
+					loadGroups(currentPanelSid);
+					return false;
+				};
+			}
+
+			var modalRulesExportBtn = document.getElementById('ssr-clash-rules-export');
+			if (modalRulesExportBtn) {
+				modalRulesExportBtn.onclick = function() {
+					downloadClientRulesCsv();
+					setPanelStatus('<%:Client rules exported to CSV file.%>', '#249400');
+					return false;
+				};
+			}
+
+			var modalRulesImportBtn = document.getElementById('ssr-clash-rules-import');
+			var modalRulesImportFile = document.getElementById('ssr-clash-rules-import-file');
+			if (modalRulesImportBtn) {
+				modalRulesImportBtn.onclick = function() {
+					if (modalRulesImportFile) {
+						modalRulesImportFile.click();
+					}
+					return false;
+				};
+			}
+
+			if (modalRulesImportFile) {
+				modalRulesImportFile.onchange = function() {
+					var file = modalRulesImportFile.files && modalRulesImportFile.files[0];
+					if (!file) return;
+					var reader = new FileReader();
+					reader.onload = function() {
+						clientRules = parseClientRulesCsv(reader.result || '');
+						renderClientRuleRows();
+						setPanelStatus('<%:Client rules imported from CSV file. Click Save to apply.%>', '#249400');
+						modalRulesImportFile.value = '';
+					};
+					reader.readAsText(file);
+				};
+			}
+
+			var modalRulesClearBtn = document.getElementById('ssr-clash-rules-clear');
+			if (modalRulesClearBtn) {
+				modalRulesClearBtn.onclick = function() {
+					if (!window.confirm('<%:Clear all custom client proxy rules and restore empty state?%>')) {
+						return false;
+					}
+					modalRulesClearBtn.disabled = true;
+					XHR.post('<%=luci.dispatcher.build_url("admin", "services", "shadowsocksr", "clash_client_rule_clear")%>', {
+						sid: currentEditorSid
+					}, function(x, result) {
+						modalRulesClearBtn.disabled = false;
+						if (result && result.success) {
+							clientRules = [];
+							renderClientRuleRows();
+							setPanelStatus(result.reapplied ? '<%:All client proxy rules cleared and applied.%>' : '<%:All client proxy rules cleared.%>', '#249400');
+						} else {
+							setPanelStatus('<%:Failed to clear all client proxy rules.%>', '#ff0000');
+						}
+					});
+					return false;
+				};
+			}
+
+			if (modalCloseBtn) {
+				modalCloseBtn.onclick = closePanel;
+			}
+
+			if (modalMask) {
+				modalMask.onclick = closePanel;
+			}
+
+			updateClashPanelMain();
+		}, 0);
+	})();
+	</script>
+
+	<input
+		type="button"
+		id="ssr-clash-main-client-rules"
+		class="btn cbi-button"
+		value="<%:Custom Client Proxies Rules%>"
+		title="<%:Custom Client Proxies Rules%>"
+		data-sid="<%=current_sid%>" />
+	<input
+		type="button"
+		id="ssr-clash-main-reset-defaults"
+		class="btn cbi-button"
+		value="<%:Reset Default Proxies Rules%>"
+		title="<%:Reset Default Proxies Rules%>"
+		data-sid="<%=current_sid%>" />
+	<input
+		type="button"
+		id="ssr-clash-main-open"
+		class="btn cbi-button cbi-button-apply"
+		value="<%:Mihomo Pannel%>"
+		title="<%:Mihomo Pannel%>"
+		data-sid="<%=current_sid%>" />
+
+	<div id="ssr-clash-modal-mask"></div>
+	<div id="ssr-clash-modal" role="dialog" aria-modal="true" aria-labelledby="ssr-clash-modal-title">
+		<div id="ssr-clash-modal-header">
+			<div id="ssr-clash-modal-heading">
+				<div id="ssr-clash-modal-title"><%:Clash Panel%></div>
+				<div id="ssr-clash-modal-status"></div>
+				<input type="button" id="ssr-clash-rules-add" class="btn cbi-button" value="<%:Add%>" onclick="return window.ssrClashAddClientRule();" />
+			</div>
+			<div id="ssr-clash-modal-actions">
+				<input type="button" id="ssr-clash-rules-clear" class="btn cbi-button" value="<%:Clear All Rules%>" />
+				<input type="button" id="ssr-clash-rules-export" class="btn cbi-button" value="<%:Export Client Rules%>" />
+				<input type="button" id="ssr-clash-rules-import" class="btn cbi-button" value="<%:Import Client Rules%>" />
+				<input type="file" id="ssr-clash-rules-import-file" accept=".csv,text/csv" style="display:none" />
+			</div>
+			<input type="button" id="ssr-clash-rules-save" class="btn cbi-button cbi-button-apply" value="<%:Save%>" onclick="return window.ssrClashSaveClientRules(this);" />
+			<input type="button" id="ssr-clash-modal-close" class="btn cbi-button" value="<%:Close%>" />
+		</div>
+		<div id="ssr-clash-client-rules">
+			<div class="ssr-clash-rules-note"><%:Define per-client Mihomo proxy targets. Rules are injected as SRC-IP-CIDR entries before the original Clash rules.%> <%:Client supports manual IP or IP/CIDR input.%></div>
+			<table>
+				<thead>
+					<tr>
+						<th style="width:1%"><%:Enable%></th>
+						<th style="width:28%"><%:Client%></th>
+						<th style="width:28%"><%:Policy%></th>
+						<th><%:Remarks%></th>
+						<th style="width:1%"><%:Actions%></th>
+					</tr>
+				</thead>
+				<tbody id="ssr-clash-client-rules-body"></tbody>
+			</table>
+		</div>
+		<div id="ssr-clash-modal-groups"></div>
+	</div>
+</div>
+<%+cbi/valuefooter%>

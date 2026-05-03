@@ -85,13 +85,14 @@ usage() {
 		    -e <extra_options>      extra options for iptables
 		    -o                      apply the rules to the OUTPUT chain
 		    -O                      apply the global rules to the OUTPUT chain
-		    -u                      enable udprelay mode, TPROXY is required
-		    -U                      enable udprelay mode, using different IP
-		                            and ports for TCP and UDP
-		    -f                      flush the rules
+			    -u                      enable udprelay mode, TPROXY is required
+			    -U                      enable udprelay mode, using different IP
+			                            and ports for TCP and UDP
+			    -y                      disable all auxiliary UDP rules when UDP
+			                            transparent proxy is unavailable
+			    -f                      flush the rules
 		    -g                      gfwlist mode
 		    -r                      router mode
-		    -c                      oversea mode
 		    -z                      all mode
 		    
 		    # New persistence management options (use different letters to avoid conflicts)
@@ -274,7 +275,7 @@ flush_nftables() {
 
 	# Optional: force delete all ss_spec related sets (even if table was accidentally deleted)
 	for setname in ss_spec_lan_ac ss_spec_wan_ac ssr_gen_router \
-			china fplan bplan gmlan oversea whitelist blacklist netflix gfwlist music; do
+			china fplan bplan gmlan whitelist blacklist gfwlist music; do
 		$NFT delete set inet ss_spec $setname 2>/dev/null
 		$NFT delete set ip ss_spec_mangle $setname 2>/dev/null
 	done
@@ -310,7 +311,7 @@ flush_iptables_legacy() {
 		ip route del local 0.0.0.0/0 dev lo table 999 2>/dev/null
 	fi
 	for setname in ss_spec_lan_ac ss_spec_wan_ac ssr_gen_router \
-			china fplan bplan gmlan oversea whitelist blacklist netflix gfwlist music; do
+			china fplan bplan gmlan whitelist blacklist gfwlist music; do
 		ipset -X $setname 2>/dev/null
 	done
 	[ -n "$FWI" ] && echo '#!/bin/sh' >$FWI
@@ -333,7 +334,7 @@ ipset_nft() {
 	fi
 
 	# Create necessary collections
-	for setname in china gmlan fplan bplan whitelist blacklist netflix music; do
+	for setname in china gmlan fplan bplan whitelist blacklist music; do
 		if ! $NFT list set inet ss_spec $setname >/dev/null 2>&1; then
 			$NFT add set inet ss_spec $setname '{ type ipv4_addr; flags interval; auto-merge; }' 2>/dev/null
 		else
@@ -392,13 +393,6 @@ ipset_nft() {
 		$NFT add rule inet ss_spec ss_spec_wan_ac meta l4proto tcp ip daddr @music return
 	fi
 
-	# Shunt/Netflix rules
-	if [ -f "$SHUNT_LIST" ]; then
-		for ip in $(cat "$SHUNT_LIST" 2>/dev/null); do 
-			[ -n "$ip" ] && $NFT add element inet ss_spec netflix "{ $ip }" 2>/dev/null
-		done
-	fi
-
 	# Set up mode-specific rules
 	case "$RUNMODE" in
 	router)
@@ -427,14 +421,6 @@ ipset_nft() {
 		$NFT add rule inet ss_spec ss_spec_wan_ac ip daddr @gfwlist jump ss_spec_wan_fw
 		$NFT add rule inet ss_spec ss_spec_wan_ac ip saddr @gmlan ip daddr != @china jump ss_spec_wan_fw
 		;;
-	oversea)
-		if ! $NFT list set inet ss_spec oversea >/dev/null 2>&1; then
-			$NFT add set inet ss_spec oversea '{ type ipv4_addr; flags interval; auto-merge; }' 2>/dev/null
-		fi
-		$NFT add rule inet ss_spec ss_spec_wan_ac ip daddr @oversea jump ss_spec_wan_fw
-		$NFT add rule inet ss_spec ss_spec_wan_ac ip saddr @gmlan jump ss_spec_wan_fw
-		$NFT add rule inet ss_spec ss_spec_wan_ac ip daddr @china jump ss_spec_wan_fw
-		;;
 	all)
 		if $NFT list chain inet ss_spec ss_spec_wan_fw >/dev/null 2>&1; then
 			$NFT add rule inet ss_spec ss_spec_wan_ac jump ss_spec_wan_fw
@@ -450,9 +436,10 @@ ipset_iptables() {
 
 	$IPT -N SS_SPEC_WAN_AC 2>/dev/null
 	$IPT -F SS_SPEC_WAN_AC
+	$IPT -I SS_SPEC_WAN_AC -m mark --mark 255 -j RETURN
 
 	$IPT -I SS_SPEC_WAN_AC -p tcp --dport 53 -d 127.0.0.0/8 -j RETURN
-	$IPT -I SS_SPEC_WAN_AC -p tcp ! --dport 53 -d "$server" -j RETURN
+	[ -n "$server" ] && $IPT -I SS_SPEC_WAN_AC -p tcp ! --dport 53 -d "$server" -j RETURN
 
 	ipset -N gmlan hash:net 2>/dev/null
 	for ip in $LAN_GM_IP; do ipset -! add gmlan "$ip"; done
@@ -473,12 +460,6 @@ ipset_iptables() {
 		$IPT -A SS_SPEC_WAN_AC -m set --match-set china dst -j RETURN
 		$IPT -A SS_SPEC_WAN_AC -m set --match-set gfwlist dst -j SS_SPEC_WAN_FW
 		$IPT -A SS_SPEC_WAN_AC -m set --match-set gmlan src -m set ! --match-set china dst -j SS_SPEC_WAN_FW
-		;;
-	oversea)
-		ipset -N oversea hash:net 2>/dev/null
-		$IPT -I SS_SPEC_WAN_AC -m set --match-set oversea dst -j SS_SPEC_WAN_FW
-		$IPT -A SS_SPEC_WAN_AC -m set --match-set gmlan src -j SS_SPEC_WAN_FW
-		$IPT -A SS_SPEC_WAN_AC -m set --match-set china dst -j SS_SPEC_WAN_FW
 		;;
 	all)
 		$IPT -A SS_SPEC_WAN_AC -j SS_SPEC_WAN_FW
@@ -510,25 +491,6 @@ ipset_iptables() {
 
 	for ip in $WAN_BP_IP; do ipset -! add whitelist "$ip"; done
 	for ip in $WAN_FW_IP; do ipset -! add blacklist "$ip"; done
-
-	if [ "$SHUNT_PORT" != "0" ]; then
-		ipset -N netflix hash:net 2>/dev/null
-		for ip in $(cat "${SHUNT_LIST:=/dev/null}" 2>/dev/null); do ipset -! add netflix "$ip"; done
-		case "$SHUNT_PORT" in
-		0) ;;
-		1)
-			$IPT -I SS_SPEC_WAN_AC -p tcp -m set --match-set netflix dst -j REDIRECT --to-ports "$local_port"
-			;;
-		*)
-			$IPT -I SS_SPEC_WAN_AC -p tcp -m set --match-set netflix dst -j REDIRECT --to-ports "$SHUNT_PORT"
-			if [ "$SHUNT_PROXY" = "1" ]; then
-				$IPT -I SS_SPEC_WAN_AC -p tcp -d "$SHUNT_IP" -j REDIRECT --to-ports "$local_port"
-			else
-				ipset -! add whitelist "$SHUNT_IP"
-			fi
-			;;
-		esac
-	fi
 	return $?
 }
 
@@ -560,22 +522,6 @@ fw_rule_nft() {
 			loger 3 "Can't redirect TCP, please check nftables."
 			return 1
 		fi
-	fi
-
-	if [ "$SHUNT_PORT" != "0" ] && [ -f "$SHUNT_LIST" ]; then
-		case "$SHUNT_PORT" in
-		1)
-			$NFT add rule inet ss_spec ss_spec_wan_ac $TCP_EXT_ARGS ip daddr @netflix counter redirect to :$local_port
-			;;
-		*)
-			$NFT add rule inet ss_spec ss_spec_wan_ac $TCP_EXT_ARGS ip daddr @netflix counter redirect to :$SHUNT_PORT
-			if [ "$SHUNT_PROXY" = "1" ]; then
-				$NFT add rule inet ss_spec ss_spec_wan_ac $TCP_EXT_ARGS ip daddr $SHUNT_IP counter redirect to :$local_port
-			else
-                [ -n "$SHUNT_IP" ] && $NFT add element inet ss_spec whitelist "{ $SHUNT_IP }" 2>/dev/null
-			fi
-            ;;
-		esac
 	fi
 
 	return $?
@@ -670,7 +616,7 @@ ac_rule_nft() {
 	fi
 
 	# Block UDP port 443 when TPROXY not Enable
-	if [ -z "$TPROXY" ]; then
+	if [ -z "$TPROXY" ] && [ "$DISABLE_UDP_RULES" != "1" ]; then
 		# Add UDP 443 block rule
 		if [ -z "$Interface" ]; then
 			if [ -n "$MATCH_SET" ]; then
@@ -717,10 +663,11 @@ ac_rule_nft() {
 	case "$OUTPUT" in
 	1)
 		# Create ss_spec_output tcp chain
-		if ! $NFT list chain inet ss_spec ss_spec_output >/dev/null 2>&1; then
-			$NFT add chain inet ss_spec ss_spec_output '{ type nat hook output priority 0; policy accept; }'
-		fi
-		$NFT flush chain inet ss_spec ss_spec_output 2>/dev/null
+			if ! $NFT list chain inet ss_spec ss_spec_output >/dev/null 2>&1; then
+				$NFT add chain inet ss_spec ss_spec_output '{ type nat hook output priority 0; policy accept; }'
+			fi
+			$NFT flush chain inet ss_spec ss_spec_output 2>/dev/null
+			$NFT add rule inet ss_spec ss_spec_output meta mark 255 return 2>/dev/null
 		
 		# Exclude special local addresses
 		if $NFT list chain inet ss_spec ss_spec_output >/dev/null 2>&1; then
@@ -741,10 +688,11 @@ ac_rule_nft() {
 		;;
 	2)
 		# Create ss_spec_output tcp chain
-		if ! $NFT list chain inet ss_spec ss_spec_output >/dev/null 2>&1; then
-			$NFT add chain inet ss_spec ss_spec_output '{ type nat hook output priority 0; policy accept; }'
-		fi
-		$NFT flush chain inet ss_spec ss_spec_output 2>/dev/null
+			if ! $NFT list chain inet ss_spec ss_spec_output >/dev/null 2>&1; then
+				$NFT add chain inet ss_spec ss_spec_output '{ type nat hook output priority 0; policy accept; }'
+			fi
+			$NFT flush chain inet ss_spec ss_spec_output 2>/dev/null
+			$NFT add rule inet ss_spec ss_spec_output meta mark 255 return 2>/dev/null
 		
 		# Exclude special local addresses
 		if $NFT list chain inet ss_spec ss_spec_output >/dev/null 2>&1; then
@@ -758,11 +706,12 @@ ac_rule_nft() {
 		for ip in $(gen_spec_iplist); do
 			[ -n "$ip" ] && $NFT add element inet ss_spec ssr_gen_router "{ $ip }" 2>/dev/null
 		done
-		if ! $NFT list chain inet ss_spec ss_spec_router >/dev/null 2>&1; then
-			$NFT add chain inet ss_spec ss_spec_router 2>/dev/null
-		fi
-		$NFT flush chain inet ss_spec ss_spec_router 2>/dev/null
-		$NFT add rule inet ss_spec ss_spec_router ip daddr @ssr_gen_router return 2>/dev/null
+			if ! $NFT list chain inet ss_spec ss_spec_router >/dev/null 2>&1; then
+				$NFT add chain inet ss_spec ss_spec_router 2>/dev/null
+			fi
+			$NFT flush chain inet ss_spec ss_spec_router 2>/dev/null
+			$NFT add rule inet ss_spec ss_spec_router meta mark 255 return 2>/dev/null
+			$NFT add rule inet ss_spec ss_spec_router ip daddr @ssr_gen_router return 2>/dev/null
 		$NFT add rule inet ss_spec ss_spec_router jump ss_spec_wan_fw 2>/dev/null
 		$NFT add rule inet ss_spec ss_spec_output $TCP_EXT_ARGS jump ss_spec_router comment "\"$TAG\"" 2>/dev/null
 		;;
@@ -792,7 +741,7 @@ ac_rule_iptables() {
 	EOF
 
 	# Block UDP port 443 when TPROXY not Enable
-	if [ -z "$TPROXY" ]; then
+	if [ -z "$TPROXY" ] && [ "$DISABLE_UDP_RULES" != "1" ]; then
 		# Add UDP 443 block rule
 		if [ -z "$Interface" ]; then
 			# Global rules
@@ -845,10 +794,11 @@ ac_rule_iptables() {
 			create ssr_gen_router hash:net
 			$(gen_spec_iplist | sed -e "s/^/add ssr_gen_router /")
 		EOF
-		$IPT -N SS_SPEC_ROUTER 2>/dev/null
-		$IPT -F SS_SPEC_ROUTER 2>/dev/null
-		$IPT -A SS_SPEC_ROUTER -m set --match-set ssr_gen_router dst -j RETURN && \
-		$IPT -A SS_SPEC_ROUTER -j SS_SPEC_WAN_FW
+			$IPT -N SS_SPEC_ROUTER 2>/dev/null
+			$IPT -F SS_SPEC_ROUTER 2>/dev/null
+			$IPT -A SS_SPEC_ROUTER -m mark --mark 255 -j RETURN && \
+			$IPT -A SS_SPEC_ROUTER -m set --match-set ssr_gen_router dst -j RETURN && \
+			$IPT -A SS_SPEC_ROUTER -j SS_SPEC_WAN_FW
 		$IPT -I OUTPUT 1 -p tcp -m comment --comment "$TAG" -j SS_SPEC_ROUTER
 		;;
 	esac
@@ -1006,14 +956,6 @@ tp_rule_nft() {
 		$NFT add rule ip ss_spec_mangle ss_spec_tproxy meta l4proto udp $EXT_ARGS ip daddr @gfwlist counter tproxy ip to :"$LOCAL_PORT" meta mark set ${FWMARK} 2>/dev/null
 		$NFT add rule ip ss_spec_mangle ss_spec_tproxy meta l4proto udp ip saddr @gmlan ip daddr != @china counter tproxy ip to :"$LOCAL_PORT" meta mark set ${FWMARK} 2>/dev/null
 		;;
-	oversea)
-		if ! $NFT list set ip ss_spec_mangle oversea >/dev/null 2>&1; then
-			$NFT add set ip ss_spec_mangle oversea '{ type ipv4_addr; flags interval; auto-merge; }' 2>/dev/null
-		fi
-		$NFT add rule ip ss_spec_mangle ss_spec_tproxy meta l4proto udp $EXT_ARGS ip saddr @oversea counter tproxy ip to :"$LOCAL_PORT" meta mark set ${FWMARK} 2>/dev/null
-		$NFT add rule ip ss_spec_mangle ss_spec_tproxy meta l4proto udp $EXT_ARGS ip daddr @china counter tproxy ip to :"$LOCAL_PORT" meta mark set ${FWMARK} 2>/dev/null
-		$NFT add rule ip ss_spec_mangle ss_spec_tproxy meta l4proto udp ip saddr @gmlan counter tproxy ip to :"$LOCAL_PORT" meta mark set ${FWMARK} 2>/dev/null
-		;;
 	all)
 		$NFT add rule ip ss_spec_mangle ss_spec_tproxy meta l4proto udp $EXT_ARGS counter tproxy ip to :"$LOCAL_PORT" meta mark set ${FWMARK} 2>/dev/null
 		;;
@@ -1090,8 +1032,8 @@ tp_rule_iptables() {
 	do
 		$ipt -A SS_SPEC_TPROXY -p udp -d "$net" -j RETURN
 	done
-	$ipt -A SS_SPEC_TPROXY -p udp ! --dport 53 -d "$SERVER" -j RETURN
-	[ "$server" != "$SERVER" ] && ipset -! add whitelist "$SERVER"
+	[ -n "$SERVER" ] && $ipt -A SS_SPEC_TPROXY -p udp ! --dport 53 -d "$SERVER" -j RETURN
+	[ -n "$SERVER" ] && [ "$server" != "$SERVER" ] && ipset -! add whitelist "$SERVER"
 	if [ -f "${xhttp_ip:=/etc/ssrplus/xhttp_address.txt}" ]; then
 		while IFS= read -r ip; do
 			[ -n "$ip" ] && ipset add whitelist "$ip" -exist
@@ -1118,11 +1060,6 @@ tp_rule_iptables() {
 		$ipt -A SS_SPEC_TPROXY -p udp --dport 443 -j DROP 
 		$ipt -A SS_SPEC_TPROXY -p udp $PROXY_PORTS -m set --match-set gfwlist dst -j TPROXY --on-port "$LOCAL_PORT" --tproxy-mark ${FWMARK}
 		$ipt -A SS_SPEC_TPROXY -p udp -m set --match-set gmlan src -m set ! --match-set china dst -j TPROXY --on-port "$LOCAL_PORT" --tproxy-mark ${FWMARK}
-		;;
-	oversea)
-		$ipt -A SS_SPEC_TPROXY -p udp $PROXY_PORTS -m set --match-set oversea src -m dst -j TPROXY --on-port "$LOCAL_PORT" --tproxy-mark ${FWMARK}
-		$ipt -A SS_SPEC_TPROXY -p udp -m set --match-set gmlan src -m set -j TPROXY --on-port "$LOCAL_PORT" --tproxy-mark ${FWMARK}
-		$ipt -A SS_SPEC_TPROXY -p udp $PROXY_PORTS -m set --match-set china dst -j TPROXY --on-port "$LOCAL_PORT" --tproxy-mark ${FWMARK}
 		;;
 	all)
 		$ipt -A SS_SPEC_TPROXY -p udp $PROXY_PORTS -j TPROXY --on-port "$LOCAL_PORT" --tproxy-mark ${FWMARK}
@@ -1495,7 +1432,7 @@ restore_from_persistence() {
 	fi
 }
 
-while getopts ":m:s:l:S:L:i:e:a:B:b:w:p:G:D:F:N:M:I:oOuUfgrczAKPCRXh" arg; do
+while getopts ":m:s:l:S:L:i:e:a:B:b:w:p:G:D:F:N:M:I:oOuUyfgrzAKPCRXh" arg; do
 	case "$arg" in
 	m)
 		Interface=$OPTARG
@@ -1563,14 +1500,14 @@ while getopts ":m:s:l:S:L:i:e:a:B:b:w:p:G:D:F:N:M:I:oOuUfgrczAKPCRXh" arg; do
 	U)
 		TPROXY=2
 		;;
+	y)
+		DISABLE_UDP_RULES=1
+		;;
 	g)
 		RUNMODE=gfw
 		;;
 	r)
 		RUNMODE=router
-		;;
-	c)
-		RUNMODE=oversea
 		;;
 	z)
 		RUNMODE=all
@@ -1703,7 +1640,7 @@ runmode_change() {
 }
 
 # Main process
-if [ -n "$server" ] && [ -n "$local_port" ]; then
+if [ -n "$local_port" ]; then
 	if ! echo "$local_port" | grep -qE '^[0-9]+$'; then
 		loger 3 "Invalid local port: $local_port"
 		exit 1
@@ -1715,7 +1652,6 @@ if [ -n "$server" ] && [ -n "$local_port" ]; then
 		LOCAL_PORT=$local_port
 		;;
 	2)
-		: ${SERVER:?"You must assign an ip for the udp relay server."}
 		: ${LOCAL_PORT:?"You must assign a port for the udp relay server."}
 		;;
 	esac
