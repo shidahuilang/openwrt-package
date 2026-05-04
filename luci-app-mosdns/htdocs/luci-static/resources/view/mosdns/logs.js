@@ -6,24 +6,24 @@
 'require rpc';
 'require ui';
 
-var callPrintLog = rpc.declare({
+const callPrintLog = rpc.declare({
 	object: 'luci.mosdns',
 	method: 'print_log',
 	expect: { '': {} }
 });
 
-var callCleanLog = rpc.declare({
+const callCleanLog = rpc.declare({
 	object: 'luci.mosdns',
 	method: 'clean_log',
 	expect: { '': {} }
 });
 
-var scrollPosition = 0;
-var userScrolled = false;
-var logTextarea;
+let scrollPosition = 0;
+let userScrolled = false;
+let logTextarea;
 
 function pollLog() {
-	return callPrintLog().then(function (res) {
+	return callPrintLog().then(res => {
 		logTextarea.value = res.log || _('No log data.');
 
 		if (!userScrolled) {
@@ -32,20 +32,20 @@ function pollLog() {
 			logTextarea.scrollTop = scrollPosition;
 		}
 	});
-};
+}
 
 return view.extend({
-	handleCleanLogs: function () {
-		return callCleanLog().then(function(res) {
+	handleCleanLogs() {
+		return callCleanLog().then(res => {
 			if (res.success) {
 				logTextarea.value = ''; // Clear textarea on success
 			} else {
 				ui.addNotification(null, E('p', _('Failed to clean logs.') + (res.error ? ': ' + res.error : '')), 'error');
 			}
-		}).catch(function (e) { ui.addNotification(null, E('p', e.message)) });
+		}).catch(e => ui.addNotification(null, E('p', e.message)));
 	},
 
-	render: function () {
+	render() {
 		logTextarea = E('textarea', {
 			'class': 'cbi-input-textarea',
 			'wrap': 'off',
@@ -53,16 +53,16 @@ return view.extend({
 			'style': 'width: calc(100% - 20px);height: 535px;margin: 10px;overflow-y: scroll;',
 		});
 
-		logTextarea.addEventListener('scroll', function () {
+		logTextarea.addEventListener('scroll', () => {
 			userScrolled = true;
 			scrollPosition = logTextarea.scrollTop;
 		});
 
-		var log_textarea_wrapper = E('div', { 'id': 'log_textarea' }, logTextarea);
+		const log_textarea_wrapper = E('div', { 'id': 'log_textarea' }, logTextarea);
 
 		poll.add(pollLog);
 
-		var clear_logs_button = E('input', { 'class': 'btn cbi-button-action', 'type': 'button', 'style': 'margin-left: 10px; margin-top: 10px;', 'value': _('Clear logs') });
+		const clear_logs_button = E('input', { 'class': 'btn cbi-button-action', 'type': 'button', 'style': 'margin-left: 10px; margin-top: 10px;', 'value': _('Clear logs') });
 		clear_logs_button.addEventListener('click', this.handleCleanLogs.bind(this));
 
 		return E([
