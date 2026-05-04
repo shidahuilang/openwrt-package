@@ -66,7 +66,7 @@ generate_config() {
 	json_close_object
 	# api
 	json_add_object 'api'
-	json_add_string "http" "0.0.0.0:$listen_port_api"
+	json_add_string "http" "127.0.0.1:$listen_port_api"
 	json_close_object
 	# include
 	json_add_array "include"

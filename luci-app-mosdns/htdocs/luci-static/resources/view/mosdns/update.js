@@ -5,28 +5,28 @@
 'require view';
 'require rpc';
 
-var callStartUpdate = rpc.declare({
+const callStartUpdate = rpc.declare({
 	object: 'luci.mosdns',
 	method: 'start_update',
 	expect: { '': {} }
 });
 
-var callGetUpdateLog = rpc.declare({
+const callGetUpdateLog = rpc.declare({
 	object: 'luci.mosdns',
 	method: 'get_update_log',
 	expect: { '': {} }
 });
 
 return view.extend({
-	handleUpdate: function () {
-		var logTextarea = E('textarea', {
+	handleUpdate() {
+		const logTextarea = E('textarea', {
 			'class': 'cbi-input-textarea',
 			'readonly': 'readonly',
 			'style': 'width: 100%; height: 300px; font-family: monospace; font-size: 12px; margin-top: 10px;',
 			'placeholder': _('Starting update...')
 		});
 
-		var closeButton = E('button', {
+		const closeButton = E('button', {
 			'class': 'btn',
 			'style': 'display: none;',
 			'click': ui.hideModal
@@ -38,8 +38,8 @@ return view.extend({
 			E('div', { 'class': 'right' }, [ closeButton ])
 		]);
 
-		var pollLog = function() {
-			return callGetUpdateLog().then(function(res) {
+		const pollLog = () => {
+			return callGetUpdateLog().then(res => {
 				if (res && res.log) {
 					logTextarea.value = res.log;
 					logTextarea.scrollTop = logTextarea.scrollHeight;
@@ -60,10 +60,10 @@ return view.extend({
 			});
 		};
 
-		return callStartUpdate().then(function(res) {
+		return callStartUpdate().then(res => {
 			if (res.success) {
-				var interval = window.setInterval(function() {
-					pollLog().then(function(continuePolling) {
+				const interval = window.setInterval(() => {
+					pollLog().then(continuePolling => {
 						if (!continuePolling) {
 							window.clearInterval(interval);
 						}
@@ -73,14 +73,14 @@ return view.extend({
 				ui.hideModal();
 				ui.addNotification(null, E('p', res.error || _('Failed to start update.')), 'error');
 			}
-		}).catch(function(e) {
+		}).catch(e => {
 			ui.hideModal();
 			ui.addNotification(null, E('p', _('Update failed: %s').format(e.message)), 'error');
 		});
 	},
 
-	render: function () {
-		var m, s, o;
+	render() {
+		let m, s, o;
 
 		m = new form.Map('mosdns', _('Update GeoIP & GeoSite databases'),
 			_('Automatically update GeoIP and GeoSite databases as well as ad filtering rules through scheduled tasks.'));
@@ -105,14 +105,14 @@ return view.extend({
 		o = s.option(form.ListValue, 'geo_update_day_time', _('Update Time'));
 		for (let t = 0; t < 24; t++) {
 			o.value(t, t + ':00');
-		};
+		}
 		o.default = 3;
 
 		o = s.option(form.ListValue, 'geoip_type', _('GeoIP Type'),
 			_('Little: only include Mainland China and Private IP addresses.') +
 			'<br>' +
 			_('Full: includes all Countries and Private IP addresses.')
-			);
+		);
 		o.value('geoip', _('Full'));
 		o.value('geoip-only-cn-private', _('Little'));
 		o.rmempty = false;
@@ -129,7 +129,7 @@ return view.extend({
 		o.title = _('Database Update');
 		o.inputtitle = _('Check And Update');
 		o.inputstyle = 'apply';
-		o.onclick = L.bind(this.handleUpdate, this);
+		o.onclick = () => this.handleUpdate();
 
 		return m.render();
 	}
