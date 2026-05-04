@@ -1,0 +1,64 @@
+From 8f9c6ca1ac8e9b5e10a5c45f3f338546424c95f1 Mon Sep 17 00:00:00 2001
+From: sbwml <admin@cooluc.com>
+Date: Sat, 2 May 2026 13:43:31 +0800
+Subject: [PATCH] feat(adblock_set): support hosts file format blocking rules
+
+Parse lines like "0.0.0.0 domain" and "127.0.0.1 domain" as exact-match
+blocking rules, compatible with AdGuard Home hosts-style lists.
+
+Signed-off-by: sbwml <admin@cooluc.com>
+---
+ plugin/data_provider/adblock_set/adblock_set_test.go |  6 ++++++
+ plugin/data_provider/adblock_set/parser.go           | 12 ++++++++++++
+ 2 files changed, 18 insertions(+)
+
+--- a/plugin/data_provider/adblock_set/adblock_set_test.go
++++ b/plugin/data_provider/adblock_set/adblock_set_test.go
+@@ -42,6 +42,8 @@ func TestParseAndMatch(t *testing.T) {
+ blocked.com
+ domain:ntp.org
+ full:metrics.icloud.com
++0.0.0.0 singlehotmilf.online
++127.0.0.1 deezer.deliveryengine.adswizz.com
+ `
+ 	blacklist := domain.NewMixMatcher[struct{}]()
+ 	whitelist := domain.NewMixMatcher[struct{}]()
+@@ -75,6 +77,10 @@ full:metrics.icloud.com
+ 		{"sub.ntp.org", true},   // matched by domain:ntp.org
+ 		{"metrics.icloud.com", true}, // matched by full:metrics.icloud.com
+ 		{"sub.metrics.icloud.com", false}, // full match only
++		{"singlehotmilf.online", true},             // hosts: 0.0.0.0
++		{"sub.singlehotmilf.online", false},        // hosts: exact match only
++		{"deezer.deliveryengine.adswizz.com", true}, // hosts: 127.0.0.1
++		{"sub.deezer.deliveryengine.adswizz.com", false}, // hosts: exact match only
+ 	}
+ 
+ 	for _, tt := range tests {
+--- a/plugin/data_provider/adblock_set/parser.go
++++ b/plugin/data_provider/adblock_set/parser.go
+@@ -22,6 +22,7 @@ package adblock_set
+ import (
+ 	"bufio"
+ 	"io"
++	"net"
+ 	"strings"
+ 
+ 	"github.com/IrineSistiana/mosdns/v5/pkg/matcher/domain"
+@@ -36,6 +37,17 @@ func ParseRules(r io.Reader, blacklist,
+ 			continue
+ 		}
+ 
++		// Handle hosts file format: "0.0.0.0 domain" or "127.0.0.1 domain"
++		if fields := strings.Fields(line); len(fields) >= 2 {
++			if ip := net.ParseIP(fields[0]); ip != nil {
++				host := fields[1]
++				if host != "" && host != "localhost" {
++					_ = blacklist.Add("full:"+host, struct{}{})
++				}
++				continue
++			}
++		}
++
+ 		// Handle whitelists
+ 		isWhitelist := false
+ 		if strings.HasPrefix(line, "@@") {

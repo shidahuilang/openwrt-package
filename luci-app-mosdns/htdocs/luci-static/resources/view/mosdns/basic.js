@@ -7,7 +7,7 @@
 'require ui';
 'require view';
 
-var callServiceList = rpc.declare({
+const callServiceList = rpc.declare({
 	object: 'service',
 	method: 'list',
 	params: ['name'],
@@ -15,8 +15,8 @@ var callServiceList = rpc.declare({
 });
 
 function getServiceStatus() {
-	return L.resolveDefault(callServiceList('mosdns'), {}).then(function (res) {
-		var isRunning = false;
+	return L.resolveDefault(callServiceList('mosdns'), {}).then(res => {
+		let isRunning = false;
 		try {
 			isRunning = res['mosdns']['instances']['mosdns']['running'];
 		} catch (e) { }
@@ -25,8 +25,8 @@ function getServiceStatus() {
 }
 
 function renderStatus(isRunning) {
-	var spanTemp = '<em><span style="color:%s"><strong>%s %s</strong></span></em>';
-	var renderHTML;
+	const spanTemp = '<em><span style="color:%s"><strong>%s %s</strong></span></em>';
+	let renderHTML;
 	if (isRunning) {
 		renderHTML = spanTemp.format('green', _('MosDNS'), _('RUNNING'));
 	} else {
@@ -70,27 +70,27 @@ async function loadCodeMirrorResources() {
 	await loadScripts();
 }
 
-var callMosdns = rpc.declare({
+const callMosdns = rpc.declare({
 	object: 'luci.mosdns',
 	method: 'get_version',
 	expect: { '': {} }
 });
 
-var callFlushCache = rpc.declare({
+const callFlushCache = rpc.declare({
 	object: 'luci.mosdns',
 	method: 'flush_cache',
 	expect: { '': {} }
 });
 
 return view.extend({
-	load: function () {
+	load() {
 		return Promise.all([
 			L.resolveDefault(callMosdns(), null),
 		]);
 	},
 
-	handleFlushCache: function () {
-		return callFlushCache().then(function(res) {
+	handleFlushCache() {
+		return callFlushCache().then(res => {
 			if (res.success) {
 				ui.addNotification(null, E('p', _('Flushing DNS Cache Success.')), 'info');
 			} else {
@@ -99,24 +99,20 @@ return view.extend({
 		});
 	},
 
-		render: function (data) {
-		var m, s, o, v;
-		v = '';
+	render(data) {
+		let m, s, o;
 
-		var version = (data[0] && data[0].version) ? data[0].version : null;
-		if (version) {
-			v = version;
-		}
-		m = new form.Map('mosdns', _('MosDNS') + '&#160;' + v,
+		const version = (data[0] && data[0].version) ? data[0].version : '';
+		m = new form.Map('mosdns', _('MosDNS') + ' ' + version,
 			_('MosDNS is a plugin-based DNS forwarder/traffic splitter.'));
 
 		s = m.section(form.TypedSection);
 		s.anonymous = true;
-		s.render = function () {
-			setTimeout(function () {
-				poll.add(function () {
-					return L.resolveDefault(getServiceStatus()).then(function (res) {
-						var view = document.getElementById('service_status');
+		s.render = () => {
+			setTimeout(() => {
+				poll.add(() => {
+					return L.resolveDefault(getServiceStatus()).then(res => {
+						const view = document.getElementById('service_status');
 						if (view) {
 							view.innerHTML = renderStatus(res);
 						} else {
@@ -132,14 +128,14 @@ return view.extend({
 			return E('div', { class: 'cbi-section', id: 'status_bar' }, [
 				E('p', { id: 'service_status' }, _('Collecting data...'))
 			]);
-		}
+		};
 
 		s = m.section(form.NamedSection, 'config', 'mosdns');
 
 		s.tab('basic', _('Basic Options'));
-		s.tab("advanced", _("Advanced Options"));
-		s.tab("cloudflare", _("Cloudflare Options"));
-		s.tab("api", _("API Options"));
+		s.tab('advanced', _('Advanced Options'));
+		s.tab('cloudflare', _('Cloudflare Options'));
+		s.tab('api', _('API Options'));
 		s.tab('geodata', _('GeoData Export'));
 
 		/* basic */
@@ -271,13 +267,13 @@ return view.extend({
 		o.depends('configfile', '/var/etc/mosdns.json');
 
 		o = s.taboption('advanced', form.Value, 'idle_timeout', _('Idle Timeout'),
-			_('DoH/TCP/DoT Connection Multiplexing idle timeout (default 30 seconds)'))
+			_('DoH/TCP/DoT Connection Multiplexing idle timeout (default 30 seconds)'));
 		o.datatype = 'and(uinteger,min(1))';
 		o.default = '30';
 		o.depends('configfile', '/var/etc/mosdns.json');
 
 		o = s.taboption('advanced', form.Flag, 'enable_pipeline', _('TCP/DoT Connection Multiplexing'),
-			_('Enable TCP/DoT RFC 7766 new Query Pipelining connection multiplexing mode'))
+			_('Enable TCP/DoT RFC 7766 new Query Pipelining connection multiplexing mode'));
 		o.rmempty = false;
 		o.default = false;
 		o.depends('configfile', '/var/etc/mosdns.json');
@@ -362,9 +358,9 @@ return view.extend({
 		o.depends('adblock', '1');
 		o.default = 'geosite.dat';
 		o.value('geosite.dat', 'v2ray-geosite');
-		o.value('https://raw.githubusercontent.com/privacy-protection-tools/anti-AD/master/anti-ad-domains.txt', 'anti-AD')
-		o.value('https://raw.githubusercontent.com/Cats-Team/AdRules/main/mosdns_adrules.txt', 'Cats-Team/AdRules')
-		o.value('https://raw.githubusercontent.com/neodevpro/neodevhost/master/domain', 'NEO DEV HOST')
+		o.value('https://raw.githubusercontent.com/privacy-protection-tools/anti-AD/master/anti-ad-domains.txt', 'anti-AD');
+		o.value('https://raw.githubusercontent.com/Cats-Team/AdRules/main/mosdns_adrules.txt', 'Cats-Team/AdRules');
+		o.value('https://raw.githubusercontent.com/neodevpro/neodevhost/master/domain', 'NEO DEV HOST');
 
 		/* cloudflare */
 		o = s.taboption('cloudflare', form.Flag, 'cloudflare', _('Enabled'),
@@ -383,12 +379,10 @@ return view.extend({
 			_('IPv4 CIDR: <a href="https://www.cloudflare.com/ips-v4" target="_blank">https://www.cloudflare.com/ips-v4</a> <br /> IPv6 CIDR: <a href="https://www.cloudflare.com/ips-v6" target="_blank">https://www.cloudflare.com/ips-v6</a>'));
 		o.rows = 15;
 		o.depends('configfile', '/var/etc/mosdns.json');
-		o.cfgvalue = function (section_id) {
-			return fs.trimmed('/etc/mosdns/rule/cloudflare-cidr.txt');
-		};
-		o.write = function (section_id, formvalue) {
-			return this.cfgvalue(section_id).then(function (value) {
-				if (value == formvalue) {
+		o.cfgvalue = section_id => fs.trimmed('/etc/mosdns/rule/cloudflare-cidr.txt');
+		o.write = function(section_id, formvalue) {
+			return this.cfgvalue(section_id).then(value => {
+				if (value === formvalue) {
 					return;
 				}
 				return fs.write('/etc/mosdns/rule/cloudflare-cidr.txt', formvalue.trim().replace(/\r\n/g, '\n') + '\n');
@@ -410,9 +404,9 @@ return view.extend({
 		o.depends('cache', '1');
 
 		/* configuration */
-		var configeditor = null;
-		setTimeout(function () {
-			var textarea = document.getElementById('widget.cbid.mosdns.config._custom');
+		let configeditor = null;
+		setTimeout(() => {
+			const textarea = document.getElementById('widget.cbid.mosdns.config._custom');
 			if (textarea) {
 				configeditor = CodeMirror.fromTextArea(textarea, {
 					autoRefresh: true,
@@ -421,9 +415,9 @@ return view.extend({
 					lint: true,
 					gutters: ['CodeMirror-lint-markers'],
 					matchBrackets: true,
-					mode: "text/yaml",
+					mode: 'text/yaml',
 					styleActiveLine: true,
-					theme: "dracula"
+					theme: 'dracula'
 				});
 			}
 		}, 600);
@@ -432,23 +426,17 @@ return view.extend({
 			Only accepts configuration content in yaml format.'));
 		o.rows = 25;
 		o.depends('configfile', '/etc/mosdns/config_custom.yaml');
-		o.cfgvalue = function (section_id) {
-			return fs.trimmed('/etc/mosdns/config_custom.yaml');
-		};
-		o.write = function (section_id, formvalue) {
+		o.cfgvalue = section_id => fs.trimmed('/etc/mosdns/config_custom.yaml');
+		o.write = function(section_id, formvalue) {
 			if (configeditor) {
-				var editorContent = configeditor.getValue();
+				const editorContent = configeditor.getValue();
 				if (editorContent === formvalue) {
 					return;
 				}
 				return fs.write('/etc/mosdns/config_custom.yaml', editorContent.trim().replace(/\r\n/g, '\n') + '\n')
-					.then(function (i) {
-						return fs.exec('/etc/init.d/mosdns', ['restart']);
-					})
-					.then(function () {
-						return window.location.reload();
-					})
-					.catch(function (e) {
+					.then(i => fs.exec('/etc/init.d/mosdns', ['restart']))
+					.then(() => window.location.reload())
+					.catch(e => {
 						ui.addNotification(null, E('p', _('Unable to save contents: %s').format(e.message)));
 					});
 			}
