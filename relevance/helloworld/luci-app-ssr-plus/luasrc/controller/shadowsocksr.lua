@@ -6,14 +6,17 @@ require "nixio.fs"
 require "luci.util"
 require "luci.template"
 require "luci.sys"
+local i18n = require "luci.i18n"
 local datatypes = require "luci.cbi.datatypes"
 local json = require "luci.jsonc"
 local uci = require "luci.model.uci".cursor()
+local translate = i18n.translate
 
 local CLASH_API_PORT = "16756"
 local COMPONENT_HELPER = "/usr/share/shadowsocksr/update_components.sh"
 local SERVER_DETECT_CACHE = "/tmp/ssrplus_server_detect.json"
 local SERVER_DETECT_LOCK = "/tmp/ssrplus_server_detect.lock"
+local CLASH_RULES_DIR = "/etc/ssrplus/clash"
 local SUPPORTED_COMPONENTS = {
 	xray = true,
 	mihomo = true,
@@ -27,6 +30,18 @@ local SUPPORTED_GEO_COMPONENTS = {
 
 local function trim(value)
 	return tostring(value or ""):gsub("^%s+", ""):gsub("%s+$", "")
+end
+
+local function parse_nonnegative_int(value)
+	local number = tonumber(value)
+	if not number then
+		return nil
+	end
+	number = math.floor(number)
+	if number < 0 then
+		return nil
+	end
+	return number
 end
 
 local function sanitize_mac(value)
@@ -46,6 +61,108 @@ local function normalize_client_ip(value)
 		return value
 	end
 	return ""
+end
+
+local function get_clash_client_rule_csv_path(sid)
+	sid = trim(sid)
+	if sid == "" then
+		return nil
+	end
+	return string.format("%s/%s.csv", CLASH_RULES_DIR, sid)
+end
+
+local function csv_escape(value)
+	value = tostring(value or "")
+	if value:find('[",\n\r]') then
+		return '"' .. value:gsub('"', '""') .. '"'
+	end
+	return value
+end
+
+local function parse_csv_line(line)
+	local cols = {}
+	local cur = ""
+	local in_quote = false
+	local i = 1
+
+	while i <= #line do
+		local ch = line:sub(i, i)
+		if ch == '"' then
+			if in_quote and line:sub(i + 1, i + 1) == '"' then
+				cur = cur .. '"'
+				i = i + 1
+			else
+				in_quote = not in_quote
+			end
+		elseif ch == "," and not in_quote then
+			cols[#cols + 1] = cur
+			cur = ""
+		else
+			cur = cur .. ch
+		end
+		i = i + 1
+	end
+
+	cols[#cols + 1] = cur
+	return cols
+end
+
+local function read_clash_client_rules_csv(sid)
+	local rules = {}
+	local csv_path = get_clash_client_rule_csv_path(sid)
+	if not csv_path or not nixio.fs.access(csv_path) then
+		return rules
+	end
+
+	local raw = nixio.fs.readfile(csv_path)
+	if not raw or raw == "" then
+		return rules
+	end
+
+	local first = true
+	for line in tostring(raw):gsub("\r", ""):gmatch("[^\n]+") do
+		local text = trim(line)
+		if text ~= "" then
+			if first and text:lower() == "enabled,client,policy,remarks,client_mac" then
+				first = false
+			else
+				local cols = parse_csv_line(line)
+				if #cols >= 4 then
+					rules[#rules + 1] = {
+						id = tostring(#rules + 1),
+						enabled = cols[1] == "1" or tostring(cols[1] or ""):lower() == "true",
+						ip_addr = trim(cols[2] or ""),
+						policy_group = trim(cols[3] or ""),
+						remarks = trim(cols[4] or ""),
+						client_mac = sanitize_mac(cols[5] or "")
+					}
+				end
+			end
+		end
+	end
+
+	return rules
+end
+
+local function write_clash_client_rules_csv(sid, rows)
+	local csv_path = get_clash_client_rule_csv_path(sid)
+	if not csv_path then
+		return false
+	end
+
+	nixio.fs.mkdirr(CLASH_RULES_DIR)
+	local lines = { "enabled,client,policy,remarks,client_mac" }
+	for _, row in ipairs(rows or {}) do
+		lines[#lines + 1] = table.concat({
+			row.enabled == "1" and "1" or "0",
+			csv_escape(row.ip_addr or ""),
+			csv_escape(row.policy_group or ""),
+			csv_escape(row.remarks or ""),
+			csv_escape(row.client_mac or "")
+		}, ",")
+	end
+
+	return nixio.fs.writefile(csv_path, table.concat(lines, "\n") .. "\n")
 end
 
 local function collect_lan_clients()
@@ -72,19 +189,8 @@ local function collect_lan_clients()
 	return clients
 end
 
-local function read_clash_client_rules()
-	local rules = {}
-	uci:foreach("shadowsocksr", "clash_client_group", function(section)
-		rules[#rules + 1] = {
-			id = section[".name"],
-			enabled = section.enabled == "1",
-			remarks = section.remarks or "",
-			ip_addr = section.ip_addr or "",
-			client_mac = section.client_mac or "",
-			policy_group = section.policy_group or ""
-		}
-	end)
-	return rules
+local function read_clash_client_rules(sid)
+	return read_clash_client_rules_csv(sid)
 end
 
 local function normalize_ping_ms(value, scale)
@@ -220,6 +326,103 @@ local function clash_process_running()
 	return luci.sys.call("(busybox ps -w 2>/dev/null || busybox ps) | grep ssr-retcp | grep -v grep >/dev/null") == 0
 end
 
+local function global_client_running()
+	local process_list = luci.sys.exec("busybox ps -w 2>/dev/null || busybox ps")
+	local global_server = uci:get_first("shadowsocksr", "global", "global_server", "nil")
+	local global_type = global_server ~= "nil" and (uci:get("shadowsocksr", global_server, "type") or "") or ""
+
+	if process_list:find("tcp.only.ssr.retcp")
+		or process_list:find("tcp.udp.ssr.retcp")
+		or process_list:find("local.ssr.retcp")
+		or process_list:find("local.udp.ssr.retcp") then
+		return true
+	end
+
+	if (global_type == "clash" or global_type == "tuic" or global_type == "ss")
+		and process_list:find("ssr%-retcp") then
+		return true
+	end
+
+	if (global_type == "clash" or global_type == "tuic" or global_type == "ss")
+		and process_list:find("mihomo")
+		and (process_list:find("/clash%-") or process_list:find("/tuic%-") or process_list:find("/ss%-")) then
+		return true
+	end
+
+	return false
+end
+
+local function get_active_node_runtime(sid)
+	if not sid or sid == "" or sid == "nil" or uci:get("shadowsocksr", sid) ~= "servers" then
+		return nil, nil
+	end
+
+	local stype = (uci:get("shadowsocksr", sid, "type") or ""):lower()
+	local proto = (uci:get("shadowsocksr", sid, "v2ray_protocol") or ""):lower()
+	local backend
+	local protocol
+
+	if stype == "ss" then
+		backend = translate("Mihomo")
+		protocol = translate("Shadowsocks")
+	elseif stype == "clash" then
+		backend = translate("Mihomo")
+		protocol = translate("Clash")
+	elseif stype == "tuic" then
+		backend = translate("Mihomo")
+		protocol = translate("TUIC")
+	elseif stype == "ssr" then
+		backend = translate("ShadowsocksR")
+	elseif stype == "ss-rust" then
+		backend = translate("Shadowsocks-rust")
+	elseif stype == "v2ray" then
+		local proto_map = {
+			vmess = "VMess",
+			vless = "VLESS",
+			trojan = "Trojan",
+			socks = "SOCKS5",
+			hysteria2 = "Hysteria2",
+			shadowsocks = "Shadowsocks",
+			http = "HTTP"
+		}
+		backend = translate("Xray")
+		if proto_map[proto] then
+			protocol = translate(proto_map[proto])
+		end
+	elseif stype == "trojan" then
+		backend = translate("Trojan")
+	elseif stype == "naiveproxy" then
+		backend = translate("NaiveProxy")
+	elseif stype == "socks5" then
+		backend = translate("SOCKS5")
+	elseif stype == "shadowtls" then
+		backend = translate("ShadowTLS")
+	elseif stype == "hysteria2" then
+		backend = translate("Hysteria2")
+	end
+
+	if not backend or backend == "" then
+		backend = trim(stype)
+	end
+
+	return backend, protocol
+end
+
+local function get_running_status_text()
+	local sid = uci:get_first("shadowsocksr", "global", "global_server", "nil")
+	local backend, protocol = get_active_node_runtime(sid)
+
+	if backend and backend ~= "" and protocol and protocol ~= "" and backend ~= protocol then
+		return string.format(translate("RUNNING in %s (%s) Mode"), backend, protocol)
+	end
+
+	if backend and backend ~= "" then
+		return string.format(translate("RUNNING in %s Mode"), backend)
+	end
+
+	return translate("RUNNING")
+end
+
 local function is_active_clash_node(sid)
 	if not sid then return false end
 	if uci:get("shadowsocksr", sid) ~= "servers" then return false end
@@ -266,46 +469,6 @@ local function clash_api_request(sid, method, path, body)
 		code = tonumber(code),
 		body = body_output
 	}
-end
-
-local function clash_delay_ok(sid, candidates, probe_url)
-	local raw = clash_api_request(sid, "GET", "/proxies")
-	local parsed = raw and json.parse(raw.body or "") or nil
-	local proxies = parsed and parsed.proxies or nil
-	local tried = {}
-
-	if type(proxies) ~= "table" then
-		return false
-	end
-
-	local function test_proxy(name)
-		if not name or name == "" or tried[name] or not proxies[name] then
-			return false
-		end
-		tried[name] = true
-		local delay_raw = clash_api_request(
-			sid,
-			"GET",
-			"/proxies/" .. urlencode(name) .. "/delay?timeout=5000&url=" .. urlencode(probe_url)
-		)
-		local delay_data = delay_raw and json.parse(delay_raw.body or "") or nil
-		return delay_data and tonumber(delay_data.delay or 0) and tonumber(delay_data.delay or 0) > 0
-	end
-
-	for _, name in ipairs(candidates or {}) do
-		if test_proxy(name) then
-			return true
-		end
-
-		local info = proxies[name]
-		if type(info) == "table" and type(info.now) == "string" and info.now ~= "" then
-			if test_proxy(info.now) then
-				return true
-			end
-		end
-	end
-
-	return false
 end
 
 local function use_fw4_backend()
@@ -466,7 +629,6 @@ function index()
 	entry({"admin", "services", "shadowsocksr", "geo_local_status"}, call("geo_local_status")).leaf = true
 	entry({"admin", "services", "shadowsocksr", "geo_status"}, call("geo_status")).leaf = true
 	entry({"admin", "services", "shadowsocksr", "geo_upgrade"}, call("geo_upgrade")).leaf = true
-	entry({"admin", "services", "shadowsocksr", "save_subscribe_settings"}, call("save_subscribe_settings")).leaf = true
 	entry({"admin", "services", "shadowsocksr", "checkport"}, call("check_port"))
 	entry({"admin", "services", "shadowsocksr", "log"}, form("shadowsocksr/log"), _("Log"), 80).leaf = true
 	entry({"admin", "services", "shadowsocksr", "get_log"}, call("get_log")).leaf = true
@@ -474,6 +636,7 @@ function index()
 	entry({"admin", "services", "shadowsocksr", "run"}, call("act_status"))
 	entry({"admin", "services", "shadowsocksr", "ping"}, call("act_ping"))
 	entry({"admin", "services", "shadowsocksr", "save_order"}, call("save_order")).leaf = true
+	entry({"admin", "services", "shadowsocksr", "toggle_subscribe_item_enabled"}, call("toggle_subscribe_item_enabled")).leaf = true
 	entry({"admin", "services", "shadowsocksr", "reset"}, call("act_reset"))
 	entry({"admin", "services", "shadowsocksr", "restart"}, call("act_restart"))
 	entry({"admin", "services", "shadowsocksr", "delete"}, call("act_delete"))
@@ -491,132 +654,97 @@ end
 
 function subscribe()
 	nixio.fs.remove(SERVER_DETECT_CACHE)
-	local sid = luci.http.formvalue("sid") or ""
-	local subscribe_arg = sid ~= "" and (" " .. luci.util.shellquote(sid)) or ""
-	local ret = luci.sys.call(": > /var/log/ssrplus.log && /usr/bin/lua /usr/share/shadowsocksr/subscribe.lua" .. subscribe_arg .. " >>/var/log/ssrplus.log 2>&1")
+	local ret = luci.sys.call(": > /var/log/ssrplus.log && /usr/bin/lua /usr/share/shadowsocksr/subscribe.lua >>/var/log/ssrplus.log 2>&1")
 	luci.http.prepare_content("application/json")
 	luci.http.write_json({ret = ret})
 end
 
 function save_order()
 	local order = luci.http.formvalue("order") or ""
+	local page = parse_nonnegative_int(luci.http.formvalue("page")) or 1
+	local page_size = parse_nonnegative_int(luci.http.formvalue("page_size")) or 0
 	local sids = {}
+	local all_sections = {}
+	local server_sections = {}
+	local server_positions = {}
+	local section_index = {}
+	local page_start
+	local page_end
 
 	for sid in order:gmatch("%S+") do
-		if uci:get("shadowsocksr", sid) == "servers" then
+		if uci:get("shadowsocksr", sid) == "servers" and not section_index[sid] then
 			sids[#sids + 1] = sid
+			section_index[sid] = true
 		end
 	end
 
-	if #sids > 0 then
-		uci:reorder("shadowsocksr", sids)
+	uci:foreach("shadowsocksr", nil, function(section)
+		all_sections[#all_sections + 1] = section[".name"]
+		if section[".type"] == "servers" then
+			server_sections[#server_sections + 1] = section[".name"]
+			server_positions[#server_positions + 1] = #all_sections
+		end
+	end)
+
+	page_start = 1
+	page_end = #server_sections
+	if page_size > 0 then
+		page_start = ((math.max(page, 1) - 1) * page_size) + 1
+		page_end = math.min(page_start + page_size - 1, #server_sections)
+	end
+
+	local page_sections = {}
+	local page_lookup = {}
+	for index = page_start, page_end do
+		local sid = server_sections[index]
+		if sid then
+			page_sections[#page_sections + 1] = sid
+			page_lookup[sid] = true
+		end
+	end
+
+	local valid = #sids > 0 and #sids == #page_sections
+	if valid then
+		for _, sid in ipairs(sids) do
+			if not page_lookup[sid] then
+				valid = false
+				break
+			end
+		end
+	end
+
+	if valid then
+		for offset, sid in ipairs(sids) do
+			all_sections[server_positions[page_start + offset - 1]] = sid
+		end
+		uci:reorder("shadowsocksr", all_sections)
 		uci:commit("shadowsocksr")
 	end
 
 	luci.http.prepare_content("application/json")
 	luci.http.write_json({
-		ret = (#sids > 0) and 1 or 0,
+		ret = valid and 1 or 0,
 		count = #sids
 	})
 end
 
-function save_subscribe_settings()
-	local redirect_url = luci.dispatcher.build_url("admin", "services", "shadowsocksr", "servers")
-	local http = luci.http
-	local util = luci.util
-	local subscribe_sid = uci:get_first("shadowsocksr", "server_subscribe")
-	local function form(name)
-		return http.formvalue(name)
-	end
-	local function sh_set(section, option, value)
-		return luci.sys.call(string.format(
-			"uci -q set shadowsocksr.%s.%s=%s",
-			section, option, util.shellquote(value)
-		)) == 0
-	end
-	local function sh_delete(section, option)
-		return luci.sys.call(string.format(
-			"uci -q delete shadowsocksr.%s.%s",
-			section, option
-		)) == 0
+function toggle_subscribe_item_enabled()
+	local sid = trim(luci.http.formvalue("sid"))
+	local enabled = luci.http.formvalue("enabled") == "1" and "1" or "0"
+
+	if sid == "" or uci:get("shadowsocksr", sid) ~= "server_subscribe_item" then
+		luci.http.status(400, "Bad Request")
+		luci.http.prepare_content("application/json")
+		luci.http.write_json({ ret = 0, error = "invalid_sid" })
+		return
 	end
 
-	if not subscribe_sid then
-		subscribe_sid = luci.util.trim(luci.sys.exec("uci -q add shadowsocksr server_subscribe 2>/dev/null"))
-	end
+	uci:set("shadowsocksr", sid, "enabled", enabled)
+	uci:save("shadowsocksr")
+	uci:commit("shadowsocksr")
 
-	if subscribe_sid then
-		local values = {
-			auto_update = form("cbid.shadowsocksr." .. subscribe_sid .. ".auto_update"),
-			config_auto_update_mode = form("cbid.shadowsocksr." .. subscribe_sid .. ".config_auto_update_mode"),
-			auto_update_week_time = form("cbid.shadowsocksr." .. subscribe_sid .. ".auto_update_week_time"),
-			auto_update_day_time = form("cbid.shadowsocksr." .. subscribe_sid .. ".auto_update_day_time"),
-			auto_update_min_time = form("cbid.shadowsocksr." .. subscribe_sid .. ".auto_update_min_time"),
-			config_update_interval = form("cbid.shadowsocksr." .. subscribe_sid .. ".config_update_interval"),
-			subscribe_advanced = form("cbid.shadowsocksr." .. subscribe_sid .. ".subscribe_advanced"),
-			filter_words = form("cbid.shadowsocksr." .. subscribe_sid .. ".filter_words"),
-			save_words = form("cbid.shadowsocksr." .. subscribe_sid .. ".save_words"),
-			allow_insecure = form("cbid.shadowsocksr." .. subscribe_sid .. ".allow_insecure"),
-			switch = form("cbid.shadowsocksr." .. subscribe_sid .. ".switch"),
-			proxy = form("cbid.shadowsocksr." .. subscribe_sid .. ".proxy"),
-			url_test_url = form("cbid.shadowsocksr." .. subscribe_sid .. ".url_test_url"),
-			user_agent = form("cbid.shadowsocksr." .. subscribe_sid .. ".user_agent")
-		}
-
-		local flags = {
-			auto_update = true,
-			subscribe_advanced = true,
-			allow_insecure = true,
-			switch = true,
-			proxy = true
-		}
-
-		for key, value in pairs(values) do
-			if value ~= nil then
-				if value == "" and not flags[key] then
-					sh_delete(subscribe_sid, key)
-				else
-					sh_set(subscribe_sid, key, flags[key] and value or value)
-				end
-			elseif flags[key] then
-				sh_set(subscribe_sid, key, "0")
-			end
-		end
-	end
-
-	local seen = {}
-	for key in pairs(http.formvaluetable() or {}) do
-		local sid = key:match("^cbid%.shadowsocksr%.([^%.]+)%.(enabled|alias|url)$")
-		if sid then
-			seen[sid] = true
-		end
-	end
-
-	uci:foreach("shadowsocksr", "server_subscribe_item", function(section)
-		local sid = section[".name"]
-		local prefix = "cbid.shadowsocksr." .. sid .. "."
-		if seen[sid] then
-			local enabled = form(prefix .. "enabled")
-			local alias = form(prefix .. "alias")
-			local url = form(prefix .. "url")
-
-			sh_set(sid, "enabled", enabled == "1" and "1" or "0")
-			if alias ~= nil then
-				if alias == "" then
-					sh_delete(sid, "alias")
-				else
-					sh_set(sid, "alias", alias)
-				end
-			end
-			if url ~= nil then
-				sh_set(sid, "url", url)
-			end
-		end
-	end)
-
-	luci.sys.call("uci -q commit shadowsocksr")
-	luci.sys.exec("rm -rf /tmp/sub_md5_*")
-	luci.http.redirect(redirect_url)
+	luci.http.prepare_content("application/json")
+	luci.http.write_json({ ret = 1, sid = sid, enabled = enabled })
 end
 
 function component_status()
@@ -721,7 +849,10 @@ end
 
 function act_status()
 	local e = {}
-	e.running = clash_process_running()
+	e.running = global_client_running()
+	if e.running then
+		e.status_text = get_running_status_text()
+	end
 	luci.http.prepare_content("application/json")
 	luci.http.write_json(e)
 end
@@ -875,7 +1006,7 @@ function clash_client_policies()
 		active = active_sid ~= nil,
 		sid = active_sid,
 		clients = collect_lan_clients(),
-		rules = read_clash_client_rules(),
+		rules = read_clash_client_rules(sid),
 		policies = policies
 	})
 end
@@ -904,19 +1035,14 @@ function clash_client_rule_save()
 		end
 	end
 
-	uci:delete_all("shadowsocksr", "clash_client_group")
-	for _, row in ipairs(rows) do
-		local rid = uci:add("shadowsocksr", "clash_client_group")
-		if rid then
-			uci:set("shadowsocksr", rid, "enabled", row.enabled)
-			uci:set("shadowsocksr", rid, "remarks", row.remarks)
-			uci:set("shadowsocksr", rid, "ip_addr", row.ip_addr)
-			uci:set("shadowsocksr", rid, "client_mac", row.client_mac)
-			uci:set("shadowsocksr", rid, "policy_group", row.policy_group)
-		end
+	if not sid or sid == "" or uci:get("shadowsocksr", sid) ~= "servers" or uci:get("shadowsocksr", sid, "type") ~= "clash" then
+		luci.http.status(400, "Bad Request")
+		luci.http.prepare_content("application/json")
+		luci.http.write_json({ success = false, error = "invalid_sid" })
+		return
 	end
-	uci:save("shadowsocksr")
-	uci:commit("shadowsocksr")
+
+	write_clash_client_rules_csv(sid, rows)
 
 	local active_sid = resolve_active_clash_sid(sid)
 	local current_sid = uci:get_first("shadowsocksr", "global", "global_server")
@@ -933,16 +1059,24 @@ function clash_client_rule_save()
 		success = true,
 		count = #rows,
 		reapplied = reapplied,
-		rules = read_clash_client_rules()
+		rules = read_clash_client_rules(sid)
 	})
 end
 
 function clash_client_rule_clear()
 	local sid = luci.http.formvalue("sid")
 
-	uci:delete_all("shadowsocksr", "clash_client_group")
-	uci:save("shadowsocksr")
-	uci:commit("shadowsocksr")
+	if not sid or sid == "" or uci:get("shadowsocksr", sid) ~= "servers" or uci:get("shadowsocksr", sid, "type") ~= "clash" then
+		luci.http.status(400, "Bad Request")
+		luci.http.prepare_content("application/json")
+		luci.http.write_json({ success = false, error = "invalid_sid" })
+		return
+	end
+
+	local csv_path = get_clash_client_rule_csv_path(sid)
+	if csv_path and nixio.fs.access(csv_path) then
+		nixio.fs.remove(csv_path)
+	end
 
 	local current_sid = uci:get_first("shadowsocksr", "global", "global_server")
 	local reapplied = false
@@ -1157,42 +1291,7 @@ end
 function check_status()
 	local e = {}
 	local target = luci.http.formvalue("set") or ""
-	local sid = uci:get_first("shadowsocksr", "global", "global_server", "nil")
-	local stype = sid ~= "nil" and (uci:get("shadowsocksr", sid, "type") or "") or ""
-
-	if stype == "clash" and is_active_clash_node(sid) then
-		if target == "baidu" then
-			e.ret = luci.sys.call("curl -I -m 5 http://www.baidu.com >/dev/null 2>&1")
-			luci.http.prepare_content("application/json")
-			luci.http.write_json(e)
-			return
-		end
-
-		if target == "google" then
-			e.ret = luci.sys.call("curl -I -m 5 http://www.gstatic.com/generate_204 >/dev/null 2>&1")
-			luci.http.prepare_content("application/json")
-			luci.http.write_json(e)
-			return
-		end
-
-		local profile_map = {
-			google = {
-				url = "http://www.gstatic.com/generate_204",
-				candidates = { "自动选择", "故障转移", "Proxy", "GLOBAL" }
-			},
-			baidu = {
-				url = "http://www.baidu.com",
-				candidates = { "Domestic", "DIRECT", "GLOBAL" }
-			}
-		}
-		local profile = profile_map[target] or {
-			url = "http://www." .. target .. ".com",
-			candidates = { "自动选择", "故障转移", "Proxy", "Domestic", "DIRECT", "GLOBAL" }
-		}
-		e.ret = clash_delay_ok(sid, profile.candidates, profile.url) and 0 or 1
-	else
-		e.ret = luci.sys.call("curl -m 3 -sS -o /dev/null http://www." .. target .. ".com >/dev/null 2>&1")
-	end
+	e.ret = luci.sys.call("curl -m 3 -sS -o /dev/null http://www." .. target .. ".com >/dev/null 2>&1")
 	luci.http.prepare_content("application/json")
 	luci.http.write_json(e)
 end

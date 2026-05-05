@@ -150,6 +150,24 @@ msgstr "GeoSite 数据库"
 msgid "V2Ray GEO Databases"
 msgstr "V2Ray GEO 数据库"
 
+msgid "Showing %d-%d of %d nodes"
+msgstr "当前显示第 %d-%d 个节点，共 %d 个"
+
+msgid "Per page"
+msgstr "每页"
+
+msgid "All"
+msgstr "全部"
+
+msgid "Prev"
+msgstr "上一页"
+
+msgid "Next"
+msgstr "下一页"
+
+msgid "Drag reorder applies within the current page only."
+msgstr "拖拽排序仅在当前分页内生效。"
+
 msgid "Geo Database Update"
 msgstr "Geo 数据库更新"
 
@@ -431,6 +449,15 @@ msgstr "自动更新"
 msgid "Auto Update Server subscription, GFW list and CHN route"
 msgstr "自动更新服务器订阅、GFW 列表和中国大陆 IP 段"
 
+msgid "Update Mode"
+msgstr "更新模式"
+
+msgid "Appointment Mode"
+msgstr "定时模式"
+
+msgid "Loop Mode"
+msgstr "循环模式"
+
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/client-config.lua:811
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/client-config.lua:1569
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/client-config.lua:1585
@@ -527,6 +554,15 @@ msgstr "切换检查重试次数"
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/advanced.lua:72
 msgid "Check timout(second)"
 msgstr "切换检查超时时间（秒）"
+
+msgid "Second"
+msgstr "周期"
+
+msgid "Timeout"
+msgstr "超时"
+
+msgid "Try Count"
+msgstr "重试次数"
 
 #: applications/luci-app-ssr-plus/luasrc/view/shadowsocksr/check.htm:6
 #: applications/luci-app-ssr-plus/luasrc/view/shadowsocksr/checkport.htm:6
@@ -777,7 +813,7 @@ msgstr "日/周"
 
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/servers.lua:315
 msgid "Delete All Subscribe Servers"
-msgstr "删除所有订阅服务器节点"
+msgstr "删除所有订阅节点"
 
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/control.lua:116
 msgid "Deny Domain List"
@@ -1141,14 +1177,11 @@ msgstr "SOCKS5 代理服务端（全局）"
 msgid "Global HTTP/HTTPS Proxy Server"
 msgstr "HTTP/HTTPS 代理服务端（全局）"
 
-msgid "Clash is supported only when reusing Same as Global Server."
-msgstr "Clash 仅支持在复用“与全局节点相同”时使用。"
-
 msgid "HTTP Auth Mode"
 msgstr "HTTP 认证模式"
 
-msgid "3proxy HTTP proxy auth method, default:none."
-msgstr "3proxy HTTP 代理认证方式，默认：none。"
+msgid "HTTP proxy auth method, default:none."
+msgstr "HTTP 代理认证方式，默认：none。"
 
 msgid "HTTP User"
 msgstr "HTTP 用户名"
@@ -1161,12 +1194,6 @@ msgstr "HTTP 密码"
 
 msgid "Only when HTTP Auth Mode is password valid, Not mandatory."
 msgstr "仅当 HTTP 认证模式为 password 时有效，非必填。"
-
-msgid "Relay SOCKS5 Port"
-msgstr "中继 SOCKS5 端口"
-
-msgid "Dedicated local Socks5 port used by 3proxy as upstream."
-msgstr "供 3proxy 作为上游使用的专用本地 Socks5 端口。"
 
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/server.lua:81
 msgid "Global Setting"
@@ -1628,9 +1655,9 @@ msgstr ""
 msgid "No Check"
 msgstr "未检查"
 
-#: applications/luci-app-ssr-plus/luasrc/view/shadowsocksr/ssrurl.htm:209
-msgid "No available core (Hysteria2 or Xray) to import this node."
-msgstr "没有可用的核心（Hysteria2 或 Xray）可以导入此节点。"
+#: applications/luci-app-ssr-plus/luasrc/view/shadowsocksr/ssrurl.htm:154
+msgid "No available Xray core to import this Hysteria2 node."
+msgstr "没有可用的 Xray 核心可以导入此 Hysteria2 节点。"
 
 #: applications/luci-app-ssr-plus/luasrc/view/shadowsocksr/ssrurl.htm:632
 msgid "No available core (Shadowsocks or Xray) to import this node."
@@ -1888,6 +1915,12 @@ msgstr "恢复备份"
 msgid "RUNNING"
 msgstr "运行中"
 
+msgid "RUNNING in %s Mode"
+msgstr "运行中，当前为 %s 模式"
+
+msgid "RUNNING in %s (%s) Mode"
+msgstr "运行中，当前为 %s（%s）模式"
+
 #: applications/luci-app-ssr-plus/luasrc/view/shadowsocksr/reset.htm:5
 msgid "Really reset all changes?"
 msgstr "真的重置所有更改吗？"
@@ -2034,7 +2067,7 @@ msgstr "定时更新（分钟）"
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/client-config.lua:1572
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/client-config.lua:1588
 msgid "Reno"
-msgstr ""
+msgstr "Reno"
 
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/client-config.lua:1217
 msgid "Reserved bytes(optional)"
@@ -2223,7 +2256,13 @@ msgstr "shadowsocks密码"
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/client-config.lua:345
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/server-config.lua:92
 msgid "ShadowsocksR"
-msgstr ""
+msgstr "ShadowsocksR"
+
+msgid "Shadowsocks"
+msgstr "Shadowsocks"
+
+msgid "Shadowsocks-rust"
+msgstr "Shadowsocks-rust"
 
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/client-config.lua:1324
 msgid "Short ID"
@@ -2287,8 +2326,8 @@ msgid "Subscribe URL"
 msgstr "订阅 URL (支持SS/SSR/V2/TROJAN/HY2/TUIC/CLASH等)"
 
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/servers.lua:469
-msgid "Manage multiple subscribe URLs, including Clash subscriptions. Each entry can be edited and refreshed independently."
-msgstr "管理多条订阅 URL，包括 Clash 订阅。每一条都可以单独编辑并单独更新。"
+msgid "Manage multiple subscribe URLs, including Clash subscriptions. Only enabled entries are included when updating all subscriptions."
+msgstr "管理多条订阅 URL，包括 Clash 订阅。只有启用的订阅项才会参与“更新所有订阅节点”。"
 
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/servers.lua:304
 msgid "Subscribe new add server default Auto-Switch on"
@@ -2371,7 +2410,7 @@ msgstr "TLS 用于验证 leaf 证书的 name。"
 
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/client-config.lua:360
 msgid "TUIC"
-msgstr ""
+msgstr "TUIC"
 
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/client-config.lua:1429
 msgid "TUIC ALPN"
@@ -2483,7 +2522,19 @@ msgstr "传输协议"
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/client-config.lua:444
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/servers.lua:91
 msgid "Trojan"
-msgstr ""
+msgstr "Trojan"
+
+msgid "SOCKS5"
+msgstr "SOCKS5"
+
+msgid "ShadowTLS"
+msgstr "ShadowTLS"
+
+msgid "Xray"
+msgstr "Xray"
+
+msgid "Clash"
+msgstr "Clash"
 
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/advanced.lua:412
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/servers.lua:362
@@ -2540,7 +2591,7 @@ msgstr "未知"
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/servers.lua:311
 #: applications/luci-app-ssr-plus/luasrc/view/shadowsocksr/subscribe.htm:16
 msgid "Update All Subscribe Servers"
-msgstr "更新所有订阅服务器节点"
+msgstr "更新所有订阅节点"
 
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/servers.lua:288
 msgid "Save Subscribe Settings"
@@ -2564,7 +2615,7 @@ msgid "Upload"
 msgstr "上传"
 
 msgid "Upload Custom YAML File"
-msgstr "上传自定义YAML文件"
+msgstr "上传自定义 YAML 文件"
 
 msgid "Upload a custom Clash/Mihomo YAML file. The file will be preprocessed and saved as a local Clash node."
 msgstr "上传自定义 Clash/Mihomo YAML 文件。文件会先做预处理，再保存为本地 Clash 节点。"
@@ -3285,9 +3336,6 @@ msgstr "Clash 订阅链接"
 msgid "Clash User-Agent"
 msgstr "Clash User-Agent"
 
-msgid "Lightweight Socks5 transparent proxy nodes are not available here. Clash can be reused only in the Same as Global Server scenario. Use Xray Socks for generic Socks outbound."
-msgstr "轻量 Socks5 透明代理节点不支持在这里使用。Clash 仅可在“与全局节点相同”的场景下复用。通用 Socks 出站请使用 Xray Socks。"
-
 msgid "Panel"
 msgstr "面板"
 
@@ -3349,7 +3397,7 @@ msgid "Subscribe Log"
 msgstr "订阅日志"
 
 msgid "Starting subscription update..."
-msgstr "正在开始订阅更新..."
+msgstr "正在开始更新订阅..."
 
 msgid "Subscribe complete, refreshing page..."
 msgstr "订阅完成，正在刷新页面..."

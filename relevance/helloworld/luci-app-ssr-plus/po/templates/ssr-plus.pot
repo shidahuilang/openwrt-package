@@ -286,6 +286,15 @@ msgstr ""
 msgid "Auto Update Server subscription, GFW list and CHN route"
 msgstr ""
 
+msgid "Update Mode"
+msgstr ""
+
+msgid "Appointment Mode"
+msgstr ""
+
+msgid "Loop Mode"
+msgstr ""
+
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/client-config.lua:811
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/client-config.lua:1569
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/client-config.lua:1585
@@ -381,6 +390,15 @@ msgstr ""
 
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/advanced.lua:72
 msgid "Check timout(second)"
+msgstr ""
+
+msgid "Second"
+msgstr ""
+
+msgid "Timeout"
+msgstr ""
+
+msgid "Try Count"
 msgstr ""
 
 #: applications/luci-app-ssr-plus/luasrc/view/shadowsocksr/check.htm:6
@@ -979,13 +997,10 @@ msgstr ""
 msgid "Global HTTP/HTTPS Proxy Server"
 msgstr ""
 
-msgid "Lightweight Socks5 transparent proxy nodes are not available here. Clash is supported only when reusing Same as Global Server."
-msgstr ""
-
 msgid "HTTP Auth Mode"
 msgstr ""
 
-msgid "3proxy HTTP proxy auth method, default:none."
+msgid "HTTP proxy auth method, default:none."
 msgstr ""
 
 msgid "HTTP User"
@@ -998,12 +1013,6 @@ msgid "HTTP Password"
 msgstr ""
 
 msgid "Only when HTTP Auth Mode is password valid, Not mandatory."
-msgstr ""
-
-msgid "Relay SOCKS5 Port"
-msgstr ""
-
-msgid "Dedicated local Socks5 port used by 3proxy as upstream."
 msgstr ""
 
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/server.lua:81
@@ -1463,8 +1472,8 @@ msgstr ""
 msgid "No Check"
 msgstr ""
 
-#: applications/luci-app-ssr-plus/luasrc/view/shadowsocksr/ssrurl.htm:209
-msgid "No available core (Hysteria2 or Xray) to import this node."
+#: applications/luci-app-ssr-plus/luasrc/view/shadowsocksr/ssrurl.htm:154
+msgid "No available Xray core to import this Hysteria2 node."
 msgstr ""
 
 #: applications/luci-app-ssr-plus/luasrc/view/shadowsocksr/ssrurl.htm:632
@@ -1721,6 +1730,14 @@ msgstr ""
 
 #: applications/luci-app-ssr-plus/luasrc/view/shadowsocksr/status.htm:7
 msgid "RUNNING"
+msgstr ""
+
+#: applications/luci-app-ssr-plus/luasrc/controller/shadowsocksr.lua:400
+msgid "RUNNING in %s Mode"
+msgstr ""
+
+#: applications/luci-app-ssr-plus/luasrc/controller/shadowsocksr.lua:396
+msgid "RUNNING in %s (%s) Mode"
 msgstr ""
 
 #: applications/luci-app-ssr-plus/luasrc/view/shadowsocksr/reset.htm:5
@@ -2063,6 +2080,12 @@ msgstr ""
 msgid "ShadowsocksR"
 msgstr ""
 
+msgid "Shadowsocks"
+msgstr ""
+
+msgid "Shadowsocks-rust"
+msgstr ""
+
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/client-config.lua:1324
 msgid "Short ID"
 msgstr ""
@@ -2125,7 +2148,7 @@ msgid "Subscribe URL"
 msgstr ""
 
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/servers.lua:469
-msgid "Manage multiple subscribe URLs, including Clash subscriptions. Each entry can be edited and refreshed independently."
+msgid "Manage multiple subscribe URLs, including Clash subscriptions. Only enabled entries are included when updating all subscriptions."
 msgstr ""
 
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/servers.lua:304
@@ -2319,6 +2342,18 @@ msgstr ""
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/client-config.lua:444
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/servers.lua:91
 msgid "Trojan"
+msgstr ""
+
+msgid "SOCKS5"
+msgstr ""
+
+msgid "ShadowTLS"
+msgstr ""
+
+msgid "Xray"
+msgstr ""
+
+msgid "Clash"
 msgstr ""
 
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/advanced.lua:412
@@ -2893,9 +2928,6 @@ msgid "Clash Subscription URL"
 msgstr ""
 
 msgid "Clash User-Agent"
-msgstr ""
-
-msgid "Lightweight Socks5 transparent proxy nodes are not available here. Clash can be reused only in the Same as Global Server scenario. Use Xray Socks for generic Socks outbound."
 msgstr ""
 
 msgid "Panel"

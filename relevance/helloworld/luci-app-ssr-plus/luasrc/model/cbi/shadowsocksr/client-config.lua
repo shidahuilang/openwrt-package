@@ -148,6 +148,7 @@ local function set_apply_on_parse(map)
 end
 
 local has_ss_rust = is_finded("sslocal") or is_finded("ssserver")
+local has_mihomo = is_finded("mihomo")
 local has_xray = is_finded("xray")
 
 local server_table = {}
@@ -258,7 +259,10 @@ local function migrate_xray_protocol_nodes()
 
 	uci:foreach("shadowsocksr", "servers", function(section)
 		if section.type == "ss" or section.type == "ss-libev" then
-			if has_ss_rust then
+			if has_mihomo then
+				uci:set("shadowsocksr", section[".name"], "type", "ss")
+				changed = true
+			elseif has_ss_rust then
 				uci:set("shadowsocksr", section[".name"], "type", "ss-rust")
 				changed = true
 			elseif has_xray then
@@ -266,6 +270,10 @@ local function migrate_xray_protocol_nodes()
 				uci:set("shadowsocksr", section[".name"], "v2ray_protocol", "shadowsocks")
 				changed = true
 			end
+		elseif section.type == "v2ray" and section.v2ray_protocol == "shadowsocks" and has_mihomo then
+			uci:set("shadowsocksr", section[".name"], "type", "ss")
+			uci:delete("shadowsocksr", section[".name"], "v2ray_protocol")
+			changed = true
 		end
 		if section.type == "hysteria2" then
 			uci:set("shadowsocksr", section[".name"], "type", "v2ray")
@@ -333,6 +341,9 @@ if is_finded("xray") then
 end
 if is_finded("ssr-redir") then
 	o:value("ssr", translate("ShadowsocksR"))
+end
+if has_mihomo then
+	o:value("ss", translate("ShadowSocks"))
 end
 if has_ss_rust then
 	o:value("ss-rust", translate("ShadowSocks"))
@@ -418,6 +429,7 @@ o:depends("type", "v2ray")
 	o.datatype = "or(host,ip6addr)"
 	o.rmempty = false
 	o:depends("type", "ssr")
+	o:depends("type", "ss")
 	o:depends("type", "ss-rust")
 	o:depends("type", "v2ray")
 o:depends("type", "trojan")
@@ -431,6 +443,7 @@ o:depends("type", "trojan")
 	o.datatype = "port"
 	o.rmempty = true
 	o:depends("type", "ssr")
+	o:depends("type", "ss")
 	o:depends("type", "ss-rust")
 	o:depends("type", "v2ray")
 o:depends("type", "trojan")
@@ -458,6 +471,7 @@ o:depends({type = "v2ray", v2ray_protocol = "socks", auth_enable = true})
 	o.password = true
 	o.rmempty = true
 	o:depends("type", "ssr")
+	o:depends("type", "ss")
 	o:depends("type", "ss-rust")
 	o:depends("type", "trojan")
 o:depends("type", "naiveproxy")
@@ -486,6 +500,7 @@ for _, v in ipairs(encrypt_methods_ss) do
 end
 	o.rmempty = true
 	o:depends("type", "ss-rust")
+	o:depends("type", "ss")
 	o:depends({type = "v2ray", v2ray_protocol = "shadowsocks"})
 
 o = s:option(Flag, "uot", translate("UDP over TCP"))
@@ -502,23 +517,31 @@ o.default = "1"
 -- [[ Enable Shadowsocks Plugin ]]--
 	o = s:option(Flag, "enable_plugin", translate("Enable Plugin"))
 	o.rmempty = true
+	o:depends("type", "ss")
 	o:depends("type", "ss-rust")
 	o.default = "0"
 
 -- Shadowsocks Plugin
 o = s:option(ListValue, "plugin", translate("Obfs"))
 o:value("none", translate("None"))
-if is_finded("obfs-local") then
+if has_mihomo or is_finded("obfs-local") then
 	o:value("obfs-local", translate("obfs-local"))
 end
-if is_finded("v2ray-plugin") then
+if has_mihomo or is_finded("v2ray-plugin") then
 	o:value("v2ray-plugin", translate("v2ray-plugin"))
+end
+if has_mihomo then
+	o:value("gost-plugin", translate("gost-plugin"))
 end
 if is_finded("xray-plugin") then
 	o:value("xray-plugin", translate("xray-plugin"))
 end
-if is_finded("shadow-tls") then
+if has_mihomo or is_finded("shadow-tls") then
 	o:value("shadow-tls", translate("shadow-tls"))
+end
+if has_mihomo then
+	o:value("restls", translate("restls"))
+	o:value("kcptun", translate("kcptun"))
 end
 o:value("custom", translate("Custom"))
 o.rmempty = true
@@ -1605,6 +1628,7 @@ o = s:option(Flag, "fast_open", translate("TCP Fast Open"), translate("Enabling 
 o.rmempty = true
 o.default = "0"
 o:depends("type", "ssr")
+o:depends("type", "ss")
 o:depends("type", "ss-rust")
 o:depends("type", "trojan")
 o:depends("type", "hysteria2")
@@ -1621,22 +1645,26 @@ if is_finded("kcptun-client") then
 	o.default = "0"
 	o:depends("type", "ssr")
 	o:depends("type", "ss-rust")
+	o:depends("type", "ss")
 
 	o = s:option(Value, "kcp_port", translate("KcpTun Port"))
 	o.datatype = "portrange"
 	o.default = 4000
 	o:depends("type", "ssr")
 	o:depends("type", "ss-rust")
+	o:depends("type", "ss")
 
 	o = s:option(Value, "kcp_password", translate("KcpTun Password"))
 	o.password = true
 	o:depends("type", "ssr")
 	o:depends("type", "ss-rust")
+	o:depends("type", "ss")
 
 	o = s:option(Value, "kcp_param", translate("KcpTun Param"))
 	o.default = "--nocomp"
 	o:depends("type", "ssr")
 	o:depends("type", "ss-rust")
+	o:depends("type", "ss")
 end
 
 return m

@@ -1,17 +1,15 @@
 <%+cbi/valueheader%>
 <%
 local map = self.map
-local xray_hy2_type = map:get("@server_subscribe[0]", "xray_hy2_type")
 
 local has_ss_rust = luci.sys.exec('type -t -p sslocal 2>/dev/null || type -t -p ssserver 2>/dev/null') ~= ""
-local has_hysteria = luci.sys.exec('type -t -p hysteria 2>/dev/null') ~= ""
+local has_mihomo = luci.sys.exec('type -t -p mihomo -p /usr/libexec/mihomo 2>/dev/null') ~= ""
 local has_xray = luci.sys.exec('type -t -p xray 2>/dev/null') ~= ""
 -%>
 <script type="text/javascript">
 //<![CDATA[
-let xray_hy2_type = "<%=xray_hy2_type%>"
 let has_ss_rust = "<%=has_ss_rust%>"
-let has_hysteria = "<%=has_hysteria%>"
+let has_mihomo = "<%=has_mihomo%>"
 let has_xray = "<%=has_xray%>"
 
 function padright(str, cnt, pad) {
@@ -124,38 +122,9 @@ function import_ssr_url(btn, urlname, sid) {
 				return false;
 			}
 
-			// 普通 Hysteria2 导入函数
-			function importAsNormalHy2() {
-				document.getElementsByName('cbid.shadowsocksr.' + sid + '.type')[0].value = (ssu[0] === "hy2") ? "hysteria2" : ssu[0];
-				document.getElementsByName('cbid.shadowsocksr.' + sid + '.type')[0].dispatchEvent(event);
-				if (params.get("protocol") && params.get("protocol").trim() !== "") {
-					document.getElementsByName('cbid.shadowsocksr.' + sid + '.flag_transport')[0].checked = true; // 设置 flag_transport 为 true
-					document.getElementsByName('cbid.shadowsocksr.' + sid + '.flag_transport')[0].dispatchEvent(event); // 触发事件
-
-				document.getElementsByName('cbid.shadowsocksr.' + sid + '.transport_protocol')[0].value = params.get("protocol") || "udp";
-				}
-				if (params.get("lazy") === "1") { 
-					document.getElementsByName('cbid.shadowsocksr.' + sid + '.lazy_mode')[0].checked = true;
-					document.getElementsByName('cbid.shadowsocksr.' + sid + '.lazy_mode')[0].dispatchEvent(event);
-				}
-				if (params.get("sni") || params.get("alpn")) {
-					document.getElementsByName('cbid.shadowsocksr.' + sid + '.tls')[0].checked = true; // 设置 tls 为 true
-					document.getElementsByName('cbid.shadowsocksr.' + sid + '.tls')[0].dispatchEvent(event); // 触发事件
-					if (params.get("sni")) {
-						document.getElementsByName('cbid.shadowsocksr.' + sid + '.tls_host')[0].value = params.get("sni") || "";
-					}
-					if (params.get("alpn") && params.get("alpn").trim() !== "") {
-						document.getElementsByName('cbid.shadowsocksr.' + sid + '.tls_alpn')[0].value = params.get("alpn") || "";
-					}
-				}
-				if (params.get("pinSHA256") && params.get("pinSHA256").trim() !== "") {
-					document.getElementsByName('cbid.shadowsocksr.' + sid + '.pinsha256')[0].value = params.get("pinSHA256") || "";
-				}
-			}
-
-			// Xray Hysteria2 导入函数
-			function importAsXrayHy2() {
-				document.getElementsByName('cbid.shadowsocksr.' + sid + '.type')[0].value = "v2ray"
+				// Xray Hysteria2 导入函数
+				function importAsXrayHy2() {
+					document.getElementsByName('cbid.shadowsocksr.' + sid + '.type')[0].value = "v2ray"
 				document.getElementsByName('cbid.shadowsocksr.' + sid + '.type')[0].dispatchEvent(event);
 				document.getElementsByName('cbid.shadowsocksr.' + sid + '.v2ray_protocol')[0].value = (ssu[0] === "hy2") ? "hysteria2" : ssu[0];
 				document.getElementsByName('cbid.shadowsocksr.' + sid + '.v2ray_protocol')[0].dispatchEvent(event);
@@ -183,33 +152,11 @@ function import_ssr_url(btn, urlname, sid) {
 				}
 			}
 
-			// 主逻辑：智能核心选择（支持回退）
-			function hasCore(core) {
-				if (core === "hysteria") return has_hysteria === "true";
-				if (core === "xray") return has_xray === "true";
-				return false;
-			}
-			let finalMode = null; // true=Xray, false=普通, null=无核心
-			if (xray_hy2_type === "v2ray") {
-				if (hasCore("xray")) finalMode = true;
-				else if (hasCore("hysteria")) finalMode = false;
-				else finalMode = null;
-			} else if (xray_hy2_type === "hysteria2") {
-				if (hasCore("hysteria")) finalMode = false;
-				else if (hasCore("xray")) finalMode = true;
-				else finalMode = null;
-			} else {
-				// auto 或空：Hysteria2 无 type 参数，优先普通 Hysteria2
-				if (hasCore("hysteria")) finalMode = false;
-				else if (hasCore("xray")) finalMode = true;
-				else finalMode = null;
-			}
-			if (finalMode === null) {
-				s.innerHTML = "<font style=\'color:red\'><%:No available core (Hysteria2 or Xray) to import this node.%></font>";
-				return false;
-			}
-			if (finalMode === true) importAsXrayHy2();
-			else importAsNormalHy2();
+				if (has_xray !== "true") {
+					s.innerHTML = "<font style=\'color:red\'><%:No available Xray core to import this Hysteria2 node.%></font>";
+					return false;
+				}
+				importAsXrayHy2();
 
 			document.getElementsByName('cbid.shadowsocksr.' + sid + '.alias')[0].value = url.hash ? decodeURIComponent(url.hash.slice(1)) : "";
 			document.getElementsByName('cbid.shadowsocksr.' + sid + '.server')[0].value = normalizeHost(url.hostname);
@@ -400,7 +347,7 @@ function import_ssr_url(btn, urlname, sid) {
 				}
 
 				function importAsNormalSS(ssNode) {
-					document.getElementsByName('cbid.shadowsocksr.' + sid + '.type')[0].value = "ss-rust";
+					document.getElementsByName('cbid.shadowsocksr.' + sid + '.type')[0].value = has_mihomo === "true" ? "ss" : "ss-rust";
 					document.getElementsByName('cbid.shadowsocksr.' + sid + '.type')[0].dispatchEvent(event);
 
 					document.getElementsByName('cbid.shadowsocksr.' + sid + '.server')[0].value = ssNode.server;
@@ -575,6 +522,7 @@ function import_ssr_url(btn, urlname, sid) {
 				}
 
 				function preferredSSBackend() {
+					if (has_mihomo === "true") return "ss";
 					if (has_ss_rust === "true") return "ss-rust";
 					if (has_xray === "true") return "v2ray";
 					return null;
