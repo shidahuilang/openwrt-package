@@ -5,10 +5,10 @@
 			"ubus": {
 				"service": [ "list" ]
 			},
-			"uci": [ "socat" ]
+			"uci": [ "luci_socat" ]
 		},
 		"write": {
-			"uci": [ "socat" ]
+			"uci": [ "luci_socat" ]
 		}
 	}
 }
