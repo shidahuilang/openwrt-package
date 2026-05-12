@@ -64,8 +64,8 @@ fi
 tolog "PLATFORM: [ ${PLATFORM} ]"
 sleep 2
 
-# Read plugin branch from UCI config; default to "" (main-lua) when missing or empty
-# When amlogic_plugin_branch is missing, add it with empty value (main-lua default)
+# Read plugin branch from UCI config; default to "" (main-js) when missing or empty
+# When amlogic_plugin_branch is missing, add it with empty value (main-js default)
 if [[ -f "${AMLOGIC_CONFIG_FILE}" ]]; then
     plugin_branch="$(uci get amlogic.config.amlogic_plugin_branch 2>/dev/null | xargs)"
     if ! grep -q "amlogic_plugin_branch" "${AMLOGIC_CONFIG_FILE}" 2>/dev/null; then
@@ -76,17 +76,29 @@ if [[ -f "${AMLOGIC_CONFIG_FILE}" ]]; then
 else
     plugin_branch=""
 fi
-tolog "Plugin branch: [ ${plugin_branch:-main-lua} ]"
+tolog "Plugin branch: [ ${plugin_branch:-main-js} ]"
 sleep 1
 get_plugin_info() {
     package_manager=""
     current_plugin_v=""
+    current_plugin_release=""
     if command -v opkg >/dev/null 2>&1; then
         package_manager="ipk"
-        current_plugin_v="$(opkg list-installed | grep '^luci-app-amlogic ' | awk '{print $3}' | cut -d'-' -f1)"
+        # Full version string e.g. "3.1.295-1" or "3.1.295-2"
+        local full_v
+        full_v="$(opkg list-installed | grep '^luci-app-amlogic ' | awk '{print $3}')"
+        current_plugin_v="$(echo "${full_v}" | cut -d'-' -f1)"
+        # Strip optional "r" prefix from release (e.g. "r2" -> "2")
+        current_plugin_release="$(echo "${full_v}" | cut -d'-' -f2 | sed 's/^r//')"
     elif command -v apk >/dev/null 2>&1; then
         package_manager="apk"
-        current_plugin_v="$(apk list --installed | grep '^luci-app-amlogic-' | awk '{print $1}' | cut -d'-' -f4)"
+        # Package name e.g. "luci-app-amlogic-3.1.295-r2"
+        # Fields: luci(1) app(2) amlogic(3) 3.1.295(4) r2(5)
+        local pkg_name
+        pkg_name="$(apk list --installed | grep '^luci-app-amlogic-' | awk '{print $1}')"
+        current_plugin_v="$(echo "${pkg_name}" | cut -d'-' -f4)"
+        # Extract release number: "r2" -> "2"
+        current_plugin_release="$(echo "${pkg_name}" | cut -d'-' -f5 | sed 's/^r//')"
     fi
 }
 
@@ -97,16 +109,16 @@ check_plugin() {
     if [[ -z "${package_manager}" || -z "${current_plugin_v}" ]]; then
         tolog "01.01 Plugin 'luci-app-amlogic' not found or package manager unknown." "1"
     else
-        tolog "01.01 Using [${package_manager}]. Current version: ${current_plugin_v}"
+        tolog "01.01 Using [${package_manager}]. Current version: ${current_plugin_v}, Release: ${current_plugin_release:-unknown}"
     fi
     sleep 2
 
     tolog "02. Start querying plugin version..."
-    if [[ "${plugin_branch}" == "js" ]]; then
+    if [[ "${plugin_branch}" == "lua" ]]; then
         latest_version="$(
             curl -fsSL -m 10 \
                 https://github.com/ophub/luci-app-amlogic/releases |
-                grep -oE 'expanded_assets/[0-9]+\.[0-9]+\.[0-9]+-js' | sed 's|expanded_assets/||g' |
+                grep -oE 'expanded_assets/[0-9]+\.[0-9]+\.[0-9]+-lua' | sed 's|expanded_assets/||g' |
                 sort -urV | head -n 1
         )"
     else
@@ -114,7 +126,7 @@ check_plugin() {
             curl -fsSL -m 10 \
                 https://github.com/ophub/luci-app-amlogic/releases |
                 grep -oE 'expanded_assets/[0-9]+\.[0-9]+\.[0-9]+' | sed 's|expanded_assets/||g' |
-                grep -v '\-js' |
+                grep -v '\-lua' |
                 sort -urV | head -n 1
         )"
     fi
@@ -125,7 +137,22 @@ check_plugin() {
     tolog "02.01 Current version: ${current_plugin_v}, Latest version: ${latest_version}"
     sleep 2
 
-    if [[ "${current_plugin_v}" == "${latest_version}" ]]; then
+    # Strip variant suffix (e.g. "-lua") from latest_version to get the numeric part.
+    latest_version_base="${latest_version%%-*}"
+
+    # Determine target PKG_RELEASE for the selected branch:
+    #   js branch (default) -> release 2
+    #   lua branch          -> release 1
+    if [[ "${plugin_branch}" == "lua" ]]; then
+        target_release="1"
+    else
+        target_release="2"
+    fi
+
+    # Only report "already latest" when BOTH the version number AND the installed
+    # branch (PKG_RELEASE) match the selected branch. If the user switched branches
+    # (same version number but different release), we still offer an update.
+    if [[ "${current_plugin_v}" == "${latest_version_base}" && "${current_plugin_release}" == "${target_release}" ]]; then
         tolog "02.02 Already the latest version, no need to update." "1"
     else
         tolog '<input type="button" class="cbi-button cbi-button-reload" value="Download" onclick="return b_check_plugin(this, '"'download_${latest_version}'"')"/> Latest version: '${latest_version}'' "1"
