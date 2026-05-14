@@ -92,6 +92,31 @@ function show_install_menu() {
 	return m ? m[1] : 'Unknown';
 }
 
+// Detect whether OpenWrt's root fs is on internal storage (eMMC/NVMe/fixed disk).
+// Returns true  → already installed, hide the Install menu.
+// Returns false → running from USB/SD, show the Install menu.
+//
+// sd* devices can be either USB (removable=1) or internal SATA (removable=0);
+// we read /sys/block/<base_dev>/removable to distinguish them.
+// mmcblk* and nvme* are always internal storage on these platforms.
+function root_on_internal_storage() {
+	const root_pt = trim(sh("df / | tail -n1 | awk '{print $1}' | awk -F '/' '{print $3}'"));
+	if (!root_pt) return false;
+
+	if (match(root_pt, /^mmcblk[0-9]+p[0-9]+$/) || match(root_pt, /^nvme[0-9]+n[0-9]+p[0-9]+$/)) {
+		// eMMC and NVMe are always internal
+		return true;
+	}
+	if (match(root_pt, /^[hsv]d[a-z][0-9]+$/)) {
+		// Strip trailing partition digit(s) to get base device (e.g. sda2 → sda)
+		const base_dev = replace(root_pt, /[0-9]+$/, '');
+		const removable = trim(sh('cat /sys/block/' + shq(base_dev) + '/removable 2>/dev/null'));
+		// removable=0 → internal SATA/fixed disk; removable=1 → USB/removable
+		return (removable == '0');
+	}
+	return false;
+}
+
 // Pick the helper script names for the current platform (as the original
 // controller did).
 function platform_scripts() {
@@ -224,7 +249,9 @@ function m_state() {
 		current_plugin_version:   current_plugin_version(),
 		current_kernel_version:   current_kernel_version(),
 		current_kernel_branch:    current_kernel_branch(),
-		kernel_release:           sh('uname -r')
+		kernel_release:           sh('uname -r'),
+		has_luci_js:              access('/www/luci-static/resources/luci.js') ? true : false,
+		plugin_branch:            access('/usr/lib/lua/luci/controller/amlogic.lua') ? 'lua' : 'main'
 	};
 }
 
@@ -241,14 +268,10 @@ function m_platform_info() {
 	const can_install = (index(p, 'amlogic') >= 0 || index(p, 'allwinner') >= 0 || index(m, 'yes') >= 0);
 	// can_armcpu: all platforms except qemu support CPU frequency settings
 	const can_armcpu = (index(p, 'qemu') < 0);
-	// is_installed: root fs is on an internal storage device (mmcblk/sd/hd/vd),
-	// meaning OpenWrt has already been installed to eMMC/NVMe/disk. When true,
-	// the Install OpenWrt menu should be hidden.
-	const root_pt = sh("df / | tail -n1 | awk '{print $1}' | awk -F '/' '{print $3}'");
-	const is_installed = (root_pt != '' &&
-		(match(root_pt, /^mmcblk[0-9]+p[1-4]$/) ||
-		 match(root_pt, /^[hsv]d[a-z][0-9]+$/) ||
-		 match(root_pt, /^nvme[0-9]+n[0-9]+p[0-9]+$/)));
+	// is_installed: root fs is on an internal storage device (eMMC/NVMe/fixed disk).
+	// sd* devices may be USB (removable=1) or internal SATA (removable=0); check
+	// /sys/block/<dev>/removable to distinguish. When true the Install menu is hidden.
+	const is_installed = root_on_internal_storage();
 	return {
 		platform:     p,
 		install_menu: m,
@@ -382,6 +405,30 @@ function m_start_plugin() {
 		+ 'cfg=' + shq(cfg) + '\n'
 		+ 'cfg_bak=' + shq(cfg_bak) + '\n'
 		+ '[ -f "$cfg" ] && cp -f "$cfg" "$cfg_bak"\n'
+		+ '# Detect new release from downloaded file name (r1=lua, r2=js)\n'
+		+ 'new_release=""\n'
+		+ 'cur_release=""\n'
+		+ 'if command -v opkg >/dev/null 2>&1; then\n'
+		+ '  _ipk="$(ls /tmp/amlogic/luci-app-amlogic_*.ipk 2>/dev/null | head -n 1)"\n'
+		+ '  new_release="$(echo "${_ipk}" | grep -oE \'\\-r[0-9]+_\' | grep -oE \'[0-9]+\')"\n'
+		+ '  _raw="$(opkg list-installed 2>/dev/null | grep \'^luci-app-amlogic \' | awk \'{print $3}\' | cut -d\'-\' -f2)"\n'
+		+ '  cur_release="${_raw#r}"\n'
+		+ 'elif command -v apk >/dev/null 2>&1; then\n'
+		+ '  _apk="$(ls /tmp/amlogic/luci-app-amlogic_*.apk 2>/dev/null | head -n 1)"\n'
+		+ '  new_release="$(echo "${_apk}" | grep -oE \'\\-r[0-9]+[-~]\' | grep -oE \'[0-9]+\')"\n'
+		+ '  cur_release="$(apk list --installed 2>/dev/null | grep \'^luci-app-amlogic-\' | awk \'{print $1}\' | cut -d\'-\' -f5 | sed \'s/^r//\')"\n'
+		+ 'fi\n'
+		+ '# When switching branches (r1<->r2), remove old package first so that\n'
+		+ '# opkg/apk registers all new files. plain remove does NOT touch dep packages.\n'
+		+ 'if [ -n "$cur_release" ] && [ -n "$new_release" ] && [ "$cur_release" != "$new_release" ]; then\n'
+		+ '  echo "Branch switch detected (r${cur_release} -> r${new_release}), removing old package first..." >> "$LOG"\n'
+		+ '  if command -v opkg >/dev/null 2>&1; then\n'
+		+ '    opkg remove luci-app-amlogic --force-depends >> "$LOG" 2>&1 || true\n'
+		+ '  elif command -v apk >/dev/null 2>&1; then\n'
+		+ '    apk del luci-app-amlogic >> "$LOG" 2>&1 || true\n'
+		+ '  fi\n'
+		+ '  echo "Old package removed (dependencies kept)." >> "$LOG"\n'
+		+ 'fi\n'
 		+ 'if command -v opkg >/dev/null 2>&1; then\n'
 		+ '  echo "System uses opkg." >> "$LOG"\n'
 		+ '  opkg --force-reinstall --force-downgrade install /tmp/amlogic/*.ipk >> "$LOG" 2>&1\n'
@@ -396,7 +443,7 @@ function m_start_plugin() {
 		+ 'fi\n'
 		+ 'if [ "$rc" = "0" ]; then\n'
 		+ '  [ -f "$cfg_bak" ] && cp -f "$cfg_bak" "$cfg"\n'
-		+ '  rm -f /etc/config/amlogic.apk-new /etc/config/amlogic.ipk-old\n'
+		+ '  rm -f /etc/config/amlogic.apk-new /etc/config/amlogic.ipk-old /etc/config/amlogic-opkg\n'
 		+ '  rm -rf /tmp/luci-indexcache /tmp/luci-modulecache/* "$cfg_bak"\n'
 		+ '  echo "" > "$LOG_RUNNING"\n'
 		+ '  echo "Successful Update" > "$LOG"\n'
@@ -418,7 +465,22 @@ function m_start_plugin() {
 		+ '    rm -f /usr/share/rpcd/ucode/luci.amlogic\n'
 		+ '    rm -f /www/luci-static/resources/view/amlogic/*.js\n'
 		+ '    rm -f /usr/share/luci/menu.d/luci-app-amlogic.json\n'
-		+ '  fi) &\n'
+		+ '  fi\n'
+		+ '  # Auto-set plugin branch in UCI config if not already configured\n'
+		+ '  _cur_branch="$(uci -q get amlogic.config.amlogic_plugin_branch 2>/dev/null)"\n'
+		+ '  if [ -z "${_cur_branch}" ]; then\n'
+		+ '    if [ -f "/www/luci-static/resources/luci.js" ]; then\n'
+		+ '      uci set amlogic.config.amlogic_plugin_branch=\'main\' 2>/dev/null\n'
+		+ '    else\n'
+		+ '      uci set amlogic.config.amlogic_plugin_branch=\'lua\' 2>/dev/null\n'
+		+ '    fi\n'
+		+ '    uci commit amlogic 2>/dev/null\n'
+		+ '  fi\n'
+		+ '  # Restart services so the newly installed files take effect immediately,\n'
+		+ '  # avoiding the need for users to manually clear browser cache.\n'
+		+ '  /etc/init.d/rpcd restart >> "$LOG" 2>&1\n'
+		+ '  /etc/init.d/uhttpd restart >> "$LOG" 2>&1\n'
+		+ '  ) &\n'
 		+ 'else\n'
 		+ '  echo "--- INSTALLATION FAILED! ---" >> "$LOG"\n'
 		+ '  [ -f "$cfg_bak" ] && cp -f "$cfg_bak" "$cfg"\n'
@@ -684,17 +746,14 @@ function m_sync_menu() {
 	const p = platform();
 	const m = show_install_menu();
 	// Detect whether OpenWrt has already been installed to internal storage
-	const root_pt = sh("df / | tail -n1 | awk '{print $1}' | awk -F '/' '{print $3}'");
-	const is_installed = (root_pt != '' &&
-		(match(root_pt, /^mmcblk[0-9]+p[1-4]$/) ||
-		 match(root_pt, /^[hsv]d[a-z][0-9]+$/) ||
-		 match(root_pt, /^nvme[0-9]+n[0-9]+p[0-9]+$/)));
+	const is_installed = root_on_internal_storage();
 	const can_install = (index(p, 'amlogic') >= 0 || index(p, 'allwinner') >= 0 || index(m, 'yes') >= 0);
 	const show_install = (can_install && !is_installed) ? 'yes' : 'no';
 	const show_armcpu  = (index(p, 'qemu') < 0) ? 'yes' : 'no';
 	shcall('uci -q set amlogic.config.menu_install=' + shq(show_install) +
 	       ' && uci -q set amlogic.config.menu_armcpu=' + shq(show_armcpu) +
-	       ' && uci commit amlogic');
+	       ' && uci commit amlogic' +
+	       ' && rm -f /tmp/luci-indexcache* && rm -rf /tmp/luci-modulecache/*');
 	return { code: 0, show_install, show_armcpu };
 }
 
