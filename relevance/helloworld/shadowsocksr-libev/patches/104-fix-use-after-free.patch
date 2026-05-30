@@ -9,7 +9,7 @@ Subject: [PATCH] shadowsocksr-libev: fix use-after-free due to a typo (#193)
 
 --- a/server/server.c
 +++ b/server/server.c
-@@ -1943,7 +1943,7 @@ main(int argc, char **argv)
+@@ -1952,7 +1952,7 @@ main(int argc, char **argv)
              memcpy(text, protocol, strlen(protocol) - 11);
              int length = strlen(protocol) - 11;
              free(protocol);

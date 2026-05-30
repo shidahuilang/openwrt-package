@@ -175,7 +175,7 @@ stat_update_cb(EV_P_ ev_timer *watcher, int revents)
 
         memset(&svaddr, 0, sizeof(struct sockaddr_un));
         svaddr.sun_family = AF_UNIX;
-        strncpy(svaddr.sun_path, manager_address, sizeof(svaddr.sun_path) - 1);
+        snprintf(svaddr.sun_path, sizeof(svaddr.sun_path), "%s", manager_address);
 
         if (sendto(sfd, resp, strlen(resp) + 1, 0, (struct sockaddr *)&svaddr,
                    sizeof(struct sockaddr_un)) != msgLen) {
@@ -684,6 +684,11 @@ server_recv_cb(EV_P_ ev_io *w, int revents)
             if(obfs_compatible == 1)
             {
                 char *back_buf = (char*)malloc(sizeof(buffer_t));
+                if (back_buf == NULL) {
+                    close_and_free_remote(EV_A_ remote);
+                    close_and_free_server(EV_A_ server);
+                    return;
+                }
                 memcpy(back_buf, buf, sizeof(buffer_t));
                 buf->len = obfs_plugin->server_decode(server->obfs, &buf->array, buf->len, &buf->capacity, &needsendback);
 
@@ -792,7 +797,11 @@ server_recv_cb(EV_P_ ev_io *w, int revents)
 
     if (server->stage == STAGE_HANDSHAKE) {
         size_t header_len = server->header_buf->len;
-        brealloc(server->header_buf, server->buf->len + header_len, BUF_SIZE);
+        if (brealloc(server->header_buf, server->buf->len + header_len, BUF_SIZE) != 0) {
+            close_and_free_remote(EV_A_ remote);
+            close_and_free_server(EV_A_ server);
+            return;
+        }
         memcpy(server->header_buf->array + header_len,
                server->buf->array, server->buf->len);
         server->header_buf->len = server->buf->len + header_len;
