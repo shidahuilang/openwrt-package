@@ -53,6 +53,32 @@ if server.type == "ss-rust" then
     server.type = "ss"
 end
 
+local function parse_realm_uri(uri)
+	if type(uri) ~= "string" then return nil end
+	-- realm://token@server/realm_id?query
+	local token, server_url, realm_id, query = trim(uri):match("^realm://([^@]+)@([^/]+)/([^?]*)%??(.*)$")
+	if not token or not server_url or not realm_id then return nil end
+	realm_id = realm_id:gsub("/+$", "")
+	local realm = {
+		token = token,
+		server_url = server_url,
+		realm_id = realm_id
+	}
+	-- 解析 query 中的 stun=
+	if query and query ~= "" then
+		local stun_servers = {}
+		for key, value in query:gmatch("([^&=?]+)=([^&]+)") do
+			if key == "stun" and value ~= "" then
+				stun_servers[#stun_servers + 1] = value
+			end
+		end
+		if #stun_servers > 0 then
+			realm.stun_servers = stun_servers
+		end
+	end
+	return realm
+end
+
 -- base64 解码
 local function base64Decode(text)
 	local raw = text
@@ -211,20 +237,33 @@ function wireguard()
 	-- 处理 reserved 字段，支持逗号分隔的数字或 Base64 编码
 	local reserved = nil
 	if server.reserved then
-		local bytes = {}
-		if not server.reserved:match("[^%d,]+") then
-			-- 纯数字和逗号，解析为数字列表
-			server.reserved:gsub("%d+", function(b)
-				bytes[#bytes + 1] = tonumber(b)
-			end)
-		else
-			-- Base64 编码的二进制数据
-			local result = base64Decode(server.reserved)
-			for i = 1, #result do
-				bytes[i] = result:byte(i)
+		local all_bytes = {}
+		local reserved_values = server.reserved
+
+		-- 确保是 table 类型
+		if type(reserved_values) ~= "table" then
+			reserved_values = {reserved_values}
+		end
+
+		for _, reserved_str in ipairs(reserved_values) do
+			if type(reserved_str) == "string" then
+				if not reserved_str:match("[^%d,]+") then
+					-- 数字和逗号格式
+					reserved_str:gsub("%d+", function(b)
+						all_bytes[#all_bytes + 1] = tonumber(b)
+					end)
+				else
+					-- Base64 格式
+					local result = base64Decode(reserved_str)
+					if result then
+						for i = 1, #result do
+							all_bytes[#all_bytes + 1] = result:byte(i)
+						end
+					end
+				end
 			end
 		end
-		reserved = #bytes > 0 and bytes or nil
+		reserved = #all_bytes > 0 and all_bytes or nil
 	end
 
 	outbound_settings = {
@@ -239,10 +278,17 @@ function wireguard()
 				allowedIPs = (server.allowedips) or nil,
 			}
 		},
-		noKernelTun = (server.kernelmode == "1") and true or false,
+		kernelMode = (server.kernelmode == "1") and true or false,
 		reserved = reserved,
 		mtu = tonumber(server.mtu)
 	}
+	if server.finalmask and server.finalmask ~= "" then
+		local ok, fm = pcall(json.parse, base64Decode(server.finalmask))
+		if ok and type(fm) == "table" then
+			outbound_settings.streamSettings = outbound_settings.streamSettings or {}
+			outbound_settings.streamSettings.finalmask = fm
+		end
+	end
 end
 function xray_hysteria2()
 	outbound_settings = {
@@ -569,7 +615,7 @@ Xray.outbounds = {
 				local finalmask = {}
 				local PT = server.v2ray_protocol
 				local TP = server.transport
-				if server.transport == "kcp" then
+				if TP == "kcp" then
 					local map = {none = "none", srtp = "header-srtp", utp = "header-utp", ["wechat-video"] = "header-wechat",
 						dtls = "header-dtls", wireguard = "header-wireguard", dns = "header-dns"}
 					local udp = {}
@@ -587,14 +633,36 @@ Xray.outbounds = {
 					udp[#udp+1] = c
 					finalmask.udp = udp
 				elseif PT == "hysteria2" then
+					local udp = {}
 					if (server.flag_obfs == "1" and (server.obfs_type and server.obfs_type ~= "")) then
-						finalmask.udp = {{
-							type = server.obfs_type,
+						local o = {
+							type = "salamander",
 							settings = server.salamander and {
-								password = server.salamander
+								password = server.salamander,
+								packetSize = server.obfs_type == "gecko" and "512-1200" or nil
 							} or nil
-						}}
+						}
+						udp[#udp+1] = o
 					end
+					if server.hysteria2_realms then
+						local realm = parse_realm_uri(server.hysteria2_realm_url)
+						local url, stun
+						if realm then
+							if realm.token and realm.server_url and realm.realm_id then
+								url = "realm://" .. realm.token .. "@" .. realm.server_url .. "/" .. realm.realm_id
+							end
+							stun = realm.stun_servers or server.hysteria2_realm_stun
+						end
+						local r = {
+							type = "realm",
+							settings = {
+								url = url,
+								stunServers = stun
+							}
+						}
+						udp[#udp+1] = r
+					end
+					finalmask.udp = udp
 					local up = tonumber(server.uplink_capacity) or 0
 					local down = tonumber(server.downlink_capacity) or 0
 					finalmask.quicParams = {
