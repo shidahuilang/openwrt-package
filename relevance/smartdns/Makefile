@@ -1,23 +1,23 @@
 #
-# Copyright (c) 2018-2025 Nick Peng (pymumu@gmail.com)
+# Copyright (c) 2018-2026 Nick Peng (pymumu@gmail.com)
 # This is free software, licensed under the GNU General Public License v3.
 #
 
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=smartdns
-PKG_VERSION:=1.2025.47
+PKG_VERSION:=1.2025.48
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://www.github.com/pymumu/smartdns.git
-PKG_MIRROR_HASH:=34c85d914e01006439f5e1c9287ae96d6bfcc729ed4bcf386bf5948b938254f4
-PKG_SOURCE_VERSION:=136c0c2690138d6dedd8b520281aafe49112643f
+PKG_MIRROR_HASH:=e43ed323069be7589fb5179cb33f32d5e531b7180fef199500bb7c37fecb0808
+PKG_SOURCE_VERSION:=983db513ebf6074250706cc01ac3cdf77de18626
 
 SMARTDNS_WEBUI_VERSION:=1.0.0
 SMARTDNS_WEBUI_SOURCE_PROTO:=git
 SMARTDNS_WEBUI_SOURCE_URL:=https://github.com/pymumu/smartdns-webui.git
-SMARTDNS_WEBUI_SOURCE_VERSION:=3261c18b1b93d841e86d9e727557109ae71d71cd
+SMARTDNS_WEBUI_SOURCE_VERSION:=c0d2411d20bf8b172a045adbe07166df6691e58b
 SMARTDNS_WEBUI_FILE:=smartdns-webui-$(SMARTDNS_WEBUI_VERSION).tar.gz
 
 PKG_MAINTAINER:=Nick Peng <pymumu@gmail.com>
@@ -46,7 +46,7 @@ endef
 define Package/smartdns
   $(Package/smartdns/default)
   TITLE:=smartdns server
-  DEPENDS:=+libpthread +libopenssl +libatomic
+  DEPENDS:=+libpthread +libopenssl +libatomic +zlib
 endef
 
 define Package/smartdns/description
@@ -116,7 +116,7 @@ define Download/smartdns-webui
 	FILE:=$(SMARTDNS_WEBUI_FILE)
 	PROTO:=$(SMARTDNS_WEBUI_SOURCE_PROTO)
 	URL:=$(SMARTDNS_WEBUI_SOURCE_URL)
-	MIRROR_HASH:=227eef2dfffb56445145e7b8a76f6d6fa678ce3e99aceec58f7d35564f4cfafd
+	MIRROR_HASH:=a1dd57a20ac5af4651bc77bbc7d850a46f9b81b7e26791d62c90156767044dd6
 	VERSION:=$(SMARTDNS_WEBUI_SOURCE_VERSION)
 	HASH:=$(SMARTDNS_WEBUI_HASH)
 	SUBDIR:=smartdns-webui
