@@ -24,7 +24,8 @@
 from __future__ import absolute_import, division, print_function, \
     with_statement
 
-import os
+import re
+import subprocess
 import sys
 import argparse
 
@@ -47,7 +48,8 @@ if __name__ == '__main__':
                 ips[ip] += 1
             if ip not in banned and ips[ip] >= config.count:
                 banned.add(ip)
-                cmd = 'iptables -A INPUT -s %s -j DROP' % ip
-                print(cmd, file=sys.stderr)
+                if not re.match(r'^(\d{1,3}\.){3}\d{1,3}$', ip):
+                    continue
+                print('iptables -A INPUT -s %s -j DROP' % ip, file=sys.stderr)
                 sys.stderr.flush()
-                os.system(cmd)
+                subprocess.call(['iptables', '-A', 'INPUT', '-s', ip, '-j', 'DROP'])
