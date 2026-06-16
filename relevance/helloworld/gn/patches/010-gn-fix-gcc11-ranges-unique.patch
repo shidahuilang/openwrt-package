@@ -1,0 +1,18 @@
+--- a/src/gn/rust_project_writer.cc
++++ b/src/gn/rust_project_writer.cc
+@@ -218,8 +218,13 @@ RustProjectWriter::Crate RustProjectWrit
+   std::ranges::sort(include_dirs, [](const auto& lhs, const auto& rhs) {
+     return lhs.value() < rhs.value();
+   });
++#if defined(_GLIBCXX_RELEASE) && _GLIBCXX_RELEASE < 13
++  include_dirs.erase(std::unique(include_dirs.begin(), include_dirs.end()),
++                     include_dirs.end());
++#else
+-  include_dirs.erase(std::ranges::unique(include_dirs).begin(),
+-                     include_dirs.end());
++  include_dirs.erase(std::ranges::unique(include_dirs).begin(),
++                     include_dirs.end());
++#endif
+ 
+   Crate crate = Crate(crate_root, include_dirs, crate_id, crate_label,
+                       edition.value_or("2015"));
