@@ -18,6 +18,7 @@ local SERVER_DETECT_CACHE = "/tmp/ssrplus_server_detect.json"
 local SERVER_DETECT_LOCK = "/tmp/ssrplus_server_detect.lock"
 local CLASH_RULES_DIR = "/etc/ssrplus/clash"
 local SUPPORTED_COMPONENTS = {
+	mainprogram = true,
 	xray = true,
 	mihomo = true,
 	naiveproxy = true
@@ -338,12 +339,12 @@ local function global_client_running()
 		return true
 	end
 
-	if (global_type == "clash" or global_type == "v2ray" or global_type == "tuic" or global_type == "ss")
+	if (global_type == "clash" or global_type == "v2ray" or global_type == "tuic" or global_type == "ss" or global_type == "ss-rust")
 		and process_list:find("ssr%-retcp") then
 		return true
 	end
 
-	if (global_type == "clash" or global_type == "v2ray" or global_type == "tuic" or global_type == "ss")
+	if (global_type == "clash" or global_type == "v2ray" or global_type == "tuic" or global_type == "ss" or global_type == "ss-rust")
 		and process_list:find("mihomo")
 		and (process_list:find("/clash%-") or process_list:find("/v2ray%-") or process_list:find("/tuic%-") or process_list:find("/ss%-")) then
 		return true
@@ -372,7 +373,7 @@ local function get_active_node_runtime(sid)
 
 	if stype == "ss" then
 		backend = translate("Mihomo")
-		protocol = translate("Shadowsocks")
+		protocol = translate("ShadowSocks")
 	elseif stype == "clash" then
 		backend = translate("Mihomo")
 		protocol = translate("Clash")
@@ -382,7 +383,12 @@ local function get_active_node_runtime(sid)
 	elseif stype == "ssr" then
 		backend = translate("ShadowsocksR")
 	elseif stype == "ss-rust" then
-		backend = translate("Shadowsocks-rust")
+		if is_mihomo_running then
+			backend = translate("Mihomo")
+			protocol = translate("ShadowSocks-Rust")
+		else
+			backend = translate("ShadowSocks-Rust")
+		end
 	elseif stype == "v2ray" then
 		local proto_map = {
 			vmess = "VMess",
@@ -594,6 +600,7 @@ local function write_component_json(data)
 		previous_version = data.previous_version or "",
 		arch = data.arch or "",
 		asset = data.asset or "",
+		package_manager = data.package_manager or "",
 		can_upgrade = data.can_upgrade == "1",
 		success = data.success == "1",
 		error = data.error or "",
