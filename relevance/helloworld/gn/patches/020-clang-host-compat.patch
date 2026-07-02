@@ -1,0 +1,71 @@
+--- a/build/gen.py
++++ b/build/gen.py
+@@ -212,6 +212,23 @@ def is_gcc(cxx):
+       capture_output=True)
+   return ret.returncode == 0 and "#define __GNUC__" in ret.stdout and not "#define __clang__" in ret.stdout
+ 
++
++def get_clang_major_version(cxx):
++  """Return Clang's major version, or None when cxx is not Clang."""
++  ret = subprocess.run(
++      f'{cxx} -dM -E -x c++ -',
++      shell=True,
++      stdin=subprocess.DEVNULL,
++      text=True,
++      capture_output=True)
++  if ret.returncode != 0 or "#define __clang__" not in ret.stdout:
++    return None
++
++  match = re.search(r'^#define __clang_major__\s+(\d+)$',
++                    ret.stdout, re.MULTILINE)
++  return int(match.group(1)) if match else None
++
++
+ def GenerateLastCommitPosition(host, header):
+   ROOT_TAG = 'initial-commit'
+   if os.path.isdir(os.path.join(REPO_ROOT, '.git')):
+@@ -391,6 +408,12 @@ def WriteGNNinja(path, platform, host, options, args_list):
+   libs = []
+ 
+   if not platform.is_msvc():
++    clang_major = get_clang_major_version(cxx)
++    # Clang before 17 uses the draft spelling for C++23.
++    cxx_standard = ('-std=c++2b'
++                    if clang_major is not None and clang_major < 17
++                    else '-std=c++23')
++
+     if options.debug:
+       cflags.extend(['-O0', '-g'])
+       # Enable libc++ or libstdc++ assertions in debug mode.
+@@ -506,9 +529,13 @@ def WriteGNNinja(path, platform, host, options, args_list):
+         '-Wextra-semi',
+         '-Wundef',
+ 
+-        '-std=c++23'
++        cxx_standard
+     ])
+ 
++    # Clang gained structured-binding lambda capture support in version 16.
++    if clang_major is not None and clang_major < 16:
++      cflags.append('-DGN_CLANG_BEFORE_16=1')
++
+     if is_gcc(cxx):
+       cflags.append('-Wno-redundant-move')
+       # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=104336
+--- a/src/gn/command_suggest.cc
++++ b/src/gn/command_suggest.cc
+@@ -444,7 +444,14 @@
+     }
+     return false;
+   }
++#if defined(GN_CLANG_BEFORE_16)
++  const auto& [structured_includer, structured_dep_kind] =
++      includer_targets.front();
++  const auto includer = structured_includer;
++  const auto dep_kind = structured_dep_kind;
++#else
+   const auto& [includer, dep_kind] = includer_targets.front();
++#endif
+   current_toolchain = includer->label().GetToolchainLabel();
+ 
+   const char* dep_field =
