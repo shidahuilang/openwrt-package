@@ -1,6 +1,6 @@
 --- a/src/gn/rust_project_writer.cc
 +++ b/src/gn/rust_project_writer.cc
-@@ -218,8 +218,13 @@ RustProjectWriter::Crate RustProjectWrit
+@@ -236,8 +236,13 @@ void AddTarget(const BuildSettings* buil
    std::ranges::sort(include_dirs, [](const auto& lhs, const auto& rhs) {
      return lhs.value() < rhs.value();
    });
@@ -14,10 +14,9 @@
  
    Crate crate = Crate(crate_root, include_dirs, crate_id, crate_label,
                        edition.value_or("2015"));
-
 --- a/src/gn/ninja_binary_target_writer.cc
 +++ b/src/gn/ninja_binary_target_writer.cc
-@@ -152,8 +152,13 @@
+@@ -152,8 +152,13 @@ void NinjaBinaryTargetWriter::WritePriva
    std::ranges::sort(deps, [](const Target* lhs, const Target* rhs) {
      return lhs->module_name() < rhs->module_name();
    });

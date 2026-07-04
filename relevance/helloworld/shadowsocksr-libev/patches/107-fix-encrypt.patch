@@ -1,0 +1,33 @@
+--- a/server/encrypt.c
++++ b/server/encrypt.c
+@@ -320,8 +320,8 @@ static void
+ merge(uint8_t *left, int llength, uint8_t *right,
+       int rlength, uint32_t salt, uint64_t key)
+ {
+-    uint8_t *ltmp = (uint8_t *)malloc(llength * sizeof(uint8_t));
+-    uint8_t *rtmp = (uint8_t *)malloc(rlength * sizeof(uint8_t));
++    uint8_t *ltmp = (uint8_t *)malloc(llength);
++    uint8_t *rtmp = (uint8_t *)malloc(rlength);
+ 
+     uint8_t *ll = ltmp;
+     uint8_t *rr = rtmp;
+@@ -783,7 +783,7 @@ cipher_context_set_iv(cipher_ctx_t *ctx,
+     }
+ 
+     if (!enc) {
+-        memcpy(ctx->iv, iv, iv_len);
++        memcpy(ctx->iv, iv, min(iv_len, MAX_IV_LENGTH));
+     }
+ 
+     if (enc_method >= SALSA20) {
+@@ -803,8 +803,8 @@ cipher_context_set_iv(cipher_ctx_t *ctx,
+ #ifdef USE_CRYPTO_APPLECC
+     cipher_cc_t *cc = &ctx->cc;
+     if (cc->valid == kCCContextValid) {
+-        memcpy(cc->iv, iv, iv_len);
+-        memcpy(cc->key, true_key, enc_key_len);
++        memcpy(cc->iv, iv, min(iv_len, MAX_IV_LENGTH));
++        memcpy(cc->key, true_key, min(enc_key_len, MAX_KEY_LENGTH));
+         cc->iv_len  = iv_len;
+         cc->key_len = enc_key_len;
+         cc->encrypt = enc ? kCCEncrypt : kCCDecrypt;

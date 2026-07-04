@@ -1,7 +1,7 @@
 --- a/build/gen.py
 +++ b/build/gen.py
-@@ -212,6 +212,23 @@ def is_gcc(cxx):
-       capture_output=True)
+@@ -245,6 +245,23 @@ def is_gcc(cxx):
+ 
    return ret.returncode == 0 and "#define __GNUC__" in ret.stdout and not "#define __clang__" in ret.stdout
  
 +
@@ -24,7 +24,7 @@
  def GenerateLastCommitPosition(host, header):
    ROOT_TAG = 'initial-commit'
    if os.path.isdir(os.path.join(REPO_ROOT, '.git')):
-@@ -391,6 +408,12 @@ def WriteGNNinja(path, platform, host, options, args_list):
+@@ -456,6 +473,12 @@ def WriteGNNinja(path, platform, host, o
    libs = []
  
    if not platform.is_msvc():
@@ -37,7 +37,7 @@
      if options.debug:
        cflags.extend(['-O0', '-g'])
        # Enable libc++ or libstdc++ assertions in debug mode.
-@@ -506,9 +529,13 @@ def WriteGNNinja(path, platform, host, options, args_list):
+@@ -528,9 +551,13 @@ def WriteGNNinja(path, platform, host, o
          '-Wextra-semi',
          '-Wundef',
  
@@ -54,7 +54,7 @@
        # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=104336
 --- a/src/gn/command_suggest.cc
 +++ b/src/gn/command_suggest.cc
-@@ -444,7 +444,14 @@
+@@ -444,7 +444,14 @@ bool OutputSuggestions(const std::vector
      }
      return false;
    }

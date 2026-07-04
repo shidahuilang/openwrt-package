@@ -1,0 +1,21 @@
+--- a/libev/ev.c
++++ b/libev/ev.c
+@@ -1946,7 +1946,7 @@ static void * noinline ecb_cold
+ array_realloc (int elem, void *base, int *cur, int cnt)
+ {
+   *cur = array_nextsize (elem, *cur, cnt);
+-  return ev_realloc (base, elem * *cur);
++  return ev_realloc (base, (size_t)elem * (size_t)*cur);
+ }
+ 
+ #define array_init_zero(base,count)	\
+@@ -4252,7 +4252,8 @@ infy_add (EV_P_ ev_stat *w)
+       if ((errno == ENOENT || errno == EACCES) && strlen (w->path) < 4096)
+         {
+           char path [4096];
+-          strcpy (path, w->path);
++          strncpy (path, w->path, sizeof (path) - 1);
++          path [sizeof (path) - 1] = 0;
+ 
+           do
+             {
