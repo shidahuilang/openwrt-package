@@ -40,6 +40,7 @@ luci-app-aliyundrive-webdav
 luci-app-amlogic
 luci-app-autoipsetadder
 luci-app-autotimeset
+luci-app-baidudrive
 luci-app-chinadns-ng
 luci-app-clash
 luci-app-cloudflarespeedtest
