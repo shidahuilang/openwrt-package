@@ -25,6 +25,7 @@ luci-app-alist
 luci-app-amlogic
 luci-app-autoipsetadder
 luci-app-autotimeset
+luci-app-baidudrive
 luci-app-chatgpt
 luci-app-clash
 luci-app-cloudflared
