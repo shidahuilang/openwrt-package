@@ -20,6 +20,36 @@ local function width(o)
 end
 -%>
 <script type="text/javascript">//<![CDATA[
+	function ssrPost(url, data, callback) {
+		if (window.XHR && typeof window.XHR.post === 'function') {
+			return window.XHR.post(url, data, callback);
+		}
+
+		var xhr = new XMLHttpRequest();
+		var payload = [];
+		var key;
+		for (key in (data || {})) {
+			if (Object.prototype.hasOwnProperty.call(data, key)) {
+				payload.push(encodeURIComponent(key) + '=' + encodeURIComponent(data[key] == null ? '' : data[key]));
+			}
+		}
+
+		xhr.open('POST', url, true);
+		xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+		xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+		xhr.onreadystatechange = function() {
+			if (xhr.readyState !== 4) return;
+
+			var rv = null;
+			try {
+				rv = JSON.parse(xhr.responseText || 'null');
+			} catch (e) {}
+
+			if (callback) callback(xhr, rv);
+		};
+		xhr.send(payload.join('&'));
+	}
+
 	window.ssrUpdateSubscribeItem = window.ssrUpdateSubscribeItem || function(btn) {
 		if (!btn) return false;
 
@@ -72,9 +102,9 @@ end
 			for (var field in fields) {
 				var value = fields[field];
 				var promise = new Promise(function(resolve, reject) {
-					XHR.post(
-						'<%=luci.dispatcher.build_url("admin", "services", "shadowsocksr", "toggle_subscribe_item_enabled")%>',
-						{ sid: sid, field: field, value: value },
+					ssrPost(
+							'<%=luci.dispatcher.build_url("admin", "services", "shadowsocksr", "toggle_subscribe_item_enabled")%>',
+							{ sid: sid, field: field, value: value },
 						function(x, rv) {
 							if (rv && Number(rv.ret) === 1) {
 								resolve();
@@ -112,7 +142,7 @@ end
 		if (!confirm('<%:Are you sure you want to delete subscribe link: %s ?%>'.replace('%s', sid))) return;
 
 		btn.disabled = true;
-		XHR.post('<%=luci.dispatcher.build_url("admin", "services", "shadowsocksr", "delete_subscribe_item")%>',
+		ssrPost('<%=luci.dispatcher.build_url("admin", "services", "shadowsocksr", "delete_subscribe_item")%>',
 			{ sid: sid },
 			function(x, rv) {
 				btn.disabled = false;
@@ -218,7 +248,7 @@ end
 		btn.disabled = true;
 		btn.value = '<%:Adding...%>';
 
-		XHR.post(
+		ssrPost(
 			'<%=luci.dispatcher.build_url("admin", "services", "shadowsocksr", "add_subscribe_item")%>',
 			{},
 			function(x, rv) {
@@ -501,27 +531,62 @@ end
 		#cbi-shadowsocksr-server_subscribe_item .cbi-section-table td.cbi-section-actions {
 			width: 100% !important;
 			max-width: 100% !important;
+			min-width: 0 !important;
 			display: block !important;
+			box-sizing: border-box !important;
+		}
+
+		/* 重置操作列内可能存在的 div 包装层，强行让其拉满 100% */
+		#cbi-shadowsocksr-server_subscribe_item .td.cbi-section-actions > div {
+			display: flex !important;
+			width: 100% !important;
+			max-width: 100% !important;
 			box-sizing: border-box !important;
 		}
 
 		/* 按钮区域 */
 		#cbi-shadowsocksr-server_subscribe_item .ssr-subscribe-actions {
 			display: flex !important;
-			gap: 8px;
-			width: 100%;
+			gap: 8px !important;
+			width: 100% !important;
+			max-width: 100% !important;
+			box-sizing: border-box !important;
 		}
 
 		/* 保存、删除、更新 三个按钮均分 */
-		#cbi-shadowsocksr-server_subscribe_item .ssr-subscribe-actions .btn {
-			flex: 1;
+		#cbi-shadowsocksr-server_subscribe_item .ssr-subscribe-actions .btn,
+		#cbi-shadowsocksr-server_subscribe_item .td.cbi-section-actions .btn {
+			flex: 1 1 0% !important;
+			width: 100% !important;
 			margin: 0 !important;
-			white-space: nowrap;
+			white-space: nowrap !important;
+			text-align: center !important;
 		}
 
 		/* 修复手机端卡片化布局中 placeholder 行的显示问题 */
 		#cbi-shadowsocksr-server_subscribe_item .placeholder td {
 			display: table-cell !important;
+		}
+
+		#ssr-subscribe-modal {
+			top: 8px;
+			left: 8px;
+			width: calc(100vw - 16px);
+			max-height: calc(100vh - 24px);
+			min-height: min(420px, calc(100vh - 24px));
+			padding: 10px 12px 12px;
+			transform: none;
+			border-radius: 8px;
+		}
+
+		#ssr-subscribe-modal-header {
+			flex-direction: column;
+			align-items: flex-start;
+		}
+		
+		#ssr-subscribe-log {
+			max-height: calc(100vh - 260px);
+			min-height: 280px;
 		}
 	}
 </style>
