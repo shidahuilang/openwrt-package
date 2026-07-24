@@ -1428,7 +1428,6 @@ button:hover,
 .btn:hover,
 .cbi-button:hover
  {
-    color: var(--menu-hover-color); 
     transform: translateY(-2px) ;
     box-shadow: 0 0.3rem 0.5rem var(--input-boxhovercolor);
     -webkit-box-shadow: 0 0.3rem 0.5rem var(--input-boxhovercolor);
@@ -1461,6 +1460,32 @@ button:active {
     pointer-events: none;
     opacity: .5;
     box-shadow: none
+}
+
+
+.modal label.btn {
+    color: var(--body-color);
+    background-color: rgba(var(--primary-rgbm), 0);
+    display: inline-flex;
+    align-items: center;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    border: none;
+    background-image: none;
+    box-shadow: none;
+    -ms-user-select: none;
+}
+
+.modal label.btn:focus,
+.modal label.btn:hover
+ {
+    color: var(--body-color);
+    background-color: rgba(var(--primary-rgbm), 0.1);
+    transform: none;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    border: none;
 }
 
 .cbi-dynlist>.add-item:not([ondrop])>input,
@@ -2690,7 +2715,7 @@ td>.ifacebadge,
 }
 
 .ifacebox-head {
-    width: 7rem;
+    width: 6rem;
     min-width: 100%;
     background-color: rgba(var(--primary-rgbm), 0.3);
     transform: translate(-50, -50%);
