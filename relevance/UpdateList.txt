@@ -19,6 +19,7 @@ gost
 istoreenhance
 kcptun
 linkease
+linkmount
 luci-app-adguardhome
 luci-app-alist
 luci-app-amlogic
@@ -46,8 +47,6 @@ luci-app-istorex
 luci-app-kai
 luci-app-kaiplus
 luci-app-linkease
-luci-app-linkeasefull
-luci-app-linkeaselite
 luci-app-lucky
 luci-app-mosdns
 luci-app-msd_lite
@@ -87,7 +86,6 @@ luci-app-webd
 luci-app-wol
 luci-app-zerotier
 luci-lib-iform
-luci-lib-linkeasefile
 luci-mod-istorenext
 luci-nginxer
 lucky
