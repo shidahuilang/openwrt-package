@@ -74,7 +74,7 @@ msgid "Data"
 msgstr ""
 
 #: applications/luci-app-diskman/luasrc/model/cbi/diskman/partition.lua:121
-msgid "Default 2048 sector alignment, support +size{b,k,m,g,t} in End Sector"
+msgid "Default 1 MiB alignment, support +size{b,k,m,g,t} in End Sector"
 msgstr ""
 
 #: applications/luci-app-diskman/luasrc/model/cbi/diskman/btrfs.lua:114

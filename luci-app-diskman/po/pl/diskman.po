@@ -85,9 +85,9 @@ msgid "Data"
 msgstr "Data"
 
 #: applications/luci-app-diskman/luasrc/model/cbi/diskman/partition.lua:121
-msgid "Default 2048 sector alignment, support +size{b,k,m,g,t} in End Sector"
+msgid "Default 1 MiB alignment, support +size{b,k,m,g,t} in End Sector"
 msgstr ""
-"Sektory wyrównywane są do wielokrotności 2048, sektor końcowy można podać "
+"Domyślne wyrównanie wynosi 1 MiB, sektor końcowy można podać "
 "jako rozmiar w postaci +size{b,k,m,g,t}"
 
 #: applications/luci-app-diskman/luasrc/model/cbi/diskman/btrfs.lua:114

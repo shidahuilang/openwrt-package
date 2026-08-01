@@ -9,6 +9,7 @@ local ver = require "luci.version"
 local CMD = {"parted", "mdadm", "blkid", "smartctl", "df", "btrfs", "lsblk"}
 
 local d = {command ={}}
+local SYSFS_SECTOR_SIZE = 512
 for _, cmd in ipairs(CMD) do
   local command = luci.sys.exec("/usr/bin/which " .. cmd)
     d.command[cmd] = command:match("^.+"..cmd) or nil
@@ -230,7 +231,7 @@ local get_parted_info = function(device)
       elseif (p["number"] <= 4) and (p["number"] > 0) then
         local s = nixio.fs.readfile("/sys/block/"..device.."/"..p["name"].."/size")
         if s then
-          local real_size_sec = tonumber(s) * tonumber(disk_temp.logic_sec)
+          local real_size_sec = tonumber(s) * SYSFS_SECTOR_SIZE
           -- if size not equal, it's an extended
           if real_size_sec ~= p["size"] then
             disk_temp["extended_partition_index"] = i
@@ -362,11 +363,9 @@ d.list_raid_devices = function()
       end
 
       local size = tonumber(fs.readfile(string.format("/sys/class/block/%s/size", mdpath)))
-      local ss = tonumber(fs.readfile(string.format("/sys/class/block/%s/queue/logical_block_size", mdpath)))
-
       device_info["path"] = "/dev/"..mdpath
-      device_info["size"] = size*ss
-      device_info["size_formated"] = byte_format(size*ss)
+      device_info["size"] = size * SYSFS_SECTOR_SIZE
+      device_info["size_formated"] = byte_format(device_info["size"])
       device_info["active"] = active:upper()
       device_info["level"] = level
       device_info["members"] = members
@@ -418,19 +417,18 @@ d.list_devices = function()
     local device_info = {}
     local device = "/dev/" .. bname
     local size = tonumber(fs.readfile(string.format("/sys/class/block/%s/size", bname)) or "0")
-    local ss = tonumber(fs.readfile(string.format("/sys/class/block/%s/queue/logical_block_size", bname)) or "0")
     local model = fs.readfile(string.format("/sys/class/block/%s/device/model", bname))
     local partitions = {}
     for part in nixio.fs.glob("/sys/block/" .. bname .."/" .. bname .. "*") do
       local pname = nixio.fs.basename(part)
-      local psize = byte_format(tonumber(nixio.fs.readfile(part .. "/size"))*ss)
+      local psize = byte_format(tonumber(nixio.fs.readfile(part .. "/size")) * SYSFS_SECTOR_SIZE)
       local mount_point = get_mount_point(pname)
       if mount_point then device_info["inuse"] = true end
       table.insert(partitions, {name = pname, size_formated = psize, inuse = mount_point})
     end
 
       device_info["path"] = device
-      device_info["size_formated"] = byte_format(size*ss)
+      device_info["size_formated"] = byte_format(size * SYSFS_SECTOR_SIZE)
       device_info["model"] = model
       device_info["partitions"] = partitions
       -- true or false

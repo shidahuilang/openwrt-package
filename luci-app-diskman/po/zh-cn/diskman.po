@@ -85,9 +85,9 @@ msgid "Data"
 msgstr "数据"
 
 #: applications/luci-app-diskman/luasrc/model/cbi/diskman/partition.lua:121
-msgid "Default 2048 sector alignment, support +size{b,k,m,g,t} in End Sector"
+msgid "Default 1 MiB alignment, support +size{b,k,m,g,t} in End Sector"
 msgstr ""
-"默认2048扇区对齐，【中止扇区】支持 +容量{b,k,m,g,t} 格式，例：+500m +10g +1t"
+"默认按 1 MiB 对齐，【终止扇区】支持 +容量{b,k,m,g,t} 格式，例：+500m +10g +1t"
 
 #: applications/luci-app-diskman/luasrc/model/cbi/diskman/btrfs.lua:114
 #: applications/luci-app-diskman/luasrc/model/cbi/diskman/btrfs.lua:118

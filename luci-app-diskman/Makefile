@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-diskman
 PKG_VERSION:=0.2.13
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_MAINTAINER:=lisaac <lisaac.cn@gmail.com>
 PKG_LICENSE:=AGPL-3.0
