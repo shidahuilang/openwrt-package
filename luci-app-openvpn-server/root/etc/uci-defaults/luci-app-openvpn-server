@@ -27,11 +27,6 @@ uci -q batch <<-EOF >/dev/null
 	set firewall.lantoovpnserver.src='lan'
 	set firewall.lantoovpnserver.dest='ovpn_server'
 	commit firewall
-	
-	delete ucitrack.@luci-app-openvpn-server[-1]
-	add ucitrack luci-app-openvpn-server
-	set ucitrack.@luci-app-openvpn-server[-1].init=luci-app-openvpn-server
-	commit ucitrack
 EOF
 
 rm -rf /tmp/luci-*cache

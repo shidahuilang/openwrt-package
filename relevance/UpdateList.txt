@@ -32,7 +32,6 @@ istoreenhance
 kcptun
 kerman
 linkease
-linkmount
 lua-maxminddb
 luci-app-adguardhome
 luci-app-alist
@@ -63,6 +62,8 @@ luci-app-istorex
 luci-app-kai
 luci-app-kaiplus
 luci-app-linkease
+luci-app-linkeasefull
+luci-app-linkeaselite
 luci-app-lucky
 luci-app-mosdns
 luci-app-msd_lite
@@ -97,6 +98,7 @@ luci-app-unishare
 luci-app-verysync
 luci-app-webd
 luci-lib-iform
+luci-lib-linkeasefile
 luci-lib-nixio
 luci-mod-istorenext
 luci-nginxer
