@@ -45,7 +45,6 @@ luci-app-kai
 luci-app-kaiplus
 luci-app-linkease
 luci-app-linkeasefull
-luci-app-linkeaselite
 luci-app-lucky
 luci-app-mosdns
 luci-app-msd_lite
