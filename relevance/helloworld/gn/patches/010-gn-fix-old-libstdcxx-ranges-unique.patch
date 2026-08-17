@@ -1,6 +1,6 @@
 --- a/src/gn/rust_project_writer.cc
 +++ b/src/gn/rust_project_writer.cc
-@@ -236,8 +236,13 @@ void AddTarget(const BuildSettings* buil
+@@ -235,8 +235,13 @@ void AddTarget(const BuildSettings* buil
    std::ranges::sort(include_dirs, [](const auto& lhs, const auto& rhs) {
      return lhs.value() < rhs.value();
    });

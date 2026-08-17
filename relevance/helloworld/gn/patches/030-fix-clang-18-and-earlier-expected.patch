@@ -1,0 +1,191 @@
+--- a/src/gn/err.h
++++ b/src/gn/err.h
+@@ -5,10 +5,15 @@
+ #ifndef TOOLS_GN_ERR_H_
+ #define TOOLS_GN_ERR_H_
+ 
+-#include <expected>
++#if defined(__has_include)
++#  if __has_include(<expected>)
++#    include <expected>
++#  endif
++#endif
+ #include <memory>
+ #include <string>
+ #include <utility>
++#include <variant>
+ #include <vector>
+ 
+ #include "gn/label.h"
+@@ -142,6 +147,7 @@ inline Err Ok() {
+ // std::expected does not allow implicit conversions because you can have
+ // std::expected<T, T>. Since that isn't a problem for us, we add the
+ // implicit conversions.
++#if defined(__cpp_lib_expected) && __cpp_lib_expected >= 202202L
+ template <typename T>
+ class Result : public std::expected<T, Err> {
+   static_assert(!std::is_void_v<T>, "Use Err instead of Result<void>");
+@@ -187,6 +193,137 @@ class Result : public std::expected<T, E
+     return this->error().message();
+   }
+ };
++#else
++// This is a minimal fallback for GN's Result<T> abstraction.
++// It intentionally implements only the subset of std::expected
++// functionality currently used by GN and is not a general-purpose
++// std::expected replacement.
++template <typename T>
++class Result {
++  static_assert(!std::is_void_v<T>, "Use Err instead of Result<void>");
++  static_assert(!std::is_same_v<T, Err>, "Err cannot be the success case");
++
++ public:
++  // Implicit conversion from T (always creates a success state).
++  Result(const T& value) : storage_(value) {}
++
++  Result(T&& value) : storage_(std::move(value)) {}
++
++  // Implicit conversion from Err (always creates an error state).
++  Result(Err err) : storage_(std::move(err)) {
++    DCHECK(error().has_error());
++  }
++
++  bool has_value() const noexcept {
++    return std::holds_alternative<T>(storage_);
++  }
++
++  bool has_error() const noexcept {
++    return !has_value();
++  }
++
++  explicit operator bool() const noexcept {
++    return has_value();
++  }
++
++  T& operator*() & {
++    DCHECK(has_value());
++    return std::get<T>(storage_);
++  }
++
++  const T& operator*() const& {
++    DCHECK(has_value());
++    return std::get<T>(storage_);
++  }
++
++  T&& operator*() && {
++    DCHECK(has_value());
++    return std::get<T>(std::move(storage_));
++  }
++
++  const T&& operator*() const&& {
++    DCHECK(has_value());
++    return std::get<T>(std::move(storage_));
++  }
++
++  T* operator->() {
++    DCHECK(has_value());
++    return &std::get<T>(storage_);
++  }
++
++  const T* operator->() const {
++    DCHECK(has_value());
++    return &std::get<T>(storage_);
++  }
++
++  T& value() & {
++    DCHECK(has_value());
++    return std::get<T>(storage_);
++  }
++
++  const T& value() const& {
++    DCHECK(has_value());
++    return std::get<T>(storage_);
++  }
++
++  T&& value() && {
++    DCHECK(has_value());
++    return std::get<T>(std::move(storage_));
++  }
++
++  const T&& value() const&& {
++    DCHECK(has_value());
++    return std::get<T>(std::move(storage_));
++  }
++
++  Err& error() & {
++    DCHECK(has_error());
++    return std::get<Err>(storage_);
++  }
++
++  const Err& error() const& {
++    DCHECK(has_error());
++    return std::get<Err>(storage_);
++  }
++
++  Err&& error() && {
++    DCHECK(has_error());
++    return std::get<Err>(std::move(storage_));
++  }
++
++  const Err&& error() const&& {
++    DCHECK(has_error());
++    return std::get<Err>(std::move(storage_));
++  }
++
++  const std::string& message() const {
++    DCHECK(has_error());
++    return error().message();
++  }
++
++  // Keep the same API provided by the std::expected implementation above.
++  template <typename F>
++  Result<T> transform_error(F&& f) const& {
++    if (has_value())
++      return Result<T>(value());
++
++    return Result<T>(
++        std::forward<F>(f)(error()));
++  }
++
++  template <typename F>
++  Result<T> transform_error(F&& f) && {
++    if (has_value())
++      return Result<T>(std::move(value()));
++
++    return Result<T>(
++        std::forward<F>(f)(std::move(error())));
++  }
++
++ private:
++  std::variant<T, Err> storage_;
++};
++#endif
+ 
+ namespace internal {
+ 
+@@ -198,6 +335,7 @@ inline Err GetError(Err&& err) {
+   return std::move(err);
+ }
+ 
++#if defined(__cpp_lib_expected) && __cpp_lib_expected >= 202202L
+ template <typename T, typename E>
+ inline E GetError(const std::expected<T, E>& exp) {
+   return exp.error();
+@@ -207,6 +345,17 @@ template <typename T, typename E>
+ inline E GetError(std::expected<T, E>&& exp) {
+   return std::move(exp).error();
+ }
++#else
++template <typename T>
++inline Err GetError(const Result<T>& result) {
++  return result.error();
++}
++
++template <typename T>
++inline Err GetError(Result<T>&& result) {
++  return std::move(result).error();
++}
++#endif
+ 
+ }  // namespace internal
+ 
