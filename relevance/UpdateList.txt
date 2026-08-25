@@ -15,6 +15,7 @@ ddnsto
 doc
 ffmpeg-remux
 filebrowser
+geo2txt
 gost
 istoreenhance
 linkease
@@ -109,7 +110,6 @@ softethervpn5
 udp2raw
 unishare
 upx-static
-v2dat
 v2ray-geodata
 vlmcsd
 webd
