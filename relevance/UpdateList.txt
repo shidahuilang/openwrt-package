@@ -27,6 +27,7 @@ dockerd
 ffmpeg-remux
 filebrowser
 frp
+geo2txt
 gost
 istoreenhance
 kcptun
@@ -129,7 +130,6 @@ ucl
 udp2raw
 unishare
 upx
-v2dat
 v2ray-geodata
 verysync
 webd
