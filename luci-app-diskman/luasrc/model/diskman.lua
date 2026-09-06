@@ -314,7 +314,7 @@ d.get_disk_info = function(device, wakeup)
   -- if only weakup == true, weakup the disk and check parted_info.
   if smart_info.status ~= "STANDBY" or wakeup or (smart_info["p_table"] and not smart_info["p_table"]:match("Raid")) or device:match("^md") then
     disk_info = get_parted_info(device)
-    disk_info["sec_size"] = disk_info["logic_sec"] .. "/" .. disk_info["phy_sec"]
+    disk_info["sec_size"] = tostring(disk_info["logic_sec"] or "-") .. "/" .. tostring(disk_info["phy_sec"] or "-")
     disk_info["size_formated"] = byte_format(tonumber(disk_info["size"]))
     -- if status is standby, after get part info, the disk is weakuped, then get smart_info again for more informations
     if smart_info.status ~= "ACTIVE" then smart_info = get_smart_info(device) end
