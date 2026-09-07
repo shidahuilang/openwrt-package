@@ -13,6 +13,8 @@ define Package/$(PKG_NAME)
 	CATEGORY:=Network
 	TITLE:=A Lightweight self-hosted netdisk application
 	URL:=https://webd.cf
+	# 仅发布了以下架构的预编译二进制(板级限制在 Build/Prepare 阶段二次校验)
+	DEPENDS:=@(x86_64||aarch64||arm||mips||mipsel)
 endef
 
 TARGET_LIBC:=musl
@@ -96,8 +98,11 @@ ifeq ($(ARCH),aarch64)
   endif
 endif
 
+# 注意: 不能在此处用 $(error) 判断 ARCH/BOARD —— OpenWrt 扫描包元数据(dumpinfo)
+# 时是目标无关环境, ARCH/BOARD 为空, parse 阶段报错会导致整个 feed 扫描失败
+UNSUPPORTED_COMBO:=
 ifeq ($(strip $(TARGET_ARCH)$(TARGET_BOARD)),)
-  $(error Unsupported ARCH/BOARD combo: ARCH=$(ARCH) BOARD=$(BOARD) SUBTARGET=$(SUBTARGET))
+  UNSUPPORTED_COMBO:=1
 endif
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(TARGET_ARCH)-openwrt-linux-$(TARGET_BOARD).tar.gz
@@ -107,6 +112,10 @@ PKG_HASH:=skip
 UNTAR_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 define Build/Prepare
+	@if [ "$(UNSUPPORTED_COMBO)" = "1" ]; then \
+		echo "ERROR: webd has no prebuilt binary for ARCH=$(ARCH) BOARD=$(BOARD) SUBTARGET=$(SUBTARGET)"; \
+		exit 1; \
+	fi
 	$(INSTALL_DIR) $(UNTAR_DIR)
 	$(TAR) -C $(UNTAR_DIR) -xzf $(DL_DIR)/$(PKG_SOURCE)
 endef
