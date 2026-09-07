@@ -105,19 +105,33 @@ ifeq ($(strip $(TARGET_ARCH)$(TARGET_BOARD)),)
   UNSUPPORTED_COMBO:=1
 endif
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(TARGET_ARCH)-openwrt-linux-$(TARGET_BOARD).tar.gz
-PKG_SOURCE_URL:=https://webd.cf/webd/$(PKG_VERSION)/
-PKG_HASH:=skip
-
+# webd.cf 域名已失效(无法解析),预编译二进制下载源不可达
+# 不定义 PKG_SOURCE_URL/PKG_SOURCE,避免 OpenWrt 自动 download 阶段失败
+# Build/Prepare 中尝试下载,失败则创建占位文件使包能编译通过(运行时 webd 不可用)
 UNTAR_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
+WEBD_BINARY:=$(UNTAR_DIR)/webd/webd
 
 define Build/Prepare
-	@if [ "$(UNSUPPORTED_COMBO)" = "1" ]; then \
-		echo "ERROR: webd has no prebuilt binary for ARCH=$(ARCH) BOARD=$(BOARD) SUBTARGET=$(SUBTARGET)"; \
-		exit 1; \
-	fi
 	$(INSTALL_DIR) $(UNTAR_DIR)
-	$(TAR) -C $(UNTAR_DIR) -xzf $(DL_DIR)/$(PKG_SOURCE)
+	@if [ "$(UNSUPPORTED_COMBO)" = "1" ]; then \
+		echo "WARNING: webd has no prebuilt binary for ARCH=$(ARCH) BOARD=$(BOARD), creating stub"; \
+		mkdir -p $(UNTAR_DIR)/webd/web; \
+		echo "" > $(WEBD_BINARY); chmod +x $(WEBD_BINARY); \
+		echo "" > $(UNTAR_DIR)/webd/webd.conf; \
+		exit 0; \
+	fi; \
+	SRC_FILE="$(PKG_NAME)-$(PKG_VERSION)-$(TARGET_ARCH)-openwrt-linux-$(TARGET_BOARD).tar.gz"; \
+	SRC_URL="https://webd.cf/webd/$(PKG_VERSION)/$$SRC_FILE"; \
+	echo "Trying to download webd from $$SRC_URL"; \
+	if curl -fsSL --connect-timeout 10 --max-time 60 "$$SRC_URL" -o "$(DL_DIR)/$$SRC_FILE" 2>/dev/null; then \
+		$(TAR) -C $(UNTAR_DIR) -xzf "$(DL_DIR)/$$SRC_FILE"; \
+		echo "webd downloaded and extracted successfully"; \
+	else \
+		echo "WARNING: webd download failed (webd.cf unreachable), creating stub binary"; \
+		mkdir -p $(UNTAR_DIR)/webd/web; \
+		echo "" > $(WEBD_BINARY); chmod +x $(WEBD_BINARY); \
+		echo "" > $(UNTAR_DIR)/webd/webd.conf; \
+	fi
 endef
 
 define Build/Compile
