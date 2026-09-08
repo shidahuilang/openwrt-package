@@ -13,8 +13,6 @@ define Package/$(PKG_NAME)
 	CATEGORY:=Network
 	TITLE:=A Lightweight self-hosted netdisk application
 	URL:=https://webd.cf
-	# 仅发布了以下架构的预编译二进制(板级限制在 Build/Prepare 阶段二次校验)
-	DEPENDS:=@(x86_64||aarch64||arm||mips||mipsel)
 endef
 
 TARGET_LIBC:=musl
@@ -98,40 +96,19 @@ ifeq ($(ARCH),aarch64)
   endif
 endif
 
-# 注意: 不能在此处用 $(error) 判断 ARCH/BOARD —— OpenWrt 扫描包元数据(dumpinfo)
-# 时是目标无关环境, ARCH/BOARD 为空, parse 阶段报错会导致整个 feed 扫描失败
-UNSUPPORTED_COMBO:=
 ifeq ($(strip $(TARGET_ARCH)$(TARGET_BOARD)),)
-  UNSUPPORTED_COMBO:=1
+  $(error Unsupported ARCH/BOARD combo: ARCH=$(ARCH) BOARD=$(BOARD) SUBTARGET=$(SUBTARGET))
 endif
 
-# webd.cf 域名已失效(无法解析),预编译二进制下载源不可达
-# 不定义 PKG_SOURCE_URL/PKG_SOURCE,避免 OpenWrt 自动 download 阶段失败
-# Build/Prepare 中尝试下载,失败则创建占位文件使包能编译通过(运行时 webd 不可用)
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(TARGET_ARCH)-openwrt-linux-$(TARGET_BOARD).tar.gz
+PKG_SOURCE_URL:=https://webd.cf/webd/$(PKG_VERSION)/
+PKG_HASH:=skip
+
 UNTAR_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
-WEBD_BINARY:=$(UNTAR_DIR)/webd/webd
 
 define Build/Prepare
 	$(INSTALL_DIR) $(UNTAR_DIR)
-	@if [ "$(UNSUPPORTED_COMBO)" = "1" ]; then \
-		echo "WARNING: webd has no prebuilt binary for ARCH=$(ARCH) BOARD=$(BOARD), creating stub"; \
-		mkdir -p $(UNTAR_DIR)/webd/web; \
-		echo "" > $(WEBD_BINARY); chmod +x $(WEBD_BINARY); \
-		echo "" > $(UNTAR_DIR)/webd/webd.conf; \
-		exit 0; \
-	fi; \
-	SRC_FILE="$(PKG_NAME)-$(PKG_VERSION)-$(TARGET_ARCH)-openwrt-linux-$(TARGET_BOARD).tar.gz"; \
-	SRC_URL="https://webd.cf/webd/$(PKG_VERSION)/$$SRC_FILE"; \
-	echo "Trying to download webd from $$SRC_URL"; \
-	if curl -fsSL --connect-timeout 10 --max-time 60 "$$SRC_URL" -o "$(DL_DIR)/$$SRC_FILE" 2>/dev/null; then \
-		$(TAR) -C $(UNTAR_DIR) -xzf "$(DL_DIR)/$$SRC_FILE"; \
-		echo "webd downloaded and extracted successfully"; \
-	else \
-		echo "WARNING: webd download failed (webd.cf unreachable), creating stub binary"; \
-		mkdir -p $(UNTAR_DIR)/webd/web; \
-		echo "" > $(WEBD_BINARY); chmod +x $(WEBD_BINARY); \
-		echo "" > $(UNTAR_DIR)/webd/webd.conf; \
-	fi
+	$(TAR) -C $(UNTAR_DIR) -xzf $(DL_DIR)/$(PKG_SOURCE)
 endef
 
 define Build/Compile
