@@ -11,7 +11,6 @@ antfs
 app-lucky
 ardhome
 assets
-autosamba
 bcm27xx-eeprom
 cdnspeedtest
 cgroupfs-mount
