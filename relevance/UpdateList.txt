@@ -64,6 +64,7 @@ luci-app-istorex
 luci-app-kai
 luci-app-kaiplus
 luci-app-linkease
+luci-app-linkeasefull-embed
 luci-app-linkeasefull
 luci-app-lucky
 luci-app-mosdns
