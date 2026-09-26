@@ -81,6 +81,7 @@ start(){
 	iptables_w -t nat -I TIMECONTROL -i $interface -j TIMECONTROL_RULES
 	iptables_w -t nat -I PREROUTING -j TIMECONTROL
 	echo "/etc/init.d/${CONFIG} restart" > "/var/etc/${CONFIG}.include"
+	echo "exit 0" >> "/var/etc/${CONFIG}.include"
 }
 
 stop(){
