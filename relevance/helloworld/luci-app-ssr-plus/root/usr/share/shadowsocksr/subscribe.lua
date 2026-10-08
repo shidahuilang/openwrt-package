@@ -472,8 +472,11 @@ local function parseAnytlsShare(content)
 			end
 			return sni
 		end)(),
-		allow_insecure = (params.insecure == "1" or params.allow_insecure == "1" or params.allowinsecure == "1"),
-		client_fingerprint = params.fp or params.fingerprint or ""
+		allow_insecure = (params.insecure == "1" or params.insecure == "true" or params.allow_insecure == "1" or params.allow_insecure == "true" or params.allowinsecure == "1" or params.allowinsecure == "true"),
+		client_fingerprint = params.fp or params.fingerprint or "",
+		alpn = params.alpn,
+		pinned_cert = params.pcs,
+		cert_name = params.vcn
 	}
 end
 
@@ -514,13 +517,16 @@ local function buildAnytlsClashYaml(entries, group_name)
 	return table.concat(lines, "\n") .. "\n"
 end
 
-local function anytls_to_mihomo_node(entry)
+local function anytls_to_node(entry)
 	if not entry then
 		return nil
 	end
 
 	local result = {
-		type = "anytls",
+		type = "v2ray",
+		v2ray_protocol = "anytls",
+		tls = "1",
+		transport = "raw",
 		alias = entry.name,
 		raw_alias = entry.name,
 		server = entry.server,
@@ -528,7 +534,10 @@ local function anytls_to_mihomo_node(entry)
 		password = entry.password,
 		tls_host = entry.sni,
 		insecure = entry.allow_insecure and "1" or "0",
-		fingerprint = entry.client_fingerprint
+		fingerprint = entry.client_fingerprint,
+		tls_alpn = entry.alpn,
+		tls_CertSha = entry.pinned_cert,
+		tls_CertByName = entry.cert_name
 	}
 
 	local saved_alias = result.alias
@@ -806,7 +815,7 @@ local function to_mihomo_proxy(node)
 			proxy.obfs = string_from_value(node.obfs_type)
 			proxy["obfs-password"] = string_from_value(node.salamander)
 		end
-	elseif node.type == "anytls" then
+	elseif node.type == "anytls" or (node.type == "v2ray" and node.v2ray_protocol == "anytls") then
 		proxy.type = "anytls"
 		proxy.password = node.password
 		proxy.sni = string_from_value(node.tls_host)
@@ -854,6 +863,7 @@ local function can_group_into_mihomo(node)
 		or node.v2ray_protocol == "hysteria2"
 		or node.v2ray_protocol == "hy2"
 		or node.v2ray_protocol == "snell"
+		or node.v2ray_protocol == "anytls"
 	) then
 		return true
 	end
@@ -1263,7 +1273,23 @@ local function processData(szType, content, cfgid)
 		end
 
 		if xray_ss_mode then
-			local url = URL.parse("http://" .. info)
+			local userinfo, host_port = (find_index or ""):match("^(.*)@([^@]+)$")
+			local credentials
+			if userinfo then
+				-- SIP002 userinfo or a plain method:password; preserve literal '+'.
+				userinfo = userinfo:gsub("%%(%x%x)", get_urldecode)
+				credentials = userinfo:find(":", 1, true) and userinfo or base64Decode(userinfo)
+			else
+				-- Legacy links encode the entire method:password@host:port.
+				credentials, host_port = base64Decode(find_index):match("^(.*)@([^@]+)$")
+				if not credentials or not credentials:find(":", 1, true) then
+					return nil
+				end
+			end
+			local url = URL.parse("http://" .. host_port .. (query ~= "" and ("?" .. query) or ""))
+			if not url.host or not url.port then
+				return nil
+			end
 			local params = url.query
 
 			result.type = "v2ray"
@@ -1271,14 +1297,14 @@ local function processData(szType, content, cfgid)
 			result.server = normalize_host(url.host)
 			result.server_port = url.port
 
-			-- 判断 @ 前部分是否为 Base64
-			local is_base64 = base64Decode(UrlDecode(url.user))
-			if is_base64:find(":") then
-        		-- 新格式：method:password
-        		result.encrypt_method_ss, result.password = is_base64:match("^(.-):(.*)$")
+			if credentials:find(":", 1, true) then
+				result.encrypt_method_ss, result.password = credentials:match("^([^:]+):(.*)$")
+				if not result.encrypt_method_ss then
+					return nil
+				end
 			else
 				-- 旧格式：UUID 直接作为密码
-				result.password = url.user
+				result.password = userinfo
 				result.encrypt_method_ss = params.encryption or "none"
 			end
 
@@ -2712,7 +2738,7 @@ local execute = function()
 					if line:match("^anytls://") then
 						local parsed = parseAnytlsShare(line:gsub("^anytls://", ""))
 						if parsed then
-							table.insert(anytls_nodes, anytls_to_mihomo_node(parsed))
+							table.insert(anytls_nodes, anytls_to_node(parsed))
 						end
 					elseif line ~= "" then
 						table.insert(normal_nodes, node)

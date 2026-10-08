@@ -47,15 +47,27 @@ end
 local chain_local_port = split(chain, "/")[2] or "0"
 
 local server = ucursor:get_all("shadowsocksr", server_section)
+-- AnyTLS subscriptions previously used a standalone type with no launcher.
+if server.type == "anytls" then
+	server.type = "v2ray"
+	server.v2ray_protocol = "anytls"
+end
+if server.v2ray_protocol == "anytls" and server.tls == nil then
+	server.tls = "1"
+end
 local socks_server = ucursor:get_all("shadowsocksr", "@socks5_proxy[0]") or {}
 local xray_fragment = ucursor:get_all("shadowsocksr", "@global_xray_fragment[0]") or {}
 local xray_noise = ucursor:get_all("shadowsocksr", "@xray_noise_packets[0]") or {}
 local default_node_local_port = ucursor:get_first("shadowsocksr", "global", "default_node_local_port", "1234")
 local dns_mode = ucursor:get_first("shadowsocksr", "global", "pdnsd_enable", "0")
+local ipv6_support = ucursor:get_first("shadowsocksr", "global", "ipv6_support", "0") == "1"
+local redir_address = ipv6_support and "::" or "0.0.0.0"
+local redir_host = ipv6_support and "[::]" or "0.0.0.0"
 local dns_ipv4_only = ucursor:get_first("shadowsocksr", "global", "filter_aaaa")
 if not dns_ipv4_only or dns_ipv4_only == "" then
 	dns_ipv4_only = ucursor:get_first("shadowsocksr", "global", "mosdns_ipv6", "1")
 end
+if ipv6_support then dns_ipv4_only = "0" end
 local builtin_dns_server = ucursor:get_first("shadowsocksr", "global", "tunnel_forward", "8.8.4.4:53")
 local outbound_settings = nil
 local xray_version = nil
@@ -363,6 +375,16 @@ function outbound:handleIndex(index)
 		wireguard = function()
 			wireguard()
 		end,
+		anytls = function()
+			outbound_settings = {
+				address = server.server,
+				port = tonumber(server.server_port),
+				password = server.password,
+				idleSessionCheckInterval = tonumber(server.anytls_idle_session_check_interval),
+				idleSessionTimeout = tonumber(server.anytls_idle_session_timeout),
+				minIdleSession = tonumber(server.anytls_min_idle_session)
+			}
+		end,
 		hysteria2 = function()
 			xray_hysteria2()
 		end
@@ -510,10 +532,7 @@ Xray.outbounds = {
 				fingerprint = server.fingerprint,
 				allowInsecure = (function()
 					if server.tls_CertSha and server.tls_CertSha ~= "" then return nil end
-					if os.date("%Y.%m.%d") < "2026.06.01" then
-						return server.insecure == "1"
-					end
-					return nil
+					return server.insecure == "1"
 				end)(),
 				serverName = server.tls_host,
 				certificates = server.certificate and {
@@ -849,7 +868,7 @@ Xray.outbounds = {
 				              ((remarks and remarks ~= "") and (node_id .. "." .. remarks) or ("direct" .. "." .. node_id)) or nil
 			}
 		} or nil,
-		mux = (server.v2ray_protocol ~= "hysteria2" and server.v2ray_protocol ~= "wireguard") and {
+		mux = (server.v2ray_protocol ~= "hysteria2" and server.v2ray_protocol ~= "wireguard" and server.v2ray_protocol ~= "anytls") and {
 			-- mux
 			enabled = (server.mux == "1"), -- Mux
 			concurrency = (server.mux == "1" and (tonumber(server.concurrency) or -1)) or nil, -- TCP 最大并发连接数
@@ -955,13 +974,13 @@ local trojan = {
 }
 local naiveproxy = {
 	proxy = (server.username and server.password and server.server and server.server_port) and "https://" .. server.username .. ":" .. server.password .. "@" .. format_host_port(server.server, server.server_port),
-	listen = (proto == "redir") and "redir" .. "://0.0.0.0:" .. tonumber(local_port) or "socks" .. "://0.0.0.0:" .. tonumber(local_port),
+	listen = (proto == "redir") and "redir" .. "://" .. redir_host .. ":" .. tonumber(local_port) or "socks" .. "://0.0.0.0:" .. tonumber(local_port),
 	["insecure-concurrency"] = tonumber(server.concurrency) or 1
 }
 local ss = {
 	server = (server.kcp_enable == "1") and "127.0.0.1" or server.server,
 	server_port = tonumber(server.server_port),
-	local_address = "0.0.0.0",
+	local_address = redir_address,
 	local_port = tonumber(local_port),
 	mode = (proto == "tcp,udp") and "tcp_and_udp" or (proto .. "_only"),
 	password = server.password,
@@ -1024,14 +1043,14 @@ local hysteria2 = {
 	},
 --[[
 	tcpTProxy = (proto:find("tcp") and local_port ~= "0") and {
-		listen = "0.0.0.0:" .. tonumber(local_port)
+		listen = redir_host .. ":" .. tonumber(local_port)
 	} or nil,
 ]]--
 	tcpRedirect = (proto:find("tcp") and local_port ~= "0") and {
-		listen = "0.0.0.0:" .. tonumber(local_port)
+		listen = redir_host .. ":" .. tonumber(local_port)
 	} or nil,
 	udpTProxy = (proto:find("udp") and local_port ~= "0") and {
-		listen = "0.0.0.0:" .. tonumber(local_port)
+		listen = redir_host .. ":" .. tonumber(local_port)
 	} or nil,
 	obfs = (server.flag_obfs == "1") and {
 		type = server.obfs_type,
@@ -1109,7 +1128,7 @@ local shadowtls = {
 local chain_sslocal = {
 	locals = local_port ~= "0" and {
 		{
-			local_address = "0.0.0.0",
+			local_address = redir_address,
 			local_port = (chain_local_port == "0" and effective_node_local_port or tonumber(chain_local_port)),
 			mode = (proto:find("tcp,udp") and "tcp_and_udp") or proto .. "_only",
 			protocol = "redir",
@@ -1119,12 +1138,12 @@ local chain_sslocal = {
 		},
 		socks_port ~= "0" and {
 			protocol = "socks",
-			local_address = "0.0.0.0",
+			local_address = redir_address,
 			local_port = tonumber(socks_port)
 		} or nil
 	} or {{
 		protocol = "socks",
-		local_address = "0.0.0.0",
+		local_address = redir_address,
 		local_port = tonumber(socks_port)
 	}},
 	servers = {
