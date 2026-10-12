@@ -504,3 +504,18 @@ msgstr ""
 #: applications/luci-app-diskman/luasrc/model/cbi/diskman/partition.lua:99
 msgid "is in use! please unmount it first!"
 msgstr "正在被使用！請先卸載！"
+
+msgid "Partition Name"
+msgstr "分割區名稱"
+
+msgid "Estimated lifetime exceeded"
+msgstr "已超過預估壽命"
+
+msgid "Normal"
+msgstr "正常"
+
+msgid "Warning"
+msgstr "預警"
+
+msgid "Urgent"
+msgstr "緊急"
