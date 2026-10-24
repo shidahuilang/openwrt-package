@@ -45,10 +45,6 @@ o.placeholder = "255.255.255.0"
 o.default = o.placeholder
 o.rmempty = false
 
-o = s:taboption("general", Flag, "lzo", translate("LZO compression"))
-o.default = "1"
-o.rmempty = false
-
 o = s:taboption("general", TextValue, "extra_config", translate("Extra Config"))
 o.datatype = "string"
 o.rows = 3
