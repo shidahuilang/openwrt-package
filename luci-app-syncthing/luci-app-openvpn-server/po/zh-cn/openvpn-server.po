@@ -28,9 +28,6 @@ msgstr "IP 段"
 msgid "Subnet mask"
 msgstr "子网掩码"
 
-msgid "LZO compression"
-msgstr "LZO 压缩"
-
 msgid "Extra Config"
 msgstr "额外配置"
 

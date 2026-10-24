@@ -80,8 +80,6 @@ gen_include() {
 start_service() {
 	local enabled=$(uci -q get ${CONFIG}.server.enabled)
 	[ "${enabled}" -eq 1 ] || return 1
-	local lzo=$(uci -q get ${CONFIG}.server.lzo)
-	[ "${lzo}" -eq 1 ] && lzo_conf="comp-lzo"
 	mkdir -p ${TMP_OVPN_PATH}
 	
 	_ca=${OVPN_PATH}/ca.crt
@@ -147,7 +145,6 @@ start_service() {
 		up ${SCRIPT_PATH}/up.sh
 		down ${SCRIPT_PATH}/down.sh
 		keepalive 10 120
-		${lzo_conf}
 		persist-key
 		persist-tun
 		script-security 3

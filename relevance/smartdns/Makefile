@@ -6,19 +6,21 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=smartdns
-PKG_VERSION:=1.2026.48.2
+PKG_VERSION:=48.4
 PKG_RELEASE:=1
 
-PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://www.github.com/pymumu/smartdns.git
-PKG_MIRROR_HASH:=d8ca4173e7268fc83bd15a05ee4c152bc55a3dfdbe23f9070c97a89a70e3aea4
-PKG_SOURCE_VERSION:=2b2b31f1e5acf6cbb975f17c600ccc6bffd03cdf
+PKG_SOURCE_VERSION:=21c940edc65520849ba03544c5cf8d9cf326e680
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
+PKG_SOURCE_URL:=https://codeload.github.com/pymumu/smartdns/tar.gz
+PKG_SOURCE_URL_FILE:=$(PKG_SOURCE_VERSION)
+PKG_HASH:=f4cb3ec5d2c49bf9752f717cfa1ae2e393df0a001de7ab626b9039cc0bf3ef52
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_SOURCE_VERSION)
 
-SMARTDNS_WEBUI_VERSION:=1.0.0
-SMARTDNS_WEBUI_SOURCE_PROTO:=git
-SMARTDNS_WEBUI_SOURCE_URL:=https://github.com/pymumu/smartdns-webui.git
-SMARTDNS_WEBUI_SOURCE_VERSION:=c0d2411d20bf8b172a045adbe07166df6691e58b
-SMARTDNS_WEBUI_FILE:=smartdns-webui-$(SMARTDNS_WEBUI_VERSION).tar.gz
+SMARTDNS_WEBUI_SOURCE_VERSION:=1c06fee693434ec7c71f06010d3f87416baba9f0
+SMARTDNS_WEBUI_SOURCE:=$(PKG_NAME)-webui-$(SMARTDNS_WEBUI_SOURCE_VERSION).tar.gz
+SMARTDNS_WEBUI_SOURCE_URL:=https://codeload.github.com/pymumu/smartdns-webui/tar.gz
+SMARTDNS_WEBUI_SOURCE_URL_FILE:=$(SMARTDNS_WEBUI_SOURCE_VERSION)
+SMARTDNS_WEBUI_HASH:=7a698dd4826750869429e83d91ce99a4e474d0809588a7f4124ef86875be9b1f
 
 PKG_MAINTAINER:=Nick Peng <pymumu@gmail.com>
 PKG_LICENSE:=GPL-3.0-or-later
@@ -28,12 +30,12 @@ PKG_BUILD_PARALLEL:=1
 
 # node compile is slow, so do not use it, download node manually.
 # PACKAGE_smartdns-ui:node/host
-PKG_BUILD_DEPENDS:=PACKAGE_smartdns-ui:rust/host 
+PKG_BUILD_DEPENDS:=PACKAGE_smartdns-ui:rust/host
 
 include $(TOPDIR)/feeds/packages/lang/rust/rust-package.mk
 include $(INCLUDE_DIR)/package.mk
 
-MAKE_VARS += VER=$(PKG_VERSION) 
+MAKE_VARS += VER=$(PKG_VERSION)
 MAKE_PATH:=src
 
 define Package/smartdns/default
@@ -113,20 +115,18 @@ define Build/Compile/smartdns-ui
 endef
 
 define Download/smartdns-webui
-	FILE:=$(SMARTDNS_WEBUI_FILE)
-	PROTO:=$(SMARTDNS_WEBUI_SOURCE_PROTO)
+	FILE:=$(SMARTDNS_WEBUI_SOURCE)
 	URL:=$(SMARTDNS_WEBUI_SOURCE_URL)
-	MIRROR_HASH:=42e280cbfc168f88690652b85ce919c2aeedc9ef7c4b55122742e484b23492cd
-	VERSION:=$(SMARTDNS_WEBUI_SOURCE_VERSION)
+	URL_FILE:=$(SMARTDNS_WEBUI_SOURCE_URL_FILE)
 	HASH:=$(SMARTDNS_WEBUI_HASH)
-	SUBDIR:=smartdns-webui
 endef
 $(eval $(call Download,smartdns-webui))
 
 ifdef CONFIG_PACKAGE_smartdns-ui
 define Build/Prepare
 	$(call Build/Prepare/Default)
-	$(TAR) -C $(PKG_BUILD_DIR)/ -xf $(DL_DIR)/$(SMARTDNS_WEBUI_FILE)
+	$(INSTALL_DIR) $(PKG_BUILD_DIR)/smartdns-webui
+	$(TAR) -C $(PKG_BUILD_DIR)/smartdns-webui --strip-components=1 -xf $(DL_DIR)/$(SMARTDNS_WEBUI_SOURCE)
 endef
 endif
 
