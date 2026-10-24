@@ -16,7 +16,6 @@ cat <<-EOF > /tmp/openvpn.ovpn
 	persist-key
 	persist-tun
 	auth-user-pass
-	comp-lzo
 	verb 3
 	<ca>
 	$(cat /usr/share/openvpn-server/ca.crt)
