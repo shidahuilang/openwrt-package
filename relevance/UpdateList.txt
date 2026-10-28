@@ -61,7 +61,6 @@ luci-app-ipsec-server
 luci-app-istoreenhance
 luci-app-istorerouter
 luci-app-istorex
-luci-app-kai
 luci-app-linkease
 luci-app-linkeasefull-embed
 luci-app-linkeasefull
