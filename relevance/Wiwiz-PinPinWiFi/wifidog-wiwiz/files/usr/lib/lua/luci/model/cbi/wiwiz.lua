@@ -35,7 +35,7 @@ dhcp_portal.rmempty = false
 ver = portal:option(DummyValue, "ver", translate("Plugin Version"), translate("<a href='http://www.wiwiz.com/pinpinwifi/wiwiz-ipk.htm' target='_blank'>Readme</a>"));
 
 m.on_after_commit = function(self)
-    luci.util.exec("(sleep 3; /usr/local/hsbuilder/dhcp_portal.sh; /usr/local/hsbuilder/handle_ipv6.sh) &")
+    luci.util.exec("(sleep 3; /usr/local/hsbuilder/luci_check.sh; /usr/local/hsbuilder/dhcp_portal.sh; /usr/local/hsbuilder/handle_ipv6.sh) &")
 end
 
 return m

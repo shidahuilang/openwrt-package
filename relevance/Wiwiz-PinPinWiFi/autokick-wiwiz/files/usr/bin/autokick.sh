@@ -79,7 +79,7 @@ dokick() {
         # tells GW I kicked it
         _ss=$(curl -m 5 "http://$GW_IP/cgi-bin/kickmac?act=kick&mac=$MAC" 2>/dev/null)
                 
-        OUTPUT="kick $MAC, GW said: $_ss"
+        OUTPUT="$(date "+%Y-%m-%d %H:%M:%S") kick $MAC, GW said: $_ss"
         echo $OUTPUT
         if [ "$SAVE_LOG" = "1" ]; then
             echo $OUTPUT>>$LOGFILE

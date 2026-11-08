@@ -26,7 +26,7 @@ log1() {
 getIP() {
 	_mac="$1"
 
-	s=$(cat /proc/net/arp | grep -F "$_mac" | grep -F '0x2' | grep -F "$LANDEV"| awk '{print $1}')
+	s=$(cat /proc/net/arp | grep -F "$_mac" | grep -F '0x2' | grep -F "$LANDEV"| awk '{print $1}' | tail -n 1)
 	echo "$s"
 }
 
