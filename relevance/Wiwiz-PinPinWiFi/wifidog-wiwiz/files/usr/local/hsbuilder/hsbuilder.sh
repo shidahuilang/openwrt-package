@@ -38,14 +38,72 @@ NORESOLVE="false"
 ENVINFO_SENT='0'
 
 log2() {
-		echo "$1" >&2
-		echo "$1" >>$LOGFILE
-		logger -t 'hsbuilder' "$1"
+	echo "$(date "+%Y-%m-%d %H:%M:%S") $1" >&2
+	echo "$(date "+%Y-%m-%d %H:%M:%S") $1" >>$LOGFILE
+	logger -t 'hsbuilder' "$1"
 }
 
 log1() {
-	echo "$1" >>$LOGFILE
+	echo "$(date "+%Y-%m-%d %H:%M:%S") $1" >>$LOGFILE
 	logger -t 'hsbuilder' "$1"
+}
+
+shrinkLog() {
+	FILENAME="$1"
+	MAXLINE="$2"
+
+	if [ -f "$FILENAME" ]; then
+		LINECOUNT=$(wc -l "$FILENAME" 2>/dev/null | cut -d ' ' -f 1)
+		if [ "$LINECOUNT" -gt "$MAXLINE" ]; then
+			tail -n "$MAXLINE" "$FILENAME" >"$FILENAME.tmp"
+			rm -f "$FILENAME"
+			mv "$FILENAME.tmp" "$FILENAME"
+		fi
+	fi
+
+	log1 "shrinkLog done. $FILENAME : $LINECOUNT -> $MAXLINE"
+}
+
+luciKeepAlive() {
+	if ! which curl >/dev/null 2>&1; then
+		log1 "luciKeepAlive: curl not found, skip"
+		return 1
+	fi
+	
+	LUCI_KEEPALIVE=$(uci get wiwiz.portal.luci_keepalive 2>/dev/null)
+	if [ "$LUCI_KEEPALIVE" != "1" ]; then
+		return 1
+	fi
+
+	log1 "luciKeepAlive starts"
+	
+	# check luci url
+	CHECK_URL="http://127.0.0.1/cgi-bin/luci"
+
+	# 1. luck check
+	# if ! curl -s -m 5 "$CHECK_URL" -o /dev/null; then
+	# 	log1 "luciKeepAlive: LuCI HTTP unreachable, restarting..."
+	# 	/etc/init.d/uhttpd restart
+	# 	/etc/init.d/rpcd restart
+	# 	return
+	# fi
+	HTTP_CODE=$(curl -s -o /dev/null -m 5 -w "%{http_code}" "$CHECK_URL")
+	case "$HTTP_CODE" in
+		000|5*)
+			log1 "luciKeepAlive: LuCI check code : $HTTP_CODE, restarting..."
+			/etc/init.d/uhttpd restart
+			/etc/init.d/rpcd restart
+			return
+			;;
+	esac	
+
+	# 2. ubus RPC check
+	if ! ubus call luci getFeatures >/dev/null 2>&1; then
+		log1 "luciKeepAlive: LuCI ubus RPC failed, restarting..."
+		/etc/init.d/rpcd restart
+		/etc/init.d/uhttpd restart
+		return
+	fi
 }
 
 doConfig() {
@@ -297,7 +355,7 @@ do
 	touch $USERBLOCKPORT
 	touch $DOMAINNAME
 	touch $IPLIST.lasttime
-	log1 "hsbuilder.sh $MY_VERSION: $(date "+%Y-%m-%d %H:%M:%S")"
+	log1 "hsbuilder.sh $MY_VERSION"
 
 	AS_HOSTNAME_X=$AS_HOSTNAME
 	if [ "$AS_HOSTNAME_X" = "" ]; then
@@ -424,7 +482,7 @@ do
 
 	log1 "hsbuilder.sh: done."
 
-	sleep 3
+	sleep 5
 	rm -f $WD_CONF_TMP
 	rm -f $ADDRLIST
 	rm -f $IPLIST
@@ -436,6 +494,11 @@ do
 	sleep 20
 	/usr/local/hsbuilder/hsbuilder_helper.sh -os openwrt
 	
+	MOD=$(( $(date +%s) % 5 ))
+	[ "$MOD" -eq 0 ] && shrinkLog /tmp/hsbuilder.log 5000		#posibility: 20%
+	[ "$MOD" -eq 0 ] && shrinkLog /tmp/wiwiz_autokick.log 2000
+	[ "$MOD" -lt 2 ] && luciKeepAlive	# posiblity: 40%
+
 	if [ "$ENVINFO_SENT" = "0" ]; then
 		MODEL=$(/usr/local/hsbuilder/getmodel.sh)
 		DISTRIB_DSC=$(grep -E "^DISTRIB_DESCRIPTION=" /etc/openwrt_release | cut -d'=' -f2 | sed "s/'//g")
