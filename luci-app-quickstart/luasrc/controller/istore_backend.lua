@@ -10,7 +10,7 @@ local util = require "luci.util"
 module("luci.controller.istore_backend", package.seeall)
 
 local BLOCKSIZE = 2048
-local ISTOREOS_PORT = 3038
+local ISTOREOS_SOCKET = "/var/run/quickstart/http.sock"
 
 function index()
     entry({"istore"}, call("istore_backend")).leaf=true
@@ -50,7 +50,7 @@ local function get_session()
   for _, key in ipairs({"sysauth_https", "sysauth_http", "sysauth"}) do
     sid = http.getcookie(key)
     if sid then
-      sid, sdat = session_retrieve(sid, nil)
+      sid, sdat = session_retrieve(sid, {"root"})
       if sid and sdat then
         return sid, sdat
       end
@@ -107,8 +107,13 @@ local function chunksource(sock, buffer)
 end
 
 function istore_backend() 
-  local sock = nixio.connect("127.0.0.1", ISTOREOS_PORT) 
+  local sock = nixio.socket("unix", "stream")
   if not sock then
+    http.status(500, "connect failed")
+    return
+  end
+  if not sock:connect(ISTOREOS_SOCKET) then
+    sock:close()
     http.status(500, "connect failed")
     return
   end
