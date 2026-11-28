@@ -50,7 +50,6 @@ luci-app-cpulimit
 luci-app-ddnsto
 luci-app-dockerman
 luci-app-dockermanager
-luci-app-fastnet
 luci-app-fileassistant
 luci-app-filebrowser
 luci-app-floatip
